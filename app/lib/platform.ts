@@ -39,17 +39,6 @@ export function isIosLikeBrowser() {
   );
 }
 
-export function requiresMutedAutoplay() {
-  if (typeof navigator === "undefined") {
-    return false;
-  }
-
-  return (
-    navigator.maxTouchPoints > 0 ||
-    /Android|iPhone|iPad|iPod|Mobile|Tablet/i.test(navigator.userAgent)
-  );
-}
-
 export async function lockLandscapeOrientation() {
   try {
     const orientation = screen.orientation as OrientationWithLock | undefined;

@@ -111,6 +111,7 @@ export function KidsTubeApp({
       }
       setIsTvBrowser(isLikelyTvBrowser());
       setHasLoadedStoredLibrary(true);
+      setShuffleSalt(Date.now() % 233280);
     });
 
     return () => window.cancelAnimationFrame(frame);
@@ -212,21 +213,10 @@ export function KidsTubeApp({
     route.view === "watch"
       ? selectedVideos.find((video) => video.id === route.videoId) ?? null
       : null;
-  const currentVideoIndex = currentVideo
-    ? selectedVideos.findIndex((video) => video.id === currentVideo.id)
-    : -1;
   const previousStackEntry = currentVideo
     ? findWatchStackVideo(watchStack, currentVideo.id, -1, selectedVideoById)
     : null;
-  const nextStackEntry = currentVideo
-    ? findWatchStackVideo(watchStack, currentVideo.id, 1, selectedVideoById)
-    : null;
-  const fallbackNextVideo =
-    selectedVideos.length > 1 && currentVideoIndex >= 0
-      ? selectedVideos[(currentVideoIndex + 1) % selectedVideos.length]
-      : null;
   const previousVideo = previousStackEntry?.video ?? null;
-  const nextVideo = nextStackEntry?.video ?? fallbackNextVideo;
 
   const recommendations = useMemo(() => {
     if (!currentVideo) {
@@ -237,6 +227,8 @@ export function KidsTubeApp({
       shuffleSalt + currentVideo.id.length,
     );
   }, [currentVideo, selectedVideos, shuffleSalt]);
+
+  const nextVideo = recommendations[0] ?? null;
 
   const libraryResults = useMemo(() => {
     const query = libraryQuery.trim().toLowerCase();
@@ -305,19 +297,8 @@ export function KidsTubeApp({
   }
 
   function openNextVideo() {
-    if (nextStackEntry) {
-      const { index, video } = nextStackEntry;
-      setWatchStack((current) =>
-        current.ids[index] === video.id
-          ? { ...current, index }
-          : { ...current, index: current.ids.lastIndexOf(video.id) },
-      );
-      navigateTo({ view: "watch", videoId: video.id });
-      return;
-    }
-
-    if (fallbackNextVideo) {
-      openVideo(fallbackNextVideo);
+    if (nextVideo) {
+      openVideo(nextVideo);
     }
   }
 

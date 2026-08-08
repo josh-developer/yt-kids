@@ -12,6 +12,10 @@
   --font-mono: var(--font-geist-mono);
 }
 
+html {
+  touch-action: pan-x pan-y;
+}
+
 body {
   background: var(--background);
   color: var(--foreground);
@@ -23,6 +27,7 @@ body {
     Helvetica,
     sans-serif;
   margin: 0;
+  touch-action: pan-x pan-y;
 }
 
 * {
@@ -701,6 +706,39 @@ button {
   opacity: 0;
   transform: translateY(8px);
   pointer-events: none;
+}
+
+.player-lock-button {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  z-index: 7;
+  display: grid;
+  place-items: center;
+  width: clamp(42px, 5vw, 52px);
+  height: clamp(42px, 5vw, 52px);
+  border: 0;
+  border-radius: 50%;
+  background: rgba(12, 12, 12, 0.74);
+  color: white;
+  box-shadow: 0 8px 26px rgba(0, 0, 0, 0.24);
+  backdrop-filter: blur(12px);
+}
+
+.footer-transport-controls {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.controls-hidden .player-lock-button {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.player-locked.controls-hidden .player-lock-button {
+  opacity: 1;
+  pointer-events: auto;
 }
 
 .player-control-button {
@@ -1820,6 +1858,10 @@ button {
     max-width: none;
     padding: 4px 6px;
     overflow-x: auto;
+  }
+
+  .footer-transport-controls {
+    display: none;
   }
 
   .player-control-button {

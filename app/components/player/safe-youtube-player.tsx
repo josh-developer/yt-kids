@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  Lock,
   Maximize2,
   Minimize2,
   Pause,
@@ -8,6 +9,7 @@ import {
   Repeat1,
   SkipBack,
   SkipForward,
+  Unlock,
   Volume1,
   Volume2,
   VolumeX,
@@ -24,7 +26,6 @@ import type { CopyText } from "../../lib/copy";
 import {
   isIosLikeBrowser,
   lockLandscapeOrientation,
-  requiresMutedAutoplay,
   unlockScreenOrientation,
 } from "../../lib/platform";
 import type { FullscreenHostDocument, FullscreenHostElement, Video } from "../../lib/types";
@@ -60,6 +61,7 @@ export function SafeYouTubePlayer({
   const iframeRef = useRef<HTMLIFrameElement | null>(null);
   const [isPlaying, setIsPlaying] = useState(true);
   const [controlsVisible, setControlsVisible] = useState(true);
+  const [isLocked, setIsLocked] = useState(false);
   const [isNativeFullscreen, setIsNativeFullscreen] = useState(false);
   const [isFallbackFullscreen, setIsFallbackFullscreen] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
@@ -114,6 +116,7 @@ export function SafeYouTubePlayer({
   const toggleFullscreenRef = useRef<() => void>(() => {});
   const exitFullscreenRef = useRef<() => void>(() => {});
   const isFallbackFullscreenRef = useRef(false);
+  const isLockedRef = useRef(false);
   const isFullscreen = isNativeFullscreen || isFallbackFullscreen;
   const shouldStartMuted = shouldAutoplay;
 
@@ -183,7 +186,7 @@ export function SafeYouTubePlayer({
       setDurationSeconds(fallbackDurationSeconds);
       setShouldAutoplay(true);
       setIsPlaying(true);
-      setIsMuted(requiresMutedAutoplay());
+      setIsMuted(false);
       setControlsVisible(true);
       setActiveSeekHint(null);
     });
@@ -577,24 +580,29 @@ export function SafeYouTubePlayer({
     }, 650);
   }
 
+  function sendPlayCommand(forceMuted = false) {
+    const shouldKeepMuted = forceMuted;
+    primePlayerTelemetry();
+    sendPlayerCommand("setVolume", [volume]);
+    if (shouldKeepMuted || isMuted || volume === 0) {
+      sendPlayerCommand("mute");
+      if (shouldKeepMuted) {
+        setIsMuted(true);
+      }
+    } else {
+      sendPlayerCommand("unMute");
+    }
+    sendPlayerCommand("playVideo");
+  }
+
   function schedulePlayCommand(forceMuted = false) {
     if (playTimerRef.current) {
       window.clearTimeout(playTimerRef.current);
     }
 
+    sendPlayCommand(forceMuted);
     playTimerRef.current = window.setTimeout(() => {
-      const shouldKeepMuted = forceMuted;
-      primePlayerTelemetry();
-      sendPlayerCommand("setVolume", [volume]);
-      if (shouldKeepMuted || isMuted || volume === 0) {
-        sendPlayerCommand("mute");
-        if (shouldKeepMuted) {
-          setIsMuted(true);
-        }
-      } else {
-        sendPlayerCommand("unMute");
-      }
-      sendPlayerCommand("playVideo");
+      sendPlayCommand(forceMuted);
     }, 350);
   }
 
@@ -665,10 +673,15 @@ export function SafeYouTubePlayer({
 
   seekRelativeRef.current = seekRelative;
   isFallbackFullscreenRef.current = isFallbackFullscreen;
+  isLockedRef.current = isLocked;
 
   useEffect(() => {
     function handleWindowKeyDown(event: globalThis.KeyboardEvent) {
       const target = event.target;
+      if (isLockedRef.current) {
+        return;
+      }
+
       if (
         event.altKey ||
         event.ctrlKey ||
@@ -764,6 +777,10 @@ export function SafeYouTubePlayer({
   }
 
   function seekFromDoubleClick(event: MouseEvent<HTMLDivElement>) {
+    if (isLocked) {
+      return;
+    }
+
     const target = event.target;
     if (target instanceof HTMLElement && target.closest("button, input")) {
       return;
@@ -780,6 +797,10 @@ export function SafeYouTubePlayer({
   }
 
   function handlePlayerFrameClick(event: MouseEvent<HTMLDivElement>) {
+    if (isLocked) {
+      return;
+    }
+
     if (didSwipeToExitRef.current) {
       didSwipeToExitRef.current = false;
       return;
@@ -814,7 +835,7 @@ export function SafeYouTubePlayer({
       return;
     }
 
-    if (!isFullscreen) {
+    if (isLocked || !isFullscreen) {
       fullscreenSwipeRef.current = null;
       return;
     }
@@ -829,7 +850,7 @@ export function SafeYouTubePlayer({
   function handlePlayerPointerUp(event: PointerEvent<HTMLDivElement>) {
     const swipeStart = fullscreenSwipeRef.current;
     fullscreenSwipeRef.current = null;
-    if (!swipeStart || !isFullscreen) {
+    if (isLocked || !swipeStart || !isFullscreen) {
       return;
     }
 
@@ -882,6 +903,10 @@ export function SafeYouTubePlayer({
   }
 
   function handlePlayerKeyDown(event: KeyboardEvent<HTMLDivElement>) {
+    if (isLocked) {
+      return;
+    }
+
     const target = event.target;
     if (
       target instanceof HTMLElement &&
@@ -1031,6 +1056,10 @@ export function SafeYouTubePlayer({
   }
 
   function exitFallbackFullscreenOnEscape(event: KeyboardEvent<HTMLDivElement>) {
+    if (isLocked) {
+      return;
+    }
+
     if (event.key === "Escape" && isFallbackFullscreen) {
       event.preventDefault();
       void exitFullscreen();
@@ -1052,16 +1081,27 @@ export function SafeYouTubePlayer({
     setIsRepeatOne((current) => !current);
   }
 
+  function toggleLock() {
+    if (isLocked) {
+      setIsLocked(false);
+      revealControls();
+      return;
+    }
+
+    setIsLocked(true);
+    hideControls();
+  }
+
   return (
     <div
-      className={`player-box ${controlsVisible ? "" : "controls-hidden"} ${
+      className={`player-box ${controlsVisible && !isLocked ? "" : "controls-hidden"} ${
         isFallbackFullscreen ? "fallback-fullscreen" : ""
-      }`}
+      } ${isLocked ? "player-locked" : ""}`}
       onClick={handlePlayerFrameClick}
       onDoubleClick={seekFromDoubleClick}
       onKeyDown={exitFallbackFullscreenOnEscape}
       onPointerDown={handlePlayerPointerDown}
-      onPointerMove={revealControls}
+      onPointerMove={isLocked ? undefined : revealControls}
       onPointerUp={handlePlayerPointerUp}
       onPointerCancel={() => {
         fullscreenSwipeRef.current = null;
@@ -1088,7 +1128,7 @@ export function SafeYouTubePlayer({
           startTelemetryPolling();
           sendPlayerCommand("setVolume", [volume]);
           if (shouldAutoplay) {
-            schedulePlayCommand(requiresMutedAutoplay());
+            schedulePlayCommand(false);
           }
         }}
         ref={iframeRef}
@@ -1110,49 +1150,66 @@ export function SafeYouTubePlayer({
         <span>-15</span>
         <span>+15</span>
       </div>
-      <div className="side-player-buttons" aria-label={copy.videoControls}>
+      {isLocked || controlsVisible ? (
         <button
-          className={`side-player-button left ${previousVideo ? "" : "is-disabled"}`}
+          className="player-lock-button"
           onClick={(event) => {
             event.stopPropagation();
-            handleSideNavClick("previous");
+            toggleLock();
           }}
-          onDoubleClick={(event) => {
-            event.preventDefault();
-            event.stopPropagation();
-            handleSideNavDoubleClick("previous");
-          }}
+          onDoubleClick={(event) => event.stopPropagation()}
           type="button"
-          aria-disabled={!previousVideo}
-          aria-label={copy.previousVideo}
+          aria-label={isLocked ? copy.unlockControls : copy.lockControls}
+          aria-pressed={isLocked}
         >
-          <SkipBack size={24} fill="currentColor" />
+          {isLocked ? <Lock size={24} /> : <Unlock size={24} />}
         </button>
-        <button
-          className={`side-player-button right ${nextVideo ? "" : "is-disabled"}`}
-          onClick={(event) => {
-            event.stopPropagation();
-            handleSideNavClick("next");
-          }}
-          onDoubleClick={(event) => {
-            event.preventDefault();
-            event.stopPropagation();
-            handleSideNavDoubleClick("next");
-          }}
-          type="button"
-          aria-disabled={!nextVideo}
-          aria-label={copy.nextVideo}
-        >
-          <SkipForward size={24} fill="currentColor" />
-        </button>
-      </div>
+      ) : null}
+      {!isLocked ? (
+        <div className="side-player-buttons" aria-label={copy.videoControls}>
+          <button
+            className={`side-player-button left ${previousVideo ? "" : "is-disabled"}`}
+            onClick={(event) => {
+              event.stopPropagation();
+              handleSideNavClick("previous");
+            }}
+            onDoubleClick={(event) => {
+              event.preventDefault();
+              event.stopPropagation();
+              handleSideNavDoubleClick("previous");
+            }}
+            type="button"
+            aria-disabled={!previousVideo}
+            aria-label={copy.previousVideo}
+          >
+            <SkipBack size={24} fill="currentColor" />
+          </button>
+          <button
+            className={`side-player-button right ${nextVideo ? "" : "is-disabled"}`}
+            onClick={(event) => {
+              event.stopPropagation();
+              handleSideNavClick("next");
+            }}
+            onDoubleClick={(event) => {
+              event.preventDefault();
+              event.stopPropagation();
+              handleSideNavDoubleClick("next");
+            }}
+            type="button"
+            aria-disabled={!nextVideo}
+            aria-label={copy.nextVideo}
+          >
+            <SkipForward size={24} fill="currentColor" />
+          </button>
+        </div>
+      ) : null}
       {!isPlaying ? (
         <div className="player-poster">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img alt="" src={thumbnailUrl(video.videoId)} />
         </div>
       ) : null}
-      {!isPlaying || controlsVisible ? (
+      {!isLocked && (!isPlaying || controlsVisible) ? (
         <button
           className="big-play-button"
           onClick={(event) => {
@@ -1170,64 +1227,69 @@ export function SafeYouTubePlayer({
           )}
         </button>
       ) : null}
-      <div className="player-progress-wrap">
-        <button
-          className="player-progress"
-          disabled={durationSeconds <= 0}
-          onPointerCancel={stopProgressDrag}
-          onPointerDown={handleProgressPointerDown}
-          onPointerMove={handleProgressPointerMove}
-          onPointerUp={stopProgressDrag}
-          type="button"
-          aria-label="Seek video"
-        >
-          <span
-            className="player-progress-fill"
-            style={{
-              width:
-                durationSeconds > 0
-                  ? `${Math.min(100, (currentTime / durationSeconds) * 100)}%`
-                  : "0%",
-            }}
-          />
-        </button>
-        <span className="player-time">
-          {formatTimestamp(currentTime)} /{" "}
-          {durationSeconds > 0 ? formatTimestamp(durationSeconds) : "--:--"}
-        </span>
-      </div>
+      {!isLocked ? (
+        <div className="player-progress-wrap">
+          <button
+            className="player-progress"
+            disabled={durationSeconds <= 0}
+            onPointerCancel={stopProgressDrag}
+            onPointerDown={handleProgressPointerDown}
+            onPointerMove={handleProgressPointerMove}
+            onPointerUp={stopProgressDrag}
+            type="button"
+            aria-label="Seek video"
+          >
+            <span
+              className="player-progress-fill"
+              style={{
+                width:
+                  durationSeconds > 0
+                    ? `${Math.min(100, (currentTime / durationSeconds) * 100)}%`
+                    : "0%",
+              }}
+            />
+          </button>
+          <span className="player-time">
+            {formatTimestamp(currentTime)} /{" "}
+            {durationSeconds > 0 ? formatTimestamp(durationSeconds) : "--:--"}
+          </span>
+        </div>
+      ) : null}
+      {!isLocked ? (
       <div className="safe-player-controls" aria-label={copy.videoControls}>
-        <button
-          className="player-control-button"
-          disabled={!previousVideo}
-          onClick={onPreviousVideo}
-          type="button"
-          aria-label={copy.previousVideo}
-        >
-          <SkipBack size={16} fill="currentColor" />
-        </button>
-        <button
-          className="player-control-button primary"
-          onClick={playPause}
-          type="button"
-          aria-label={isPlaying ? copy.pause : copy.playVideo}
-        >
-          {isPlaying ? (
-            <Pause size={16} fill="currentColor" />
-          ) : (
-            <Play size={16} fill="currentColor" />
-          )}
-        </button>
-        <button
-          className="player-control-button"
-          disabled={!nextVideo}
-          onClick={onNextVideo}
-          type="button"
-          aria-label={copy.nextVideo}
-        >
-          <SkipForward size={16} fill="currentColor" />
-        </button>
-        <span className="control-divider" />
+        <div className="footer-transport-controls">
+          <button
+            className="player-control-button"
+            disabled={!previousVideo}
+            onClick={onPreviousVideo}
+            type="button"
+            aria-label={copy.previousVideo}
+          >
+            <SkipBack size={16} fill="currentColor" />
+          </button>
+          <button
+            className="player-control-button primary"
+            onClick={playPause}
+            type="button"
+            aria-label={isPlaying ? copy.pause : copy.playVideo}
+          >
+            {isPlaying ? (
+              <Pause size={16} fill="currentColor" />
+            ) : (
+              <Play size={16} fill="currentColor" />
+            )}
+          </button>
+          <button
+            className="player-control-button"
+            disabled={!nextVideo}
+            onClick={onNextVideo}
+            type="button"
+            aria-label={copy.nextVideo}
+          >
+            <SkipForward size={16} fill="currentColor" />
+          </button>
+          <span className="control-divider" />
+        </div>
         <button
           className="player-control-button"
           onClick={toggleMute}
@@ -1281,6 +1343,7 @@ export function SafeYouTubePlayer({
           {isFullscreen ? <Minimize2 size={16} /> : <Maximize2 size={16} />}
         </button>
       </div>
+      ) : null}
     </div>
   );
 }
