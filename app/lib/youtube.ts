@@ -21,7 +21,11 @@ export function thumbnailUrl(videoId: string) {
   return `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`;
 }
 
-export function lockedEmbedUrl(videoId: string, shouldAutoplay = false) {
+export function lockedEmbedUrl(
+  videoId: string,
+  shouldAutoplay = false,
+  shouldStartMuted = false,
+) {
   const params = new URLSearchParams({
     autoplay: shouldAutoplay ? "1" : "0",
     controls: "0",
@@ -33,6 +37,10 @@ export function lockedEmbedUrl(videoId: string, shouldAutoplay = false) {
     playsinline: "1",
     rel: "0",
   });
+
+  if (shouldStartMuted) {
+    params.set("mute", "1");
+  }
 
   if (typeof window !== "undefined") {
     params.set("origin", window.location.origin);

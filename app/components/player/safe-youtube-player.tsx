@@ -21,7 +21,12 @@ import {
   useState,
 } from "react";
 import type { CopyText } from "../../lib/copy";
-import { isIosLikeBrowser, lockLandscapeOrientation, unlockScreenOrientation } from "../../lib/platform";
+import {
+  isIosLikeBrowser,
+  lockLandscapeOrientation,
+  requiresMutedAutoplay,
+  unlockScreenOrientation,
+} from "../../lib/platform";
 import type { FullscreenHostDocument, FullscreenHostElement, Video } from "../../lib/types";
 import {
   formatTimestamp,
@@ -110,6 +115,7 @@ export function SafeYouTubePlayer({
   const exitFullscreenRef = useRef<() => void>(() => {});
   const isFallbackFullscreenRef = useRef(false);
   const isFullscreen = isNativeFullscreen || isFallbackFullscreen;
+  const shouldStartMuted = shouldAutoplay;
 
   useEffect(() => {
     if (!isTvBrowser) {
@@ -177,6 +183,7 @@ export function SafeYouTubePlayer({
       setDurationSeconds(fallbackDurationSeconds);
       setShouldAutoplay(true);
       setIsPlaying(true);
+      setIsMuted(requiresMutedAutoplay());
       setControlsVisible(true);
       setActiveSeekHint(null);
     });
@@ -570,16 +577,20 @@ export function SafeYouTubePlayer({
     }, 650);
   }
 
-  function schedulePlayCommand() {
+  function schedulePlayCommand(forceMuted = false) {
     if (playTimerRef.current) {
       window.clearTimeout(playTimerRef.current);
     }
 
     playTimerRef.current = window.setTimeout(() => {
+      const shouldKeepMuted = forceMuted;
       primePlayerTelemetry();
       sendPlayerCommand("setVolume", [volume]);
-      if (isMuted || volume === 0) {
+      if (shouldKeepMuted || isMuted || volume === 0) {
         sendPlayerCommand("mute");
+        if (shouldKeepMuted) {
+          setIsMuted(true);
+        }
       } else {
         sendPlayerCommand("unMute");
       }
@@ -599,7 +610,7 @@ export function SafeYouTubePlayer({
     } else {
       setShouldAutoplay(true);
       setIsPlaying(true);
-      schedulePlayCommand();
+      schedulePlayCommand(false);
       scheduleControlsHide();
     }
   }
@@ -1077,13 +1088,13 @@ export function SafeYouTubePlayer({
           startTelemetryPolling();
           sendPlayerCommand("setVolume", [volume]);
           if (shouldAutoplay) {
-            schedulePlayCommand();
+            schedulePlayCommand(requiresMutedAutoplay());
           }
         }}
         ref={iframeRef}
         referrerPolicy="strict-origin-when-cross-origin"
         sandbox="allow-scripts allow-same-origin allow-presentation"
-        src={lockedEmbedUrl(video.videoId, shouldAutoplay)}
+        src={lockedEmbedUrl(video.videoId, shouldAutoplay, shouldStartMuted)}
         tabIndex={-1}
         title={copy.videoSurface(video.title)}
         onContextMenu={(event) => event.preventDefault()}
