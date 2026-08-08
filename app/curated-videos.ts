@@ -4503,5 +4503,1220 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     ],
     accent: "#f9ab00",
     source: "catalog"
+  },
+  {
+    id: "uzbek-old-290",
+    videoId: "5GDTpmJbN7o",
+    title: "Alyonushka va Ivanushka (o'zbek tilida!)",
+    channel: "AVIценна",
+    duration: "9:49",
+    views: "Playlist",
+    tags: [
+      "uzbek",
+      "cartoons",
+      "playlist"
+    ],
+    accent: "#0b8043",
+    source: "catalog"
+  },
+  {
+    id: "uzbek-old-291",
+    videoId: "aW57r6Kxggo",
+    title: "Yangi Yil Multfilm | Yangi Yil Haqida Multfilm | Yangi Multfilm Uzbek Tilida | Multfilm ozbek tilida",
+    channel: "HAMMASI HAQIDA",
+    duration: "6:01",
+    views: "Playlist",
+    tags: [
+      "uzbek",
+      "cartoons",
+      "playlist"
+    ],
+    accent: "#1a73e8",
+    source: "catalog"
+  },
+  {
+    id: "uzbek-old-292",
+    videoId: "3VHlT8x5jAo",
+    title: "Qunduz amakini qissalar / Кундуз амаки эртаклари 1-5 кисмлари",
+    channel: "29UZ",
+    duration: "52:10",
+    views: "Playlist",
+    tags: [
+      "uzbek",
+      "cartoons",
+      "playlist"
+    ],
+    accent: "#f9ab00",
+    source: "catalog"
+  },
+  {
+    id: "uzbek-old-293",
+    videoId: "WShqllGtxPM",
+    title: "Нони боскан киз",
+    channel: "Тамаша роликтер Тамаша роликтер",
+    duration: "9:13",
+    views: "Playlist",
+    tags: [
+      "uzbek",
+      "cartoons",
+      "playlist"
+    ],
+    accent: "#8e24aa",
+    source: "catalog"
+  },
+  {
+    id: "uzbek-old-294",
+    videoId: "FZgXNvN7mEw",
+    title: "Qunduz bobo qissalari - 1 seriya !",
+    channel: "Болажон канали",
+    duration: "10:53",
+    views: "Playlist",
+    tags: [
+      "uzbek",
+      "cartoons",
+      "playlist"
+    ],
+    accent: "#00897b",
+    source: "catalog"
+  },
+  {
+    id: "uzbek-old-295",
+    videoId: "mw7pCWiYb2M",
+    title: "Qorbobo va Yoz Multfilm Uzbek Tilida | Yangi Yil Kinolari | Yangi Yil Multfilm",
+    channel: "HAMMASI HAQIDA",
+    duration: "18:31",
+    views: "Playlist",
+    tags: [
+      "uzbek",
+      "cartoons",
+      "playlist"
+    ],
+    accent: "#e8710a",
+    source: "catalog"
+  },
+  {
+    id: "uzbek-old-296",
+    videoId: "HKzj94ewaA4",
+    title: "дед мороз по узбекский",
+    channel: "Мурад Джураев",
+    duration: "0:32",
+    views: "Playlist",
+    tags: [
+      "uzbek",
+      "cartoons",
+      "playlist"
+    ],
+    accent: "#5f6368",
+    source: "catalog"
+  },
+  {
+    id: "uzbek-old-297",
+    videoId: "GRpzVvlzfvI",
+    title: "Sholg'om(kichik yoshdagi bolalar uchun o'zbek tilida ertaklar)",
+    channel: "БОЛАЖОН",
+    duration: "2:00",
+    views: "Playlist",
+    tags: [
+      "uzbek",
+      "cartoons",
+      "playlist"
+    ],
+    accent: "#d93025",
+    source: "catalog"
+  },
+  {
+    id: "uzbek-old-298",
+    videoId: "GR7HKwTBdGU",
+    title: "Mittivoylar qalpoqchasi haqida ertak",
+    channel: " Аудио эртаклар",
+    duration: "18:44",
+    views: "Playlist",
+    tags: [
+      "uzbek",
+      "cartoons",
+      "playlist"
+    ],
+    accent: "#0b8043",
+    source: "catalog"
+  },
+  {
+    id: "uzbek-old-299",
+    videoId: "r5bMSjg2XMM",
+    title: "Окшом Ертаклари 😆😆😆",
+    channel: "Bek Tv Asaka",
+    duration: "0:15",
+    views: "Playlist",
+    tags: [
+      "uzbek",
+      "cartoons",
+      "playlist"
+    ],
+    accent: "#1a73e8",
+    source: "catalog"
+  },
+  {
+    id: "uzbek-old-300",
+    videoId: "b1fTzQ_9HgI",
+    title: "Qunduz amaki qissalari / Кундуз амаки эртаклари 21-30",
+    channel: "29UZ",
+    duration: "1:33:19",
+    views: "Playlist",
+    tags: [
+      "uzbek",
+      "cartoons",
+      "playlist"
+    ],
+    accent: "#f9ab00",
+    source: "catalog"
+  },
+  {
+    id: "uzbek-old-301",
+    videoId: "_xI0RH8CANk",
+    title: "Zumrad va Qimmat (multfilm) | Зумрад ва Киммат (мультфильм)",
+    channel: "Uzbek Multfilm",
+    duration: "10:11",
+    views: "Playlist",
+    tags: [
+      "uzbek",
+      "cartoons",
+      "playlist"
+    ],
+    accent: "#8e24aa",
+    source: "catalog"
+  },
+  {
+    id: "uzbek-old-302",
+    videoId: "J02akecfBCI",
+    title: "Ochko'z tulki. O'zbekcha ertaklar #1/ Очкуз тулки. Узбекча эртаклар #1",
+    channel: "Ertak va Hikoyalar olami",
+    duration: "1:28",
+    views: "Playlist",
+    tags: [
+      "uzbek",
+      "cartoons",
+      "playlist"
+    ],
+    accent: "#00897b",
+    source: "catalog"
+  },
+  {
+    id: "uzbek-old-303",
+    videoId: "r9i-646a1-Q",
+    title: "Zumrad va Qimmat (yangi talqin) (multfilm) | Зумрад ва Киммат (мультфильм)",
+    channel: "Uzbek Multfilm",
+    duration: "12:19",
+    views: "Playlist",
+    tags: [
+      "uzbek",
+      "cartoons",
+      "playlist"
+    ],
+    accent: "#e8710a",
+    source: "catalog"
+  },
+  {
+    id: "uzbek-old-304",
+    videoId: "ZDTF55XImYA",
+    title: "QUNDUZ AMAKINING QISSALARI 11 15 QISMLAR   MULTFILM  🎥 720p",
+    channel: "Mutfilimlar Uz",
+    duration: "47:16",
+    views: "Playlist",
+    tags: [
+      "uzbek",
+      "cartoons",
+      "playlist"
+    ],
+    accent: "#5f6368",
+    source: "catalog"
+  },
+  {
+    id: "uzbek-old-305",
+    videoId: "4yYI0ZOrPF4",
+    title: "Dovyurak oshpaz (multfilm) | Довюрак ошпаз (мультфильм)",
+    channel: "Uzbek Multfilm",
+    duration: "19:51",
+    views: "Playlist",
+    tags: [
+      "uzbek",
+      "cartoons",
+      "playlist"
+    ],
+    accent: "#d93025",
+    source: "catalog"
+  },
+  {
+    id: "uzbek-old-306",
+    videoId: "rlEdQSsOv6s",
+    title: "Banana cartoon multfilm",
+    channel: "Ставьте LIKE",
+    duration: "4:49",
+    views: "Playlist",
+    tags: [
+      "uzbek",
+      "cartoons",
+      "playlist"
+    ],
+    accent: "#0b8043",
+    source: "catalog"
+  },
+  {
+    id: "uzbek-old-307",
+    videoId: "PX-s-ehJQX0",
+    title: "To'g'rivoy bilan Egrivoy (multfilm) | Тугривой билан Эгривой (мультфильм)",
+    channel: "Uzbek Multfilm",
+    duration: "14:35",
+    views: "Playlist",
+    tags: [
+      "uzbek",
+      "cartoons",
+      "playlist"
+    ],
+    accent: "#1a73e8",
+    source: "catalog"
+  },
+  {
+    id: "uzbek-old-308",
+    videoId: "3EmkA_oO7gk",
+    title: "Насриддин Афанди          Nasriddin  Afandi",
+    channel: "НАСРИДДИН АФАНДИ УЗ",
+    duration: "13:01",
+    views: "Playlist",
+    tags: [
+      "uzbek",
+      "cartoons",
+      "playlist"
+    ],
+    accent: "#f9ab00",
+    source: "catalog"
+  },
+  {
+    id: "uzbek-old-309",
+    videoId: "Q_1zK4WbgcA",
+    title: "Ochko'z xo'roz (multfilm) | Очкуз хуроз (мультфильм)",
+    channel: "Uzbek Multfilm",
+    duration: "10:51",
+    views: "Playlist",
+    tags: [
+      "uzbek",
+      "cartoons",
+      "playlist"
+    ],
+    accent: "#8e24aa",
+    source: "catalog"
+  },
+  {
+    id: "uzbek-old-310",
+    videoId: "G6wvvpNQnl8",
+    title: "Lochin ovi (multfilm) | Лочин ови (мультфильм)",
+    channel: "Uzbek Multfilm",
+    duration: "11:49",
+    views: "Playlist",
+    tags: [
+      "uzbek",
+      "cartoons",
+      "playlist"
+    ],
+    accent: "#00897b",
+    source: "catalog"
+  },
+  {
+    id: "uzbek-old-311",
+    videoId: "TMlGM3gb63k",
+    title: "Multfilm \" Uloqcha va Bo'ri \"",
+    channel: "Muyassar Shermatova",
+    duration: "10:07",
+    views: "Playlist",
+    tags: [
+      "uzbek",
+      "cartoons",
+      "playlist"
+    ],
+    accent: "#e8710a",
+    source: "catalog"
+  },
+  {
+    id: "uzbek-old-312",
+    videoId: "aZEkG6BPleY",
+    title: "Uddaburon shogird (multfilm) | Уддабурон шогирд (мультфильм)",
+    channel: "Uzbek Multfilm",
+    duration: "12:32",
+    views: "Playlist",
+    tags: [
+      "uzbek",
+      "cartoons",
+      "playlist"
+    ],
+    accent: "#5f6368",
+    source: "catalog"
+  },
+  {
+    id: "uzbek-old-313",
+    videoId: "FZvnK7bGj3I",
+    title: "Kichkina Nikolya multfilm uzbek tilida 1-qism",
+    channel: "Mitti Kinoteatr",
+    duration: "12:35",
+    views: "Playlist",
+    tags: [
+      "uzbek",
+      "cartoons",
+      "playlist"
+    ],
+    accent: "#d93025",
+    source: "catalog"
+  },
+  {
+    id: "uzbek-old-314",
+    videoId: "HoQhcs1FIQk",
+    title: "Uchta ahmoq | multfilm | O'zbek multfilmlari | O'zbek ertaklari | Uzbek Axloqiy Hikoyalari",
+    channel: "Uzbek Moral Stories",
+    duration: "5:29",
+    views: "Playlist",
+    tags: [
+      "uzbek",
+      "cartoons",
+      "playlist"
+    ],
+    accent: "#0b8043",
+    source: "catalog"
+  },
+  {
+    id: "uzbek-old-315",
+    videoId: "I6P1kPHgnMU",
+    title: "Bo'z bola (multfilm) | Буз бола (мультфильм)",
+    channel: "Uzbek Multfilm",
+    duration: "11:59",
+    views: "Playlist",
+    tags: [
+      "uzbek",
+      "cartoons",
+      "playlist"
+    ],
+    accent: "#1a73e8",
+    source: "catalog"
+  },
+  {
+    id: "uzbek-old-316",
+    videoId: "VEvEIZAVbB4",
+    title: "Aytsam ishonmaysiz (multfilm) | Айтсам ишонмайсиз (мультфильм)",
+    channel: "Uzbek Multfilm",
+    duration: "11:12",
+    views: "Playlist",
+    tags: [
+      "uzbek",
+      "cartoons",
+      "playlist"
+    ],
+    accent: "#f9ab00",
+    source: "catalog"
+  },
+  {
+    id: "uzbek-old-317",
+    videoId: "iOz05riYN3Y",
+    title: "Ajdarho O'rgatuvchilari 3 | Uzbek Tilida Multfilm |•| Qisqa Parcha | | Ko'ring va like bosing |",
+    channel: "multfilm TV",
+    duration: "4:40",
+    views: "Playlist",
+    tags: [
+      "uzbek",
+      "cartoons",
+      "playlist"
+    ],
+    accent: "#8e24aa",
+    source: "catalog"
+  },
+  {
+    id: "uzbek-old-318",
+    videoId: "qUG569b3878",
+    title: "Sehrli qilich (multfilm) | Сехрли килич (мультфильм)",
+    channel: "Uzbek Multfilm",
+    duration: "10:50",
+    views: "Playlist",
+    tags: [
+      "uzbek",
+      "cartoons",
+      "playlist"
+    ],
+    accent: "#00897b",
+    source: "catalog"
+  },
+  {
+    id: "uzbek-old-319",
+    videoId: "N4PLlqK2QaU",
+    title: "Dev ila qizaloq (multfilm) | Дев ила кизалок (мультфильм)",
+    channel: "Uzbek Multfilm",
+    duration: "10:29",
+    views: "Playlist",
+    tags: [
+      "uzbek",
+      "cartoons",
+      "playlist"
+    ],
+    accent: "#e8710a",
+    source: "catalog"
+  },
+  {
+    id: "uzbek-old-320",
+    videoId: "ikFFsDDosjg",
+    title: "Gammi Ayiqlari multfilm uzbek tilida Unutilmas ritsar uzbek tilida",
+    channel: "Bolajon multfilm",
+    duration: "2:42",
+    views: "Playlist",
+    tags: [
+      "uzbek",
+      "cartoons",
+      "playlist"
+    ],
+    accent: "#5f6368",
+    source: "catalog"
+  },
+  {
+    id: "uzbek-old-321",
+    videoId: "yYKW1DOsDE0",
+    title: "Три богатыря: Ход конем | Мультфильмы для всей семьи",
+    channel: "Три богатыря",
+    duration: "1:08:36",
+    views: "Playlist",
+    tags: [
+      "uzbek",
+      "cartoons",
+      "playlist"
+    ],
+    accent: "#d93025",
+    source: "catalog"
+  },
+  {
+    id: "uzbek-old-322",
+    videoId: "LMop0DT2W_A",
+    title: "Oltin tarvuz (multfilm) | Олтин тарвуз (мультфильм)",
+    channel: "Uzbek Multfilm",
+    duration: "10:07",
+    views: "Playlist",
+    tags: [
+      "uzbek",
+      "cartoons",
+      "playlist"
+    ],
+    accent: "#0b8043",
+    source: "catalog"
+  },
+  {
+    id: "uzbek-old-323",
+    videoId: "W8EHA_gvius",
+    title: "Alomat quyon (multfilm) | Аломат куён (мультфильм)",
+    channel: "Uzbek Multfilm",
+    duration: "9:43",
+    views: "Playlist",
+    tags: [
+      "uzbek",
+      "cartoons",
+      "playlist"
+    ],
+    accent: "#1a73e8",
+    source: "catalog"
+  },
+  {
+    id: "uzbek-old-324",
+    videoId: "nKc3JD0Jtcw",
+    title: "Alining sarguzashtlari | «Alining sarguzashtlari». Multfilm",
+    channel: "Azon Global",
+    duration: "8:42",
+    views: "Playlist",
+    tags: [
+      "uzbek",
+      "cartoons",
+      "playlist"
+    ],
+    accent: "#f9ab00",
+    source: "catalog"
+  },
+  {
+    id: "uzbek-old-325",
+    videoId: "NHA7Hyi9ZO0",
+    title: "Birlashgan o'zar (multfilm) | Бирлашган узар (мультфильм)",
+    channel: "Uzbek Multfilm",
+    duration: "15:00",
+    views: "Playlist",
+    tags: [
+      "uzbek",
+      "cartoons",
+      "playlist"
+    ],
+    accent: "#8e24aa",
+    source: "catalog"
+  },
+  {
+    id: "uzbek-old-326",
+    videoId: "wFM1Z_o49x4",
+    title: "Chalpak yoqqan kun (multfilm) | Чалпак ёккан кун (мультфильм)",
+    channel: "Uzbek Multfilm",
+    duration: "11:53",
+    views: "Playlist",
+    tags: [
+      "uzbek",
+      "cartoons",
+      "playlist"
+    ],
+    accent: "#00897b",
+    source: "catalog"
+  },
+  {
+    id: "uzbek-old-327",
+    videoId: "XeE1A9_d-F8",
+    title: "Oq bo'taloq (multfilm) | Ок буталок (мультфильм)",
+    channel: "Uzbek Multfilm",
+    duration: "35:08",
+    views: "Playlist",
+    tags: [
+      "uzbek",
+      "cartoons",
+      "playlist"
+    ],
+    accent: "#e8710a",
+    source: "catalog"
+  },
+  {
+    id: "uzbek-old-328",
+    videoId: "4z4JcfMyLzk",
+    title: "Бэби-босс. Босс-молокосос. ИГРА. Little Baby Boss Care Doctor, Bath Time, Dress Up",
+    channel: "Мультяшкино",
+    duration: "21:54",
+    views: "Playlist",
+    tags: [
+      "uzbek",
+      "cartoons",
+      "playlist"
+    ],
+    accent: "#5f6368",
+    source: "catalog"
+  },
+  {
+    id: "uzbek-old-329",
+    videoId: "KhvI4h0tlMs",
+    title: "Quyosh yurti pahlavoni (multfilm) | Куёш юрти пахлавони (мультфильм)",
+    channel: "Uzbek Multfilm",
+    duration: "1:05:23",
+    views: "Playlist",
+    tags: [
+      "uzbek",
+      "cartoons",
+      "playlist"
+    ],
+    accent: "#d93025",
+    source: "catalog"
+  },
+  {
+    id: "uzbek-old-330",
+    videoId: "yeB9X9dO_p0",
+    title: "Sumalak va 1000 tilak (multfilm) | Сумалак ва 1000 тилак (мультфильм)",
+    channel: "Uzbek Multfilm",
+    duration: "10:05",
+    views: "Playlist",
+    tags: [
+      "uzbek",
+      "cartoons",
+      "playlist"
+    ],
+    accent: "#0b8043",
+    source: "catalog"
+  },
+  {
+    id: "uzbek-old-331",
+    videoId: "LUPHbSnZMQo",
+    title: "Agar Multfilm Hayvonlar, Odam Bo'lganida Qanday Ko'rinishga Ega Bo'lar Edi? | Animated Movies",
+    channel: "UZFOYDA",
+    duration: "2:57",
+    views: "Playlist",
+    tags: [
+      "uzbek",
+      "cartoons",
+      "playlist"
+    ],
+    accent: "#1a73e8",
+    source: "catalog"
+  },
+  {
+    id: "uzbek-old-332",
+    videoId: "BIrV0NUT46o",
+    title: "Bo'g'irsoq o'zbek tilida. Колобок.Multik.Multfilm",
+    channel: "Bolajonlar uchun multfilmlar",
+    duration: "11:03",
+    views: "Playlist",
+    tags: [
+      "uzbek",
+      "cartoons",
+      "playlist"
+    ],
+    accent: "#f9ab00",
+    source: "catalog"
+  },
+  {
+    id: "uzbek-old-333",
+    videoId: "V0Oh2tt_ZRk",
+    title: "Kenja Botir (multfilm) | Кенжа Ботир (мультфильм)",
+    channel: "Uzbek Multfilm",
+    duration: "15:39",
+    views: "Playlist",
+    tags: [
+      "uzbek",
+      "cartoons",
+      "playlist"
+    ],
+    accent: "#8e24aa",
+    source: "catalog"
+  },
+  {
+    id: "uzbek-old-334",
+    videoId: "joJ7nHPQW34",
+    title: "Meshkobning baxti (multfilm) | Мешкобнинг бахти (мультфильм)",
+    channel: "Uzbek Multfilm",
+    duration: "10:48",
+    views: "Playlist",
+    tags: [
+      "uzbek",
+      "cartoons",
+      "playlist"
+    ],
+    accent: "#00897b",
+    source: "catalog"
+  },
+  {
+    id: "uzbek-old-335",
+    videoId: "KnVTwvSxCUc",
+    title: "Gammi Ayiqlari multfilm Meni koryapsizmi 2 qism uzbek tilida davomi profilda",
+    channel: "Bolajon multfilm",
+    duration: "3:00",
+    views: "Playlist",
+    tags: [
+      "uzbek",
+      "cartoons",
+      "playlist"
+    ],
+    accent: "#e8710a",
+    source: "catalog"
+  },
+  {
+    id: "uzbek-old-336",
+    videoId: "VGi5C4pGpq4",
+    title: "Donishqishloq hangomalari (multfilm) | Донишкишлок хангомалари (мультфильм)",
+    channel: "Uzbek Multfilm",
+    duration: "10:07",
+    views: "Playlist",
+    tags: [
+      "uzbek",
+      "cartoons",
+      "playlist"
+    ],
+    accent: "#5f6368",
+    source: "catalog"
+  },
+  {
+    id: "uzbek-old-337",
+    videoId: "Ze9qKpAdwjU",
+    title: "eshak va ot | multfilm | O'zbek multfilmlari | O'zbek ertaklari | Uzbek Axloqiy Hikoyalari",
+    channel: "Uzbek Moral Stories",
+    duration: "3:42",
+    views: "Playlist",
+    tags: [
+      "uzbek",
+      "cartoons",
+      "playlist"
+    ],
+    accent: "#d93025",
+    source: "catalog"
+  },
+  {
+    id: "uzbek-old-338",
+    videoId: "7VPtVJK_V5M",
+    title: "kun va tun multfilm",
+    channel: "Pubg.Moshin",
+    duration: "5:42",
+    views: "Playlist",
+    tags: [
+      "uzbek",
+      "cartoons",
+      "playlist"
+    ],
+    accent: "#0b8043",
+    source: "catalog"
+  },
+  {
+    id: "uzbek-old-339",
+    videoId: "QwtCklwiKQk",
+    title: "Jasur tipratikan (multfilm) | Жасур типратикан (мультфильм)",
+    channel: "Uzbek Multfilm",
+    duration: "13:59",
+    views: "Playlist",
+    tags: [
+      "uzbek",
+      "cartoons",
+      "playlist"
+    ],
+    accent: "#1a73e8",
+    source: "catalog"
+  },
+  {
+    id: "uzbek-old-340",
+    videoId: "jcVqTXFpAJA",
+    title: "Yo'l va bolalar (multfilm) | Йул ва болалар (мультфильм)",
+    channel: "Uzbek Multfilm",
+    duration: "11:37",
+    views: "Playlist",
+    tags: [
+      "uzbek",
+      "cartoons",
+      "playlist"
+    ],
+    accent: "#f9ab00",
+    source: "catalog"
+  },
+  {
+    id: "uzbek-old-341",
+    videoId: "BXuzg9QIAJM",
+    title: "Sohibjamol qo'g'irchoq (multfilm) | Сохибжамол кугирчок (мультфильм)",
+    channel: "Uzbek Multfilm",
+    duration: "11:02",
+    views: "Playlist",
+    tags: [
+      "uzbek",
+      "cartoons",
+      "playlist"
+    ],
+    accent: "#8e24aa",
+    source: "catalog"
+  },
+  {
+    id: "uzbek-old-342",
+    videoId: "drhA27zTD0k",
+    title: "Changalzor qiroli multfilm",
+    channel: "Mutfilimlar Uz",
+    duration: "1:25:42",
+    views: "Playlist",
+    tags: [
+      "uzbek",
+      "cartoons",
+      "playlist"
+    ],
+    accent: "#00897b",
+    source: "catalog"
+  },
+  {
+    id: "uzbek-old-343",
+    videoId: "F0COxe3QVCM",
+    title: "Uchar tulpor (multfilm) | Учар тулпор (мультфильм)",
+    channel: "Uzbek Multfilm",
+    duration: "10:24",
+    views: "Playlist",
+    tags: [
+      "uzbek",
+      "cartoons",
+      "playlist"
+    ],
+    accent: "#e8710a",
+    source: "catalog"
+  },
+  {
+    id: "uzbek-old-344",
+    videoId: "ZcYaaf3U_bU",
+    title: "tukli arvoh | multfilm | O'zbek multfilmlari | O'zbek ertaklari | Uzbek Axloqiy Hikoyalari",
+    channel: "Uzbek Moral Stories",
+    duration: "6:03",
+    views: "Playlist",
+    tags: [
+      "uzbek",
+      "cartoons",
+      "playlist"
+    ],
+    accent: "#5f6368",
+    source: "catalog"
+  },
+  {
+    id: "uzbek-old-345",
+    videoId: "Bruv73gdhlg",
+    title: "Yo'lbars va sigir | multfilm | O'zbek multfilmlari | O'zbek ertaklari | Uzbek Axloqiy Hikoyalari",
+    channel: "Uzbek Moral Stories",
+    duration: "3:54",
+    views: "Playlist",
+    tags: [
+      "uzbek",
+      "cartoons",
+      "playlist"
+    ],
+    accent: "#d93025",
+    source: "catalog"
+  },
+  {
+    id: "uzbek-old-346",
+    videoId: "P6uKXtucyO4",
+    title: "Chip va Deyl uzbek tilida multfilm #qutqaruvchilar → #tarjima eng zor multfilimlardan",
+    channel: "Bolajon multfilm",
+    duration: "1:06",
+    views: "Playlist",
+    tags: [
+      "uzbek",
+      "cartoons",
+      "playlist"
+    ],
+    accent: "#0b8043",
+    source: "catalog"
+  },
+  {
+    id: "uzbek-old-347",
+    videoId: "51M5zEsTJD0",
+    title: "Ozod qushlar haqida afsona (multfilm) | Озод кушлар хакида афсона (мультфильм)",
+    channel: "Uzbek Multfilm",
+    duration: "10:58",
+    views: "Playlist",
+    tags: [
+      "uzbek",
+      "cartoons",
+      "playlist"
+    ],
+    accent: "#1a73e8",
+    source: "catalog"
+  },
+  {
+    id: "uzbek-old-348",
+    videoId: "6XEST2Vuq7M",
+    title: "Ikki chelak nok (multfilm) | Икки челак нок (мультфильм)",
+    channel: "Uzbek Multfilm",
+    duration: "12:19",
+    views: "Playlist",
+    tags: [
+      "uzbek",
+      "cartoons",
+      "playlist"
+    ],
+    accent: "#f9ab00",
+    source: "catalog"
+  },
+  {
+    id: "uzbek-old-349",
+    videoId: "L5uaWTjta2k",
+    title: "oltin qiz | multfilm | O'zbek multfilmlari | O'zbek ertaklari | Uzbek Axloqiy Hikoyalari",
+    channel: "Uzbek Moral Stories",
+    duration: "12:40",
+    views: "Playlist",
+    tags: [
+      "uzbek",
+      "cartoons",
+      "playlist"
+    ],
+    accent: "#8e24aa",
+    source: "catalog"
+  },
+  {
+    id: "uzbek-old-350",
+    videoId: "mGZr4kgb0vs",
+    title: "Multfilm",
+    channel: "Qiziqarli kanal",
+    duration: "2:57",
+    views: "Playlist",
+    tags: [
+      "uzbek",
+      "cartoons",
+      "playlist"
+    ],
+    accent: "#00897b",
+    source: "catalog"
+  },
+  {
+    id: "uzbek-old-351",
+    videoId: "51mE341m5X0",
+    title: "1-QISM | QUR'ONDA KELGAN QISSALAR! (O'ZBEK TILIDA) | HANDAQ AHLI VOQEASI | ISLOMIY MULTFILM",
+    channel: "AudioTaskin",
+    duration: "23:36",
+    views: "Playlist",
+    tags: [
+      "uzbek",
+      "cartoons",
+      "playlist"
+    ],
+    accent: "#e8710a",
+    source: "catalog"
+  },
+  {
+    id: "uzbek-old-352",
+    videoId: "aaoOh8cnrIA",
+    title: "Mohir qo'llar (multfilm) | Мохир куллар (мультфильм)",
+    channel: "Uzbek Multfilm",
+    duration: "19:21",
+    views: "Playlist",
+    tags: [
+      "uzbek",
+      "cartoons",
+      "playlist"
+    ],
+    accent: "#5f6368",
+    source: "catalog"
+  },
+  {
+    id: "uzbek-old-353",
+    videoId: "ah8HlSheE5I",
+    title: "Mustangni bo'ysindirish uzbek tilida multfilmdan parcha ,, MUSTANG \" | @mtfilm olami",
+    channel: "Multfilm olami",
+    duration: "3:33",
+    views: "Playlist",
+    tags: [
+      "uzbek",
+      "cartoons",
+      "playlist"
+    ],
+    accent: "#d93025",
+    source: "catalog"
+  },
+  {
+    id: "uzbek-old-354",
+    videoId: "sqpWYYJzqOg",
+    title: "NUSSA VA RARA BIZ KIMMIZ. ISOMIY MULTFILM",
+    channel: "MARUZALAR TO'PLAMI",
+    duration: "3:15",
+    views: "Playlist",
+    tags: [
+      "uzbek",
+      "cartoons",
+      "playlist"
+    ],
+    accent: "#0b8043",
+    source: "catalog"
+  },
+  {
+    id: "uzbek-old-355",
+    videoId: "61s24RA_A1c",
+    title: "Rus Multfilm auto (Машинки)",
+    channel: "MEO Server1",
+    duration: "13:22",
+    views: "Playlist",
+    tags: [
+      "uzbek",
+      "cartoons",
+      "playlist"
+    ],
+    accent: "#1a73e8",
+    source: "catalog"
+  },
+  {
+    id: "uzbek-old-356",
+    videoId: "ihMtc683O5M",
+    title: "Sayohatchi qurbaqa | Multfilm",
+    channel: "Respublika ta`lim markazi | Rasmiy",
+    duration: "9:54",
+    views: "Playlist",
+    tags: [
+      "uzbek",
+      "cartoons",
+      "playlist"
+    ],
+    accent: "#f9ab00",
+    source: "catalog"
+  },
+  {
+    id: "uzbek-old-357",
+    videoId: "r3iJ1y7Ceic",
+    title: "G'ildirakli uy (multfilm) | Гилдиракли уй (мультфильм)",
+    channel: "Uzbek Multfilm",
+    duration: "10:49",
+    views: "Playlist",
+    tags: [
+      "uzbek",
+      "cartoons",
+      "playlist"
+    ],
+    accent: "#8e24aa",
+    source: "catalog"
+  },
+  {
+    id: "uzbek-old-358",
+    videoId: "YBQVZUrFa_A",
+    title: "Hayvonlar ittifoqi yangi multfilm uzbek tilida",
+    channel: "Mutfilimlar Uz",
+    duration: "1:26:05",
+    views: "Playlist",
+    tags: [
+      "uzbek",
+      "cartoons",
+      "playlist"
+    ],
+    accent: "#00897b",
+    source: "catalog"
+  },
+  {
+    id: "uzbek-old-359",
+    videoId: "5TjF0ISmNKg",
+    title: "Bahodirlar bo'tqasi (multfilm)",
+    channel: "AVIценна",
+    duration: "8:44",
+    views: "Playlist",
+    tags: [
+      "uzbek",
+      "cartoons",
+      "playlist"
+    ],
+    accent: "#e8710a",
+    source: "catalog"
+  },
+  {
+    id: "uzbek-old-360",
+    videoId: "BUsGzmWCNzA",
+    title: "Momo Xavvo qissasi 2 qism || Qur‘onda zikri kelgan ayollar qissasi|| Multfilm uzbek tilida",
+    channel: "Ma‘rifat uz",
+    duration: "19:31",
+    views: "Playlist",
+    tags: [
+      "uzbek",
+      "cartoons",
+      "playlist"
+    ],
+    accent: "#5f6368",
+    source: "catalog"
+  },
+  {
+    id: "uzbek-old-361",
+    videoId: "Xkcw8FON0j8",
+    title: "Multfilm",
+    channel: "Abdulloh Abdusalomov",
+    duration: "0:51",
+    views: "Playlist",
+    tags: [
+      "uzbek",
+      "cartoons",
+      "playlist"
+    ],
+    accent: "#d93025",
+    source: "catalog"
+  },
+  {
+    id: "uzbek-old-362",
+    videoId: "y_08IBP7AZw",
+    title: "Sehrli qush Sehrli daraxt-multfilm-O'zbek multfilmlari | O'zbek ertaklari | Uzbek Axloqiy Hikoyalari",
+    channel: "Uzbek Moral Stories",
+    duration: "10:01",
+    views: "Playlist",
+    tags: [
+      "uzbek",
+      "cartoons",
+      "playlist"
+    ],
+    accent: "#0b8043",
+    source: "catalog"
+  },
+  {
+    id: "uzbek-old-363",
+    videoId: "BYDHJX5bQa8",
+    title: "Arslon va to'rt sigir | multfilm | O'zbek multfilmlari | O'zbek ertaklari | Uzbek Axloqiy Hikoyalari",
+    channel: "Uzbek Moral Stories",
+    duration: "2:50",
+    views: "Playlist",
+    tags: [
+      "uzbek",
+      "cartoons",
+      "playlist"
+    ],
+    accent: "#1a73e8",
+    source: "catalog"
+  },
+  {
+    id: "uzbek-old-364",
+    videoId: "_nAu9D-8srA",
+    title: "Учим цвета Разноцветные яйца на ферме Miroshka Tv",
+    channel: "Мирошка ТВ",
+    duration: "5:11",
+    views: "Playlist",
+    tags: [
+      "uzbek",
+      "cartoons",
+      "playlist"
+    ],
+    accent: "#f9ab00",
+    source: "catalog"
+  },
+  {
+    id: "uzbek-old-365",
+    videoId: "jxCpOXXAvwY",
+    title: "Skruch makdak Ordaklar  uzbek tilida multfilm #skruch #ordaklar #funnyvideo",
+    channel: "Bolajon multfilm",
+    duration: "8:27",
+    views: "Playlist",
+    tags: [
+      "uzbek",
+      "cartoons",
+      "playlist"
+    ],
+    accent: "#8e24aa",
+    source: "catalog"
+  },
+  {
+    id: "uzbek-old-366",
+    videoId: "TIRi7vcO9jQ",
+    title: "Yangi multfilm Tom i Jerry",
+    channel: "Uzbekiya",
+    duration: "2:36",
+    views: "Playlist",
+    tags: [
+      "uzbek",
+      "cartoons",
+      "playlist"
+    ],
+    accent: "#00897b",
+    source: "catalog"
+  },
+  {
+    id: "uzbek-old-367",
+    videoId: "t7rfq_7Flj8",
+    title: "GAMMI AYIQLARI  ROHIB BAQALOQ  UZBEK TILIDA MULTFILM",
+    channel: "Bolajon multfilm",
+    duration: "2:08",
+    views: "Playlist",
+    tags: [
+      "uzbek",
+      "cartoons",
+      "playlist"
+    ],
+    accent: "#e8710a",
+    source: "catalog"
+  },
+  {
+    id: "uzbek-old-368",
+    videoId: "ktTde-L7F3w",
+    title: "Farzandlarimiz uchun juda ibratli multfilm klip🌙👶🏻 Shayton ibodat yo’lini to’sganda☝🏻",
+    channel: "Musulmon Uz",
+    duration: "4:00",
+    views: "Playlist",
+    tags: [
+      "uzbek",
+      "cartoons",
+      "playlist"
+    ],
+    accent: "#5f6368",
+    source: "catalog"
+  },
+  {
+    id: "uzbek-old-369",
+    videoId: "dvrooVStBS8",
+    title: "Gammi Ayiqlari 3-qism davomi profilda Goblinning sarguzashtlari uzbek tilida #gummibears #multfilm",
+    channel: "Bolajon multfilm",
+    duration: "2:15",
+    views: "Playlist",
+    tags: [
+      "uzbek",
+      "cartoons",
+      "playlist"
+    ],
+    accent: "#d93025",
+    source: "catalog"
+  },
+  {
+    id: "uzbek-old-370",
+    videoId: "Y7vJuL2Wwjc",
+    title: "MUHAMMAD ﷺ so'nggi payg'ambar (bolalar uchun multfilm)",
+    channel: "Islom Tv",
+    duration: "1:27:08",
+    views: "Playlist",
+    tags: [
+      "uzbek",
+      "cartoons",
+      "playlist"
+    ],
+    accent: "#0b8043",
+    source: "catalog"
   }
 ];

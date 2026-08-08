@@ -73,12 +73,16 @@ type YouTubeMetadata = {
   durationSeconds?: number;
 };
 
+type YouTubePlaylist = {
+  videoIds?: string[];
+};
+
 const STORAGE_KEY = "kidtube-library-v1";
 const THEME_STORAGE_KEY = "kidtube-theme-v1";
 const LANGUAGE_STORAGE_KEY = "kidtube-language-v1";
 const TRANSFER_PREFIX = "KIDTUBE1";
 const TRANSFER_SECRET = "kidtube-parent-library-transfer-v1";
-const LIBRARY_VERSION = 6;
+const LIBRARY_VERSION = 7;
 const CATALOG: Video[] = CURATED_UZBEK_OLD_CARTOONS;
 const MAX_WATCH_STACK_SIZE = 200;
 const CATALOG_NUMBER_BY_ID = new Map(
@@ -93,6 +97,9 @@ const CATALOG_ID_BY_NUMBER = new Map(
     video.id,
   ] as const),
 );
+const NEW_DEFAULT_SELECTED_IDS = CATALOG.filter(
+  (video) => (CATALOG_NUMBER_BY_ID.get(video.id) ?? 0) >= 290,
+).map((video) => video.id);
 const DEFAULT_SELECTED_IDS = CATALOG.map((video) => video.id);
 const DEFAULT_LIBRARY: StoredLibrary = {
   version: LIBRARY_VERSION,
@@ -118,6 +125,7 @@ const COPY = {
     cancel: "Cancel",
     checkingApprovedLibrary: "Checking the parent-approved library.",
     checkingVideoDetails: "Checking video details...",
+    checkingPlaylist: "Checking playlist...",
     close: "Close",
     copyFailed: "Copy failed",
     copying: "Copying...",
@@ -150,8 +158,10 @@ const COPY = {
     pause: "Pause",
     pasteExportCode: "Paste KidTube export code",
     pasteImportCodeError: "Paste a valid KidTube export code.",
-    pasteYoutubeLink: "Paste YouTube share link",
-    pasteYoutubeLinkError: "Paste a valid YouTube link or video ID.",
+    pasteYoutubeLink: "Paste YouTube video or playlist link",
+    pasteYoutubeLinkError: "Paste a valid YouTube video, playlist link, or video ID.",
+    playlistAdded: (count: number) => `${count} playlist videos added.`,
+    playlistNoVideos: "No videos found in this playlist.",
     playRecommendedVideo: "Play recommended video",
     playVideo: "Play video",
     previousVideo: "Previous approved video",
@@ -187,7 +197,7 @@ const COPY = {
     volumeUp: "Volume up",
   },
   uz: {
-    addVideo: "Video qo'shish",
+    addVideo: "Qo'shish",
     addVideoLink: "Video havolasini qo'shish",
     addVideosFromSettings: "Ota-ona sozlamalari orqali video qo'shing.",
     approved: "Tasdiqlangan",
@@ -201,6 +211,7 @@ const COPY = {
     cancel: "Bekor qilish",
     checkingApprovedLibrary: "Ota-ona tasdiqlagan kutubxona tekshirilmoqda.",
     checkingVideoDetails: "Video ma'lumotlari tekshirilmoqda...",
+    checkingPlaylist: "Playlist tekshirilmoqda...",
     close: "Yopish",
     copyFailed: "Nusxalash amalga oshmadi",
     copying: "Nusxalanmoqda...",
@@ -236,8 +247,10 @@ const COPY = {
     pause: "Pauza",
     pasteExportCode: "KidTube export kodini kiriting",
     pasteImportCodeError: "To'g'ri KidTube export kodini kiriting.",
-    pasteYoutubeLink: "YouTube share havolasini kiriting",
-    pasteYoutubeLinkError: "To'g'ri YouTube havolasi yoki video ID kiriting.",
+    pasteYoutubeLink: "YouTube video yoki playlist havolasini kiriting",
+    pasteYoutubeLinkError: "To'g'ri YouTube video, playlist havolasi yoki video ID kiriting.",
+    playlistAdded: (count: number) => `${count} ta playlist videosi qo'shildi.`,
+    playlistNoVideos: "Bu playlistda video topilmadi.",
     playRecommendedVideo: "Tavsiya qilingan videoni ko'rish",
     playVideo: "Videoni ko'rish",
     previousVideo: "Oldingi tasdiqlangan video",
@@ -421,6 +434,19 @@ function extractYouTubeId(input: string) {
   }
 }
 
+function extractYouTubePlaylistId(input: string) {
+  try {
+    const url = new URL(input.trim());
+    const playlistId = url.searchParams.get("list");
+    const hasVideoId = Boolean(url.searchParams.get("v"));
+    return playlistId && (!hasVideoId || url.pathname.includes("playlist"))
+      ? playlistId
+      : null;
+  } catch {
+    return null;
+  }
+}
+
 function normalizeStoredLibrary(library: StoredLibrary): StoredLibrary {
   const customVideos = Array.isArray(library.customVideos)
     ? library.customVideos
@@ -443,9 +469,11 @@ function normalizeStoredLibrary(library: StoredLibrary): StoredLibrary {
       customVideoIds.has(id),
     );
     const migratedSelectedIds =
-      library.version >= 2 && library.version <= 5
-        ? Array.from(new Set([...DEFAULT_SELECTED_IDS, ...storedSelectedIds]))
-        : [...DEFAULT_SELECTED_IDS, ...selectedCustomIds];
+      library.version === 6
+        ? Array.from(new Set([...storedSelectedIds, ...NEW_DEFAULT_SELECTED_IDS]))
+        : library.version >= 2 && library.version <= 5
+          ? Array.from(new Set([...DEFAULT_SELECTED_IDS, ...storedSelectedIds]))
+          : [...DEFAULT_SELECTED_IDS, ...selectedCustomIds];
 
     return {
       version: LIBRARY_VERSION,
@@ -476,6 +504,22 @@ async function fetchYouTubeMetadata(url: string): Promise<YouTubeMetadata> {
     }
 
     return (await response.json()) as YouTubeMetadata;
+  } catch {
+    return {};
+  }
+}
+
+async function fetchYouTubePlaylist(url: string): Promise<YouTubePlaylist> {
+  try {
+    const response = await fetch(
+      `/api/youtube/playlist?url=${encodeURIComponent(url)}`,
+    );
+
+    if (!response.ok) {
+      return {};
+    }
+
+    return (await response.json()) as YouTubePlaylist;
   } catch {
     return {};
   }
@@ -1076,6 +1120,103 @@ export function KidsTubeApp({
   }
 
   async function addPastedVideo() {
+    const playlistId = extractYouTubePlaylistId(pasteUrl);
+    if (playlistId) {
+      setPasteError(copy.checkingPlaylist);
+      const playlist = await fetchYouTubePlaylist(pasteUrl);
+      const playlistVideoIds = Array.from(
+        new Set(
+          (playlist.videoIds ?? []).filter((id) =>
+            /^[a-zA-Z0-9_-]{11}$/.test(id),
+          ),
+        ),
+      );
+
+      if (playlistVideoIds.length === 0) {
+        setPasteError(copy.playlistNoVideos);
+        return;
+      }
+
+      const knownVideoIds = new Set(allVideos.map((video) => video.videoId));
+      const newVideoIds = playlistVideoIds.filter(
+        (videoId) => !knownVideoIds.has(videoId),
+      );
+      const importedVideos: Video[] = [];
+
+      for (let index = 0; index < newVideoIds.length; index += 8) {
+        const chunk = newVideoIds.slice(index, index + 8);
+        setPasteError(
+          `${copy.checkingVideoDetails} ${Math.min(
+            index + chunk.length,
+            newVideoIds.length,
+          )}/${newVideoIds.length}`,
+        );
+        const videos = await Promise.all(
+          chunk.map(async (videoId) => {
+            const metadata = await fetchYouTubeMetadata(
+              `https://www.youtube.com/watch?v=${videoId}`,
+            );
+
+            return {
+              id: `custom-${videoId}`,
+              videoId,
+              title: metadata.title || copy.importedVideoTitle,
+              channel: metadata.channel || copy.parentAdded,
+              duration: metadata.duration || "--:--",
+              views: copy.parentAdded,
+              tags: ["custom"],
+              accent: "#00a676",
+              source: "custom",
+            } satisfies Video;
+          }),
+        );
+        importedVideos.push(...videos);
+      }
+
+      const playlistVideoIdSet = new Set(playlistVideoIds);
+      setLibrary((current) => {
+        const removedIdSet = new Set(current.removedIds);
+        const currentVideos = [...CATALOG, ...current.customVideos].filter(
+          (video) => !removedIdSet.has(video.id),
+        );
+        const currentCustomVideoIds = new Set(
+          current.customVideos.map((video) => video.videoId),
+        );
+        const freshImportedVideos = importedVideos.filter(
+          (video) => !currentCustomVideoIds.has(video.videoId),
+        );
+        const importedByVideoId = new Map(
+          freshImportedVideos.map((video) => [video.videoId, video] as const),
+        );
+        const selectedFromPlaylist = playlistVideoIds
+          .map(
+            (videoId) =>
+              currentVideos.find((video) => video.videoId === videoId)?.id ??
+              importedByVideoId.get(videoId)?.id,
+          )
+          .filter((id): id is string => Boolean(id));
+
+        return {
+          version: LIBRARY_VERSION,
+          customVideos: [...freshImportedVideos, ...current.customVideos],
+          removedIds: current.removedIds,
+          selectedIds: Array.from(
+            new Set([
+              ...selectedFromPlaylist.filter(
+                (id) => !removedIdSet.has(id) && playlistVideoIdSet.size > 0,
+              ),
+              ...current.selectedIds,
+            ]),
+          ),
+        };
+      });
+
+      setPasteError(copy.playlistAdded(playlistVideoIds.length));
+      setPasteUrl("");
+      setIsImportOpen(false);
+      return;
+    }
+
     const videoId = extractYouTubeId(pasteUrl);
     if (!videoId || !/^[a-zA-Z0-9_-]{11}$/.test(videoId)) {
       setPasteError(copy.pasteYoutubeLinkError);
