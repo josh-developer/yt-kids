@@ -5,6 +5,7 @@ import {
   Copy,
   Download,
   EyeOff,
+  Languages,
   Maximize2,
   Minimize2,
   Moon,
@@ -36,6 +37,7 @@ import {
 import { CURATED_UZBEK_OLD_CARTOONS } from "./curated-videos";
 
 type Theme = "dark" | "light";
+type Language = "en" | "uz";
 type AppRoute =
   | { view: "home"; query: string }
   | { view: "settings" }
@@ -60,18 +62,26 @@ type StoredLibrary = {
   removedIds: string[];
 };
 
+type WatchStack = {
+  ids: string[];
+  index: number;
+};
+
 type YouTubeMetadata = {
   title?: string;
   channel?: string;
   duration?: string;
+  durationSeconds?: number;
 };
 
 const STORAGE_KEY = "kidtube-library-v1";
 const THEME_STORAGE_KEY = "kidtube-theme-v1";
+const LANGUAGE_STORAGE_KEY = "kidtube-language-v1";
 const TRANSFER_PREFIX = "KIDTUBE1";
 const TRANSFER_SECRET = "kidtube-parent-library-transfer-v1";
 const LIBRARY_VERSION = 6;
 const CATALOG: Video[] = CURATED_UZBEK_OLD_CARTOONS;
+const MAX_WATCH_STACK_SIZE = 200;
 const CATALOG_NUMBER_BY_ID = new Map(
   CATALOG.map((video) => [
     video.id,
@@ -93,6 +103,179 @@ const DEFAULT_LIBRARY: StoredLibrary = {
 };
 
 const HOME_ROUTE: AppRoute = { view: "home", query: "" };
+const COPY = {
+  en: {
+    addVideo: "Add video",
+    addVideoLink: "Add video link",
+    addVideosFromSettings: "Add videos from Parent settings.",
+    approved: "Approved",
+    approvedCount: (count: number) => `${count} approved videos`,
+    approvedVideo: "Approved video",
+    approvedVideos: "Approved videos",
+    approveAll: "Approve all",
+    approveAllConfirm: "Approve every video in the library?",
+    approveAllVideos: "Approve all videos",
+    back15: "Go back 15 seconds",
+    cancel: "Cancel",
+    checkingApprovedLibrary: "Checking the parent-approved library.",
+    checkingVideoDetails: "Checking video details...",
+    close: "Close",
+    copyFailed: "Copy failed",
+    copying: "Copying...",
+    exportCopied: "Export copied",
+    exportParentSettings: "Export parent settings",
+    exitFullScreen: "Exit full screen",
+    forward15: "Go forward 15 seconds",
+    fullScreen: "Full screen",
+    goHome: "Go home",
+    hiddenVideos: "Hidden videos",
+    hide: "Hide",
+    hideAll: "Hide all",
+    hideAllConfirm: "Hide every approved video from home?",
+    hideAllVideos: "Hide all videos",
+    home: "Home",
+    importComplete: "Import complete.",
+    importFailed: "Could not import this code.",
+    importParentSettings: "Import parent settings",
+    importSettings: "Import settings",
+    importedVideoTitle: "Imported YouTube video",
+    language: "Language",
+    loadingVideo: "Loading video",
+    nextVideo: "Next approved video",
+    noApprovedVideos: "No approved videos yet",
+    noVideosFound: (tab: "approved" | "hidden") => `No ${tab} videos found.`,
+    mute: "Mute",
+    openSettings: "Open settings",
+    parentAdded: "Parent added",
+    parentSettings: "Parent settings",
+    pause: "Pause",
+    pasteExportCode: "Paste KidTube export code",
+    pasteImportCodeError: "Paste a valid KidTube export code.",
+    pasteYoutubeLink: "Paste YouTube share link",
+    pasteYoutubeLinkError: "Paste a valid YouTube link or video ID.",
+    playRecommendedVideo: "Play recommended video",
+    playVideo: "Play video",
+    previousVideo: "Previous approved video",
+    readingImportCode: "Reading import code...",
+    removeCompletely: "Remove completely",
+    removeCompletelyLabel: (title: string) => `Remove ${title} completely`,
+    repeatOneDisabled: "Repeat one disabled",
+    repeatOneEnabled: "Repeat one enabled",
+    search: "Search",
+    searchApprovedVideos: "Search approved videos",
+    searchPageTitle: (query: string) => `${query} - Search | KidTube`,
+    searchVideos: "Search videos",
+    show: "Show",
+    showApprovedVideos: "Show approved videos",
+    showHiddenVideos: "Show hidden videos",
+    shuffleHome: "Shuffle home",
+    switchLanguage: "Switch language",
+    transferCodeShort: "Transfer code is too short.",
+    transferInvalidVideo: "Transfer code contains an invalid video.",
+    transferReadUnsupported: "This browser cannot read compressed transfer codes.",
+    transferUnsupported: "Unsupported transfer code version.",
+    unmute: "Unmute",
+    useDarkMode: "Use dark mode",
+    useLightMode: "Use light mode",
+    videoControls: "Video controls",
+    videoPlayerHelp:
+      "Video player. Use left and right to seek, up and down for volume, and enter to play or pause.",
+    videoSurface: (title: string) => `${title} video surface`,
+    videoUnavailable: "Video unavailable",
+    videoUnavailableMessage: "This video is hidden, removed, or not in this library.",
+    volume: (value: number) => `Volume ${value}%`,
+    volumeDown: "Volume down",
+    volumeUp: "Volume up",
+  },
+  uz: {
+    addVideo: "Video qo'shish",
+    addVideoLink: "Video havolasini qo'shish",
+    addVideosFromSettings: "Ota-ona sozlamalari orqali video qo'shing.",
+    approved: "Tasdiqlangan",
+    approvedCount: (count: number) => `${count} ta tasdiqlangan video`,
+    approvedVideo: "Tasdiqlangan video",
+    approvedVideos: "Tasdiqlangan videolar",
+    approveAll: "Barchasini tasdiqlash",
+    approveAllConfirm: "Kutubxonadagi hamma videolar tasdiqlansinmi?",
+    approveAllVideos: "Hamma videolarni tasdiqlash",
+    back15: "15 soniya orqaga",
+    cancel: "Bekor qilish",
+    checkingApprovedLibrary: "Ota-ona tasdiqlagan kutubxona tekshirilmoqda.",
+    checkingVideoDetails: "Video ma'lumotlari tekshirilmoqda...",
+    close: "Yopish",
+    copyFailed: "Nusxalash amalga oshmadi",
+    copying: "Nusxalanmoqda...",
+    exportCopied: "Export nusxalandi",
+    exportParentSettings: "Ota-ona sozlamalarini eksport qilish",
+    exitFullScreen: "Full screendan chiqish",
+    forward15: "15 soniya oldinga",
+    fullScreen: "To'liq ekran",
+    goHome: "Bosh sahifaga",
+    hiddenVideos: "Yashirilgan videolar",
+    hide: "Yashirish",
+    hideAll: "Barchasini yashirish",
+    hideAllConfirm: "Tasdiqlangan hamma videolar bosh sahifadan yashirilsinmi?",
+    hideAllVideos: "Hamma videolarni yashirish",
+    home: "Bosh sahifa",
+    importComplete: "Import tugadi.",
+    importFailed: "Bu kodni import qilib bo'lmadi.",
+    importParentSettings: "Ota-ona sozlamalarini import qilish",
+    importSettings: "Sozlamalarni import qilish",
+    importedVideoTitle: "Import qilingan YouTube videosi",
+    language: "Til",
+    loadingVideo: "Video yuklanmoqda",
+    nextVideo: "Keyingi tasdiqlangan video",
+    noApprovedVideos: "Hali tasdiqlangan video yo'q",
+    noVideosFound: (tab: "approved" | "hidden") =>
+      tab === "approved"
+        ? "Tasdiqlangan videolar topilmadi."
+        : "Yashirilgan videolar topilmadi.",
+    mute: "Ovozni o'chirish",
+    openSettings: "Sozlamalarni ochish",
+    parentAdded: "Ota-ona qo'shgan",
+    parentSettings: "Ota-ona sozlamalari",
+    pause: "Pauza",
+    pasteExportCode: "KidTube export kodini kiriting",
+    pasteImportCodeError: "To'g'ri KidTube export kodini kiriting.",
+    pasteYoutubeLink: "YouTube share havolasini kiriting",
+    pasteYoutubeLinkError: "To'g'ri YouTube havolasi yoki video ID kiriting.",
+    playRecommendedVideo: "Tavsiya qilingan videoni ko'rish",
+    playVideo: "Videoni ko'rish",
+    previousVideo: "Oldingi tasdiqlangan video",
+    readingImportCode: "Import kodi o'qilmoqda...",
+    removeCompletely: "Butunlay o'chirish",
+    removeCompletelyLabel: (title: string) => `${title} butunlay o'chirilsin`,
+    repeatOneDisabled: "Bitta videoni takrorlash o'chirilgan",
+    repeatOneEnabled: "Bitta videoni takrorlash yoqilgan",
+    search: "Qidirish",
+    searchApprovedVideos: "Tasdiqlangan videolarni qidirish",
+    searchPageTitle: (query: string) => `${query} - Qidiruv | KidTube`,
+    searchVideos: "Videolarni qidirish",
+    show: "Ko'rsatish",
+    showApprovedVideos: "Tasdiqlangan videolarni ko'rsatish",
+    showHiddenVideos: "Yashirilgan videolarni ko'rsatish",
+    shuffleHome: "Bosh sahifani aralashtirish",
+    switchLanguage: "Tilni almashtirish",
+    transferCodeShort: "Transfer kodi juda qisqa.",
+    transferInvalidVideo: "Transfer kodida noto'g'ri video bor.",
+    transferReadUnsupported: "Bu brauzer siqilgan transfer kodlarini o'qiy olmaydi.",
+    transferUnsupported: "Transfer kodi versiyasi qo'llab-quvvatlanmaydi.",
+    unmute: "Ovozni yoqish",
+    useDarkMode: "Dark mode",
+    useLightMode: "Light mode",
+    videoControls: "Video boshqaruvlari",
+    videoPlayerHelp:
+      "Video player. Chap/o'ng bilan oldinga-orqaga, yuqori/past bilan ovoz, Enter bilan play/pause.",
+    videoSurface: (title: string) => `${title} video oynasi`,
+    videoUnavailable: "Video mavjud emas",
+    videoUnavailableMessage: "Bu video yashirilgan, o'chirilgan yoki kutubxonada yo'q.",
+    volume: (value: number) => `Ovoz ${value}%`,
+    volumeDown: "Ovozni pasaytirish",
+    volumeUp: "Ovozni ko'tarish",
+  },
+} as const;
+
+type CopyText = typeof COPY.en;
 
 function decodeRouteSegment(value: string) {
   try {
@@ -140,6 +323,12 @@ function pathForRoute(route: AppRoute) {
   return `/?${params.toString()}`;
 }
 
+function watchStackForRoute(route: AppRoute): WatchStack {
+  return route.view === "watch"
+    ? { ids: [route.videoId], index: 0 }
+    : { ids: [], index: -1 };
+}
+
 function isLikelyTvBrowser() {
   if (typeof navigator === "undefined") {
     return false;
@@ -148,6 +337,24 @@ function isLikelyTvBrowser() {
   return /appletv|aquos|aftb|aftm|afts|aftt|bravia|crkey|dtv|googletv|hbbtv|netcast|roku|smart-tv|smarttv|tizen|tv safari|viera|web0s|webos/i.test(
     navigator.userAgent,
   );
+}
+
+function preferredDeviceTheme(): Theme {
+  if (typeof window === "undefined") {
+    return "light";
+  }
+
+  return window.matchMedia("(prefers-color-scheme: dark)").matches
+    ? "dark"
+    : "light";
+}
+
+function preferredLanguage(): Language {
+  if (typeof navigator === "undefined") {
+    return "en";
+  }
+
+  return navigator.language.toLowerCase().startsWith("uz") ? "uz" : "en";
 }
 
 function thumbnailUrl(videoId: string) {
@@ -172,19 +379,6 @@ function lockedEmbedUrl(videoId: string, shouldAutoplay = false) {
   }
 
   return `https://www.youtube-nocookie.com/embed/${videoId}?${params.toString()}`;
-}
-
-function durationToSeconds(duration: string) {
-  if (duration === "--:--") {
-    return 0;
-  }
-
-  const parts = duration.split(":").map((part) => Number(part));
-  if (parts.some((part) => Number.isNaN(part))) {
-    return 0;
-  }
-
-  return parts.reduce((total, part) => total * 60 + part, 0);
 }
 
 function formatTimestamp(seconds: number) {
@@ -297,6 +491,46 @@ function shuffleVideos(videos: Video[], salt: number) {
     [shuffled[index], shuffled[pick]] = [shuffled[pick], shuffled[index]];
   }
   return shuffled;
+}
+
+function pushWatchStack(current: WatchStack, videoId: string): WatchStack {
+  if (current.ids[current.index] === videoId) {
+    return current;
+  }
+
+  const prefix =
+    current.index >= 0 ? current.ids.slice(0, current.index + 1) : [];
+  const ids = [...prefix, videoId].slice(-MAX_WATCH_STACK_SIZE);
+  return { ids, index: ids.length - 1 };
+}
+
+function findWatchStackVideo(
+  stack: WatchStack,
+  currentId: string,
+  direction: -1 | 1,
+  videosById: Map<string, Video>,
+) {
+  const currentIndex =
+    stack.ids[stack.index] === currentId
+      ? stack.index
+      : stack.ids.lastIndexOf(currentId);
+
+  if (currentIndex < 0) {
+    return null;
+  }
+
+  for (
+    let index = currentIndex + direction;
+    index >= 0 && index < stack.ids.length;
+    index += direction
+  ) {
+    const video = videosById.get(stack.ids[index]);
+    if (video && video.id !== currentId) {
+      return { index, video };
+    }
+  }
+
+  return null;
 }
 
 function readStoredLibrary(): StoredLibrary {
@@ -516,13 +750,10 @@ export function KidsTubeApp({
 }: {
   initialRoute?: AppRoute;
 } = {}) {
-  const [route, setRoute] = useState<AppRoute>(() =>
-    browserRouteFromLocation(initialRoute),
-  );
+  const [route, setRoute] = useState<AppRoute>(initialRoute);
   const [library, setLibrary] = useState<StoredLibrary>(DEFAULT_LIBRARY);
   const [homeQuery, setHomeQuery] = useState(() => {
-    const startingRoute = browserRouteFromLocation(initialRoute);
-    return startingRoute.view === "home" ? startingRoute.query : "";
+    return initialRoute.view === "home" ? initialRoute.query : "";
   });
   const [libraryQuery, setLibraryQuery] = useState("");
   const [isImportOpen, setIsImportOpen] = useState(false);
@@ -533,12 +764,17 @@ export function KidsTubeApp({
   const [exportTooltip, setExportTooltip] = useState("");
   const [transferStatus, setTransferStatus] = useState("");
   const [shuffleSalt, setShuffleSalt] = useState(8112);
+  const [watchStack, setWatchStack] = useState<WatchStack>(() =>
+    watchStackForRoute(initialRoute),
+  );
   const [theme, setTheme] = useState<Theme>("light");
+  const [language, setLanguage] = useState<Language>("en");
   const [hasLoadedStoredLibrary, setHasLoadedStoredLibrary] = useState(false);
   const [isTvBrowser, setIsTvBrowser] = useState(false);
   const didLoadStoredLibrary = useRef(false);
   const exportTooltipTimer = useRef<number | null>(null);
   const view = route.view;
+  const copy = COPY[language];
 
   const { customVideos, removedIds, selectedIds } = library;
 
@@ -546,15 +782,26 @@ export function KidsTubeApp({
     const frame = window.requestAnimationFrame(() => {
       const storedLibrary = readStoredLibrary();
       const storedTheme = window.localStorage.getItem(THEME_STORAGE_KEY);
+      const storedLanguage = window.localStorage.getItem(LANGUAGE_STORAGE_KEY);
       const currentRoute = browserRouteFromLocation(initialRoute);
       didLoadStoredLibrary.current = true;
       setLibrary(storedLibrary);
       setRoute(currentRoute);
+      if (currentRoute.view === "watch") {
+        setWatchStack((current) => pushWatchStack(current, currentRoute.videoId));
+      }
       if (currentRoute.view === "home") {
         setHomeQuery(currentRoute.query);
       }
       if (storedTheme === "dark" || storedTheme === "light") {
         setTheme(storedTheme);
+      } else {
+        setTheme(preferredDeviceTheme());
+      }
+      if (storedLanguage === "en" || storedLanguage === "uz") {
+        setLanguage(storedLanguage);
+      } else {
+        setLanguage(preferredLanguage());
       }
       setIsTvBrowser(isLikelyTvBrowser());
       setHasLoadedStoredLibrary(true);
@@ -567,6 +814,14 @@ export function KidsTubeApp({
     function handlePopState() {
       const nextRoute = browserRouteFromLocation(initialRoute);
       setRoute(nextRoute);
+      if (nextRoute.view === "watch") {
+        setWatchStack((current) => {
+          const existingIndex = current.ids.lastIndexOf(nextRoute.videoId);
+          return existingIndex >= 0
+            ? { ...current, index: existingIndex }
+            : pushWatchStack(current, nextRoute.videoId);
+        });
+      }
       if (nextRoute.view === "home") {
         setHomeQuery(nextRoute.query);
       }
@@ -593,6 +848,10 @@ export function KidsTubeApp({
     [],
   );
 
+  useEffect(() => {
+    document.documentElement.lang = language;
+  }, [language]);
+
   const allVideos = useMemo(() => {
     const removedIdSet = new Set(removedIds);
     return [...CATALOG, ...customVideos].filter(
@@ -606,6 +865,10 @@ export function KidsTubeApp({
         .map((id) => allVideos.find((video) => video.id === id))
         .filter((video): video is Video => Boolean(video)),
     [allVideos, selectedIds],
+  );
+  const selectedVideoById = useMemo(
+    () => new Map(selectedVideos.map((video) => [video.id, video] as const)),
+    [selectedVideos],
   );
 
   const homeVideos = useMemo(() => {
@@ -624,16 +887,18 @@ export function KidsTubeApp({
   const currentVideoIndex = currentVideo
     ? selectedVideos.findIndex((video) => video.id === currentVideo.id)
     : -1;
-  const previousVideo =
-    selectedVideos.length > 1 && currentVideoIndex >= 0
-      ? selectedVideos[
-          (currentVideoIndex - 1 + selectedVideos.length) % selectedVideos.length
-        ]
-      : null;
-  const nextVideo =
+  const previousStackEntry = currentVideo
+    ? findWatchStackVideo(watchStack, currentVideo.id, -1, selectedVideoById)
+    : null;
+  const nextStackEntry = currentVideo
+    ? findWatchStackVideo(watchStack, currentVideo.id, 1, selectedVideoById)
+    : null;
+  const fallbackNextVideo =
     selectedVideos.length > 1 && currentVideoIndex >= 0
       ? selectedVideos[(currentVideoIndex + 1) % selectedVideos.length]
       : null;
+  const previousVideo = previousStackEntry?.video ?? null;
+  const nextVideo = nextStackEntry?.video ?? fallbackNextVideo;
 
   const recommendations = useMemo(() => {
     if (!currentVideo) {
@@ -657,20 +922,20 @@ export function KidsTubeApp({
 
   useEffect(() => {
     if (view === "settings") {
-      document.title = "Parent settings | KidTube";
+      document.title = `${copy.parentSettings} | KidTube`;
       return;
     }
 
     if (view === "watch") {
       document.title = currentVideo
         ? `${currentVideo.title} | KidTube`
-        : "Video unavailable | KidTube";
+        : `${copy.videoUnavailable} | KidTube`;
       return;
     }
 
     const query = homeQuery.trim();
-    document.title = query ? `${query} - Search | KidTube` : "KidTube";
-  }, [currentVideo, homeQuery, view]);
+    document.title = query ? copy.searchPageTitle(query) : "KidTube";
+  }, [copy, currentVideo, homeQuery, view]);
 
   function navigateTo(nextRoute: AppRoute, mode: "push" | "replace" = "push") {
     setRoute(nextRoute);
@@ -693,7 +958,39 @@ export function KidsTubeApp({
   }
 
   function openVideo(video: Video) {
+    setWatchStack((current) => pushWatchStack(current, video.id));
     navigateTo({ view: "watch", videoId: video.id });
+  }
+
+  function openPreviousVideo() {
+    if (!previousStackEntry) {
+      return;
+    }
+
+    const { index, video } = previousStackEntry;
+    setWatchStack((current) =>
+      current.ids[index] === video.id
+        ? { ...current, index }
+        : { ...current, index: current.ids.lastIndexOf(video.id) },
+    );
+    navigateTo({ view: "watch", videoId: video.id });
+  }
+
+  function openNextVideo() {
+    if (nextStackEntry) {
+      const { index, video } = nextStackEntry;
+      setWatchStack((current) =>
+        current.ids[index] === video.id
+          ? { ...current, index }
+          : { ...current, index: current.ids.lastIndexOf(video.id) },
+      );
+      navigateTo({ view: "watch", videoId: video.id });
+      return;
+    }
+
+    if (fallbackNextVideo) {
+      openVideo(fallbackNextVideo);
+    }
   }
 
   function submitHomeSearch() {
@@ -750,6 +1047,27 @@ export function KidsTubeApp({
     });
   }
 
+  function updateCustomVideoDuration(video: Video, seconds: number) {
+    if (video.source !== "custom" || seconds <= 0) {
+      return;
+    }
+
+    const duration = formatTimestamp(seconds);
+    setLibrary((current) => {
+      let didChange = false;
+      const customVideos = current.customVideos.map((stored) => {
+        if (stored.id !== video.id || stored.duration === duration) {
+          return stored;
+        }
+
+        didChange = true;
+        return { ...stored, duration };
+      });
+
+      return didChange ? { ...current, customVideos } : current;
+    });
+  }
+
   function selectVideoId(videoId: string) {
     setLibrary((current) =>
       current.selectedIds.includes(videoId)
@@ -761,7 +1079,7 @@ export function KidsTubeApp({
   async function addPastedVideo() {
     const videoId = extractYouTubeId(pasteUrl);
     if (!videoId || !/^[a-zA-Z0-9_-]{11}$/.test(videoId)) {
-      setPasteError("Paste a valid YouTube link or video ID.");
+      setPasteError(copy.pasteYoutubeLinkError);
       return;
     }
 
@@ -773,7 +1091,7 @@ export function KidsTubeApp({
       return;
     }
 
-    setPasteError("Checking video details...");
+    setPasteError(copy.checkingVideoDetails);
     const metadata = await fetchYouTubeMetadata(
       `https://www.youtube.com/watch?v=${videoId}`,
     );
@@ -781,10 +1099,10 @@ export function KidsTubeApp({
     const imported: Video = {
       id: `custom-${videoId}`,
       videoId,
-      title: metadata.title || "Imported YouTube video",
-      channel: metadata.channel || "Parent added",
+      title: metadata.title || copy.importedVideoTitle,
+      channel: metadata.channel || copy.parentAdded,
       duration: metadata.duration || "--:--",
-      views: "Added by parent",
+      views: copy.parentAdded,
       tags: ["custom"],
       accent: "#00a676",
       source: "custom",
@@ -802,13 +1120,13 @@ export function KidsTubeApp({
   }
 
   async function exportLibrary() {
-    setExportTooltip("Copying...");
+    setExportTooltip("copying");
     try {
       const code = await encryptedTransferCode(library);
       await window.navigator.clipboard.writeText(code);
-      setExportTooltip("Export copied");
+      setExportTooltip("copied");
     } catch {
-      setExportTooltip("Copy failed");
+      setExportTooltip("failed");
     } finally {
       if (exportTooltipTimer.current) {
         window.clearTimeout(exportTooltipTimer.current);
@@ -820,18 +1138,29 @@ export function KidsTubeApp({
   }
 
   async function importLibrary() {
-    setTransferStatus("Reading import code...");
+    setTransferStatus(copy.readingImportCode);
     try {
       const imported = await libraryFromTransferCode(transferCode);
       setLibrary(imported);
       setShuffleSalt(Date.now() % 233280);
       setTransferCode("");
-      setTransferStatus("Import complete.");
+      setTransferStatus(copy.importComplete);
       setIsTransferImportOpen(false);
     } catch (error) {
-      setTransferStatus(
-        error instanceof Error ? error.message : "Could not import this code.",
-      );
+      const message = error instanceof Error ? error.message : "";
+      const localizedMessage =
+        message === "Paste a valid KidTube export code."
+          ? copy.pasteImportCodeError
+          : message === "Transfer code is too short."
+            ? copy.transferCodeShort
+            : message === "This browser cannot read compressed transfer codes."
+              ? copy.transferReadUnsupported
+              : message === "Unsupported transfer code version."
+                ? copy.transferUnsupported
+                : message === "Transfer code contains an invalid video."
+                  ? copy.transferInvalidVideo
+                  : copy.importFailed;
+      setTransferStatus(localizedMessage);
     }
   }
 
@@ -843,6 +1172,14 @@ export function KidsTubeApp({
     });
   }
 
+  function toggleLanguage() {
+    setLanguage((current) => {
+      const next = current === "en" ? "uz" : "en";
+      window.localStorage.setItem(LANGUAGE_STORAGE_KEY, next);
+      return next;
+    });
+  }
+
   return (
     <main className={`app-shell theme-${theme} ${isTvBrowser ? "tv-mode" : ""}`}>
       <header className="topbar">
@@ -850,14 +1187,20 @@ export function KidsTubeApp({
           className="brand"
           type="button"
           onClick={() => navigateTo(HOME_ROUTE)}
-          aria-label="Go home"
-          data-tooltip="Home"
+          aria-label={copy.goHome}
+          data-tooltip={copy.home}
         >
           <span className="brand-mark">
             <Play size={18} fill="currentColor" />
           </span>
-          <span className="brand-name">KidTube</span>
-          <span className="brand-tag">Parent picked</span>
+          <span className="brand-name" aria-label="KidTube">
+            <span className="brand-kid" aria-hidden="true">
+              <span className="brand-letter brand-letter-k">K</span>
+              <span className="brand-letter brand-letter-i">i</span>
+              <span className="brand-letter brand-letter-d">d</span>
+            </span>
+            <span className="brand-tube">Tube</span>
+          </span>
         </button>
 
         <div className="top-search-slot">
@@ -871,14 +1214,14 @@ export function KidsTubeApp({
             <input
               value={homeQuery}
               onChange={(event) => setHomeQuery(event.target.value)}
-              placeholder="Search approved videos"
-              aria-label="Search approved videos"
+              placeholder={copy.searchApprovedVideos}
+              aria-label={copy.searchApprovedVideos}
             />
             <button
               className="search-button"
               type="submit"
-              aria-label="Search"
-              data-tooltip="Search"
+              aria-label={copy.search}
+              data-tooltip={copy.search}
             >
               <Search size={20} />
             </button>
@@ -890,8 +1233,8 @@ export function KidsTubeApp({
             className="icon-button"
             type="button"
             onClick={() => setShuffleSalt(Date.now() % 233280)}
-            aria-label="Shuffle home"
-            data-tooltip="Shuffle home"
+            aria-label={copy.shuffleHome}
+            data-tooltip={copy.shuffleHome}
           >
             <RotateCcw size={19} />
           </button>
@@ -899,8 +1242,8 @@ export function KidsTubeApp({
             className="icon-button"
             type="button"
             onClick={toggleTheme}
-            aria-label={theme === "dark" ? "Use light mode" : "Use dark mode"}
-            data-tooltip={theme === "dark" ? "Use light mode" : "Use dark mode"}
+            aria-label={theme === "dark" ? copy.useLightMode : copy.useDarkMode}
+            data-tooltip={theme === "dark" ? copy.useLightMode : copy.useDarkMode}
           >
             {theme === "dark" ? <Sun size={19} /> : <Moon size={19} />}
           </button>
@@ -908,10 +1251,20 @@ export function KidsTubeApp({
             className={`icon-button ${view === "settings" ? "active" : ""}`}
             type="button"
             onClick={() => navigateTo({ view: "settings" })}
-            aria-label="Parent settings"
-            data-tooltip="Parent settings"
+            aria-label={copy.parentSettings}
+            data-tooltip={copy.parentSettings}
           >
             <Plus size={19} />
+          </button>
+          <button
+            className="language-button"
+            type="button"
+            onClick={toggleLanguage}
+            aria-label={copy.switchLanguage}
+            data-tooltip={copy.switchLanguage}
+          >
+            <Languages size={18} />
+            <span>{language === "en" ? "UZ" : "EN"}</span>
           </button>
         </div>
       </header>
@@ -921,6 +1274,7 @@ export function KidsTubeApp({
           {view === "settings" ? (
             <SettingsView
               approvedCount={selectedVideos.length}
+              copy={copy}
               exportTooltip={exportTooltip}
               isImportOpen={isImportOpen}
               isTransferImportOpen={isTransferImportOpen}
@@ -948,23 +1302,29 @@ export function KidsTubeApp({
               onUnapprove={unapproveVideo}
             />
           ) : view === "watch" && !hasLoadedStoredLibrary ? (
-            <LoadingVideoView />
+            <LoadingVideoView copy={copy} />
           ) : view === "watch" && currentVideo ? (
             <WatchView
+              copy={copy}
               isTvBrowser={isTvBrowser}
               nextVideo={nextVideo}
               previousVideo={previousVideo}
               recommendations={recommendations}
               video={currentVideo}
+              onDurationResolved={updateCustomVideoDuration}
+              onNextVideo={openNextVideo}
               onOpenVideo={openVideo}
+              onPreviousVideo={openPreviousVideo}
             />
           ) : view === "watch" ? (
             <UnavailableVideoView
+              copy={copy}
               onHome={() => navigateTo(HOME_ROUTE)}
               onSettings={() => navigateTo({ view: "settings" })}
             />
           ) : (
             <HomeView
+              copy={copy}
               videos={homeVideos}
               onOpenVideo={openVideo}
               onSettings={() => navigateTo({ view: "settings" })}
@@ -977,10 +1337,12 @@ export function KidsTubeApp({
 }
 
 function HomeView({
+  copy,
   videos,
   onOpenVideo,
   onSettings,
 }: {
+  copy: CopyText;
   videos: Video[];
   onOpenVideo: (video: Video) => void;
   onSettings: () => void;
@@ -989,16 +1351,16 @@ function HomeView({
     return (
       <div className="empty-state">
         <div>
-          <h2>No approved videos yet</h2>
-          <p className="muted">Add videos from Parent settings.</p>
+          <h2>{copy.noApprovedVideos}</h2>
+          <p className="muted">{copy.addVideosFromSettings}</p>
           <button
             className="primary-button"
             type="button"
             onClick={onSettings}
-            data-tooltip="Open settings"
+            data-tooltip={copy.openSettings}
           >
             <Plus size={18} />
-            Open settings
+            {copy.openSettings}
           </button>
         </div>
       </div>
@@ -1008,52 +1370,59 @@ function HomeView({
   return (
     <div className="video-grid">
       {videos.map((video) => (
-        <VideoCard key={video.id} video={video} onOpen={onOpenVideo} />
+        <VideoCard
+          copy={copy}
+          key={video.id}
+          video={video}
+          onOpen={onOpenVideo}
+        />
       ))}
     </div>
   );
 }
 
-function LoadingVideoView() {
+function LoadingVideoView({ copy }: { copy: CopyText }) {
   return (
     <div className="empty-state">
       <div>
-        <h2>Loading video</h2>
-        <p className="muted">Checking the parent-approved library.</p>
+        <h2>{copy.loadingVideo}</h2>
+        <p className="muted">{copy.checkingApprovedLibrary}</p>
       </div>
     </div>
   );
 }
 
 function UnavailableVideoView({
+  copy,
   onHome,
   onSettings,
 }: {
+  copy: CopyText;
   onHome: () => void;
   onSettings: () => void;
 }) {
   return (
     <div className="empty-state">
       <div>
-        <h2>Video is not approved</h2>
-        <p className="muted">This video is hidden, removed, or not in this library.</p>
+        <h2>{copy.videoUnavailable}</h2>
+        <p className="muted">{copy.videoUnavailableMessage}</p>
         <div className="empty-actions">
           <button
             className="primary-button"
             type="button"
             onClick={onHome}
-            data-tooltip="Go home"
+            data-tooltip={copy.goHome}
           >
-            Home
+            {copy.home}
           </button>
           <button
             className="pill-button"
             type="button"
             onClick={onSettings}
-            data-tooltip="Open settings"
+            data-tooltip={copy.openSettings}
           >
             <Plus size={18} />
-            Settings
+            {copy.parentSettings}
           </button>
         </div>
       </div>
@@ -1062,9 +1431,11 @@ function UnavailableVideoView({
 }
 
 function VideoCard({
+  copy,
   video,
   onOpen,
 }: {
+  copy: CopyText;
   video: Video;
   onOpen: (video: Video) => void;
 }) {
@@ -1073,7 +1444,7 @@ function VideoCard({
       className="video-card"
       type="button"
       onClick={() => onOpen(video)}
-      data-tooltip="Play video"
+      data-tooltip={copy.playVideo}
     >
       <Thumbnail video={video} />
       <div className="video-meta">
@@ -1091,29 +1462,40 @@ function VideoCard({
 }
 
 function WatchView({
+  copy,
   isTvBrowser,
   nextVideo,
   previousVideo,
   recommendations,
   video,
+  onDurationResolved,
+  onNextVideo,
   onOpenVideo,
+  onPreviousVideo,
 }: {
+  copy: CopyText;
   isTvBrowser: boolean;
   nextVideo: Video | null;
   previousVideo: Video | null;
   recommendations: Video[];
   video: Video;
+  onDurationResolved: (video: Video, seconds: number) => void;
+  onNextVideo: () => void;
   onOpenVideo: (video: Video) => void;
+  onPreviousVideo: () => void;
 }) {
   return (
     <div className="watch-layout">
       <article>
         <SafeYouTubePlayer
+          copy={copy}
           isTvBrowser={isTvBrowser}
           nextVideo={nextVideo}
           previousVideo={previousVideo}
           video={video}
-          onOpenVideo={onOpenVideo}
+          onDurationResolved={onDurationResolved}
+          onNextVideo={onNextVideo}
+          onPreviousVideo={onPreviousVideo}
         />
         <h1 className="watch-title">{video.title}</h1>
         <div className="watch-bar">
@@ -1129,22 +1511,22 @@ function WatchView({
           <button
             className="pill-button"
             type="button"
-            data-tooltip="Approved video"
+            data-tooltip={copy.approvedVideo}
           >
             <ShieldCheck size={18} />
-            Approved
+            {copy.approved}
           </button>
         </div>
       </article>
 
-      <aside className="recommendations" aria-label="Recommended videos">
+      <aside className="recommendations" aria-label={copy.playRecommendedVideo}>
         {recommendations.map((item) => (
           <button
             className="recommendation-card"
             key={item.id}
             type="button"
             onClick={() => onOpenVideo(item)}
-            data-tooltip="Play recommended video"
+            data-tooltip={copy.playRecommendedVideo}
           >
             <Thumbnail video={item} />
             <span>
@@ -1160,17 +1542,23 @@ function WatchView({
 }
 
 function SafeYouTubePlayer({
+  copy,
   isTvBrowser,
   nextVideo,
   previousVideo,
   video,
-  onOpenVideo,
+  onDurationResolved,
+  onNextVideo,
+  onPreviousVideo,
 }: {
+  copy: CopyText;
   isTvBrowser: boolean;
   nextVideo: Video | null;
   previousVideo: Video | null;
   video: Video;
-  onOpenVideo: (video: Video) => void;
+  onDurationResolved: (video: Video, seconds: number) => void;
+  onNextVideo: () => void;
+  onPreviousVideo: () => void;
 }) {
   const playerBoxRef = useRef<HTMLDivElement | null>(null);
   const iframeRef = useRef<HTMLIFrameElement | null>(null);
@@ -1183,9 +1571,7 @@ function SafeYouTubePlayer({
   const [shouldAutoplay, setShouldAutoplay] = useState(true);
   const [volume, setVolumeState] = useState(80);
   const [currentTime, setCurrentTime] = useState(0);
-  const [durationSeconds, setDurationSeconds] = useState(() =>
-    durationToSeconds(video.duration),
-  );
+  const [durationSeconds, setDurationSeconds] = useState(0);
   const playTimerRef = useRef<ReturnType<typeof window.setTimeout> | null>(null);
   const controlsTimerRef = useRef<ReturnType<typeof window.setTimeout> | null>(
     null,
@@ -1194,12 +1580,16 @@ function SafeYouTubePlayer({
     null,
   );
   const currentTimeRef = useRef(0);
-  const durationRef = useRef(durationToSeconds(video.duration));
+  const durationRef = useRef(0);
   const handleVideoEndedRef = useRef<() => void>(() => {});
   const isRestartingRepeatRef = useRef(false);
   const repeatOneRef = useRef(false);
+  const videoRef = useRef(video);
   const nextVideoRef = useRef(nextVideo);
-  const onOpenVideoRef = useRef(onOpenVideo);
+  const onDurationResolvedRef = useRef(onDurationResolved);
+  const onNextVideoRef = useRef(onNextVideo);
+  const publishedDurationRef = useRef(0);
+  const seekRelativeRef = useRef<(seconds: number) => void>(() => {});
 
   useEffect(() => {
     if (!isTvBrowser) {
@@ -1232,7 +1622,7 @@ function SafeYouTubePlayer({
       }
 
       if (nextVideoRef.current) {
-        onOpenVideoRef.current(nextVideoRef.current);
+        onNextVideoRef.current();
       }
     };
   });
@@ -1242,9 +1632,13 @@ function SafeYouTubePlayer({
   }, [isRepeatOne]);
 
   useEffect(() => {
-    const nextDuration = durationToSeconds(video.duration);
+    videoRef.current = video;
+  }, [video]);
+
+  useEffect(() => {
     currentTimeRef.current = 0;
-    durationRef.current = nextDuration;
+    durationRef.current = 0;
+    publishedDurationRef.current = 0;
     isRestartingRepeatRef.current = false;
     if (controlsTimerRef.current) {
       window.clearTimeout(controlsTimerRef.current);
@@ -1252,19 +1646,45 @@ function SafeYouTubePlayer({
 
     const frame = window.requestAnimationFrame(() => {
       setCurrentTime(0);
-      setDurationSeconds(nextDuration);
+      setDurationSeconds(0);
       setShouldAutoplay(true);
       setIsPlaying(true);
       setControlsVisible(true);
     });
 
     return () => window.cancelAnimationFrame(frame);
-  }, [video.duration, video.id]);
+  }, [video.id]);
+
+  useEffect(() => {
+    let isCancelled = false;
+
+    async function loadVideoDuration() {
+      const metadata = await fetchYouTubeMetadata(
+        `https://www.youtube.com/watch?v=${video.videoId}`,
+      );
+      const seconds = metadata.durationSeconds ?? 0;
+      if (isCancelled || seconds <= 0) {
+        return;
+      }
+
+      durationRef.current = seconds;
+      publishedDurationRef.current = seconds;
+      setDurationSeconds(seconds);
+      onDurationResolvedRef.current(videoRef.current, seconds);
+    }
+
+    void loadVideoDuration();
+
+    return () => {
+      isCancelled = true;
+    };
+  }, [video.id, video.videoId]);
 
   useEffect(() => {
     nextVideoRef.current = nextVideo;
-    onOpenVideoRef.current = onOpenVideo;
-  }, [nextVideo, onOpenVideo]);
+    onDurationResolvedRef.current = onDurationResolved;
+    onNextVideoRef.current = onNextVideo;
+  }, [nextVideo, onDurationResolved, onNextVideo]);
 
   useEffect(() => {
     function handleMessage(event: MessageEvent) {
@@ -1306,6 +1726,10 @@ function SafeYouTubePlayer({
       if (typeof info === "object" && typeof info.duration === "number" && info.duration > 0) {
         durationRef.current = info.duration;
         setDurationSeconds(info.duration);
+        if (Math.abs(info.duration - publishedDurationRef.current) >= 1) {
+          publishedDurationRef.current = info.duration;
+          onDurationResolvedRef.current(videoRef.current, info.duration);
+        }
       }
 
       const playerState =
@@ -1500,6 +1924,37 @@ function SafeYouTubePlayer({
     sendPlayerCommand("seekTo", [targetTime, true]);
   }
 
+  seekRelativeRef.current = seekRelative;
+
+  useEffect(() => {
+    function handleWindowKeyDown(event: globalThis.KeyboardEvent) {
+      const target = event.target;
+      if (
+        event.altKey ||
+        event.ctrlKey ||
+        event.metaKey ||
+        (target instanceof HTMLElement &&
+          target.closest("input, textarea, select, [contenteditable='true']"))
+      ) {
+        return;
+      }
+
+      if (event.key === "ArrowLeft" || event.key === "MediaRewind") {
+        event.preventDefault();
+        seekRelativeRef.current(-15);
+        return;
+      }
+
+      if (event.key === "ArrowRight" || event.key === "MediaFastForward") {
+        event.preventDefault();
+        seekRelativeRef.current(15);
+      }
+    }
+
+    window.addEventListener("keydown", handleWindowKeyDown);
+    return () => window.removeEventListener("keydown", handleWindowKeyDown);
+  }, []);
+
   function seekFromProgress(event: MouseEvent<HTMLButtonElement>) {
     revealControls();
     if (durationRef.current <= 0) {
@@ -1529,10 +1984,6 @@ function SafeYouTubePlayer({
   }
 
   function handlePlayerKeyDown(event: KeyboardEvent<HTMLDivElement>) {
-    if (!isTvBrowser) {
-      return;
-    }
-
     const target = event.target;
     if (
       target instanceof HTMLElement &&
@@ -1551,6 +2002,10 @@ function SafeYouTubePlayer({
     if (event.key === "ArrowRight" || event.key === "MediaFastForward") {
       event.preventDefault();
       seekRelative(15);
+      return;
+    }
+
+    if (!isTvBrowser) {
       return;
     }
 
@@ -1610,7 +2065,7 @@ function SafeYouTubePlayer({
       tabIndex={isTvBrowser ? 0 : undefined}
       aria-label={
         isTvBrowser
-          ? "Video player. Use left and right to seek, up and down for volume, and enter to play or pause."
+          ? copy.videoPlayerHelp
           : undefined
       }
       ref={playerBoxRef}
@@ -1622,6 +2077,8 @@ function SafeYouTubePlayer({
         className="youtube-mount"
         onLoad={() => {
           isRestartingRepeatRef.current = false;
+          sendPlayerCommand("getDuration");
+          sendPlayerCommand("getCurrentTime");
           sendPlayerCommand("setVolume", [volume]);
           if (shouldAutoplay) {
             schedulePlayCommand();
@@ -1632,7 +2089,7 @@ function SafeYouTubePlayer({
         sandbox="allow-scripts allow-same-origin allow-presentation"
         src={lockedEmbedUrl(video.videoId, shouldAutoplay)}
         tabIndex={-1}
-        title={`${video.title} video surface`}
+        title={copy.videoSurface(video.title)}
         onContextMenu={(event) => event.preventDefault()}
       />
       <div
@@ -1658,7 +2115,7 @@ function SafeYouTubePlayer({
           }}
           onDoubleClick={(event) => event.stopPropagation()}
           type="button"
-          aria-label={isPlaying ? `Pause ${video.title}` : `Play ${video.title}`}
+          aria-label={isPlaying ? copy.pause : copy.playVideo}
         >
           {isPlaying ? (
             <Pause size={30} fill="currentColor" />
@@ -1687,24 +2144,24 @@ function SafeYouTubePlayer({
         </button>
         <span className="player-time">
           {formatTimestamp(currentTime)} /{" "}
-          {durationSeconds > 0 ? formatTimestamp(durationSeconds) : video.duration}
+          {durationSeconds > 0 ? formatTimestamp(durationSeconds) : "--:--"}
         </span>
       </div>
-      <div className="safe-player-controls" aria-label="Video controls">
+      <div className="safe-player-controls" aria-label={copy.videoControls}>
         <button
           className="player-control-button seek-button"
           onClick={() => seekRelative(-15)}
           type="button"
-          aria-label="Go back 15 seconds"
+          aria-label={copy.back15}
         >
           -15
         </button>
         <button
           className="player-control-button"
           disabled={!previousVideo}
-          onClick={() => previousVideo && onOpenVideo(previousVideo)}
+          onClick={onPreviousVideo}
           type="button"
-          aria-label="Previous approved video"
+          aria-label={copy.previousVideo}
         >
           <SkipBack size={16} fill="currentColor" />
         </button>
@@ -1712,7 +2169,7 @@ function SafeYouTubePlayer({
           className="player-control-button primary"
           onClick={playPause}
           type="button"
-          aria-label={isPlaying ? "Pause" : "Play"}
+          aria-label={isPlaying ? copy.pause : copy.playVideo}
         >
           {isPlaying ? (
             <Pause size={16} fill="currentColor" />
@@ -1723,9 +2180,9 @@ function SafeYouTubePlayer({
         <button
           className="player-control-button"
           disabled={!nextVideo}
-          onClick={() => nextVideo && onOpenVideo(nextVideo)}
+          onClick={onNextVideo}
           type="button"
-          aria-label="Next approved video"
+          aria-label={copy.nextVideo}
         >
           <SkipForward size={16} fill="currentColor" />
         </button>
@@ -1733,7 +2190,7 @@ function SafeYouTubePlayer({
           className="player-control-button seek-button"
           onClick={() => seekRelative(15)}
           type="button"
-          aria-label="Go forward 15 seconds"
+          aria-label={copy.forward15}
         >
           +15
         </button>
@@ -1742,7 +2199,7 @@ function SafeYouTubePlayer({
           className="player-control-button"
           onClick={toggleMute}
           type="button"
-          aria-label={isMuted ? "Unmute" : "Mute"}
+          aria-label={isMuted ? copy.unmute : copy.mute}
         >
           {isMuted || volume === 0 ? (
             <VolumeX size={16} />
@@ -1756,18 +2213,18 @@ function SafeYouTubePlayer({
           className="player-control-button volume-step"
           onClick={() => setVolume(volume - 10)}
           type="button"
-          aria-label="Volume down"
+          aria-label={copy.volumeDown}
         >
           -
         </button>
-        <span className="volume-meter" aria-label={`Volume ${volume}%`}>
+        <span className="volume-meter" aria-label={copy.volume(volume)}>
           <span style={{ width: `${volume}%` }} />
         </span>
         <button
           className="player-control-button volume-step"
           onClick={() => setVolume(volume + 10)}
           type="button"
-          aria-label="Volume up"
+          aria-label={copy.volumeUp}
         >
           +
         </button>
@@ -1775,7 +2232,9 @@ function SafeYouTubePlayer({
           className={`player-control-button repeat-button ${isRepeatOne ? "active" : ""}`}
           onClick={toggleRepeatOne}
           type="button"
-          aria-label={isRepeatOne ? "Repeat one enabled" : "Repeat one disabled"}
+          aria-label={
+            isRepeatOne ? copy.repeatOneEnabled : copy.repeatOneDisabled
+          }
           aria-pressed={isRepeatOne}
         >
           <Repeat1 size={18} />
@@ -1784,7 +2243,7 @@ function SafeYouTubePlayer({
           className="player-control-button fullscreen-button"
           onClick={toggleFullscreen}
           type="button"
-          aria-label={isFullscreen ? "Exit full screen" : "Full screen"}
+          aria-label={isFullscreen ? copy.exitFullScreen : copy.fullScreen}
         >
           {isFullscreen ? <Minimize2 size={16} /> : <Maximize2 size={16} />}
         </button>
@@ -1795,6 +2254,7 @@ function SafeYouTubePlayer({
 
 function SettingsView({
   approvedCount,
+  copy,
   exportTooltip,
   isImportOpen,
   isTransferImportOpen,
@@ -1820,6 +2280,7 @@ function SettingsView({
   onUnapprove,
 }: {
   approvedCount: number;
+  copy: CopyText;
   exportTooltip: string;
   isImportOpen: boolean;
   isTransferImportOpen: boolean;
@@ -1861,40 +2322,48 @@ function SettingsView({
   );
   const visibleResults =
     settingsTab === "approved" ? approvedResults : hiddenResults;
+  const exportTooltipLabel =
+    exportTooltip === "copied"
+      ? copy.exportCopied
+      : exportTooltip === "copying"
+        ? copy.copying
+        : exportTooltip === "failed"
+          ? copy.copyFailed
+          : "";
 
   return (
     <div className="settings-layout">
       <section>
         <div className="section-heading">
           <div>
-            <h1>Parent settings</h1>
-            <div className="muted">{approvedCount} approved videos</div>
+            <h1>{copy.parentSettings}</h1>
+            <div className="muted">{copy.approvedCount(approvedCount)}</div>
           </div>
           <div className="settings-heading-actions">
             <button
               className={`icon-button tooltip-button ${exportTooltip ? "show-tooltip" : ""}`}
               type="button"
               onClick={onExportLibrary}
-              aria-label="Export parent settings"
-              data-tooltip="Export parent settings"
+              aria-label={copy.exportParentSettings}
+              data-tooltip={copy.exportParentSettings}
             >
-              {exportTooltip === "Export copied" ? (
+              {exportTooltip === "copied" ? (
                 <Check size={19} />
-              ) : exportTooltip === "Copying..." ? (
+              ) : exportTooltip === "copying" ? (
                 <Copy size={19} />
               ) : (
                 <Upload size={19} />
               )}
               <span className="button-tooltip" role="status">
-                {exportTooltip}
+                {exportTooltipLabel}
               </span>
             </button>
             <button
               className={`icon-button ${isTransferImportOpen ? "active" : ""}`}
               type="button"
               onClick={onOpenTransferImport}
-              aria-label="Import parent settings"
-              data-tooltip="Import parent settings"
+              aria-label={copy.importParentSettings}
+              data-tooltip={copy.importParentSettings}
             >
               <Download size={19} />
             </button>
@@ -1902,8 +2371,8 @@ function SettingsView({
               className="icon-button"
               type="button"
               onClick={onOpenImport}
-              aria-label="Add YouTube link"
-              data-tooltip="Add YouTube link"
+              aria-label={copy.addVideoLink}
+              data-tooltip={copy.addVideoLink}
             >
               {isImportOpen ? <X size={19} /> : <Plus size={19} />}
             </button>
@@ -1915,22 +2384,22 @@ function SettingsView({
             <input
               value={libraryQuery}
               onChange={(event) => onQueryChange(event.target.value)}
-              placeholder="Search videos"
-              aria-label="Search videos"
+              placeholder={copy.searchVideos}
+              aria-label={copy.searchVideos}
             />
           </div>
         </div>
 
-        <div className="settings-tabs" role="tablist" aria-label="Video lists">
+        <div className="settings-tabs" role="tablist" aria-label={copy.searchVideos}>
           <button
             className={`settings-tab ${settingsTab === "approved" ? "active" : ""}`}
             type="button"
             onClick={() => setSettingsTab("approved")}
             role="tab"
             aria-selected={settingsTab === "approved"}
-            data-tooltip="Show approved videos"
+            data-tooltip={copy.showApprovedVideos}
           >
-            Approved videos
+            {copy.approvedVideos}
             <span>{approvedResults.length}</span>
           </button>
           <button
@@ -1939,14 +2408,14 @@ function SettingsView({
             onClick={() => setSettingsTab("hidden")}
             role="tab"
             aria-selected={settingsTab === "hidden"}
-            data-tooltip="Show hidden videos"
+            data-tooltip={copy.showHiddenVideos}
           >
-            Hidden videos
+            {copy.hiddenVideos}
             <span>{hiddenResults.length}</span>
           </button>
         </div>
 
-        <div className="settings-bulk-actions" aria-label="Bulk video actions">
+        <div className="settings-bulk-actions" aria-label={copy.approveAllVideos}>
           <div className="bulk-action-wrap">
             <button
               className="compact-button approve-compact-button"
@@ -1957,16 +2426,17 @@ function SettingsView({
                 )
               }
               aria-expanded={confirmAction === "approve"}
-              data-tooltip="Approve all videos"
+              data-tooltip={copy.approveAllVideos}
             >
               <Plus size={16} />
-              Approve all
+              {copy.approveAll}
             </button>
             {confirmAction === "approve" ? (
               <BulkConfirmPopover
                 tone="approve"
-                message="Approve every video in the library?"
-                confirmLabel="Approve all"
+                message={copy.approveAllConfirm}
+                confirmLabel={copy.approveAll}
+                cancelLabel={copy.cancel}
                 onCancel={() => setConfirmAction(null)}
                 onConfirm={() => {
                   onApproveAll();
@@ -1983,16 +2453,17 @@ function SettingsView({
                 setConfirmAction((action) => (action === "hide" ? null : "hide"))
               }
               aria-expanded={confirmAction === "hide"}
-              data-tooltip="Hide all videos"
+              data-tooltip={copy.hideAllVideos}
             >
               <EyeOff size={16} />
-              Hide all
+              {copy.hideAll}
             </button>
             {confirmAction === "hide" ? (
               <BulkConfirmPopover
                 tone="danger"
-                message="Hide every approved video from home?"
-                confirmLabel="Hide all"
+                message={copy.hideAllConfirm}
+                confirmLabel={copy.hideAll}
+                cancelLabel={copy.cancel}
                 onCancel={() => setConfirmAction(null)}
                 onConfirm={() => {
                   onHideAll();
@@ -2021,13 +2492,13 @@ function SettingsView({
               aria-labelledby="add-video-title"
             >
               <div className="modal-heading">
-                <h2 id="add-video-title">Add video link</h2>
+                <h2 id="add-video-title">{copy.addVideoLink}</h2>
                 <button
                   className="icon-button"
                   type="button"
                   onClick={onOpenImport}
-                  aria-label="Close"
-                  data-tooltip="Close"
+                  aria-label={copy.close}
+                  data-tooltip={copy.close}
                 >
                   <X size={18} />
                 </button>
@@ -2037,8 +2508,8 @@ function SettingsView({
                   autoFocus
                   value={pasteUrl}
                   onChange={(event) => onPasteUrlChange(event.target.value)}
-                  placeholder="Paste YouTube share link"
-                  aria-label="Paste YouTube share link"
+                  placeholder={copy.pasteYoutubeLink}
+                  aria-label={copy.pasteYoutubeLink}
                 />
               </div>
               <div className="modal-actions">
@@ -2046,10 +2517,10 @@ function SettingsView({
                 <button
                   className="primary-button"
                   type="submit"
-                  data-tooltip="Add video"
+                  data-tooltip={copy.addVideo}
                 >
                   <Plus size={18} />
-                  Add video
+                  {copy.addVideo}
                 </button>
               </div>
             </form>
@@ -2074,13 +2545,13 @@ function SettingsView({
               aria-labelledby="import-settings-title"
             >
               <div className="modal-heading">
-                <h2 id="import-settings-title">Import settings</h2>
+                <h2 id="import-settings-title">{copy.importSettings}</h2>
                 <button
                   className="icon-button"
                   type="button"
                   onClick={onOpenTransferImport}
-                  aria-label="Close"
-                  data-tooltip="Close"
+                  aria-label={copy.close}
+                  data-tooltip={copy.close}
                 >
                   <X size={18} />
                 </button>
@@ -2090,18 +2561,18 @@ function SettingsView({
                 autoFocus
                 value={transferCode}
                 onChange={(event) => onTransferCodeChange(event.target.value)}
-                placeholder="Paste KidTube export code"
-                aria-label="Paste KidTube export code"
+                placeholder={copy.pasteExportCode}
+                aria-label={copy.pasteExportCode}
               />
               <div className="modal-actions">
                 <span className="status-line">{transferStatus}</span>
                 <button
                   className="primary-button"
                   type="submit"
-                  data-tooltip="Import settings"
+                  data-tooltip={copy.importSettings}
                 >
                   <Upload size={18} />
-                  Import
+                  {copy.importSettings}
                 </button>
               </div>
             </form>
@@ -2111,7 +2582,7 @@ function SettingsView({
         <div className="library-results">
           {visibleResults.length === 0 ? (
             <div className="settings-empty muted">
-              No {settingsTab === "approved" ? "approved" : "hidden"} videos found.
+              {copy.noVideosFound(settingsTab)}
             </div>
           ) : null}
           {visibleResults.map((video) => {
@@ -2129,8 +2600,8 @@ function SettingsView({
                       className="icon-button hide-icon"
                       type="button"
                       onClick={() => onUnapprove(video)}
-                      aria-label={`Hide ${video.title}`}
-                      data-tooltip="Hide"
+                      aria-label={`${copy.hide} ${video.title}`}
+                      data-tooltip={copy.hide}
                     >
                       <EyeOff size={18} />
                     </button>
@@ -2139,8 +2610,8 @@ function SettingsView({
                       className="icon-button show-icon"
                       type="button"
                       onClick={() => onApprove(video)}
-                      aria-label={`Show ${video.title}`}
-                      data-tooltip="Show"
+                      aria-label={`${copy.show} ${video.title}`}
+                      data-tooltip={copy.show}
                     >
                       <Plus size={18} />
                     </button>
@@ -2149,8 +2620,8 @@ function SettingsView({
                     className="icon-button remove-icon"
                     type="button"
                     onClick={() => onRemoveCompletely(video)}
-                    aria-label={`Remove ${video.title} completely`}
-                    data-tooltip="Remove completely"
+                    aria-label={copy.removeCompletelyLabel(video.title)}
+                    data-tooltip={copy.removeCompletely}
                   >
                     <Trash2 size={18} />
                   </button>
@@ -2165,12 +2636,14 @@ function SettingsView({
 }
 
 function BulkConfirmPopover({
+  cancelLabel,
   confirmLabel,
   message,
   tone,
   onCancel,
   onConfirm,
 }: {
+  cancelLabel: string;
   confirmLabel: string;
   message: string;
   tone: "approve" | "danger";
@@ -2185,9 +2658,9 @@ function BulkConfirmPopover({
           className="confirm-popover-button"
           type="button"
           onClick={onCancel}
-          data-tooltip="Cancel"
+          data-tooltip={cancelLabel}
         >
-          Cancel
+          {cancelLabel}
         </button>
         <button
           className={`confirm-popover-button ${tone === "danger" ? "danger-confirm" : "approve-confirm"}`}

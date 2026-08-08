@@ -89,7 +89,7 @@ function extractBalancedJson(source: string, marker: string) {
   return null;
 }
 
-async function fetchVideoDuration(videoId: string) {
+async function fetchVideoDurationSeconds(videoId: string) {
   try {
     const embedUrl = `https://www.youtube.com/embed/${videoId}`;
     const embedResponse = await fetch(embedUrl, {
@@ -141,7 +141,7 @@ async function fetchVideoDuration(videoId: string) {
           };
           const playerSeconds = Number(player.videoDetails?.lengthSeconds);
           if (Number.isFinite(playerSeconds) && playerSeconds > 0) {
-            return formatDuration(playerSeconds);
+            return playerSeconds;
           }
         }
       }
@@ -159,7 +159,7 @@ async function fetchVideoDuration(videoId: string) {
     });
 
     if (!response.ok) {
-      return "";
+      return 0;
     }
 
     const html = await response.text();
@@ -174,16 +174,16 @@ async function fetchVideoDuration(videoId: string) {
     const parsedSeconds = Number(player?.videoDetails?.lengthSeconds);
 
     if (Number.isFinite(parsedSeconds) && parsedSeconds > 0) {
-      return formatDuration(parsedSeconds);
+      return parsedSeconds;
     }
 
     const fallbackMatch = html.match(/"lengthSeconds":"(\d+)"/);
     const fallbackSeconds = Number(fallbackMatch?.[1]);
     return Number.isFinite(fallbackSeconds) && fallbackSeconds > 0
-      ? formatDuration(fallbackSeconds)
-      : "";
+      ? fallbackSeconds
+      : 0;
   } catch {
-    return "";
+    return 0;
   }
 }
 
@@ -224,10 +224,13 @@ export async function GET(request: Request) {
       thumbnail_url?: string;
     };
 
+    const durationSeconds = videoId ? await fetchVideoDurationSeconds(videoId) : 0;
+
     return Response.json({
       title: data.title ?? "",
       channel: data.author_name ?? "",
-      duration: videoId ? await fetchVideoDuration(videoId) : "",
+      duration: durationSeconds > 0 ? formatDuration(durationSeconds) : "",
+      durationSeconds,
       thumbnailUrl: data.thumbnail_url ?? "",
     });
   } catch {

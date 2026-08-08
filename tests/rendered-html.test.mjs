@@ -31,7 +31,7 @@ test("server-renders the KidTube app shell", async () => {
   const html = await response.text();
   assert.match(html, /<title>KidTube<\/title>/i);
   assert.match(html, /KidTube/);
-  assert.match(html, /Parent picked/);
+  assert.match(html, /Switch language/);
   assert.match(html, /Search approved videos/);
   assert.match(html, /Uch/);
   assert.doesNotMatch(html, /Baby Shark Dance/);
