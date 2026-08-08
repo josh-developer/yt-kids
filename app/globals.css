@@ -394,7 +394,6 @@ button {
   min-width: 0;
   padding: 22px 26px 44px;
   position: relative;
-  z-index: 1;
 }
 
 .video-grid {
