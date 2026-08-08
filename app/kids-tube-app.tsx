@@ -44,6 +44,10 @@ type FullscreenHostDocument = Document & {
   webkitExitFullscreen?: () => Promise<void> | void;
   webkitFullscreenElement?: Element | null;
 };
+type OrientationWithLock = ScreenOrientation & {
+  lock?: (orientation: OrientationLockType) => Promise<void>;
+  unlock?: () => void;
+};
 type AppRoute =
   | { view: "home"; query: string }
   | { view: "settings" }
@@ -393,6 +397,41 @@ function isIosLikeBrowser() {
   );
 }
 
+function isTrustedYouTubeMessageOrigin(origin: string) {
+  try {
+    const hostname = new URL(origin).hostname;
+    return (
+      hostname === "youtube.com" ||
+      hostname === "www.youtube.com" ||
+      hostname === "m.youtube.com" ||
+      hostname.endsWith(".youtube.com") ||
+      hostname === "youtube-nocookie.com" ||
+      hostname === "www.youtube-nocookie.com" ||
+      hostname.endsWith(".youtube-nocookie.com")
+    );
+  } catch {
+    return false;
+  }
+}
+
+async function lockLandscapeOrientation() {
+  try {
+    const orientation = screen.orientation as OrientationWithLock | undefined;
+    await orientation?.lock?.("landscape");
+  } catch {
+    // Some mobile browsers only allow orientation lock in native fullscreen, and iOS ignores it.
+  }
+}
+
+function unlockScreenOrientation() {
+  try {
+    const orientation = screen.orientation as OrientationWithLock | undefined;
+    orientation?.unlock?.();
+  } catch {
+    // Browser support is uneven; exiting fullscreen still works without unlock.
+  }
+}
+
 function thumbnailUrl(videoId: string) {
   return `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`;
 }
@@ -430,6 +469,23 @@ function formatTimestamp(seconds: number) {
   }
 
   return `${minutes}:${String(remainingSeconds).padStart(2, "0")}`;
+}
+
+function parseDurationText(duration: string) {
+  const parts = duration
+    .trim()
+    .split(":")
+    .map((part) => Number(part));
+
+  if (
+    parts.length < 2 ||
+    parts.length > 3 ||
+    parts.some((part) => !Number.isFinite(part) || part < 0)
+  ) {
+    return 0;
+  }
+
+  return parts.reduce((total, part) => total * 60 + part, 0);
 }
 
 function extractYouTubeId(input: string) {
@@ -1388,7 +1444,11 @@ export function KidsTubeApp({
   }
 
   return (
-    <main className={`app-shell theme-${theme} ${isTvBrowser ? "tv-mode" : ""}`}>
+    <main
+      className={`app-shell theme-${theme} view-${view} ${
+        isTvBrowser ? "tv-mode" : ""
+      }`}
+    >
       <header className={`topbar ${isTopbarHidden ? "topbar-hidden" : ""}`}>
         <button
           className="brand"
@@ -1774,12 +1834,20 @@ function SafeYouTubePlayer({
   );
   const [volume, setVolumeState] = useState(80);
   const [currentTime, setCurrentTime] = useState(0);
-  const [durationSeconds, setDurationSeconds] = useState(0);
+  const [durationSeconds, setDurationSeconds] = useState(() =>
+    parseDurationText(video.duration),
+  );
   const playTimerRef = useRef<ReturnType<typeof window.setTimeout> | null>(null);
+  const frameClickTimerRef = useRef<ReturnType<typeof window.setTimeout> | null>(
+    null,
+  );
   const sideNavClickTimerRef = useRef<ReturnType<typeof window.setTimeout> | null>(
     null,
   );
   const seekHintsTimerRef = useRef<ReturnType<typeof window.setTimeout> | null>(
+    null,
+  );
+  const telemetryTimerRef = useRef<ReturnType<typeof window.setInterval> | null>(
     null,
   );
   const controlsTimerRef = useRef<ReturnType<typeof window.setTimeout> | null>(
@@ -1848,9 +1916,10 @@ function SafeYouTubePlayer({
   }, [video]);
 
   useEffect(() => {
+    const fallbackDurationSeconds = parseDurationText(video.duration);
     currentTimeRef.current = 0;
-    durationRef.current = 0;
-    publishedDurationRef.current = 0;
+    durationRef.current = fallbackDurationSeconds;
+    publishedDurationRef.current = fallbackDurationSeconds;
     isRestartingRepeatRef.current = false;
     if (controlsTimerRef.current) {
       window.clearTimeout(controlsTimerRef.current);
@@ -1858,10 +1927,14 @@ function SafeYouTubePlayer({
     if (seekHintsTimerRef.current) {
       window.clearTimeout(seekHintsTimerRef.current);
     }
+    if (telemetryTimerRef.current) {
+      window.clearInterval(telemetryTimerRef.current);
+      telemetryTimerRef.current = null;
+    }
 
     const frame = window.requestAnimationFrame(() => {
       setCurrentTime(0);
-      setDurationSeconds(0);
+      setDurationSeconds(fallbackDurationSeconds);
       setShouldAutoplay(true);
       setIsPlaying(true);
       setControlsVisible(true);
@@ -1869,7 +1942,7 @@ function SafeYouTubePlayer({
     });
 
     return () => window.cancelAnimationFrame(frame);
-  }, [video.id]);
+  }, [video.duration, video.id]);
 
   useEffect(() => {
     let isCancelled = false;
@@ -1904,7 +1977,7 @@ function SafeYouTubePlayer({
 
   useEffect(() => {
     function handleMessage(event: MessageEvent) {
-      if (!event.origin.includes("youtube.com")) {
+      if (!isTrustedYouTubeMessageOrigin(event.origin)) {
         return;
       }
 
@@ -1929,7 +2002,11 @@ function SafeYouTubePlayer({
         return;
       }
 
-      if (payload.event !== "infoDelivery" && payload.event !== "onStateChange") {
+      if (
+        payload.event !== "infoDelivery" &&
+        payload.event !== "initialDelivery" &&
+        payload.event !== "onStateChange"
+      ) {
         return;
       }
 
@@ -1986,11 +2063,17 @@ function SafeYouTubePlayer({
       if (playTimerRef.current) {
         window.clearTimeout(playTimerRef.current);
       }
+      if (frameClickTimerRef.current) {
+        window.clearTimeout(frameClickTimerRef.current);
+      }
       if (sideNavClickTimerRef.current) {
         window.clearTimeout(sideNavClickTimerRef.current);
       }
       if (seekHintsTimerRef.current) {
         window.clearTimeout(seekHintsTimerRef.current);
+      }
+      if (telemetryTimerRef.current) {
+        window.clearInterval(telemetryTimerRef.current);
       }
       if (controlsTimerRef.current) {
         window.clearTimeout(controlsTimerRef.current);
@@ -2052,6 +2135,8 @@ function SafeYouTubePlayer({
       setIsNativeFullscreen(isCurrentNativeFullscreen);
       if (isCurrentNativeFullscreen) {
         setIsFallbackFullscreen(false);
+      } else {
+        unlockScreenOrientation();
       }
     }
 
@@ -2076,6 +2161,8 @@ function SafeYouTubePlayer({
     const previousOverscroll = document.body.style.overscrollBehavior;
     const previousTouchAction = document.body.style.touchAction;
     const playerElement = playerBoxRef.current;
+    const viewportSyncTimers: Array<ReturnType<typeof window.setTimeout>> = [];
+    let viewportSyncFrame: number | null = null;
 
     function syncVisualViewportSize() {
       if (!playerElement) {
@@ -2101,33 +2188,55 @@ function SafeYouTubePlayer({
       );
     }
 
-    syncVisualViewportSize();
+    function queueVisualViewportSync() {
+      syncVisualViewportSize();
+      if (viewportSyncFrame !== null) {
+        window.cancelAnimationFrame(viewportSyncFrame);
+      }
+      viewportSyncFrame = window.requestAnimationFrame(() => {
+        syncVisualViewportSize();
+        viewportSyncFrame = null;
+      });
+
+      for (const delay of [80, 180, 360, 700, 1100]) {
+        viewportSyncTimers.push(window.setTimeout(syncVisualViewportSize, delay));
+      }
+    }
+
+    queueVisualViewportSync();
     document.body.style.overflow = "hidden";
     document.documentElement.style.overflow = "hidden";
     document.body.style.overscrollBehavior = "none";
     document.body.style.touchAction = "none";
-    window.visualViewport?.addEventListener("resize", syncVisualViewportSize);
-    window.visualViewport?.addEventListener("scroll", syncVisualViewportSize);
-    window.addEventListener("orientationchange", syncVisualViewportSize);
+    window.visualViewport?.addEventListener("resize", queueVisualViewportSync);
+    window.visualViewport?.addEventListener("scroll", queueVisualViewportSync);
+    window.addEventListener("resize", queueVisualViewportSync);
+    window.addEventListener("orientationchange", queueVisualViewportSync);
 
     return () => {
       document.body.style.overflow = previousOverflow;
       document.documentElement.style.overflow = previousHtmlOverflow;
       document.body.style.overscrollBehavior = previousOverscroll;
       document.body.style.touchAction = previousTouchAction;
+      if (viewportSyncFrame !== null) {
+        window.cancelAnimationFrame(viewportSyncFrame);
+      }
+      viewportSyncTimers.forEach((timer) => window.clearTimeout(timer));
       window.visualViewport?.removeEventListener(
         "resize",
-        syncVisualViewportSize,
+        queueVisualViewportSync,
       );
       window.visualViewport?.removeEventListener(
         "scroll",
-        syncVisualViewportSize,
+        queueVisualViewportSync,
       );
-      window.removeEventListener("orientationchange", syncVisualViewportSize);
+      window.removeEventListener("resize", queueVisualViewportSync);
+      window.removeEventListener("orientationchange", queueVisualViewportSync);
       playerElement?.style.removeProperty("--player-fullscreen-left");
       playerElement?.style.removeProperty("--player-fullscreen-top");
       playerElement?.style.removeProperty("--player-fullscreen-width");
       playerElement?.style.removeProperty("--player-fullscreen-height");
+      unlockScreenOrientation();
     };
   }, [isFallbackFullscreen]);
 
@@ -2148,6 +2257,14 @@ function SafeYouTubePlayer({
     }
   }
 
+  function hideControls() {
+    if (controlsTimerRef.current) {
+      window.clearTimeout(controlsTimerRef.current);
+      controlsTimerRef.current = null;
+    }
+    setControlsVisible(false);
+  }
+
   function sendPlayerCommand(
     func: string,
     args: Array<boolean | number | string> = [],
@@ -2158,12 +2275,41 @@ function SafeYouTubePlayer({
     );
   }
 
+  function primePlayerTelemetry() {
+    iframeRef.current?.contentWindow?.postMessage(
+      JSON.stringify({ event: "listening", id: `kidtube-${videoRef.current.id}` }),
+      "*",
+    );
+    sendPlayerCommand("getDuration");
+    sendPlayerCommand("getCurrentTime");
+  }
+
+  function startTelemetryPolling() {
+    if (telemetryTimerRef.current) {
+      window.clearInterval(telemetryTimerRef.current);
+    }
+
+    let attempts = 0;
+    primePlayerTelemetry();
+    telemetryTimerRef.current = window.setInterval(() => {
+      attempts += 1;
+      primePlayerTelemetry();
+      if (attempts >= 12 || durationRef.current > 0) {
+        if (telemetryTimerRef.current) {
+          window.clearInterval(telemetryTimerRef.current);
+          telemetryTimerRef.current = null;
+        }
+      }
+    }, 650);
+  }
+
   function schedulePlayCommand() {
     if (playTimerRef.current) {
       window.clearTimeout(playTimerRef.current);
     }
 
     playTimerRef.current = window.setTimeout(() => {
+      primePlayerTelemetry();
       sendPlayerCommand("setVolume", [volume]);
       if (isMuted || volume === 0) {
         sendPlayerCommand("mute");
@@ -2306,9 +2452,34 @@ function SafeYouTubePlayer({
       return;
     }
 
+    if (frameClickTimerRef.current) {
+      window.clearTimeout(frameClickTimerRef.current);
+      frameClickTimerRef.current = null;
+    }
+
     const rect = event.currentTarget.getBoundingClientRect();
     const isLeftSide = event.clientX - rect.left < rect.width / 2;
     seekRelative(isLeftSide ? -15 : 15);
+  }
+
+  function handlePlayerFrameClick(event: MouseEvent<HTMLDivElement>) {
+    const target = event.target;
+    if (target instanceof HTMLElement && target.closest("button, input")) {
+      return;
+    }
+
+    if (frameClickTimerRef.current) {
+      window.clearTimeout(frameClickTimerRef.current);
+    }
+
+    frameClickTimerRef.current = window.setTimeout(() => {
+      frameClickTimerRef.current = null;
+      if (controlsVisible) {
+        hideControls();
+      } else {
+        revealControls();
+      }
+    }, 220);
   }
 
   function clearSideNavClickTimer() {
@@ -2395,6 +2566,7 @@ function SafeYouTubePlayer({
     setIsNativeFullscreen(false);
     setIsFallbackFullscreen(true);
     setControlsVisible(true);
+    void lockLandscapeOrientation();
     window.setTimeout(() => {
       playerBoxRef.current?.focus({ preventScroll: true });
       scheduleControlsHide();
@@ -2447,11 +2619,13 @@ function SafeYouTubePlayer({
       fullscreenDocument.webkitFullscreenElement
     ) {
       await exitNativeFullscreen();
+      unlockScreenOrientation();
       return;
     }
 
     if (isFallbackFullscreen) {
       setIsFallbackFullscreen(false);
+      unlockScreenOrientation();
       return;
     }
 
@@ -2465,6 +2639,7 @@ function SafeYouTubePlayer({
       if (didEnterNativeFullscreen) {
         setIsNativeFullscreen(true);
         setIsFallbackFullscreen(false);
+        void lockLandscapeOrientation();
       } else {
         enterFallbackFullscreen();
       }
@@ -2497,14 +2672,13 @@ function SafeYouTubePlayer({
       className={`player-box ${controlsVisible ? "" : "controls-hidden"} ${
         isFallbackFullscreen ? "fallback-fullscreen" : ""
       }`}
-      onClick={revealControls}
+      onClick={handlePlayerFrameClick}
       onDoubleClick={seekFromDoubleClick}
       onKeyDown={exitFallbackFullscreenOnEscape}
       onPointerMove={revealControls}
       role={isTvBrowser ? "region" : undefined}
       onSelect={(event) => event.preventDefault()}
       onSelectCapture={(event) => event.preventDefault()}
-      onTouchStart={revealControls}
       tabIndex={isTvBrowser ? 0 : undefined}
       aria-label={
         isTvBrowser
@@ -2521,8 +2695,7 @@ function SafeYouTubePlayer({
         className="youtube-mount"
         onLoad={() => {
           isRestartingRepeatRef.current = false;
-          sendPlayerCommand("getDuration");
-          sendPlayerCommand("getCurrentTime");
+          startTelemetryPolling();
           sendPlayerCommand("setVolume", [volume]);
           if (shouldAutoplay) {
             schedulePlayCommand();

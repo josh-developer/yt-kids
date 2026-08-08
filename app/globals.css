@@ -566,6 +566,8 @@ button {
   position: fixed;
   top: var(--player-fullscreen-top, 0);
   left: var(--player-fullscreen-left, 0);
+  right: auto;
+  bottom: auto;
   z-index: 30000;
   display: grid;
   place-items: center;
@@ -576,6 +578,7 @@ button {
   border-radius: 0;
   background: #000000;
   box-shadow: none;
+  transform: translateZ(0);
 }
 
 .player-box:fullscreen .youtube-mount,
@@ -1781,6 +1784,10 @@ button {
 @media (max-width: 720px) {
   .topbar {
     gap: 12px;
+  }
+
+  .view-watch .top-search-slot {
+    display: none;
   }
 
   .page-frame {
