@@ -41,21 +41,30 @@ test("server-renders the KidTube app shell", async () => {
 });
 
 test("uses the finished app files instead of the starter preview", async () => {
-  const [page, layout, app, css, packageJson] = await Promise.all([
-    readFile(new URL("../app/page.tsx", import.meta.url), "utf8"),
-    readFile(new URL("../app/layout.tsx", import.meta.url), "utf8"),
-    readFile(new URL("../app/kids-tube-app.tsx", import.meta.url), "utf8"),
-    readFile(new URL("../app/globals.css", import.meta.url), "utf8"),
-    readFile(new URL("../package.json", import.meta.url), "utf8"),
-  ]);
+  const [page, layout, app, youtube, player, css, packageJson] =
+    await Promise.all([
+      readFile(new URL("../app/page.tsx", import.meta.url), "utf8"),
+      readFile(new URL("../app/layout.tsx", import.meta.url), "utf8"),
+      readFile(new URL("../app/kids-tube-app.tsx", import.meta.url), "utf8"),
+      readFile(new URL("../app/lib/youtube.ts", import.meta.url), "utf8"),
+      readFile(
+        new URL(
+          "../app/components/player/safe-youtube-player.tsx",
+          import.meta.url,
+        ),
+        "utf8",
+      ),
+      readFile(new URL("../app/globals.css", import.meta.url), "utf8"),
+      readFile(new URL("../package.json", import.meta.url), "utf8"),
+    ]);
 
   assert.match(page, /export const metadata:\s*Metadata/);
   assert.match(page, /<KidsTubeApp \/>/);
   assert.match(layout, /title:\s*"KidTube"/);
   assert.match(app, /localStorage/);
-  assert.match(app, /youtube-nocookie\.com/);
-  assert.match(app, /controls:\s*"0"/);
-  assert.match(app, /sandbox="allow-scripts allow-same-origin allow-presentation"/);
+  assert.match(youtube, /youtube-nocookie\.com/);
+  assert.match(youtube, /controls:\s*"0"/);
+  assert.match(player, /sandbox="allow-scripts allow-same-origin allow-presentation"/);
   assert.match(css, /pointer-events:\s*none/);
   assert.match(app, /extractYouTubeId/);
   assert.match(app, /fetchYouTubeMetadata/);
