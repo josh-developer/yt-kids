@@ -39,6 +39,7 @@ button {
 }
 
 .app-shell {
+  --topbar-offset: 64px;
   --kid-bg-top: #fff9e8;
   --kid-bg-mid: #f2fbff;
   --kid-bg-bottom: #f6fff1;
@@ -129,9 +130,11 @@ button {
 }
 
 .topbar {
-  position: sticky;
+  position: fixed;
   top: 0;
-  z-index: 100;
+  right: 0;
+  left: 0;
+  z-index: 5000;
   display: grid;
   grid-template-columns: minmax(180px, 260px) minmax(220px, 1fr) auto;
   gap: 20px;
@@ -381,6 +384,7 @@ button {
 
 .page-frame {
   display: block;
+  padding-top: var(--topbar-offset);
 }
 
 .content {
@@ -553,9 +557,34 @@ button {
   background: #000000;
 }
 
-.player-box:fullscreen .youtube-mount {
+.player-box.fallback-fullscreen {
+  position: fixed;
+  inset: 0;
+  z-index: 30000;
+  display: grid;
+  place-items: center;
+  width: 100vw;
+  height: 100vh;
+  height: 100dvh;
+  max-height: none;
+  aspect-ratio: auto;
+  border-radius: 0;
+  background: #000000;
+  box-shadow: none;
+}
+
+.player-box:fullscreen .youtube-mount,
+.player-box.fallback-fullscreen .youtube-mount {
   position: absolute;
   inset: 0;
+}
+
+.player-box.fallback-fullscreen .safe-player-controls {
+  bottom: max(12px, env(safe-area-inset-bottom));
+}
+
+.player-box.fallback-fullscreen .player-progress-wrap {
+  bottom: max(54px, calc(env(safe-area-inset-bottom) + 46px));
 }
 
 .youtube-mount {
@@ -682,13 +711,6 @@ button {
 .player-control-button.primary {
   background: white;
   color: #0f0f0f;
-}
-
-.seek-button {
-  width: 36px;
-  border-radius: 999px;
-  font-size: 11px;
-  letter-spacing: 0;
 }
 
 .player-control-button.repeat-button.active {
@@ -1534,6 +1556,10 @@ button {
 }
 
 @media (min-width: 1280px) {
+  .tv-mode {
+    --topbar-offset: 82px;
+  }
+
   .tv-mode .topbar {
     grid-template-columns: minmax(260px, 340px) minmax(320px, 1fr) auto;
     gap: 32px;
@@ -1605,11 +1631,6 @@ button {
     height: 42px;
   }
 
-  .tv-mode .seek-button {
-    width: 54px;
-    font-size: 14px;
-  }
-
   .tv-mode .repeat-button {
     width: 46px;
     height: 46px;
@@ -1633,6 +1654,10 @@ button {
 }
 
 @media (max-width: 1080px) {
+  .app-shell {
+    --topbar-offset: 132px;
+  }
+
   .topbar {
     grid-template-columns: 1fr auto;
   }
@@ -1671,6 +1696,10 @@ button {
 }
 
 @media (max-width: 720px) {
+  .app-shell {
+    --topbar-offset: 124px;
+  }
+
   .topbar {
     gap: 12px;
   }

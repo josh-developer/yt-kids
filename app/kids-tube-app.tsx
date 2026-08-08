@@ -1696,7 +1696,8 @@ function SafeYouTubePlayer({
   const iframeRef = useRef<HTMLIFrameElement | null>(null);
   const [isPlaying, setIsPlaying] = useState(true);
   const [controlsVisible, setControlsVisible] = useState(true);
-  const [isFullscreen, setIsFullscreen] = useState(false);
+  const [isNativeFullscreen, setIsNativeFullscreen] = useState(false);
+  const [isFallbackFullscreen, setIsFallbackFullscreen] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
   const [isRepeatOne, setIsRepeatOne] = useState(false);
   const [playerReloadKey, setPlayerReloadKey] = useState(0);
@@ -1722,6 +1723,9 @@ function SafeYouTubePlayer({
   const onNextVideoRef = useRef(onNextVideo);
   const publishedDurationRef = useRef(0);
   const seekRelativeRef = useRef<(seconds: number) => void>(() => {});
+  const toggleFullscreenRef = useRef<() => void>(() => {});
+  const isFallbackFullscreenRef = useRef(false);
+  const isFullscreen = isNativeFullscreen || isFallbackFullscreen;
 
   useEffect(() => {
     if (!isTvBrowser) {
@@ -1955,13 +1959,31 @@ function SafeYouTubePlayer({
 
   useEffect(() => {
     function handleFullscreenChange() {
-      setIsFullscreen(document.fullscreenElement === playerBoxRef.current);
+      const isCurrentNativeFullscreen =
+        document.fullscreenElement === playerBoxRef.current;
+      setIsNativeFullscreen(isCurrentNativeFullscreen);
+      if (isCurrentNativeFullscreen) {
+        setIsFallbackFullscreen(false);
+      }
     }
 
     document.addEventListener("fullscreenchange", handleFullscreenChange);
     return () =>
       document.removeEventListener("fullscreenchange", handleFullscreenChange);
   }, []);
+
+  useEffect(() => {
+    if (!isFallbackFullscreen) {
+      return;
+    }
+
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+
+    return () => {
+      document.body.style.overflow = previousOverflow;
+    };
+  }, [isFallbackFullscreen]);
 
   function scheduleControlsHide() {
     if (controlsTimerRef.current) {
@@ -2057,6 +2079,7 @@ function SafeYouTubePlayer({
   }
 
   seekRelativeRef.current = seekRelative;
+  isFallbackFullscreenRef.current = isFallbackFullscreen;
 
   useEffect(() => {
     function handleWindowKeyDown(event: globalThis.KeyboardEvent) {
@@ -2080,6 +2103,18 @@ function SafeYouTubePlayer({
       if (event.key === "ArrowRight" || event.key === "MediaFastForward") {
         event.preventDefault();
         seekRelativeRef.current(15);
+        return;
+      }
+
+      if (event.key.toLowerCase() === "f") {
+        event.preventDefault();
+        toggleFullscreenRef.current();
+        return;
+      }
+
+      if (event.key === "Escape" && isFallbackFullscreenRef.current) {
+        event.preventDefault();
+        setIsFallbackFullscreen(false);
       }
     }
 
@@ -2173,10 +2208,43 @@ function SafeYouTubePlayer({
 
     if (document.fullscreenElement) {
       await document.exitFullscreen();
-    } else {
-      await playerBoxRef.current.requestFullscreen();
+      return;
+    }
+
+    if (isFallbackFullscreen) {
+      setIsFallbackFullscreen(false);
+      return;
+    }
+
+    const requestFullscreen = playerBoxRef.current.requestFullscreen;
+    if (!requestFullscreen) {
+      setIsFallbackFullscreen(true);
+      return;
+    }
+
+    try {
+      await requestFullscreen.call(playerBoxRef.current);
+      setIsNativeFullscreen(true);
+      setIsFallbackFullscreen(false);
+    } catch {
+      setIsFallbackFullscreen(true);
+      setIsNativeFullscreen(false);
     }
   }
+
+  function exitFallbackFullscreenOnEscape(event: KeyboardEvent<HTMLDivElement>) {
+    if (event.key === "Escape" && isFallbackFullscreen) {
+      event.preventDefault();
+      setIsFallbackFullscreen(false);
+      revealControls();
+    } else {
+      handlePlayerKeyDown(event);
+    }
+  }
+
+  toggleFullscreenRef.current = () => {
+    void toggleFullscreen();
+  };
 
   function toggleRepeatOne() {
     revealControls();
@@ -2185,10 +2253,12 @@ function SafeYouTubePlayer({
 
   return (
     <div
-      className={`player-box ${controlsVisible ? "" : "controls-hidden"}`}
+      className={`player-box ${controlsVisible ? "" : "controls-hidden"} ${
+        isFallbackFullscreen ? "fallback-fullscreen" : ""
+      }`}
       onClick={revealControls}
       onDoubleClick={seekFromDoubleClick}
-      onKeyDown={handlePlayerKeyDown}
+      onKeyDown={exitFallbackFullscreenOnEscape}
       onPointerMove={revealControls}
       role={isTvBrowser ? "region" : undefined}
       onSelect={(event) => event.preventDefault()}
@@ -2281,14 +2351,6 @@ function SafeYouTubePlayer({
       </div>
       <div className="safe-player-controls" aria-label={copy.videoControls}>
         <button
-          className="player-control-button seek-button"
-          onClick={() => seekRelative(-15)}
-          type="button"
-          aria-label={copy.back15}
-        >
-          -15
-        </button>
-        <button
           className="player-control-button"
           disabled={!previousVideo}
           onClick={onPreviousVideo}
@@ -2317,14 +2379,6 @@ function SafeYouTubePlayer({
           aria-label={copy.nextVideo}
         >
           <SkipForward size={16} fill="currentColor" />
-        </button>
-        <button
-          className="player-control-button seek-button"
-          onClick={() => seekRelative(15)}
-          type="button"
-          aria-label={copy.forward15}
-        >
-          +15
         </button>
         <span className="control-divider" />
         <button
