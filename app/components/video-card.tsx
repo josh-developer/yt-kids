@@ -1,15 +1,12 @@
 "use client";
 
-import type { CopyText } from "../lib/copy";
 import type { Video } from "../lib/types";
 import { Thumbnail } from "./ui/thumbnail";
 
 export function VideoCard({
-  copy,
   video,
   onOpen,
 }: {
-  copy: CopyText;
   video: Video;
   onOpen: (video: Video) => void;
 }) {

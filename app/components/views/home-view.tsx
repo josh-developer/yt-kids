@@ -40,7 +40,6 @@ export function HomeView({
     <div className="video-grid">
       {videos.map((video) => (
         <VideoCard
-          copy={copy}
           key={video.id}
           video={video}
           onOpen={onOpenVideo}
