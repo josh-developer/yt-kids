@@ -15,7 +15,6 @@ import {
   Repeat1,
   RotateCcw,
   Search,
-  ShieldCheck,
   SkipBack,
   SkipForward,
   Sun,
@@ -1508,14 +1507,6 @@ function WatchView({
               <div className="muted">{video.views}</div>
             </div>
           </div>
-          <button
-            className="pill-button"
-            type="button"
-            data-tooltip={copy.approvedVideo}
-          >
-            <ShieldCheck size={18} />
-            {copy.approved}
-          </button>
         </div>
       </article>
 
