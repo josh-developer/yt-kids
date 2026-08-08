@@ -23,13 +23,7 @@ import {
   useState,
 } from "react";
 import type { CopyText } from "../../lib/copy";
-import {
-  isIosLikeBrowser,
-  isPhysicallyLandscape,
-  lockLandscapeOrientation,
-  supportsOrientationLock,
-  unlockScreenOrientation,
-} from "../../lib/platform";
+import { isIosLikeBrowser, unlockScreenOrientation } from "../../lib/platform";
 import type { FullscreenHostDocument, FullscreenHostElement, Video } from "../../lib/types";
 import {
   formatTimestamp,
@@ -68,7 +62,6 @@ export function SafeYouTubePlayer({
   const [isLocked, setIsLocked] = useState(false);
   const [isNativeFullscreen, setIsNativeFullscreen] = useState(false);
   const [isVirtualFullscreen, setIsVirtualFullscreen] = useState(false);
-  const [isForcedLandscape, setIsForcedLandscape] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
   const [isRepeatOne, setIsRepeatOne] = useState(false);
   const [playerReloadKey, setPlayerReloadKey] = useState(0);
@@ -124,7 +117,6 @@ export function SafeYouTubePlayer({
   const isLockedRef = useRef(false);
   const isFullscreen = isNativeFullscreen || isVirtualFullscreen;
   const isFullscreenRef = useRef(false);
-  const isForcedLandscapeRef = useRef(false);
   const fullscreenTriggerRef = useRef<"auto" | "manual" | null>(null);
   const onFullscreenChangeRef = useRef(onFullscreenChange);
   const shouldStartMuted = shouldAutoplay;
@@ -403,7 +395,6 @@ export function SafeYouTubePlayer({
         // The browser's own UI (Android back gesture, etc.) closed native
         // fullscreen out from under us — mirror that everywhere.
         fullscreenTriggerRef.current = null;
-        setIsForcedLandscape(false);
         unlockScreenOrientation();
       }
     }
@@ -421,16 +412,14 @@ export function SafeYouTubePlayer({
 
   useEffect(() => {
     // Auto-enter fullscreen when the device physically rotates to
-    // landscape, and auto-exit when it rotates back — we never show a
-    // portrait-shaped fullscreen player.
+    // landscape while watching, and auto-exit that specific auto-entered
+    // fullscreen when it rotates back. A manually-entered fullscreen (via
+    // the button) is left exactly as the user chose it — portrait stays
+    // portrait until they exit it themselves.
     const query = window.matchMedia("(orientation: landscape)");
 
     function handleOrientationChange(event: MediaQueryListEvent) {
       if (event.matches) {
-        if (isForcedLandscapeRef.current) {
-          // Device caught up to the forced-landscape CSS trick; drop it.
-          setIsForcedLandscape(false);
-        }
         if (!isFullscreenRef.current) {
           void enterFullscreen("auto");
         }
@@ -631,7 +620,6 @@ export function SafeYouTubePlayer({
   isVirtualFullscreenRef.current = isVirtualFullscreen;
   isLockedRef.current = isLocked;
   isFullscreenRef.current = isFullscreen;
-  isForcedLandscapeRef.current = isForcedLandscape;
 
   useEffect(() => {
     function handleWindowKeyDown(event: globalThis.KeyboardEvent) {
@@ -793,7 +781,7 @@ export function SafeYouTubePlayer({
       return;
     }
 
-    if (isLocked || !isFullscreen || isForcedLandscape) {
+    if (isLocked || !isFullscreen) {
       fullscreenSwipeRef.current = null;
       return;
     }
@@ -808,7 +796,7 @@ export function SafeYouTubePlayer({
   function handlePlayerPointerUp(event: PointerEvent<HTMLDivElement>) {
     const swipeStart = fullscreenSwipeRef.current;
     fullscreenSwipeRef.current = null;
-    if (isLocked || !swipeStart || !isFullscreen || isForcedLandscape) {
+    if (isLocked || !swipeStart || !isFullscreen) {
       return;
     }
 
@@ -914,14 +902,10 @@ export function SafeYouTubePlayer({
     }
   }
 
-  function enterVirtualFullscreen(trigger: "auto" | "manual") {
+  function enterVirtualFullscreen() {
     setIsNativeFullscreen(false);
     setIsVirtualFullscreen(true);
     setControlsVisible(true);
-    // Only fake rotation when the device is still physically portrait —
-    // if it's already landscape (e.g. real device rotation), the content
-    // naturally fills the screen with no CSS trick needed.
-    setIsForcedLandscape(trigger === "manual" && !isPhysicallyLandscape());
     window.setTimeout(() => {
       playerBoxRef.current?.focus({ preventScroll: true });
       scheduleControlsHide();
@@ -971,10 +955,6 @@ export function SafeYouTubePlayer({
         if (didEnterNativeFullscreen) {
           setIsNativeFullscreen(true);
           setIsVirtualFullscreen(false);
-          setIsForcedLandscape(false);
-          if (trigger === "manual" && supportsOrientationLock()) {
-            void lockLandscapeOrientation();
-          }
           return;
         }
       } catch {
@@ -982,7 +962,7 @@ export function SafeYouTubePlayer({
       }
     }
 
-    enterVirtualFullscreen(trigger);
+    enterVirtualFullscreen();
   }
 
   async function exitFullscreenAll() {
@@ -997,7 +977,6 @@ export function SafeYouTubePlayer({
     fullscreenTriggerRef.current = null;
     setIsNativeFullscreen(false);
     setIsVirtualFullscreen(false);
-    setIsForcedLandscape(false);
     unlockScreenOrientation();
     setControlsVisible(true);
   }
@@ -1053,7 +1032,7 @@ export function SafeYouTubePlayer({
     <div
       className={`player-box ${controlsVisible && !isLocked ? "" : "controls-hidden"} ${
         isVirtualFullscreen ? "virtual-fullscreen" : ""
-      } ${isForcedLandscape ? "forced-landscape" : ""} ${isLocked ? "player-locked" : ""}`}
+      } ${isLocked ? "player-locked" : ""}`}
       onClick={handlePlayerFrameClick}
       onDoubleClick={seekFromDoubleClick}
       onKeyDown={exitFallbackFullscreenOnEscape}

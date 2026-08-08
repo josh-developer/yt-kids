@@ -582,23 +582,21 @@ button {
   touch-action: none;
 }
 
-/* iOS-like browsers have no orientation-lock API, so a manual fullscreen
-   request while the device is still physically portrait is faked by
-   rotating a landscape-shaped box to fill the portrait viewport. */
-.player-box.virtual-fullscreen.forced-landscape {
-  top: 50%;
-  left: 50%;
-  inset: auto;
-  width: 100vh;
-  height: 100vw;
-  transform: translate(-50%, -50%) rotate(90deg);
-}
-
+/* Fullscreen containers aren't always 16:9 (e.g. a phone held upright), so
+   the video is letterboxed to its natural aspect ratio instead of being
+   stretched to fill — the surrounding black comes from the container's own
+   background. The grid `place-items: center` on the containers above
+   centers this aspect-ratio-constrained box automatically. */
 .player-box:fullscreen .youtube-mount,
 .player-box:-webkit-full-screen .youtube-mount,
 .player-box.virtual-fullscreen .youtube-mount {
-  position: absolute;
-  inset: 0;
+  position: relative;
+  inset: auto;
+  width: auto;
+  height: auto;
+  max-width: 100%;
+  max-height: 100%;
+  aspect-ratio: 16 / 9;
 }
 
 .player-box.virtual-fullscreen .safe-player-controls {
