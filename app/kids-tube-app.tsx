@@ -37,6 +37,13 @@ import { CURATED_UZBEK_OLD_CARTOONS } from "./curated-videos";
 
 type Theme = "dark" | "light";
 type Language = "en" | "uz";
+type FullscreenHostElement = HTMLDivElement & {
+  webkitRequestFullscreen?: () => Promise<void> | void;
+};
+type FullscreenHostDocument = Document & {
+  webkitExitFullscreen?: () => Promise<void> | void;
+  webkitFullscreenElement?: Element | null;
+};
 type AppRoute =
   | { view: "home"; query: string }
   | { view: "settings" }
@@ -168,6 +175,9 @@ const COPY = {
     readingImportCode: "Reading import code...",
     removeCompletely: "Remove completely",
     removeCompletelyLabel: (title: string) => `Remove ${title} completely`,
+    resetAllVideos: "Reset all videos",
+    resetAllVideosConfirm:
+      "Reset to the default video list? Parent-added videos and hidden choices will be cleared.",
     repeatOneDisabled: "Repeat one disabled",
     repeatOneEnabled: "Repeat one enabled",
     search: "Search",
@@ -257,6 +267,9 @@ const COPY = {
     readingImportCode: "Import kodi o'qilmoqda...",
     removeCompletely: "Butunlay o'chirish",
     removeCompletelyLabel: (title: string) => `${title} butunlay o'chirilsin`,
+    resetAllVideos: "Hamma videolarni reset qilish",
+    resetAllVideosConfirm:
+      "Default video ro'yxatiga qaytarilsinmi? Ota-ona qo'shgan videolar va yashirilgan tanlovlar tozalanadi.",
     repeatOneDisabled: "Bitta videoni takrorlash o'chirilgan",
     repeatOneEnabled: "Bitta videoni takrorlash yoqilgan",
     search: "Qidirish",
@@ -367,6 +380,17 @@ function preferredLanguage(): Language {
   }
 
   return navigator.language.toLowerCase().startsWith("uz") ? "uz" : "en";
+}
+
+function isIosLikeBrowser() {
+  if (typeof navigator === "undefined") {
+    return false;
+  }
+
+  return (
+    /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+    (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1)
+  );
 }
 
 function thumbnailUrl(videoId: string) {
@@ -814,8 +838,10 @@ export function KidsTubeApp({
   const [language, setLanguage] = useState<Language>("en");
   const [hasLoadedStoredLibrary, setHasLoadedStoredLibrary] = useState(false);
   const [isTvBrowser, setIsTvBrowser] = useState(false);
+  const [isTopbarHidden, setIsTopbarHidden] = useState(false);
   const didLoadStoredLibrary = useRef(false);
   const exportTooltipTimer = useRef<number | null>(null);
+  const lastScrollYRef = useRef(0);
   const view = route.view;
   const copy = COPY[language];
 
@@ -894,6 +920,28 @@ export function KidsTubeApp({
   useEffect(() => {
     document.documentElement.lang = language;
   }, [language]);
+
+  useEffect(() => {
+    lastScrollYRef.current = window.scrollY;
+
+    function handleScroll() {
+      const currentScrollY = window.scrollY;
+      const scrollDelta = currentScrollY - lastScrollYRef.current;
+
+      if (currentScrollY < 24) {
+        setIsTopbarHidden(false);
+      } else if (scrollDelta > 8) {
+        setIsTopbarHidden(true);
+      } else if (scrollDelta < -8) {
+        setIsTopbarHidden(false);
+      }
+
+      lastScrollYRef.current = currentScrollY;
+    }
+
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   const allVideos = useMemo(() => {
     const removedIdSet = new Set(removedIds);
@@ -1037,6 +1085,13 @@ export function KidsTubeApp({
   }
 
   function submitHomeSearch() {
+    const focusedElement = document.activeElement;
+    if (
+      focusedElement instanceof HTMLElement &&
+      focusedElement.closest(".search-wrap")
+    ) {
+      focusedElement.blur();
+    }
     navigateTo({ view: "home", query: homeQuery });
   }
 
@@ -1067,6 +1122,18 @@ export function KidsTubeApp({
       ...current,
       selectedIds: [],
     }));
+  }
+
+  function resetAllVideos() {
+    setLibrary(DEFAULT_LIBRARY);
+    setLibraryQuery("");
+    setPasteUrl("");
+    setPasteError("");
+    setTransferCode("");
+    setTransferStatus("");
+    setIsImportOpen(false);
+    setIsTransferImportOpen(false);
+    setShuffleSalt(Date.now() % 233280);
   }
 
   function removeVideoCompletely(video: Video) {
@@ -1322,13 +1389,12 @@ export function KidsTubeApp({
 
   return (
     <main className={`app-shell theme-${theme} ${isTvBrowser ? "tv-mode" : ""}`}>
-      <header className="topbar">
+      <header className={`topbar ${isTopbarHidden ? "topbar-hidden" : ""}`}>
         <button
           className="brand"
           type="button"
           onClick={() => navigateTo(HOME_ROUTE)}
           aria-label={copy.goHome}
-          data-tooltip={copy.home}
         >
           <span className="brand-mark">
             <Play size={18} fill="currentColor" />
@@ -1438,6 +1504,7 @@ export function KidsTubeApp({
               onQueryChange={setLibraryQuery}
               onApprove={approveVideo}
               onRemoveCompletely={removeVideoCompletely}
+              onResetAllVideos={resetAllVideos}
               onTransferCodeChange={setTransferCode}
               onUnapprove={unapproveVideo}
             />
@@ -1702,10 +1769,19 @@ function SafeYouTubePlayer({
   const [isRepeatOne, setIsRepeatOne] = useState(false);
   const [playerReloadKey, setPlayerReloadKey] = useState(0);
   const [shouldAutoplay, setShouldAutoplay] = useState(true);
+  const [activeSeekHint, setActiveSeekHint] = useState<"previous" | "next" | null>(
+    null,
+  );
   const [volume, setVolumeState] = useState(80);
   const [currentTime, setCurrentTime] = useState(0);
   const [durationSeconds, setDurationSeconds] = useState(0);
   const playTimerRef = useRef<ReturnType<typeof window.setTimeout> | null>(null);
+  const sideNavClickTimerRef = useRef<ReturnType<typeof window.setTimeout> | null>(
+    null,
+  );
+  const seekHintsTimerRef = useRef<ReturnType<typeof window.setTimeout> | null>(
+    null,
+  );
   const controlsTimerRef = useRef<ReturnType<typeof window.setTimeout> | null>(
     null,
   );
@@ -1779,6 +1855,9 @@ function SafeYouTubePlayer({
     if (controlsTimerRef.current) {
       window.clearTimeout(controlsTimerRef.current);
     }
+    if (seekHintsTimerRef.current) {
+      window.clearTimeout(seekHintsTimerRef.current);
+    }
 
     const frame = window.requestAnimationFrame(() => {
       setCurrentTime(0);
@@ -1786,6 +1865,7 @@ function SafeYouTubePlayer({
       setShouldAutoplay(true);
       setIsPlaying(true);
       setControlsVisible(true);
+      setActiveSeekHint(null);
     });
 
     return () => window.cancelAnimationFrame(frame);
@@ -1906,6 +1986,12 @@ function SafeYouTubePlayer({
       if (playTimerRef.current) {
         window.clearTimeout(playTimerRef.current);
       }
+      if (sideNavClickTimerRef.current) {
+        window.clearTimeout(sideNavClickTimerRef.current);
+      }
+      if (seekHintsTimerRef.current) {
+        window.clearTimeout(seekHintsTimerRef.current);
+      }
       if (controlsTimerRef.current) {
         window.clearTimeout(controlsTimerRef.current);
       }
@@ -1959,8 +2045,10 @@ function SafeYouTubePlayer({
 
   useEffect(() => {
     function handleFullscreenChange() {
+      const fullscreenDocument = document as FullscreenHostDocument;
       const isCurrentNativeFullscreen =
-        document.fullscreenElement === playerBoxRef.current;
+        document.fullscreenElement === playerBoxRef.current ||
+        fullscreenDocument.webkitFullscreenElement === playerBoxRef.current;
       setIsNativeFullscreen(isCurrentNativeFullscreen);
       if (isCurrentNativeFullscreen) {
         setIsFallbackFullscreen(false);
@@ -1968,8 +2056,14 @@ function SafeYouTubePlayer({
     }
 
     document.addEventListener("fullscreenchange", handleFullscreenChange);
-    return () =>
+    document.addEventListener("webkitfullscreenchange", handleFullscreenChange);
+    return () => {
       document.removeEventListener("fullscreenchange", handleFullscreenChange);
+      document.removeEventListener(
+        "webkitfullscreenchange",
+        handleFullscreenChange,
+      );
+    };
   }, []);
 
   useEffect(() => {
@@ -1978,10 +2072,62 @@ function SafeYouTubePlayer({
     }
 
     const previousOverflow = document.body.style.overflow;
+    const previousHtmlOverflow = document.documentElement.style.overflow;
+    const previousOverscroll = document.body.style.overscrollBehavior;
+    const previousTouchAction = document.body.style.touchAction;
+    const playerElement = playerBoxRef.current;
+
+    function syncVisualViewportSize() {
+      if (!playerElement) {
+        return;
+      }
+
+      const viewport = window.visualViewport;
+      playerElement.style.setProperty(
+        "--player-fullscreen-left",
+        `${viewport?.offsetLeft ?? 0}px`,
+      );
+      playerElement.style.setProperty(
+        "--player-fullscreen-top",
+        `${viewport?.offsetTop ?? 0}px`,
+      );
+      playerElement.style.setProperty(
+        "--player-fullscreen-width",
+        `${viewport?.width ?? window.innerWidth}px`,
+      );
+      playerElement.style.setProperty(
+        "--player-fullscreen-height",
+        `${viewport?.height ?? window.innerHeight}px`,
+      );
+    }
+
+    syncVisualViewportSize();
     document.body.style.overflow = "hidden";
+    document.documentElement.style.overflow = "hidden";
+    document.body.style.overscrollBehavior = "none";
+    document.body.style.touchAction = "none";
+    window.visualViewport?.addEventListener("resize", syncVisualViewportSize);
+    window.visualViewport?.addEventListener("scroll", syncVisualViewportSize);
+    window.addEventListener("orientationchange", syncVisualViewportSize);
 
     return () => {
       document.body.style.overflow = previousOverflow;
+      document.documentElement.style.overflow = previousHtmlOverflow;
+      document.body.style.overscrollBehavior = previousOverscroll;
+      document.body.style.touchAction = previousTouchAction;
+      window.visualViewport?.removeEventListener(
+        "resize",
+        syncVisualViewportSize,
+      );
+      window.visualViewport?.removeEventListener(
+        "scroll",
+        syncVisualViewportSize,
+      );
+      window.removeEventListener("orientationchange", syncVisualViewportSize);
+      playerElement?.style.removeProperty("--player-fullscreen-left");
+      playerElement?.style.removeProperty("--player-fullscreen-top");
+      playerElement?.style.removeProperty("--player-fullscreen-width");
+      playerElement?.style.removeProperty("--player-fullscreen-height");
     };
   }, [isFallbackFullscreen]);
 
@@ -2067,6 +2213,9 @@ function SafeYouTubePlayer({
 
   function seekRelative(seconds: number) {
     revealControls();
+    if (seconds !== 0) {
+      flashSeekHint(seconds < 0 ? "previous" : "next");
+    }
     const duration = durationRef.current;
     const upperBound = duration > 0 ? duration : Number.MAX_SAFE_INTEGER;
     const targetTime = Math.max(
@@ -2076,6 +2225,18 @@ function SafeYouTubePlayer({
     currentTimeRef.current = targetTime;
     setCurrentTime(targetTime);
     sendPlayerCommand("seekTo", [targetTime, true]);
+  }
+
+  function flashSeekHint(direction: "previous" | "next") {
+    if (seekHintsTimerRef.current) {
+      window.clearTimeout(seekHintsTimerRef.current);
+    }
+
+    setActiveSeekHint(direction);
+    seekHintsTimerRef.current = window.setTimeout(() => {
+      setActiveSeekHint(null);
+      seekHintsTimerRef.current = null;
+    }, 2000);
   }
 
   seekRelativeRef.current = seekRelative;
@@ -2150,6 +2311,36 @@ function SafeYouTubePlayer({
     seekRelative(isLeftSide ? -15 : 15);
   }
 
+  function clearSideNavClickTimer() {
+    if (sideNavClickTimerRef.current) {
+      window.clearTimeout(sideNavClickTimerRef.current);
+      sideNavClickTimerRef.current = null;
+    }
+  }
+
+  function handleSideNavClick(direction: "previous" | "next") {
+    revealControls();
+    clearSideNavClickTimer();
+    sideNavClickTimerRef.current = window.setTimeout(() => {
+      sideNavClickTimerRef.current = null;
+      if (direction === "previous") {
+        if (previousVideo) {
+          onPreviousVideo();
+        }
+        return;
+      }
+
+      if (nextVideo) {
+        onNextVideo();
+      }
+    }, 220);
+  }
+
+  function handleSideNavDoubleClick(direction: "previous" | "next") {
+    clearSideNavClickTimer();
+    seekRelative(direction === "previous" ? -15 : 15);
+  }
+
   function handlePlayerKeyDown(event: KeyboardEvent<HTMLDivElement>) {
     const target = event.target;
     if (
@@ -2200,14 +2391,62 @@ function SafeYouTubePlayer({
     }
   }
 
+  function enterFallbackFullscreen() {
+    setIsNativeFullscreen(false);
+    setIsFallbackFullscreen(true);
+    setControlsVisible(true);
+    window.setTimeout(() => {
+      playerBoxRef.current?.focus({ preventScroll: true });
+      scheduleControlsHide();
+    }, 0);
+  }
+
+  async function exitNativeFullscreen() {
+    const fullscreenDocument = document as FullscreenHostDocument;
+    if (document.fullscreenElement && document.exitFullscreen) {
+      await document.exitFullscreen();
+      return;
+    }
+
+    if (
+      fullscreenDocument.webkitFullscreenElement &&
+      fullscreenDocument.webkitExitFullscreen
+    ) {
+      await fullscreenDocument.webkitExitFullscreen();
+    }
+  }
+
+  async function requestNativeFullscreen() {
+    const playerElement = playerBoxRef.current as FullscreenHostElement | null;
+    if (!playerElement) {
+      return false;
+    }
+
+    if (playerElement.requestFullscreen) {
+      await playerElement.requestFullscreen({ navigationUI: "hide" });
+      return true;
+    }
+
+    if (playerElement.webkitRequestFullscreen) {
+      await playerElement.webkitRequestFullscreen();
+      return true;
+    }
+
+    return false;
+  }
+
   async function toggleFullscreen() {
     revealControls();
     if (!playerBoxRef.current) {
       return;
     }
 
-    if (document.fullscreenElement) {
-      await document.exitFullscreen();
+    const fullscreenDocument = document as FullscreenHostDocument;
+    if (
+      document.fullscreenElement ||
+      fullscreenDocument.webkitFullscreenElement
+    ) {
+      await exitNativeFullscreen();
       return;
     }
 
@@ -2216,19 +2455,21 @@ function SafeYouTubePlayer({
       return;
     }
 
-    const requestFullscreen = playerBoxRef.current.requestFullscreen;
-    if (!requestFullscreen) {
-      setIsFallbackFullscreen(true);
+    if (isIosLikeBrowser()) {
+      enterFallbackFullscreen();
       return;
     }
 
     try {
-      await requestFullscreen.call(playerBoxRef.current);
-      setIsNativeFullscreen(true);
-      setIsFallbackFullscreen(false);
+      const didEnterNativeFullscreen = await requestNativeFullscreen();
+      if (didEnterNativeFullscreen) {
+        setIsNativeFullscreen(true);
+        setIsFallbackFullscreen(false);
+      } else {
+        enterFallbackFullscreen();
+      }
     } catch {
-      setIsFallbackFullscreen(true);
-      setIsNativeFullscreen(false);
+      enterFallbackFullscreen();
     }
   }
 
@@ -2275,7 +2516,8 @@ function SafeYouTubePlayer({
       <iframe
         key={`${video.id}-${playerReloadKey}`}
         aria-hidden="true"
-        allow="autoplay; encrypted-media; picture-in-picture"
+        allow="autoplay; encrypted-media; fullscreen; picture-in-picture"
+        allowFullScreen
         className="youtube-mount"
         onLoad={() => {
           isRestartingRepeatRef.current = false;
@@ -2298,9 +2540,48 @@ function SafeYouTubePlayer({
         className={`youtube-title-cover ${controlsVisible ? "" : "hidden"}`}
         aria-hidden="true"
       />
-      <div className="seek-zones" aria-hidden="true">
+      <div
+        className={`seek-zones ${activeSeekHint ? `show-${activeSeekHint}` : ""}`}
+        aria-hidden="true"
+      >
         <span>-15</span>
         <span>+15</span>
+      </div>
+      <div className="side-player-buttons" aria-label={copy.videoControls}>
+        <button
+          className={`side-player-button left ${previousVideo ? "" : "is-disabled"}`}
+          onClick={(event) => {
+            event.stopPropagation();
+            handleSideNavClick("previous");
+          }}
+          onDoubleClick={(event) => {
+            event.preventDefault();
+            event.stopPropagation();
+            handleSideNavDoubleClick("previous");
+          }}
+          type="button"
+          aria-disabled={!previousVideo}
+          aria-label={copy.previousVideo}
+        >
+          <SkipBack size={24} fill="currentColor" />
+        </button>
+        <button
+          className={`side-player-button right ${nextVideo ? "" : "is-disabled"}`}
+          onClick={(event) => {
+            event.stopPropagation();
+            handleSideNavClick("next");
+          }}
+          onDoubleClick={(event) => {
+            event.preventDefault();
+            event.stopPropagation();
+            handleSideNavDoubleClick("next");
+          }}
+          type="button"
+          aria-disabled={!nextVideo}
+          aria-label={copy.nextVideo}
+        >
+          <SkipForward size={24} fill="currentColor" />
+        </button>
       </div>
       {!isPlaying ? (
         <div className="player-poster">
@@ -2462,6 +2743,7 @@ function SettingsView({
   onQueryChange,
   onApprove,
   onRemoveCompletely,
+  onResetAllVideos,
   onTransferCodeChange,
   onUnapprove,
 }: {
@@ -2488,6 +2770,7 @@ function SettingsView({
   onQueryChange: (value: string) => void;
   onApprove: (video: Video) => void;
   onRemoveCompletely: (video: Video) => void;
+  onResetAllVideos: () => void;
   onTransferCodeChange: (value: string) => void;
   onUnapprove: (video: Video) => void;
 }) {
@@ -2497,6 +2780,7 @@ function SettingsView({
   const [confirmAction, setConfirmAction] = useState<"approve" | "hide" | null>(
     null,
   );
+  const [isResetConfirmOpen, setIsResetConfirmOpen] = useState(false);
   const approvedIds = useMemo(() => new Set(selectedIds), [selectedIds]);
   const approvedResults = useMemo(
     () => libraryResults.filter((video) => approvedIds.has(video.id)),
@@ -2562,6 +2846,32 @@ function SettingsView({
             >
               {isImportOpen ? <X size={19} /> : <Plus size={19} />}
             </button>
+            <div className="settings-reset-wrap">
+              <button
+                className="icon-button danger-icon-button"
+                type="button"
+                onClick={() => setIsResetConfirmOpen((open) => !open)}
+                aria-expanded={isResetConfirmOpen}
+                aria-label={copy.resetAllVideos}
+                data-tooltip={copy.resetAllVideos}
+              >
+                <RotateCcw size={19} />
+              </button>
+              {isResetConfirmOpen ? (
+                <BulkConfirmPopover
+                  tone="danger"
+                  message={copy.resetAllVideosConfirm}
+                  confirmLabel={copy.resetAllVideos}
+                  cancelLabel={copy.cancel}
+                  onCancel={() => setIsResetConfirmOpen(false)}
+                  onConfirm={() => {
+                    onResetAllVideos();
+                    setIsResetConfirmOpen(false);
+                    setConfirmAction(null);
+                  }}
+                />
+              ) : null}
+            </div>
           </div>
         </div>
 
