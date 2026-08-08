@@ -13,6 +13,7 @@ export function WatchView({
   recommendations,
   video,
   onDurationResolved,
+  onFullscreenChange,
   onNextVideo,
   onOpenVideo,
   onPreviousVideo,
@@ -24,6 +25,7 @@ export function WatchView({
   recommendations: Video[];
   video: Video;
   onDurationResolved: (video: Video, seconds: number) => void;
+  onFullscreenChange?: (isFullscreen: boolean) => void;
   onNextVideo: () => void;
   onOpenVideo: (video: Video) => void;
   onPreviousVideo: () => void;
@@ -38,6 +40,7 @@ export function WatchView({
           previousVideo={previousVideo}
           video={video}
           onDurationResolved={onDurationResolved}
+          onFullscreenChange={onFullscreenChange}
           onNextVideo={onNextVideo}
           onPreviousVideo={onPreviousVideo}
         />

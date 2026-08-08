@@ -25,7 +25,9 @@ import {
 import type { CopyText } from "../../lib/copy";
 import {
   isIosLikeBrowser,
+  isPhysicallyLandscape,
   lockLandscapeOrientation,
+  supportsOrientationLock,
   unlockScreenOrientation,
 } from "../../lib/platform";
 import type { FullscreenHostDocument, FullscreenHostElement, Video } from "../../lib/types";
@@ -45,6 +47,7 @@ export function SafeYouTubePlayer({
   previousVideo,
   video,
   onDurationResolved,
+  onFullscreenChange,
   onNextVideo,
   onPreviousVideo,
 }: {
@@ -54,6 +57,7 @@ export function SafeYouTubePlayer({
   previousVideo: Video | null;
   video: Video;
   onDurationResolved: (video: Video, seconds: number) => void;
+  onFullscreenChange?: (isFullscreen: boolean) => void;
   onNextVideo: () => void;
   onPreviousVideo: () => void;
 }) {
@@ -63,7 +67,8 @@ export function SafeYouTubePlayer({
   const [controlsVisible, setControlsVisible] = useState(true);
   const [isLocked, setIsLocked] = useState(false);
   const [isNativeFullscreen, setIsNativeFullscreen] = useState(false);
-  const [isFallbackFullscreen, setIsFallbackFullscreen] = useState(false);
+  const [isVirtualFullscreen, setIsVirtualFullscreen] = useState(false);
+  const [isForcedLandscape, setIsForcedLandscape] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
   const [isRepeatOne, setIsRepeatOne] = useState(false);
   const [playerReloadKey, setPlayerReloadKey] = useState(0);
@@ -115,9 +120,13 @@ export function SafeYouTubePlayer({
   const seekRelativeRef = useRef<(seconds: number) => void>(() => {});
   const toggleFullscreenRef = useRef<() => void>(() => {});
   const exitFullscreenRef = useRef<() => void>(() => {});
-  const isFallbackFullscreenRef = useRef(false);
+  const isVirtualFullscreenRef = useRef(false);
   const isLockedRef = useRef(false);
-  const isFullscreen = isNativeFullscreen || isFallbackFullscreen;
+  const isFullscreen = isNativeFullscreen || isVirtualFullscreen;
+  const isFullscreenRef = useRef(false);
+  const isForcedLandscapeRef = useRef(false);
+  const fullscreenTriggerRef = useRef<"auto" | "manual" | null>(null);
+  const onFullscreenChangeRef = useRef(onFullscreenChange);
   const shouldStartMuted = shouldAutoplay;
 
   useEffect(() => {
@@ -223,7 +232,12 @@ export function SafeYouTubePlayer({
     nextVideoRef.current = nextVideo;
     onDurationResolvedRef.current = onDurationResolved;
     onNextVideoRef.current = onNextVideo;
-  }, [nextVideo, onDurationResolved, onNextVideo]);
+    onFullscreenChangeRef.current = onFullscreenChange;
+  }, [nextVideo, onDurationResolved, onFullscreenChange, onNextVideo]);
+
+  useEffect(() => {
+    onFullscreenChangeRef.current?.(isFullscreen);
+  }, [isFullscreen]);
 
   useEffect(() => {
     function handleMessage(event: MessageEvent) {
@@ -384,8 +398,12 @@ export function SafeYouTubePlayer({
         fullscreenDocument.webkitFullscreenElement === playerBoxRef.current;
       setIsNativeFullscreen(isCurrentNativeFullscreen);
       if (isCurrentNativeFullscreen) {
-        setIsFallbackFullscreen(false);
+        setIsVirtualFullscreen(false);
       } else {
+        // The browser's own UI (Android back gesture, etc.) closed native
+        // fullscreen out from under us — mirror that everywhere.
+        fullscreenTriggerRef.current = null;
+        setIsForcedLandscape(false);
         unlockScreenOrientation();
       }
     }
@@ -402,7 +420,38 @@ export function SafeYouTubePlayer({
   }, []);
 
   useEffect(() => {
-    if (!isFallbackFullscreen) {
+    // Auto-enter fullscreen when the device physically rotates to
+    // landscape, and auto-exit when it rotates back — we never show a
+    // portrait-shaped fullscreen player.
+    const query = window.matchMedia("(orientation: landscape)");
+
+    function handleOrientationChange(event: MediaQueryListEvent) {
+      if (event.matches) {
+        if (isForcedLandscapeRef.current) {
+          // Device caught up to the forced-landscape CSS trick; drop it.
+          setIsForcedLandscape(false);
+        }
+        if (!isFullscreenRef.current) {
+          void enterFullscreen("auto");
+        }
+        return;
+      }
+
+      if (
+        isFullscreenRef.current &&
+        fullscreenTriggerRef.current === "auto"
+      ) {
+        void exitFullscreenAll();
+      }
+    }
+
+    query.addEventListener("change", handleOrientationChange);
+    return () => query.removeEventListener("change", handleOrientationChange);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    if (!isVirtualFullscreen) {
       return;
     }
 
@@ -410,112 +459,19 @@ export function SafeYouTubePlayer({
     const previousHtmlOverflow = document.documentElement.style.overflow;
     const previousOverscroll = document.body.style.overscrollBehavior;
     const previousTouchAction = document.body.style.touchAction;
-    const playerElement = playerBoxRef.current;
-    const viewportSyncTimers: Array<ReturnType<typeof window.setTimeout>> = [];
-    const viewportSyncInterval = window.setInterval(syncVisualViewportSize, 300);
-    let viewportSyncFrame: number | null = null;
 
-    function syncVisualViewportSize() {
-      if (!playerElement) {
-        return;
-      }
-
-      const viewport = window.visualViewport;
-      const windowWidth = window.innerWidth;
-      const windowHeight = window.innerHeight;
-      const viewportWidth = viewport?.width ?? windowWidth;
-      const viewportHeight = viewport?.height ?? windowHeight;
-      const viewportMatchesWindowOrientation =
-        (viewportWidth >= viewportHeight) === (windowWidth >= windowHeight);
-      const shouldUseVisualViewport =
-        !viewport ||
-        viewportMatchesWindowOrientation ||
-        Math.abs(viewportWidth - windowWidth) < 2;
-      const fullscreenLeft = shouldUseVisualViewport
-        ? (viewport?.offsetLeft ?? 0)
-        : 0;
-      const fullscreenTop = shouldUseVisualViewport
-        ? (viewport?.offsetTop ?? 0)
-        : 0;
-      const fullscreenWidth = shouldUseVisualViewport
-        ? viewportWidth
-        : windowWidth;
-      const fullscreenHeight = shouldUseVisualViewport
-        ? viewportHeight
-        : windowHeight;
-
-      playerElement.style.setProperty(
-        "--player-fullscreen-left",
-        `${fullscreenLeft}px`,
-      );
-      playerElement.style.setProperty(
-        "--player-fullscreen-top",
-        `${fullscreenTop}px`,
-      );
-      playerElement.style.setProperty(
-        "--player-fullscreen-width",
-        `${fullscreenWidth}px`,
-      );
-      playerElement.style.setProperty(
-        "--player-fullscreen-height",
-        `${fullscreenHeight}px`,
-      );
-    }
-
-    function queueVisualViewportSync() {
-      syncVisualViewportSize();
-      if (viewportSyncFrame !== null) {
-        window.cancelAnimationFrame(viewportSyncFrame);
-      }
-      viewportSyncFrame = window.requestAnimationFrame(() => {
-        syncVisualViewportSize();
-        viewportSyncFrame = null;
-      });
-
-      for (const delay of [80, 180, 360, 700, 1100, 1800, 2600]) {
-        viewportSyncTimers.push(window.setTimeout(syncVisualViewportSize, delay));
-      }
-    }
-
-    queueVisualViewportSync();
     document.body.style.overflow = "hidden";
     document.documentElement.style.overflow = "hidden";
     document.body.style.overscrollBehavior = "none";
     document.body.style.touchAction = "none";
-    window.visualViewport?.addEventListener("resize", queueVisualViewportSync);
-    window.visualViewport?.addEventListener("scroll", queueVisualViewportSync);
-    screen.orientation?.addEventListener("change", queueVisualViewportSync);
-    window.addEventListener("resize", queueVisualViewportSync);
-    window.addEventListener("orientationchange", queueVisualViewportSync);
 
     return () => {
       document.body.style.overflow = previousOverflow;
       document.documentElement.style.overflow = previousHtmlOverflow;
       document.body.style.overscrollBehavior = previousOverscroll;
       document.body.style.touchAction = previousTouchAction;
-      if (viewportSyncFrame !== null) {
-        window.cancelAnimationFrame(viewportSyncFrame);
-      }
-      window.clearInterval(viewportSyncInterval);
-      viewportSyncTimers.forEach((timer) => window.clearTimeout(timer));
-      window.visualViewport?.removeEventListener(
-        "resize",
-        queueVisualViewportSync,
-      );
-      window.visualViewport?.removeEventListener(
-        "scroll",
-        queueVisualViewportSync,
-      );
-      screen.orientation?.removeEventListener("change", queueVisualViewportSync);
-      window.removeEventListener("resize", queueVisualViewportSync);
-      window.removeEventListener("orientationchange", queueVisualViewportSync);
-      playerElement?.style.removeProperty("--player-fullscreen-left");
-      playerElement?.style.removeProperty("--player-fullscreen-top");
-      playerElement?.style.removeProperty("--player-fullscreen-width");
-      playerElement?.style.removeProperty("--player-fullscreen-height");
-      unlockScreenOrientation();
     };
-  }, [isFallbackFullscreen]);
+  }, [isVirtualFullscreen]);
 
   function scheduleControlsHide() {
     if (controlsTimerRef.current) {
@@ -672,8 +628,10 @@ export function SafeYouTubePlayer({
   }
 
   seekRelativeRef.current = seekRelative;
-  isFallbackFullscreenRef.current = isFallbackFullscreen;
+  isVirtualFullscreenRef.current = isVirtualFullscreen;
   isLockedRef.current = isLocked;
+  isFullscreenRef.current = isFullscreen;
+  isForcedLandscapeRef.current = isForcedLandscape;
 
   useEffect(() => {
     function handleWindowKeyDown(event: globalThis.KeyboardEvent) {
@@ -710,7 +668,7 @@ export function SafeYouTubePlayer({
         return;
       }
 
-      if (event.key === "Escape" && isFallbackFullscreenRef.current) {
+      if (event.key === "Escape" && isVirtualFullscreenRef.current) {
         event.preventDefault();
         exitFullscreenRef.current();
       }
@@ -835,7 +793,7 @@ export function SafeYouTubePlayer({
       return;
     }
 
-    if (isLocked || !isFullscreen) {
+    if (isLocked || !isFullscreen || isForcedLandscape) {
       fullscreenSwipeRef.current = null;
       return;
     }
@@ -850,7 +808,7 @@ export function SafeYouTubePlayer({
   function handlePlayerPointerUp(event: PointerEvent<HTMLDivElement>) {
     const swipeStart = fullscreenSwipeRef.current;
     fullscreenSwipeRef.current = null;
-    if (isLocked || !swipeStart || !isFullscreen) {
+    if (isLocked || !swipeStart || !isFullscreen || isForcedLandscape) {
       return;
     }
 
@@ -869,7 +827,7 @@ export function SafeYouTubePlayer({
       window.clearTimeout(frameClickTimerRef.current);
       frameClickTimerRef.current = null;
     }
-    void exitFullscreen();
+    void exitFullscreenAll();
   }
 
   function clearSideNavClickTimer() {
@@ -956,11 +914,14 @@ export function SafeYouTubePlayer({
     }
   }
 
-  function enterFallbackFullscreen() {
+  function enterVirtualFullscreen(trigger: "auto" | "manual") {
     setIsNativeFullscreen(false);
-    setIsFallbackFullscreen(true);
+    setIsVirtualFullscreen(true);
     setControlsVisible(true);
-    void lockLandscapeOrientation();
+    // Only fake rotation when the device is still physically portrait —
+    // if it's already landscape (e.g. real device rotation), the content
+    // naturally fills the screen with no CSS trick needed.
+    setIsForcedLandscape(trigger === "manual" && !isPhysicallyLandscape());
     window.setTimeout(() => {
       playerBoxRef.current?.focus({ preventScroll: true });
       scheduleControlsHide();
@@ -982,21 +943,6 @@ export function SafeYouTubePlayer({
     }
   }
 
-  async function exitFullscreen() {
-    const fullscreenDocument = document as FullscreenHostDocument;
-    if (
-      document.fullscreenElement ||
-      fullscreenDocument.webkitFullscreenElement
-    ) {
-      await exitNativeFullscreen();
-    }
-
-    setIsFallbackFullscreen(false);
-    setIsNativeFullscreen(false);
-    unlockScreenOrientation();
-    setControlsVisible(true);
-  }
-
   async function requestNativeFullscreen() {
     const playerElement = playerBoxRef.current as FullscreenHostElement | null;
     if (!playerElement) {
@@ -1016,43 +962,54 @@ export function SafeYouTubePlayer({
     return false;
   }
 
-  async function toggleFullscreen() {
-    revealControls();
-    if (!playerBoxRef.current) {
-      return;
+  async function enterFullscreen(trigger: "auto" | "manual") {
+    fullscreenTriggerRef.current = trigger;
+
+    if (!isIosLikeBrowser() && playerBoxRef.current) {
+      try {
+        const didEnterNativeFullscreen = await requestNativeFullscreen();
+        if (didEnterNativeFullscreen) {
+          setIsNativeFullscreen(true);
+          setIsVirtualFullscreen(false);
+          setIsForcedLandscape(false);
+          if (trigger === "manual" && supportsOrientationLock()) {
+            void lockLandscapeOrientation();
+          }
+          return;
+        }
+      } catch {
+        // Fall through to the virtual (CSS-driven) fullscreen below.
+      }
     }
 
+    enterVirtualFullscreen(trigger);
+  }
+
+  async function exitFullscreenAll() {
     const fullscreenDocument = document as FullscreenHostDocument;
     if (
       document.fullscreenElement ||
       fullscreenDocument.webkitFullscreenElement
     ) {
-      await exitFullscreen();
+      await exitNativeFullscreen();
+    }
+
+    fullscreenTriggerRef.current = null;
+    setIsNativeFullscreen(false);
+    setIsVirtualFullscreen(false);
+    setIsForcedLandscape(false);
+    unlockScreenOrientation();
+    setControlsVisible(true);
+  }
+
+  async function toggleFullscreen() {
+    revealControls();
+    if (isFullscreen) {
+      await exitFullscreenAll();
       return;
     }
 
-    if (isFallbackFullscreen) {
-      await exitFullscreen();
-      return;
-    }
-
-    if (isIosLikeBrowser()) {
-      enterFallbackFullscreen();
-      return;
-    }
-
-    try {
-      const didEnterNativeFullscreen = await requestNativeFullscreen();
-      if (didEnterNativeFullscreen) {
-        setIsNativeFullscreen(true);
-        setIsFallbackFullscreen(false);
-        void lockLandscapeOrientation();
-      } else {
-        enterFallbackFullscreen();
-      }
-    } catch {
-      enterFallbackFullscreen();
-    }
+    await enterFullscreen("manual");
   }
 
   function exitFallbackFullscreenOnEscape(event: KeyboardEvent<HTMLDivElement>) {
@@ -1060,9 +1017,9 @@ export function SafeYouTubePlayer({
       return;
     }
 
-    if (event.key === "Escape" && isFallbackFullscreen) {
+    if (event.key === "Escape" && isVirtualFullscreen) {
       event.preventDefault();
-      void exitFullscreen();
+      void exitFullscreenAll();
       revealControls();
     } else {
       handlePlayerKeyDown(event);
@@ -1073,7 +1030,7 @@ export function SafeYouTubePlayer({
     void toggleFullscreen();
   };
   exitFullscreenRef.current = () => {
-    void exitFullscreen();
+    void exitFullscreenAll();
   };
 
   function toggleRepeatOne() {
@@ -1095,8 +1052,8 @@ export function SafeYouTubePlayer({
   return (
     <div
       className={`player-box ${controlsVisible && !isLocked ? "" : "controls-hidden"} ${
-        isFallbackFullscreen ? "fallback-fullscreen" : ""
-      } ${isLocked ? "player-locked" : ""}`}
+        isVirtualFullscreen ? "virtual-fullscreen" : ""
+      } ${isForcedLandscape ? "forced-landscape" : ""} ${isLocked ? "player-locked" : ""}`}
       onClick={handlePlayerFrameClick}
       onDoubleClick={seekFromDoubleClick}
       onKeyDown={exitFallbackFullscreenOnEscape}

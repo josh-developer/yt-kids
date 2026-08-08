@@ -566,38 +566,46 @@ button {
   background: #000000;
 }
 
-.player-box.fallback-fullscreen {
+.player-box.virtual-fullscreen {
   position: fixed;
-  top: var(--player-fullscreen-top, 0);
-  left: var(--player-fullscreen-left, 0);
-  right: auto;
-  bottom: auto;
+  inset: 0;
   z-index: 30000;
   display: grid;
   place-items: center;
-  width: var(--player-fullscreen-width, 100vw);
-  height: var(--player-fullscreen-height, 100dvh);
+  width: 100vw;
+  height: 100dvh;
   max-height: none;
   aspect-ratio: auto;
   border-radius: 0;
   background: #000000;
   box-shadow: none;
-  transform: translateZ(0);
   touch-action: none;
+}
+
+/* iOS-like browsers have no orientation-lock API, so a manual fullscreen
+   request while the device is still physically portrait is faked by
+   rotating a landscape-shaped box to fill the portrait viewport. */
+.player-box.virtual-fullscreen.forced-landscape {
+  top: 50%;
+  left: 50%;
+  inset: auto;
+  width: 100vh;
+  height: 100vw;
+  transform: translate(-50%, -50%) rotate(90deg);
 }
 
 .player-box:fullscreen .youtube-mount,
 .player-box:-webkit-full-screen .youtube-mount,
-.player-box.fallback-fullscreen .youtube-mount {
+.player-box.virtual-fullscreen .youtube-mount {
   position: absolute;
   inset: 0;
 }
 
-.player-box.fallback-fullscreen .safe-player-controls {
+.player-box.virtual-fullscreen .safe-player-controls {
   bottom: max(12px, env(safe-area-inset-bottom));
 }
 
-.player-box.fallback-fullscreen .player-progress-wrap {
+.player-box.virtual-fullscreen .player-progress-wrap {
   bottom: max(54px, calc(env(safe-area-inset-bottom) + 46px));
 }
 

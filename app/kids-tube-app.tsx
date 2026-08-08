@@ -76,6 +76,7 @@ export function KidsTubeApp({
   const [hasLoadedStoredLibrary, setHasLoadedStoredLibrary] = useState(false);
   const [isTvBrowser, setIsTvBrowser] = useState(false);
   const [isTopbarHidden, setIsTopbarHidden] = useState(false);
+  const [isPlayerFullscreen, setIsPlayerFullscreen] = useState(false);
   const didLoadStoredLibrary = useRef(false);
   const exportTooltipTimer = useRef<number | null>(null);
   const lastScrollYRef = useRef(0);
@@ -614,7 +615,7 @@ export function KidsTubeApp({
       <TopBar
         copy={copy}
         homeQuery={homeQuery}
-        isHidden={isTopbarHidden}
+        isHidden={isTopbarHidden || isPlayerFullscreen}
         language={language}
         theme={theme}
         view={view}
@@ -671,6 +672,7 @@ export function KidsTubeApp({
               recommendations={recommendations}
               video={currentVideo}
               onDurationResolved={updateCustomVideoDuration}
+              onFullscreenChange={setIsPlayerFullscreen}
               onNextVideo={openNextVideo}
               onOpenVideo={openVideo}
               onPreviousVideo={openPreviousVideo}

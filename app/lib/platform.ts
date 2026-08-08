@@ -43,8 +43,10 @@ export async function lockLandscapeOrientation() {
   try {
     const orientation = screen.orientation as OrientationWithLock | undefined;
     await orientation?.lock?.("landscape");
+    return true;
   } catch {
     // Some mobile browsers only allow orientation lock in native fullscreen, and iOS ignores it.
+    return false;
   }
 }
 
@@ -55,4 +57,21 @@ export function unlockScreenOrientation() {
   } catch {
     // Browser support is uneven; exiting fullscreen still works without unlock.
   }
+}
+
+export function supportsOrientationLock() {
+  if (typeof screen === "undefined") {
+    return false;
+  }
+
+  const orientation = screen.orientation as OrientationWithLock | undefined;
+  return typeof orientation?.lock === "function";
+}
+
+export function isPhysicallyLandscape() {
+  if (typeof window === "undefined") {
+    return false;
+  }
+
+  return window.matchMedia("(orientation: landscape)").matches;
 }
