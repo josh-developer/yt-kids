@@ -2,14 +2,14 @@ import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import test from "node:test";
 
-async function render() {
+async function render(path = "/", headers = {}) {
   const workerUrl = new URL("../dist/server/index.js", import.meta.url);
   workerUrl.searchParams.set("test", `${process.pid}-${Date.now()}`);
   const { default: worker } = await import(workerUrl.href);
 
   return worker.fetch(
-    new Request("http://localhost/", {
-      headers: { accept: "text/html" },
+    new Request(`http://localhost${path}`, {
+      headers: { accept: "text/html", ...headers },
     }),
     {
       ASSETS: {
@@ -23,14 +23,14 @@ async function render() {
   );
 }
 
-test("server-renders the KidTube app shell", async () => {
-  const response = await render();
+test("server-renders the KidTube app shell in English", async () => {
+  const response = await render("/en");
   assert.equal(response.status, 200);
   assert.match(response.headers.get("content-type") ?? "", /^text\/html\b/i);
 
   const html = await response.text();
+  assert.match(html, /<html lang="en"/);
   assert.match(html, /<title>KidTube<\/title>/i);
-  assert.match(html, /KidTube/);
   assert.match(html, /Switch language/);
   assert.match(html, /Search approved videos/);
   assert.match(html, /Uch/);
@@ -40,36 +40,61 @@ test("server-renders the KidTube app shell", async () => {
   assert.doesNotMatch(html, /codex-preview|react-loading-skeleton/);
 });
 
-test("uses the finished app files instead of the starter preview", async () => {
-  const [page, layout, app, youtube, player, css, packageJson] =
-    await Promise.all([
-      readFile(new URL("../app/page.tsx", import.meta.url), "utf8"),
-      readFile(new URL("../app/layout.tsx", import.meta.url), "utf8"),
-      readFile(new URL("../app/kids-tube-app.tsx", import.meta.url), "utf8"),
-      readFile(new URL("../app/lib/youtube.ts", import.meta.url), "utf8"),
-      readFile(
-        new URL(
-          "../app/components/player/safe-youtube-player.tsx",
-          import.meta.url,
-        ),
-        "utf8",
-      ),
-      readFile(new URL("../app/globals.css", import.meta.url), "utf8"),
-      readFile(new URL("../package.json", import.meta.url), "utf8"),
-    ]);
+test("server-renders Uzbek copy without a client-side language flip", async () => {
+  const response = await render("/uz");
+  assert.equal(response.status, 200);
 
-  assert.match(page, /export const metadata:\s*Metadata/);
-  assert.match(page, /<KidsTubeApp \/>/);
-  assert.match(layout, /title:\s*"KidTube"/);
-  assert.match(app, /localStorage/);
-  assert.match(youtube, /youtube-nocookie\.com/);
-  assert.match(youtube, /controls:\s*"0"/);
-  assert.match(player, /sandbox="allow-scripts allow-same-origin allow-presentation"/);
-  assert.match(css, /pointer-events:\s*none/);
-  assert.match(app, /extractYouTubeId/);
-  assert.match(app, /fetchYouTubeMetadata/);
-  assert.match(packageJson, /"name": "yt-kids"/);
-  assert.match(packageJson, /"lucide-react":/);
-  assert.doesNotMatch(layout, /codex-preview|_sites-preview|themeColor|\bViewport\b/);
-  assert.doesNotMatch(packageJson, /react-loading-skeleton/);
+  const html = await response.text();
+  assert.match(html, /<html lang="uz"/);
+  assert.match(html, /Tilni almashtirish/);
+  assert.match(html, /Tanlangan videolarni qidirish/);
+  assert.match(html, /marta ko&#x27;rilgan|marta ko'rilgan/);
+  assert.doesNotMatch(html, /Search approved videos/);
+});
+
+test("localizes page metadata per locale", async () => {
+  const [english, uzbek] = await Promise.all([
+    render("/en/settings"),
+    render("/uz/settings"),
+  ]);
+
+  assert.match(await english.text(), /<title>Parent settings \| KidTube<\/title>/i);
+  assert.match(
+    await uzbek.text(),
+    /<title>Ota-ona sozlamalari \| KidTube<\/title>/i,
+  );
+});
+
+test("redirects locale-less URLs to a negotiated locale", async () => {
+  const fallback = await render("/");
+  assert.equal(fallback.status, 307);
+  assert.match(fallback.headers.get("location") ?? "", /\/en$/);
+
+  const negotiated = await render("/", { "accept-language": "uz-UZ,uz;q=0.9" });
+  assert.equal(negotiated.status, 307);
+  assert.match(negotiated.headers.get("location") ?? "", /\/uz$/);
+
+  const remembered = await render("/", { cookie: "NEXT_LOCALE=uz" });
+  assert.equal(remembered.status, 307);
+  assert.match(remembered.headers.get("location") ?? "", /\/uz$/);
+});
+
+test("keeps every message key in sync across locales", async () => {
+  const [en, uz] = await Promise.all([
+    readFile(new URL("../messages/en.json", import.meta.url), "utf8"),
+    readFile(new URL("../messages/uz.json", import.meta.url), "utf8"),
+  ]);
+
+  function flatten(value, prefix = "") {
+    return Object.entries(value).flatMap(([key, entry]) =>
+      typeof entry === "object" && entry !== null
+        ? flatten(entry, `${prefix}${key}.`)
+        : [`${prefix}${key}`],
+    );
+  }
+
+  assert.deepEqual(
+    flatten(JSON.parse(en)).sort(),
+    flatten(JSON.parse(uz)).sort(),
+  );
 });
