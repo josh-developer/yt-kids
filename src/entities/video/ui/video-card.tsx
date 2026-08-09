@@ -2,6 +2,7 @@ import type { Video } from "../model/types";
 import { ChannelAvatar } from "./channel-avatar";
 import { VideoSummary } from "./video-summary";
 import { VideoThumbnail } from "./video-thumbnail";
+import styles from "./video.module.css";
 
 export function VideoCard({
   video,
@@ -11,9 +12,9 @@ export function VideoCard({
   onOpen: (video: Video) => void;
 }) {
   return (
-    <button className="video-card" type="button" onClick={() => onOpen(video)}>
+    <button className={styles.videoCard} type="button" onClick={() => onOpen(video)}>
       <VideoThumbnail video={video} />
-      <div className="video-meta">
+      <div className={styles.videoMeta}>
         <ChannelAvatar video={video} />
         <VideoSummary video={video} />
       </div>

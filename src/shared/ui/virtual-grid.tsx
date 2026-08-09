@@ -1,6 +1,7 @@
 import { useWindowVirtualizer } from "@tanstack/react-virtual";
 import { Fragment, useEffect, useRef, useState } from "react";
 import type { ReactNode } from "react";
+import styles from "./virtual-grid.module.css";
 
 const ESTIMATED_ROW_HEIGHT = 340;
 const OVERSCAN_ROWS = 4;
@@ -106,7 +107,7 @@ export function VirtualGrid<Item>({
             // height is behind reality overlaps the one above it and swallows
             // taps meant for the cards there. Only the cards take pointer
             // events; the row itself is inert.
-            className={`${className} virtual-grid-row`}
+            className={`${className} ${styles.virtualGridRow}`}
             style={{
               position: "absolute",
               top: 0,

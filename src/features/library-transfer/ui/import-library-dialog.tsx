@@ -1,6 +1,8 @@
 import { Upload } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { ModalPanel } from "@/shared/ui/modal-panel";
+import primitives from "@/shared/ui/primitives.module.css";
+import styles from "./import-library-dialog.module.css";
 
 export function ImportLibraryDialog({
   code,
@@ -29,7 +31,7 @@ export function ImportLibraryDialog({
       onSubmit={onSubmit}
     >
       <textarea
-        className="transfer-code-input"
+        className={`${primitives.fieldInput} ${styles.transferCodeInput}`}
         autoFocus
         value={code}
         onChange={(event) => onCodeChange(event.target.value)}

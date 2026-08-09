@@ -1,3 +1,4 @@
+import styles from "./switch.module.css";
 /** Checkbox styled as a track and knob; the label is for screen readers. */
 export function Switch({
   isChecked,
@@ -9,10 +10,10 @@ export function Switch({
   onToggle: () => void;
 }) {
   return (
-    <label className="switch">
+    <label className={styles.switch}>
       <input checked={isChecked} type="checkbox" onChange={onToggle} />
-      <span className="switch-track" aria-hidden="true" />
-      <span className="sr-only">{label}</span>
+      <span className={styles.switchTrack} aria-hidden="true" />
+      <span className={styles.srOnly}>{label}</span>
     </label>
   );
 }

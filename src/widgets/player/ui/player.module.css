@@ -1,0 +1,880 @@
+.playerBox {
+  /* One timing for the whole control layer, so nothing lags behind. */
+  --controls-fade: 200ms;
+  --controls-ease: cubic-bezier(0.2, 0, 0.2, 1);
+  position: relative;
+  width: min(100%, 1120px);
+  max-height: min(74vh, 630px);
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  border-radius: 8px;
+  background: #080808;
+  box-shadow: 0 18px 42px rgba(49, 71, 93, 0.2);
+  touch-action: manipulation;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+}
+
+.playerBox * {
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/*
+* The scrim under the controls. It rides the same `.controlsHidden` flag as
+* everything else on the surface, so the whole control layer — scrims, bar,
+* progress, side buttons, centre button — fades in and out as one piece
+* instead of a handful of elements each doing their own thing.
+*/
+.playerBox::after {
+  content: "";
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 2;
+  height: clamp(88px, 22%, 148px);
+  pointer-events: none;
+  background: linear-gradient(
+    0deg,
+    rgba(0, 0, 0, 0.78) 0%,
+    rgba(0, 0, 0, 0.42) 46%,
+    rgba(0, 0, 0, 0) 100%
+  );
+  opacity: 1;
+  transition: opacity var(--controls-fade) var(--controls-ease);
+}
+
+.playerBox.controlsHidden::after {
+  opacity: 0;
+}
+
+/*
+* Split from the unprefixed rule on purpose: a selector list is thrown away
+* whole when any selector in it is unknown, so grouping `:-webkit-full-screen`
+* with `:fullscreen` loses every fullscreen style in the browsers that only
+* understand one of them.
+*/
+/* Once the controls have faded in fullscreen the pointer goes with them. */
+.playerBox:fullscreen.controlsHidden,
+.playerBox.virtualFullscreen.controlsHidden {
+  cursor: none;
+}
+
+.playerBox:-webkit-full-screen.controlsHidden {
+  cursor: none;
+}
+
+/*
+* TV browsers run years behind the phones and desktops: several still have no
+* `aspect-ratio`, and there a `.playerBox` with no height of its own collapses
+* to zero — the video is on the page but a strip of nothing tall, which is why
+* TV sets could not play anything. The padding trick reserves the same 16:9.
+* Declared before the fullscreen rules so those still override it.
+*/
+@supports not (aspect-ratio: 16 / 9) {
+  .player-box {
+    height: 0;
+    padding-bottom: 56.25%;
+    max-height: none;
+  }
+
+  .youtube-mount {
+    position: absolute;
+    inset: 0;
+  }
+
+  .thumbnail {
+    height: 0;
+    padding-bottom: 56.25%;
+  }
+
+  .thumbnail img {
+    position: absolute;
+    inset: 0;
+  }
+}
+
+.playerBox:fullscreen {
+  display: grid;
+  place-items: center;
+  width: 100vw;
+  height: 100vh;
+  height: 100dvh;
+  max-height: none;
+  padding-bottom: 0;
+  border-radius: 0;
+  background: #000000;
+}
+
+.playerBox:-webkit-full-screen {
+  display: grid;
+  place-items: center;
+  width: 100vw;
+  height: 100vh;
+  height: 100dvh;
+  max-height: none;
+  padding-bottom: 0;
+  border-radius: 0;
+  background: #000000;
+}
+
+.playerBox.virtualFullscreen {
+  position: fixed;
+  inset: 0;
+  z-index: 30000;
+  display: grid;
+  place-items: center;
+  width: 100vw;
+  /* `dvh` first fails on older TV and mobile browsers; `vh` is the floor. */
+  height: 100vh;
+  height: 100dvh;
+  max-height: none;
+  padding-bottom: 0;
+  aspect-ratio: auto;
+  border-radius: 0;
+  background: #000000;
+  box-shadow: none;
+  touch-action: none;
+}
+
+.playerBox:fullscreen .youtubeMount,
+.playerBox.virtualFullscreen .youtubeMount {
+  position: absolute;
+  inset: 0;
+}
+
+.playerBox:-webkit-full-screen .youtubeMount {
+  position: absolute;
+  inset: 0;
+}
+
+/* Phone notches and the home indicator eat the bottom of either fullscreen. */
+.playerBox:fullscreen .safePlayerControls,
+.playerBox.virtualFullscreen .safePlayerControls {
+  bottom: max(12px, env(safe-area-inset-bottom));
+}
+
+.playerBox:-webkit-full-screen .safePlayerControls {
+  bottom: max(12px, env(safe-area-inset-bottom));
+}
+
+.playerBox:fullscreen .playerProgressWrap,
+.playerBox.virtualFullscreen .playerProgressWrap {
+  bottom: max(54px, calc(env(safe-area-inset-bottom) + 46px));
+}
+
+.playerBox:-webkit-full-screen .playerProgressWrap {
+  bottom: max(54px, calc(env(safe-area-inset-bottom) + 46px));
+}
+
+.youtubeMount {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.youtubeMount {
+  border: 0;
+  pointer-events: none;
+}
+
+.youtubeTitleCover {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 3;
+  height: clamp(46px, 8vw, 68px);
+  pointer-events: none;
+  background: linear-gradient(
+    180deg,
+    rgba(0, 0, 0, 0.92) 0%,
+    rgba(0, 0, 0, 0.72) 44%,
+    rgba(0, 0, 0, 0) 100%
+  );
+  opacity: 1;
+  transition: opacity var(--controls-fade) var(--controls-ease);
+}
+
+.youtubeTitleCover.hidden {
+  opacity: 0;
+}
+
+.playerSkeleton {
+  position: absolute;
+  inset: 0;
+  z-index: 10000;
+  display: grid;
+  place-items: center;
+  border-radius: 8px;
+  pointer-events: none;
+  background: #000000;
+  opacity: 1;
+  transition: opacity 300ms ease;
+}
+
+.playerSkeleton.hidden {
+  opacity: 0;
+}
+
+.playerBox:fullscreen .playerSkeleton,
+.playerBox.virtualFullscreen .playerSkeleton {
+  border-radius: 0;
+}
+
+.playerBox:-webkit-full-screen .playerSkeleton {
+  border-radius: 0;
+}
+
+.playerSkeletonSpinner {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  border: 5px solid rgba(255, 255, 255, 0.18);
+  border-top-color: var(--brand-red, #ff3157);
+  animation: player-skeleton-spin 800ms linear infinite;
+}
+
+@keyframes player-skeleton-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.playerFailure {
+  position: absolute;
+  inset: 0;
+  z-index: 9;
+  display: grid;
+  align-content: center;
+  justify-items: center;
+  gap: 6px;
+  padding: 20px;
+  text-align: center;
+  background: rgba(6, 6, 8, 0.88);
+  color: white;
+}
+
+.playerFailureTitle {
+  margin: 6px 0 0;
+  font-size: clamp(16px, 2.2vw, 21px);
+  font-weight: 900;
+}
+
+.playerFailureBody {
+  max-width: 34ch;
+  margin: 0;
+  color: rgba(255, 255, 255, 0.76);
+  font-size: clamp(13px, 1.6vw, 15px);
+  line-height: 1.35;
+}
+
+.playerFailureActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: center;
+  margin-top: 12px;
+}
+
+.playerFailureButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  min-height: 40px;
+  padding: 0 16px;
+  border: 0;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.14);
+  color: white;
+  font-weight: 800;
+}
+
+.playerFailureButton.primary {
+  background: var(--brand-red, #ff3157);
+}
+
+.playerFailureButton:hover,
+.playerFailureButton:focus-visible {
+  transform: scale(1.03);
+}
+
+.playerPoster {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  display: grid;
+  place-items: center;
+  background: #050505;
+}
+
+.playerPoster img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0.72;
+}
+
+.bigPlayButton {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  z-index: 6;
+  display: grid;
+  place-items: center;
+  width: clamp(54px, 7vw, 70px);
+  height: clamp(54px, 7vw, 70px);
+  border: 0;
+  border-radius: 50%;
+  background: #ff0033;
+  background: linear-gradient(135deg, var(--brand-red), #ff7147);
+  color: white;
+  box-shadow: 0 12px 34px rgba(0, 0, 0, 0.36);
+  opacity: 1;
+  transform: translate(-50%, -50%) scale(1);
+  transition:
+    opacity var(--controls-fade) var(--controls-ease),
+    transform var(--controls-fade) var(--controls-ease);
+}
+
+.bigPlayButton.hidden {
+  opacity: 0;
+  transform: translate(-50%, -50%) scale(0.82);
+  pointer-events: none;
+}
+
+.bigPlayButton:disabled,
+.playerControlButton:disabled {
+  cursor: default;
+  opacity: 0.42;
+}
+
+.safePlayerControls {
+  position: absolute;
+  left: 12px;
+  right: 12px;
+  bottom: 12px;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  min-height: 34px;
+  max-width: none;
+  padding: 4px 8px;
+  border-radius: 999px;
+  background: rgba(12, 12, 12, 0.74);
+  color: white;
+  box-shadow: 0 8px 26px rgba(0, 0, 0, 0.24);
+  backdrop-filter: blur(12px);
+  opacity: 1;
+  transform: translateY(0);
+  transition:
+    opacity var(--controls-fade) var(--controls-ease),
+    transform var(--controls-fade) var(--controls-ease);
+}
+
+.controlsHidden .safePlayerControls,
+.controlsHidden .playerProgressWrap {
+  opacity: 0;
+  transform: translateY(12px);
+  pointer-events: none;
+}
+
+.playerLockButton {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  z-index: 7;
+  display: grid;
+  place-items: center;
+  width: clamp(42px, 5vw, 52px);
+  height: clamp(42px, 5vw, 52px);
+  border: 0;
+  border-radius: 50%;
+  background: rgba(12, 12, 12, 0.74);
+  color: white;
+  box-shadow: 0 8px 26px rgba(0, 0, 0, 0.24);
+  backdrop-filter: blur(12px);
+  opacity: 1;
+  transition:
+    opacity var(--controls-fade) var(--controls-ease),
+    transform var(--controls-fade) var(--controls-ease);
+}
+
+.footerTransportControls {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.playerUnmuteButton {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  z-index: 7;
+  display: grid;
+  place-items: center;
+  width: clamp(52px, 6vw, 64px);
+  height: clamp(52px, 6vw, 64px);
+  border: 0;
+  border-radius: 50%;
+  background: rgba(255, 49, 87, 0.9);
+  color: white;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.32);
+  backdrop-filter: blur(12px);
+}
+
+.playerUnmuteButton:hover,
+.playerUnmuteButton:focus-visible {
+  background: var(--brand-red, #ff3157);
+  transform: scale(1.05);
+}
+
+.controlsHidden .playerLockButton {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.playerLocked.controlsHidden .playerLockButton {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.playerControlButton {
+  position: relative;
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+  width: 28px;
+  height: 28px;
+  border: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+  font-weight: 900;
+}
+
+.playerControlButton.primary {
+  background: white;
+  color: #0f0f0f;
+}
+
+.repeatButton {
+  margin-left: auto;
+  width: 32px;
+  height: 32px;
+}
+
+.fullscreenButton {
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.seekZones {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  pointer-events: none;
+}
+
+.seekZones span {
+  display: grid;
+  align-items: center;
+  justify-content: start;
+  padding: 0 0 0 calc(clamp(18px, 5vw, 44px) + 30px);
+  color: rgba(255, 255, 255, 0.64);
+  font-size: 34px;
+  font-weight: 900;
+  opacity: 0;
+  transition: opacity 180ms ease;
+}
+
+.seekZones span:last-child {
+  justify-content: end;
+  padding: 0 calc(clamp(18px, 5vw, 44px) + 30px) 0 0;
+}
+
+.seekZones.showPrevious span:first-child,
+.seekZones.showNext span:last-child {
+  opacity: 1;
+}
+
+.sidePlayerButtons {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 clamp(10px, 2.5vw, 22px);
+  pointer-events: none;
+}
+
+.sidePlayerButton {
+  display: grid;
+  place-items: center;
+  width: clamp(42px, 5vw, 56px);
+  height: clamp(42px, 5vw, 56px);
+  border: 0;
+  border-radius: 50%;
+  background: rgba(12, 12, 12, 0.62);
+  color: white;
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.28);
+  backdrop-filter: blur(12px);
+  opacity: 0.92;
+  pointer-events: auto;
+  transition:
+    opacity var(--controls-fade) var(--controls-ease),
+    transform var(--controls-fade) var(--controls-ease),
+    background var(--controls-fade) var(--controls-ease);
+}
+
+.sidePlayerButton:hover,
+.sidePlayerButton:focus-visible {
+  background: rgba(255, 0, 51, 0.9);
+  opacity: 1;
+  transform: scale(1.05);
+}
+
+.sidePlayerButton.isDisabled {
+  opacity: 0.46;
+}
+
+.controlsHidden .sidePlayerButton {
+  opacity: 0;
+  pointer-events: none;
+  transform: scale(0.96);
+}
+
+/*
+* What the previous / next button is pointing at. Decorative and never
+* clickable: it sits over the video only while a mouse rests on the button.
+*/
+.playerPreview {
+  position: absolute;
+  bottom: 92px;
+  z-index: 6;
+  display: grid;
+  gap: 6px;
+  width: min(268px, 46%);
+  padding: 9px;
+  border-radius: 10px;
+  background: rgba(12, 12, 12, 0.86);
+  color: white;
+  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(12px);
+  pointer-events: none;
+  opacity: 1;
+  transform: translateY(0);
+  transition:
+    opacity var(--controls-fade) var(--controls-ease),
+    transform var(--controls-fade) var(--controls-ease);
+}
+
+.playerPreview.previous {
+  left: 12px;
+}
+
+.playerPreview.next {
+  right: 12px;
+}
+
+.playerPreview.hidden {
+  opacity: 0;
+  transform: translateY(8px);
+}
+
+.playerPreviewLabel {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.66);
+}
+
+.playerPreviewCard {
+  display: grid;
+  grid-template-columns: 92px minmax(0, 1fr);
+  gap: 9px;
+  align-items: start;
+}
+
+.playerPreviewCard img {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  border-radius: 6px;
+  background: #1c1c1c;
+}
+
+.playerPreviewText {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+}
+
+.playerPreviewTitle {
+  display: -webkit-box;
+  overflow: hidden;
+  line-clamp: 2;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  font-size: 13px;
+  font-weight: 800;
+  line-height: 1.25;
+}
+
+.playerPreviewChannel {
+  overflow: hidden;
+  color: rgba(255, 255, 255, 0.62);
+  font-size: 12px;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.playerProgressWrap {
+  position: absolute;
+  left: 12px;
+  right: 12px;
+  bottom: 54px;
+  z-index: 5;
+  display: grid;
+  grid-template-columns: minmax(80px, 1fr) auto;
+  gap: 10px;
+  align-items: center;
+  opacity: 1;
+  transform: translateY(0);
+  transition:
+    opacity var(--controls-fade) var(--controls-ease),
+    transform var(--controls-fade) var(--controls-ease);
+}
+
+.playerProgress {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 10px;
+  overflow: hidden;
+  border: 0;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.24);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.22);
+  touch-action: none;
+}
+
+.playerProgress:disabled {
+  cursor: default;
+  opacity: 0.5;
+}
+
+.playerProgressFill {
+  position: absolute;
+  inset: 0 auto 0 0;
+  border-radius: inherit;
+  background: linear-gradient(90deg, var(--brand-red), var(--brand-yellow));
+}
+
+.playerTime {
+  min-width: 78px;
+  padding: 3px 7px;
+  border-radius: 999px;
+  background: rgba(12, 12, 12, 0.72);
+  color: white;
+  font-size: 11px;
+  font-weight: 800;
+  text-align: center;
+  white-space: nowrap;
+  backdrop-filter: blur(12px);
+}
+
+.volumeStep {
+  font-size: 17px;
+  line-height: 1;
+}
+
+.seekStep {
+  width: auto;
+  padding: 0 10px;
+  border-radius: 14px;
+  font-size: 12px;
+  letter-spacing: 0;
+  white-space: nowrap;
+}
+
+.wideScreenVideoNav {
+  display: none;
+  align-items: center;
+  gap: 5px;
+}
+
+.controlDivider {
+  flex: 0 0 1px;
+  height: 20px;
+  margin: 0 1px;
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.volumeMeter {
+  position: relative;
+  flex: 0 0 62px;
+  height: 4px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.22);
+}
+
+.volumeMeter span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--brand-yellow);
+}
+
+.safePlayerControls .playerControlButton[data-tooltip]::after,
+.playerProgress[data-tooltip]::after,
+.bigPlayButton[data-tooltip]::after {
+  top: auto;
+  bottom: calc(100% + 8px);
+  transform: translate(-50%, 4px);
+}
+
+.safePlayerControls .playerControlButton[data-tooltip]:hover::after,
+.safePlayerControls .playerControlButton[data-tooltip]:focus-visible::after,
+.playerProgress[data-tooltip]:hover::after,
+.playerProgress[data-tooltip]:focus-visible::after,
+.bigPlayButton[data-tooltip]:hover::after,
+.bigPlayButton[data-tooltip]:focus-visible::after {
+  transform: translate(-50%, 0);
+}
+
+:global([data-tv]) button:focus-visible,
+:global([data-tv]) input:focus-visible,
+:global([data-tv]) textarea:focus-visible,
+:global([data-tv]) .playerBox:focus-visible {
+  outline: 4px solid var(--brand-yellow);
+  outline-offset: 5px;
+  box-shadow:
+    0 0 0 8px rgba(6, 95, 212, 0.28),
+    0 14px 34px rgba(49, 71, 93, 0.18);
+}
+
+:global([data-tv]) .controlsHidden .safePlayerControls,
+:global([data-tv]) .controlsHidden .playerProgressWrap,
+:global([data-tv]) .playerBox:focus-within .safePlayerControls,
+:global([data-tv]) .playerBox:focus-within .playerProgressWrap {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+/* A remote has no pointer, so the TV keeps the controls — and their scrim. */
+:global([data-tv]) .playerBox.controlsHidden::after,
+:global([data-tv]) .playerBox:focus-within::after {
+  opacity: 1;
+}
+
+@media (max-width: 720px) {
+  .playerPreview {
+    bottom: 74px;
+    width: min(232px, 62%);
+  }
+
+  .playerPreviewCard {
+    grid-template-columns: 74px minmax(0, 1fr);
+  }
+
+  .playerBox {
+    width: 100%;
+    max-height: none;
+  }
+
+  .safePlayerControls {
+    left: 8px;
+    right: 8px;
+    bottom: 8px;
+    max-width: none;
+    padding: 4px 6px;
+    overflow-x: auto;
+  }
+
+  .footerTransportControls {
+    display: none;
+  }
+
+  .playerControlButton {
+    width: 28px;
+    height: 28px;
+  }
+
+  .volumeMeter {
+    flex-basis: 48px;
+  }
+}
+
+@media (min-width: 1081px) {
+  .wideScreenVideoNav {
+    display: flex;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .playerBox {
+    --controls-fade: 1ms;
+  }
+}
+
+@media (min-width: 1280px) {
+  :global([data-tv]) .playerBox {
+    width: 100%;
+    max-height: 76vh;
+  }
+
+  :global([data-tv]) .safePlayerControls {
+    left: 18px;
+    right: 18px;
+    bottom: 18px;
+    min-height: 54px;
+    gap: 9px;
+    padding: 7px 12px;
+  }
+
+  :global([data-tv]) .playerControlButton {
+    width: 42px;
+    height: 42px;
+  }
+
+  :global([data-tv]) .repeatButton {
+    width: 46px;
+    height: 46px;
+  }
+
+  :global([data-tv]) .playerProgressWrap {
+    left: 18px;
+    right: 18px;
+    bottom: 84px;
+    gap: 14px;
+  }
+
+  :global([data-tv]) .playerProgress {
+    height: 14px;
+  }
+
+  :global([data-tv]) .playerTime {
+    min-width: 96px;
+    font-size: 13px;
+  }
+}
+
+@media (max-width: 1080px) {
+  .playerBox {
+    width: min(100%, 980px);
+    max-height: min(70vh, 552px);
+  }
+}
+

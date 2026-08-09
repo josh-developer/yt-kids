@@ -1,0 +1,124 @@
+.videoCard {
+  border: 0;
+  color: inherit;
+  text-align: left;
+  position: relative;
+  display: block;
+  width: 100%;
+  min-width: 0;
+  padding: 8px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.78);
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.7),
+    0 12px 26px rgba(49, 71, 93, 0.09);
+  transition:
+    transform 160ms ease,
+    box-shadow 160ms ease,
+    background 160ms ease;
+}
+
+.videoCard:hover {
+  background: #ffffff;
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.9),
+    0 16px 34px rgba(49, 71, 93, 0.14);
+  transform: translateY(-2px);
+}
+
+.thumbnail {
+  display: block;
+  /* Hosts may soften the corner: see `--thumbnail-radius`. */
+  width: 100%;
+  position: relative;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  border-radius: var(--thumbnail-radius, 8px);
+  background:
+    linear-gradient(135deg, rgba(255, 49, 87, 0.2), rgba(37, 168, 90, 0.16)),
+    #dddddd;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.34);
+}
+
+.thumbnail img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.duration {
+  position: absolute;
+  right: 8px;
+  bottom: 8px;
+  padding: 3px 6px;
+  border-radius: 4px;
+  background: rgba(0, 0, 0, 0.82);
+  color: white;
+  font-size: 12px;
+  font-weight: 800;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.24);
+}
+
+.videoMeta {
+  display: grid;
+  grid-template-columns: 38px 1fr;
+  gap: 10px;
+  padding-top: 10px;
+}
+
+.avatar {
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: var(--avatar, #ff0033);
+  color: white;
+  font-weight: 900;
+  box-shadow:
+    inset 0 -3px 0 rgba(0, 0, 0, 0.12),
+    0 4px 10px rgba(49, 71, 93, 0.14);
+}
+
+.videoTitle {
+  display: -webkit-box;
+  overflow: hidden;
+  line-clamp: 3;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  /* Hosts may tighten the line box: see `--video-title-*`. */
+  min-height: var(--video-title-min-height, 40px);
+  font-size: var(--video-title-size, inherit);
+  font-weight: 800;
+  line-height: 1.25;
+  letter-spacing: 0;
+}
+
+.videoSubline {
+  display: block;
+}
+
+/* Lifts the hovered card above its neighbours, tooltips and all. */
+.videoCard:hover,
+.videoCard:focus-visible,
+.videoCard:has(button:hover),
+.videoCard:has(button:focus-visible) {
+  position: relative;
+  z-index: 900;
+}
+
+:global([data-tv]) .videoCard:focus-visible {
+  transform: scale(1.025);
+}
+
+:global([data-theme="dark"]) .videoCard {
+  background: rgba(32, 32, 38, 0.78);
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.04),
+    0 12px 26px rgba(0, 0, 0, 0.24);
+}
+
+:global([data-theme="dark"]) .videoCard:hover {
+  background: rgba(40, 40, 47, 0.96);
+}

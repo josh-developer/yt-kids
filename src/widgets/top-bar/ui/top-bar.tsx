@@ -8,6 +8,7 @@ import { LocaleSwitchButton } from "@/features/locale-switch";
 import { ThemeToggleButton } from "@/features/theme-toggle";
 import { VideoSearchField } from "@/features/video-search";
 import { BrandButton } from "./brand-button";
+import styles from "./top-bar.module.css";
 
 export function TopBar({
   homeQuery,
@@ -37,10 +38,10 @@ export function TopBar({
   const t = useTranslations("TopBar");
 
   return (
-    <header className={`topbar ${isHidden ? "topbar-hidden" : ""}`}>
+    <header className={`${styles.topbar} ${isHidden ? styles.topbarHidden : ""}`}>
       <BrandButton onClick={onHome} />
 
-      <div className="top-search-slot">
+      <div className={styles.topSearchSlot}>
         <VideoSearchField
           query={homeQuery}
           onQueryChange={onHomeQueryChange}
@@ -48,7 +49,7 @@ export function TopBar({
         />
       </div>
 
-      <div className="top-actions">
+      <div className={styles.topActions}>
         <ThemeToggleButton theme={theme} onToggle={onThemeToggle} />
         <IconButton
           label={t("parentSettings")}

@@ -1,3 +1,4 @@
+import styles from "./confirm-popover.module.css";
 export type ConfirmTone = "approve" | "danger";
 
 export function ConfirmPopover({
@@ -16,11 +17,11 @@ export function ConfirmPopover({
   onConfirm: () => void;
 }) {
   return (
-    <div className="bulk-confirm-popover" role="dialog" aria-label={message}>
+    <div className={styles.bulkConfirmPopover} role="dialog" aria-label={message}>
       <p>{message}</p>
-      <div className="bulk-confirm-actions">
+      <div className={styles.bulkConfirmActions}>
         <button
-          className="confirm-popover-button"
+          className={styles.confirmPopoverButton}
           type="button"
           onClick={onCancel}
           data-tooltip={cancelLabel}
@@ -28,7 +29,7 @@ export function ConfirmPopover({
           {cancelLabel}
         </button>
         <button
-          className={`confirm-popover-button ${tone === "danger" ? "danger-confirm" : "approve-confirm"}`}
+          className={`${styles.confirmPopoverButton} ${tone === "danger" ? styles.dangerConfirm : styles.approveConfirm}`}
           type="button"
           onClick={onConfirm}
           data-tooltip={confirmLabel}

@@ -2,6 +2,7 @@ import { useTranslations } from "next-intl";
 import { useRef } from "react";
 import type { PointerEvent } from "react";
 import { formatTimestamp } from "@/shared/lib/time";
+import styles from "./player.module.css";
 
 export function PlayerProgress({
   currentTime,
@@ -63,9 +64,9 @@ export function PlayerProgress({
   }
 
   return (
-    <div className="player-progress-wrap">
+    <div className={styles.playerProgressWrap}>
       <button
-        className="player-progress"
+        className={styles.playerProgress}
         disabled={!hasDuration}
         onPointerCancel={handlePointerEnd}
         onPointerDown={handlePointerDown}
@@ -75,7 +76,7 @@ export function PlayerProgress({
         aria-label={t("seek")}
       >
         <span
-          className="player-progress-fill"
+          className={styles.playerProgressFill}
           style={{
             width: hasDuration
               ? `${Math.min(100, (currentTime / durationSeconds) * 100)}%`
@@ -83,7 +84,7 @@ export function PlayerProgress({
           }}
         />
       </button>
-      <span className="player-time">
+      <span className={styles.playerTime}>
         {formatTimestamp(currentTime)} /{" "}
         {hasDuration ? formatTimestamp(durationSeconds) : "--:--"}
       </span>

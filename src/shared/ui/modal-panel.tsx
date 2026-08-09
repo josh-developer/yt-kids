@@ -1,6 +1,8 @@
 import { X } from "lucide-react";
 import type { ReactNode } from "react";
 import { IconButton } from "./icon-button";
+import primitives from "./primitives.module.css";
+import styles from "./modal-panel.module.css";
 
 /**
  * The paste-a-link and paste-a-code dialogs are the same panel with a
@@ -29,9 +31,9 @@ export function ModalPanel({
   onSubmit: () => void;
 }) {
   return (
-    <div className="paste-overlay" onClick={onClose} role="presentation">
+    <div className={styles.pasteOverlay} onClick={onClose} role="presentation">
       <form
-        className="paste-panel"
+        className={styles.pastePanel}
         onClick={(event) => event.stopPropagation()}
         onSubmit={(event) => {
           event.preventDefault();
@@ -41,17 +43,17 @@ export function ModalPanel({
         aria-modal="true"
         aria-labelledby={titleId}
       >
-        <div className="modal-heading">
+        <div className={styles.modalHeading}>
           <h2 id={titleId}>{title}</h2>
           <IconButton label={closeLabel} onClick={onClose}>
             <X size={18} />
           </IconButton>
         </div>
         {children}
-        <div className="modal-actions">
-          <span className="status-line">{status}</span>
+        <div className={styles.modalActions}>
+          <span className={styles.statusLine}>{status}</span>
           <button
-            className="primary-button"
+            className={primitives.primaryButton}
             type="submit"
             data-tooltip={submitLabel}
           >

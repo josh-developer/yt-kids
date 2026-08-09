@@ -14,6 +14,7 @@ import { useTranslations } from "next-intl";
 
 import { SEEK_STEP_SECONDS } from "@/shared/config/app-config";
 import { bindPreview, type PreviewRequest } from "./player-overlays";
+import styles from "./player.module.css";
 
 const VOLUME_STEP = 10;
 
@@ -56,12 +57,12 @@ export function PlayerControls({
   const isSilent = isMuted || volume === 0;
 
   return (
-    <div className="safe-player-controls" aria-label={t("controls")}>
-      <div className="footer-transport-controls">
+    <div className={styles.safePlayerControls} aria-label={t("controls")}>
+      <div className={styles.footerTransportControls}>
         {/* Narrow layouts reach these through the on-video side buttons. */}
-        <div className="wide-screen-video-nav">
+        <div className={styles.wideScreenVideoNav}>
           <button
-            className="player-control-button"
+            className={styles.playerControlButton}
             disabled={!hasPrevious}
             onClick={onPrevious}
             type="button"
@@ -71,7 +72,7 @@ export function PlayerControls({
             <SkipBack size={16} fill="currentColor" />
           </button>
           <button
-            className="player-control-button primary"
+            className={`${styles.playerControlButton} ${styles.primary}`}
             onClick={onPlayPause}
             type="button"
             aria-label={isPlaying ? t("pause") : t("play")}
@@ -83,7 +84,7 @@ export function PlayerControls({
             )}
           </button>
           <button
-            className="player-control-button"
+            className={styles.playerControlButton}
             disabled={!hasNext}
             onClick={onNext}
             type="button"
@@ -92,10 +93,10 @@ export function PlayerControls({
           >
             <SkipForward size={16} fill="currentColor" />
           </button>
-          <span className="control-divider" />
+          <span className={styles.controlDivider} />
         </div>
         <button
-          className="player-control-button seek-step"
+          className={`${styles.playerControlButton} ${styles.seekStep}`}
           onClick={() => onSeekBy(-SEEK_STEP_SECONDS)}
           type="button"
           aria-label={t("back15")}
@@ -103,17 +104,17 @@ export function PlayerControls({
           -{SEEK_STEP_SECONDS}
         </button>
         <button
-          className="player-control-button seek-step"
+          className={`${styles.playerControlButton} ${styles.seekStep}`}
           onClick={() => onSeekBy(SEEK_STEP_SECONDS)}
           type="button"
           aria-label={t("forward15")}
         >
           +{SEEK_STEP_SECONDS}
         </button>
-        <span className="control-divider" />
+        <span className={styles.controlDivider} />
       </div>
       <button
-        className="player-control-button"
+        className={styles.playerControlButton}
         onClick={onToggleMute}
         type="button"
         aria-label={isMuted ? t("unmute") : t("mute")}
@@ -127,18 +128,18 @@ export function PlayerControls({
         )}
       </button>
       <button
-        className="player-control-button volume-step"
+        className={`${styles.playerControlButton} ${styles.volumeStep}`}
         onClick={() => onVolumeChange(volume - VOLUME_STEP)}
         type="button"
         aria-label={t("volumeDown")}
       >
         -
       </button>
-      <span className="volume-meter" aria-label={t("volume", { value: volume })}>
+      <span className={styles.volumeMeter} aria-label={t("volume", { value: volume })}>
         <span style={{ width: `${volume}%` }} />
       </span>
       <button
-        className="player-control-button volume-step"
+        className={`${styles.playerControlButton} ${styles.volumeStep}`}
         onClick={() => onVolumeChange(volume + VOLUME_STEP)}
         type="button"
         aria-label={t("volumeUp")}
@@ -146,7 +147,7 @@ export function PlayerControls({
         +
       </button>
       <button
-        className={`player-control-button repeat-button ${isRepeatOne ? "active" : ""}`}
+        className={`${styles.playerControlButton} ${styles.repeatButton} ${isRepeatOne ? styles.active : ""}`}
         onClick={onToggleRepeat}
         type="button"
         aria-label={isRepeatOne ? t("repeatOneEnabled") : t("repeatOneDisabled")}

@@ -16,6 +16,7 @@ import { SEEK_STEP_SECONDS } from "@/shared/config/app-config";
 import { useVideoLabels, type Video } from "@/entities/video";
 import type { PlayerFailure } from "../model/use-player-engine";
 import type { SeekDirection } from "../model/use-player-gestures";
+import styles from "./player.module.css";
 
 /** Hover/focus on a previous or next button, or nothing. */
 export type PreviewRequest = SeekDirection | null;
@@ -56,18 +57,18 @@ export function VideoPreviewCard({
 
   return (
     <div
-      className={`player-preview ${direction} ${isVisible ? "" : "hidden"}`}
+      className={`${styles.playerPreview} ${styles[direction]} ${isVisible ? "" : styles.hidden}`}
       aria-hidden="true"
     >
-      <span className="player-preview-label">
+      <span className={styles.playerPreviewLabel}>
         {direction === "next" ? t("upNext") : t("previousVideo")}
       </span>
-      <span className="player-preview-card">
+      <span className={styles.playerPreviewCard}>
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img alt="" src={thumbnailUrl(video.videoId)} />
-        <span className="player-preview-text">
-          <span className="player-preview-title">{labels.title(video)}</span>
-          <span className="player-preview-channel">
+        <span className={styles.playerPreviewText}>
+          <span className={styles.playerPreviewTitle}>{labels.title(video)}</span>
+          <span className={styles.playerPreviewChannel}>
             {labels.channel(video)}
           </span>
         </span>
@@ -76,14 +77,18 @@ export function VideoPreviewCard({
   );
 }
 
+  function stop(event: MouseEvent<HTMLElement>) {
+    event.stopPropagation();
+  }
+
 /** Covers the embed while it boots, hiding YouTube's own loading chrome. */
 export function PlayerSkeleton({ isVisible }: { isVisible: boolean }) {
   return (
     <div
-      className={`player-skeleton ${isVisible ? "" : "hidden"}`}
+      className={`${styles.playerSkeleton} ${isVisible ? "" : styles.hidden}`}
       aria-hidden="true"
     >
-      <span className="player-skeleton-spinner" />
+      <span className={styles.playerSkeletonSpinner} />
     </div>
   );
 }
@@ -107,17 +112,17 @@ export function PlayerFailureNotice({
   const t = useTranslations("Player");
 
   return (
-    <div className="player-failure" role="alert">
+    <div className={styles.playerFailure} role="alert">
       <WifiOff size={38} aria-hidden="true" />
-      <p className="player-failure-title">
+      <p className={styles.playerFailureTitle}>
         {failure === "blocked" ? t("blockedTitle") : t("unreachableTitle")}
       </p>
-      <p className="player-failure-body">
+      <p className={styles.playerFailureBody}>
         {failure === "blocked" ? t("blockedBody") : t("unreachableBody")}
       </p>
-      <div className="player-failure-actions">
+      <div className={styles.playerFailureActions}>
         <button
-          className="player-failure-button primary"
+          className={`${styles.playerFailureButton} ${styles.primary}`}
           onClick={(event) => {
             event.stopPropagation();
             onRetry();
@@ -130,7 +135,7 @@ export function PlayerFailureNotice({
         </button>
         {hasNext ? (
           <button
-            className="player-failure-button"
+            className={styles.playerFailureButton}
             onClick={(event) => {
               event.stopPropagation();
               onNext();
@@ -153,7 +158,7 @@ export function UnmuteButton({ onUnmute }: { onUnmute: () => void }) {
 
   return (
     <button
-      className="player-unmute-button"
+      className={styles.playerUnmuteButton}
       onClick={(event) => {
         event.stopPropagation();
         onUnmute();
@@ -171,7 +176,7 @@ export function UnmuteButton({ onUnmute }: { onUnmute: () => void }) {
 export function TitleCover({ isControlsVisible }: { isControlsVisible: boolean }) {
   return (
     <div
-      className={`youtube-title-cover ${isControlsVisible ? "" : "hidden"}`}
+      className={`${styles.youtubeTitleCover} ${isControlsVisible ? "" : styles.hidden}`}
       aria-hidden="true"
     />
   );
@@ -180,7 +185,7 @@ export function TitleCover({ isControlsVisible }: { isControlsVisible: boolean }
 export function SeekHints({ hint }: { hint: SeekDirection | null }) {
   return (
     <div
-      className={`seek-zones ${hint ? `show-${hint}` : ""}`}
+      className={`${styles.seekZones} ${hint === "previous" ? styles.showPrevious : hint ? styles.showNext : ""}`}
       aria-hidden="true"
     >
       <span>-{SEEK_STEP_SECONDS}</span>
@@ -200,7 +205,7 @@ export function LockButton({
 
   return (
     <button
-      className="player-lock-button"
+      className={styles.playerLockButton}
       onClick={(event) => {
         event.stopPropagation();
         onToggle();
@@ -246,9 +251,9 @@ export function SideNavButtons({
   }
 
   return (
-    <div className="side-player-buttons" aria-label={t("controls")}>
+    <div className={styles.sidePlayerButtons} aria-label={t("controls")}>
       <button
-        className={`side-player-button left ${hasPrevious ? "" : "is-disabled"}`}
+        className={`${styles.sidePlayerButton} ${hasPrevious ? "" : styles.isDisabled}`}
         type="button"
         aria-disabled={!hasPrevious}
         aria-label={t("previousVideo")}
@@ -257,7 +262,7 @@ export function SideNavButtons({
         <SkipBack size={24} fill="currentColor" />
       </button>
       <button
-        className={`side-player-button right ${hasNext ? "" : "is-disabled"}`}
+        className={`${styles.sidePlayerButton} ${hasNext ? "" : styles.isDisabled}`}
         type="button"
         aria-disabled={!hasNext}
         aria-label={t("nextVideo")}
@@ -271,7 +276,7 @@ export function SideNavButtons({
 
 export function PlayerPoster({ videoId }: { videoId: string }) {
   return (
-    <div className="player-poster">
+    <div className={styles.playerPoster}>
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img alt="" src={thumbnailUrl(videoId)} />
     </div>
@@ -291,7 +296,7 @@ export function BigPlayButton({
 
   return (
     <button
-      className={`big-play-button ${isVisible ? "" : "hidden"}`}
+      className={`${styles.bigPlayButton} ${isVisible ? "" : styles.hidden}`}
       onClick={(event) => {
         event.stopPropagation();
         onClick();

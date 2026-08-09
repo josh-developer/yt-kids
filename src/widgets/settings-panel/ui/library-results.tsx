@@ -1,8 +1,15 @@
 import { EyeOff, Plus, Trash2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { IconButton } from "@/shared/ui/icon-button";
-import { VideoThumbnail, useVideoLabels, type Video } from "@/entities/video";
+import {
+  VideoSummary,
+  VideoThumbnail,
+  useVideoLabels,
+  type Video,
+} from "@/entities/video";
 import type { CurationTab } from "@/features/library-curation";
+import primitives from "@/shared/ui/primitives.module.css";
+import styles from "./settings-panel.module.css";
 
 export function LibraryResults({
   isApproved,
@@ -24,28 +31,27 @@ export function LibraryResults({
 
   if (videos.length === 0) {
     return (
-      <div className="library-results">
-        <div className="settings-empty muted">{t("noVideosFound", { tab })}</div>
+      <div className={styles.libraryResults}>
+        <div className={`${styles.settingsEmpty} ${primitives.muted}`}>{t("noVideosFound", { tab })}</div>
       </div>
     );
   }
 
   return (
-    <div className="library-results">
+    <div className={styles.libraryResults}>
       {videos.map((video) => {
         const title = labels.title(video);
 
         return (
-          <div className="result-card" key={video.id}>
+          <div className={styles.resultCard} key={video.id}>
             <VideoThumbnail video={video} />
-            <div className="result-info">
-              <span className="video-title">{title}</span>
-              <span className="video-subline">{labels.channel(video)}</span>
+            <div className={styles.resultInfo}>
+              <VideoSummary video={video} />
             </div>
-            <div className="settings-row-actions">
+            <div className={styles.settingsRowActions}>
               {isApproved(video) ? (
                 <IconButton
-                  className="hide-icon"
+                  className={styles.hideIcon}
                   label={t("hideVideo", { title })}
                   tooltip={t("hide")}
                   onClick={() => onHide(video)}
@@ -54,7 +60,7 @@ export function LibraryResults({
                 </IconButton>
               ) : (
                 <IconButton
-                  className="show-icon"
+                  className={styles.showIcon}
                   label={t("showVideo", { title })}
                   tooltip={t("show")}
                   onClick={() => onApprove(video)}
@@ -63,7 +69,7 @@ export function LibraryResults({
                 </IconButton>
               )}
               <IconButton
-                className="remove-icon"
+                className={styles.removeIcon}
                 label={t("removeVideoCompletely", { title })}
                 tooltip={t("removeCompletely")}
                 onClick={() => onRemove(video)}

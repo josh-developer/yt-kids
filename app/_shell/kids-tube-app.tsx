@@ -16,6 +16,7 @@ import { HomePage } from "@/pages/home";
 import { SettingsPage } from "@/pages/settings";
 import { WatchLoading, WatchPage, WatchUnavailable } from "@/pages/watch";
 import { TopBar, useTopbarAutoHide } from "@/widgets/top-bar";
+import styles from "./kids-tube-app.module.css";
 
 function randomSalt() {
   return Date.now() % 233280;
@@ -158,9 +159,13 @@ export function KidsTubeApp({
 
   return (
     <main
-      className={`app-shell theme-${theme} view-${route.view} ${
-        isTvBrowser ? "tv-mode" : ""
-      }`}
+      className={styles.appShell}
+      // The app's mode, published as attributes rather than as classes. A
+      // stylesheet anywhere in the app can read `[data-theme="dark"]` or
+      // `[data-tv]`; none of them has to know which class this file uses.
+      data-theme={theme}
+      data-view={route.view}
+      data-tv={isTvBrowser ? "" : undefined}
     >
       <TopBar
         homeQuery={homeQuery}
@@ -179,8 +184,8 @@ export function KidsTubeApp({
         onThemeToggle={toggleTheme}
       />
 
-      <div className="page-frame">
-        <section className="content">
+      <div className={styles.pageFrame}>
+        <section className={styles.content}>
           {route.view === "settings" ? (
             <SettingsPage libraryController={libraryController} />
           ) : route.view === "watch" && !isLoaded ? (

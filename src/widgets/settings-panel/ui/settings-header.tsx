@@ -6,6 +6,8 @@ import { ConfirmPopover } from "@/shared/ui/confirm-popover";
 import { IconButton } from "@/shared/ui/icon-button";
 import { ExportLibraryButton } from "@/features/library-transfer";
 import type { ExportState } from "@/features/library-transfer";
+import primitives from "@/shared/ui/primitives.module.css";
+import styles from "./settings-panel.module.css";
 
 export function SettingsHeader({
   approvedCount,
@@ -31,17 +33,17 @@ export function SettingsHeader({
   const [isResetConfirmOpen, setIsResetConfirmOpen] = useState(false);
 
   return (
-    <div className="section-heading">
+    <div className={styles.sectionHeading}>
       <div>
         <h1>{t("title")}</h1>
-        <div className="muted">
+        <div className={primitives.muted}>
           {t("approvedCount", {
             count: approvedCount,
             value: numbers.integer(approvedCount),
           })}
         </div>
       </div>
-      <div className="settings-heading-actions">
+      <div className={styles.settingsHeadingActions}>
         <ExportLibraryButton state={exportState} onExport={onExport} />
         <IconButton
           label={t("importParentSettings")}
@@ -53,9 +55,9 @@ export function SettingsHeader({
         <IconButton label={t("addVideoLink")} onClick={onToggleImport}>
           {isImportOpen ? <X size={19} /> : <Plus size={19} />}
         </IconButton>
-        <div className="settings-reset-wrap">
+        <div className={styles.settingsResetWrap}>
           <IconButton
-            className="danger-icon-button"
+            className={primitives.dangerIconButton}
             label={t("resetAllVideos")}
             isExpanded={isResetConfirmOpen}
             onClick={() => setIsResetConfirmOpen((open) => !open)}

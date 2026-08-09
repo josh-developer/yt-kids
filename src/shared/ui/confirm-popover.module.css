@@ -1,0 +1,106 @@
+.bulkConfirmPopover {
+  position: absolute;
+  top: calc(100% + 9px);
+  left: 0;
+  z-index: 1200;
+  width: min(238px, calc(100vw - 42px));
+  padding: 12px;
+  border: 1px solid rgba(234, 223, 203, 0.95);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.98);
+  box-shadow:
+    0 16px 34px rgba(49, 71, 93, 0.18),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.75);
+}
+
+.bulkConfirmPopover::before {
+  content: "";
+  position: absolute;
+  top: -6px;
+  left: 24px;
+  width: 11px;
+  height: 11px;
+  border-top: 1px solid rgba(234, 223, 203, 0.95);
+  border-left: 1px solid rgba(234, 223, 203, 0.95);
+  background: inherit;
+  transform: rotate(45deg);
+}
+
+.bulkConfirmPopover p {
+  margin: 0 0 10px;
+  color: #242833;
+  font-size: 13px;
+  font-weight: 800;
+  line-height: 1.35;
+}
+
+.bulkConfirmActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 7px;
+}
+
+.confirmPopoverButton {
+  position: relative;
+  min-height: 30px;
+  border: 0;
+  border-radius: 999px;
+  padding: 0 10px;
+  background: var(--button-soft);
+  color: var(--button-ink);
+  font-size: 12px;
+  font-weight: 900;
+  box-shadow: 0 2px 0 rgba(50, 55, 66, 0.06);
+}
+
+.confirmPopoverButton:hover {
+  background: var(--button-soft-hover);
+  transform: translateY(-1px);
+}
+
+.approveConfirm {
+  background: #16a34a;
+  color: white;
+}
+
+.approveConfirm:hover {
+  background: #15803d;
+}
+
+.dangerConfirm {
+  background: #dc2626;
+  color: white;
+}
+
+.dangerConfirm:hover {
+  background: #b91c1c;
+}
+
+:global([data-theme="dark"]) .bulkConfirmPopover::before {
+  border-color: var(--line);
+}
+
+:global([data-theme="dark"]) .bulkConfirmPopover p {
+  color: #f5f5f5;
+}
+
+:global([data-theme="dark"]) .confirmPopoverButton {
+  background: var(--button-soft);
+  color: var(--button-ink);
+}
+
+:global([data-theme="dark"]) .confirmPopoverButton:hover {
+  background: var(--button-soft-hover);
+}
+
+:global([data-theme="dark"]) .approveConfirm,
+:global([data-theme="dark"]) .approveConfirm:hover {
+  background: #22c55e;
+  color: #07130b;
+}
+
+:global([data-theme="dark"]) .dangerConfirm,
+:global([data-theme="dark"]) .dangerConfirm:hover {
+  background: #ef4444;
+  color: #ffffff;
+}

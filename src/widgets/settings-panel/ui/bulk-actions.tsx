@@ -2,6 +2,8 @@ import { EyeOff, Plus } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { ConfirmPopover } from "@/shared/ui/confirm-popover";
+import primitives from "@/shared/ui/primitives.module.css";
+import styles from "./settings-panel.module.css";
 
 type BulkAction = "approve" | "hide";
 
@@ -19,7 +21,7 @@ export function BulkActions({
   const actions = [
     {
       key: "approve" as const,
-      className: "approve-compact-button",
+      className: primitives.approveCompactButton,
       icon: <Plus size={16} />,
       label: t("approveAll"),
       tooltip: t("approveAllVideos"),
@@ -29,7 +31,7 @@ export function BulkActions({
     },
     {
       key: "hide" as const,
-      className: "danger-compact-button",
+      className: primitives.dangerCompactButton,
       icon: <EyeOff size={16} />,
       label: t("hideAll"),
       tooltip: t("hideAllVideos"),
@@ -40,11 +42,11 @@ export function BulkActions({
   ];
 
   return (
-    <div className="settings-bulk-actions" aria-label={t("approveAllVideos")}>
+    <div className={styles.settingsBulkActions} aria-label={t("approveAllVideos")}>
       {actions.map((action) => (
-        <div className="bulk-action-wrap" key={action.key}>
+        <div className={styles.bulkActionWrap} key={action.key}>
           <button
-            className={`compact-button ${action.className}`}
+            className={`${primitives.compactButton} ${action.className}`}
             type="button"
             onClick={() =>
               setOpenAction((current) =>

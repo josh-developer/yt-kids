@@ -2,6 +2,7 @@ import { Plus } from "lucide-react";
 import { useTranslations } from "next-intl";
 import type { Video } from "@/entities/video";
 import { VideoGrid } from "@/widgets/video-grid";
+import primitives from "@/shared/ui/primitives.module.css";
 
 export function HomePage({
   videos,
@@ -16,12 +17,12 @@ export function HomePage({
 
   if (videos.length === 0) {
     return (
-      <div className="empty-state">
+      <div className={primitives.emptyState}>
         <div>
           <h2>{t("emptyTitle")}</h2>
-          <p className="muted">{t("emptyBody")}</p>
+          <p className={primitives.muted}>{t("emptyBody")}</p>
           <button
-            className="primary-button"
+            className={primitives.primaryButton}
             type="button"
             onClick={onSettings}
             data-tooltip={t("openSettings")}

@@ -1,0 +1,21 @@
+.searchWrap {
+  width: 100%;
+  max-width: 560px;
+}
+
+.searchWrap input {
+  border-radius: 999px 0 0 999px;
+  padding: 0 18px;
+}
+
+@media (min-width: 1280px) {
+  :global([data-tv]) .searchWrap {
+    max-width: 680px;
+  }
+}
+
+@media (max-width: 1080px) {
+  .searchWrap {
+    max-width: none;
+  }
+}

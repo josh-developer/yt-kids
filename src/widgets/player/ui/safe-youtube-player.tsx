@@ -21,6 +21,7 @@ import {
   type PreviewRequest,
 } from "./player-overlays";
 import { PlayerProgress } from "./player-progress";
+import styles from "./player.module.css";
 
 /**
  * A YouTube embed with every escape hatch closed: no YouTube controls, no
@@ -235,9 +236,9 @@ export function SafeYouTubePlayer({
 
   return (
     <div
-      className={`player-box ${showControls ? "" : "controls-hidden"} ${
-        fullscreen.isVirtual ? "virtual-fullscreen" : ""
-      } ${isLocked ? "player-locked" : ""}`}
+      className={`${styles.playerBox} ${showControls ? "" : styles.controlsHidden} ${
+        fullscreen.isVirtual ? styles.virtualFullscreen : ""
+      } ${isLocked ? styles.playerLocked : ""}`}
       onClick={gestures.handleFrameClick}
       onDoubleClick={gestures.handleFrameDoubleClick}
       onKeyDown={(event) => handlePlayerKeyDown(event, { isTvBrowser })}
@@ -259,7 +260,7 @@ export function SafeYouTubePlayer({
         aria-hidden="true"
         allow="autoplay; encrypted-media; fullscreen; picture-in-picture"
         allowFullScreen
-        className="youtube-mount"
+        className={styles.youtubeMount}
         onLoad={engine.handleFrameLoad}
         ref={iframeRef}
         referrerPolicy="strict-origin-when-cross-origin"

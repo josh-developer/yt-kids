@@ -1,6 +1,7 @@
 import { Plus } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { ModalPanel } from "@/shared/ui/modal-panel";
+import primitives from "@/shared/ui/primitives.module.css";
 
 export function ImportVideoDialog({
   url,
@@ -28,8 +29,9 @@ export function ImportVideoDialog({
       onClose={onClose}
       onSubmit={onSubmit}
     >
-      <div className="paste-row">
+      <div className={primitives.field}>
         <input
+          className={primitives.fieldInput}
           autoFocus
           value={url}
           onChange={(event) => onUrlChange(event.target.value)}

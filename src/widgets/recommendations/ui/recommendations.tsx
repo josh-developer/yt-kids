@@ -4,6 +4,7 @@ import type { RecommendationGroup } from "@/entities/library";
 import { VideoSummary, VideoThumbnail, type Video } from "@/entities/video";
 import { RecommendationsToggle } from "@/features/recommendations-toggle";
 import { VirtualGrid } from "@/shared/ui/virtual-grid";
+import styles from "./recommendations.module.css";
 
 const GROUP_TITLES = {
   series: "seriesTitle",
@@ -27,7 +28,7 @@ export function Recommendations({
   function card(video: Video) {
     return (
       <button
-        className="recommendation-card"
+        className={styles.recommendationCard}
         type="button"
         onClick={() => onOpenVideo(video)}
       >
@@ -38,15 +39,15 @@ export function Recommendations({
   }
 
   return (
-    <aside className="recommendations-panel">
+    <aside className={styles.recommendationsPanel}>
       <RecommendationsToggle isEnabled={isEnabled} onToggle={onToggle} />
 
       {isEnabled
         ? groups.map((group) => (
-            <section className="recommendation-group" key={group.key}>
+            <section className={styles.recommendationGroup} key={group.key}>
               {/* A single group is the whole sidebar — no heading needed. */}
               {groups.length > 1 ? (
-                <h2 className="recommendation-group-title">
+                <h2 className={styles.recommendationGroupTitle}>
                   {t(GROUP_TITLES[group.key])}
                 </h2>
               ) : null}
@@ -59,13 +60,13 @@ export function Recommendations({
               {group.key === "more" ? (
                 <VirtualGrid
                   items={group.videos}
-                  className="recommendations"
+                  className={styles.recommendations}
                   ariaLabel={t("recommendations")}
                   getKey={(video) => video.id}
                   renderItem={card}
                 />
               ) : (
-                <div className="recommendations" aria-label={t("recommendations")}>
+                <div className={styles.recommendations} aria-label={t("recommendations")}>
                   {/* Fragments keep the cards as direct grid children. */}
                   {group.videos.map((video) => (
                     <Fragment key={video.id}>{card(video)}</Fragment>

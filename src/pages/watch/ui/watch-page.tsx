@@ -6,6 +6,8 @@ import {
 } from "@/entities/video";
 import { SafeYouTubePlayer } from "@/widgets/player";
 import { Recommendations } from "@/widgets/recommendations";
+import primitives from "@/shared/ui/primitives.module.css";
+import styles from "./watch-page.module.css";
 
 export function WatchPage({
   isTvBrowser,
@@ -37,7 +39,7 @@ export function WatchPage({
   const labels = useVideoLabels();
 
   return (
-    <div className="watch-layout">
+    <div className={styles.watchLayout}>
       <article>
         <SafeYouTubePlayer
           isTvBrowser={isTvBrowser}
@@ -49,13 +51,13 @@ export function WatchPage({
           onNextVideo={onNextVideo}
           onPreviousVideo={onPreviousVideo}
         />
-        <h1 className="watch-title">{labels.title(video)}</h1>
-        <div className="watch-bar">
-          <div className="channel-line">
+        <h1 className={styles.watchTitle}>{labels.title(video)}</h1>
+        <div className={styles.watchBar}>
+          <div className={styles.channelLine}>
             <ChannelAvatar video={video} />
             <div>
               <strong>{labels.channel(video)}</strong>
-              <div className="muted">{labels.views(video)}</div>
+              <div className={primitives.muted}>{labels.views(video)}</div>
             </div>
           </div>
         </div>

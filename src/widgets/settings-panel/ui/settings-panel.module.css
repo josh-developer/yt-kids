@@ -1,0 +1,260 @@
+.showIcon:not(:disabled) {
+  background: #16a34a;
+  color: white;
+}
+
+.hideIcon:not(:disabled) {
+  background: #dc2626;
+  color: white;
+}
+
+.removeIcon:not(:disabled) {
+  background: #374151;
+  color: white;
+}
+
+.settingsLayout {
+  display: block;
+  max-width: 1100px;
+  margin-inline: auto;
+}
+
+.sectionHeading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.sectionHeading h1,
+.sectionHeading h2 {
+  margin: 0;
+  font-size: 26px;
+  letter-spacing: 0;
+}
+
+.settingsToolbar {
+  display: block;
+  margin-bottom: 16px;
+}
+
+.settingsBulkActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: -8px 0 16px;
+}
+
+.bulkActionWrap {
+  position: relative;
+  z-index: 1;
+}
+
+.bulkActionWrap:last-child .bulkConfirmPopover {
+  right: 0;
+  left: auto;
+}
+
+.bulkActionWrap:last-child .bulkConfirmPopover::before {
+  right: 24px;
+  left: auto;
+}
+
+.settingsHeadingActions,
+.settingsRowActions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.settingsResetWrap {
+  position: relative;
+  z-index: 2;
+  display: inline-flex;
+}
+
+.settingsResetWrap .bulkConfirmPopover {
+  right: 0;
+  left: auto;
+  z-index: 30000;
+}
+
+.settingsResetWrap .bulkConfirmPopover::before {
+  right: 24px;
+  left: auto;
+}
+
+.settingsTabs {
+  display: inline-flex;
+  gap: 4px;
+  margin-bottom: 16px;
+  padding: 4px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.76);
+  box-shadow:
+    inset 0 0 0 1px rgba(234, 223, 203, 0.9),
+    0 6px 18px rgba(49, 71, 93, 0.07);
+}
+
+.settingsTab {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 36px;
+  border: 0;
+  border-radius: 999px;
+  padding: 0 14px;
+  background: transparent;
+  color: #333333;
+  font-weight: 800;
+}
+
+.settingsTab.active {
+  background: var(--button-active);
+  color: white;
+}
+
+.settingsTab span {
+  display: grid;
+  place-items: center;
+  min-width: 24px;
+  height: 22px;
+  border-radius: 999px;
+  padding: 0 7px;
+  background: rgba(0, 0, 0, 0.1);
+  font-size: 12px;
+}
+
+.settingsTab.active span {
+  background: rgba(255, 255, 255, 0.18);
+}
+
+.libraryResults {
+  display: grid;
+  gap: 12px;
+}
+
+.settingsEmpty {
+  padding: 28px 12px;
+  border: 1px dashed var(--line);
+  border-radius: 8px;
+  text-align: center;
+  background: rgba(255, 255, 255, 0.55);
+}
+
+.resultCard {
+  color: inherit;
+  text-align: left;
+  --thumbnail-radius: 6px;
+  display: grid;
+  grid-template-columns: 154px minmax(0, 1fr) auto;
+  gap: 12px;
+  align-items: center;
+  padding: 10px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.84);
+  border: 1px solid rgba(234, 223, 203, 0.96);
+  box-shadow: 0 8px 20px rgba(49, 71, 93, 0.07);
+}
+
+.resultCard {
+  cursor: default;
+}
+
+.resultInfo {
+  min-width: 0;
+}
+
+:global([data-theme="dark"]) .hideIcon:not(:disabled),
+:global([data-theme="dark"]) .removeIcon:not(:disabled),
+:global([data-theme="dark"]) .showIcon:not(:disabled) {
+  background: #ef4444;
+  color: #ffffff;
+}
+
+:global([data-theme="dark"]) .showIcon:not(:disabled) {
+  background: #22c55e;
+  color: #07130b;
+}
+
+:global([data-theme="dark"]) .removeIcon:not(:disabled) {
+  background: #9ca3af;
+  color: #111827;
+}
+
+:global([data-theme="dark"]) .resultCard,
+:global([data-theme="dark"]) .settingsEmpty {
+  border-color: var(--line);
+  background: rgba(32, 32, 38, 0.9);
+}
+
+:global([data-theme="dark"]) .settingsTabs {
+  background: rgba(32, 32, 38, 0.86);
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.06),
+    0 6px 18px rgba(0, 0, 0, 0.22);
+}
+
+:global([data-theme="dark"]) .settingsTab {
+  color: #d8d8d8;
+}
+
+:global([data-theme="dark"]) .settingsTab.active {
+  background: var(--button-active);
+  color: #08111f;
+}
+
+:global([data-theme="dark"]) .settingsEmpty {
+  border-color: var(--line);
+  background: rgba(32, 32, 38, 0.66);
+}
+
+@media (max-width: 1080px) {
+  .settingsLayout {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 720px) {
+  .resultCard {
+    grid-template-columns: 128px minmax(0, 1fr);
+  }
+
+  .settingsRowActions {
+    grid-column: 2;
+    justify-self: start;
+  }
+
+  .settingsTabs {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    width: 100%;
+    border-radius: 8px;
+  }
+
+  .settingsTab {
+    justify-content: center;
+    border-radius: 6px;
+  }
+
+  .settingsToolbar {
+    grid-template-columns: 1fr;
+    display: grid;
+    align-items: start;
+  }
+
+  .settingsBulkActions {
+    justify-content: start;
+  }
+}
+
+/* Lifts the hovered card above its neighbours, tooltips and all. */
+.resultCard:hover,
+.resultCard:focus-visible,
+.resultCard:has(button:hover),
+.resultCard:has(button:focus-visible) {
+  position: relative;
+  z-index: 900;
+}
