@@ -10,3 +10,4 @@ export {
   thumbnailUrl,
   watchUrl,
 } from "./youtube-urls";
+export type { ThumbnailSize } from "./youtube-urls";

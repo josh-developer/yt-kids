@@ -65,7 +65,7 @@ export function VideoPreviewCard({
       </span>
       <span className={styles.playerPreviewCard}>
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img alt="" src={thumbnailUrl(video.videoId)} />
+        <img alt="" loading="lazy" src={thumbnailUrl(video.videoId)} />
         <span className={styles.playerPreviewText}>
           <span className={styles.playerPreviewTitle}>{labels.title(video)}</span>
           <span className={styles.playerPreviewChannel}>
@@ -117,7 +117,7 @@ export function UpNextCountdown({
         onDoubleClick={stop}
       >
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img alt="" src={thumbnailUrl(video.videoId)} />
+        <img alt="" loading="lazy" src={thumbnailUrl(video.videoId)} />
         <span className={styles.upNextText}>
           <span className={styles.upNextLabel}>{t("upNext")}</span>
           <span className={styles.upNextTitle}>{labels.title(video)}</span>
@@ -357,7 +357,12 @@ export function PlayerPoster({ videoId }: { videoId: string }) {
   return (
     <div className={styles.playerPoster}>
       {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img alt="" src={thumbnailUrl(videoId)} />
+      <img
+        alt=""
+        loading="eager"
+        fetchPriority="high"
+        src={thumbnailUrl(videoId, "poster")}
+      />
     </div>
   );
 }

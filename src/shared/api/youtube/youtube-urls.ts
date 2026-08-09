@@ -11,8 +11,17 @@ export function isTrustedYouTubeMessageOrigin(origin: string) {
   }
 }
 
-export function thumbnailUrl(videoId: string) {
-  return `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`;
+/**
+ * Card thumbnails are drawn between 74px and 168px wide, so the 480x360
+ * `hqdefault` was four to six times the pixels needed. `mqdefault` is 320x180
+ * and still sharp on a 2x screen; the poster behind the player is the one
+ * place that fills a real video frame.
+ */
+export type ThumbnailSize = "card" | "poster";
+
+export function thumbnailUrl(videoId: string, size: ThumbnailSize = "card") {
+  const file = size === "poster" ? "hqdefault" : "mqdefault";
+  return `https://i.ytimg.com/vi/${videoId}/${file}.jpg`;
 }
 
 export function watchUrl(videoId: string) {
