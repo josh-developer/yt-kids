@@ -168,7 +168,13 @@ export function usePlayerEngine({
         return;
       }
 
-      setIsPlaying(telemetry.playerState === PLAYER_STATE.playing);
+      const isNowPlaying = telemetry.playerState === PLAYER_STATE.playing;
+      setIsPlaying(isNowPlaying);
+
+      if (isNowPlaying) {
+        timers.current.clear("skeleton");
+        setIsBooting(false);
+      }
     }
 
     window.addEventListener("message", handleMessage);
@@ -237,12 +243,14 @@ export function usePlayerEngine({
   function sendPlay() {
     primeTelemetry();
     player.setVolume(volume);
-    if (isMuted || volume === 0) {
-      player.mute();
-    } else {
+    // Browsers only allow autoplay to start muted, and refuse a scripted
+    // unmute until playback is actually running — so always start muted and
+    // lift it immediately afterwards when the viewer wants sound.
+    player.mute();
+    player.play();
+    if (!isMuted && volume > 0) {
       player.unMute();
     }
-    player.play();
   }
 
   /** Autoplay is racy right after load, so the play command is sent twice. */
@@ -334,9 +342,8 @@ export function usePlayerEngine({
   return {
     reloadKey,
     isBooting,
-    // Started unmuted: opening a video is itself a user gesture on this
-    // origin, which satisfies Chrome's autoplay policy.
-    embedUrl: lockedEmbedUrl(video.videoId, shouldAutoplay),
+    // Autoplay implies muted; `sendPlay` unmutes once playback is running.
+    embedUrl: lockedEmbedUrl(video.videoId, shouldAutoplay, shouldAutoplay),
     isPlaying,
     isMuted,
     volume,

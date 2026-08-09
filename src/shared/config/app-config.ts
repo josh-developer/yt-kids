@@ -21,5 +21,8 @@ export const SEEK_STEP_SECONDS = 15;
 
 export const DEFAULT_VOLUME = 80;
 
-/** How long the player covers the embed while it boots. */
-export const PLAYER_SKELETON_MS = 1200;
+/**
+ * Fallback only: the loader normally clears the moment playback reports it
+ * started, so this just bounds how long a stuck embed can hide behind it.
+ */
+export const PLAYER_SKELETON_MS = 8000;
