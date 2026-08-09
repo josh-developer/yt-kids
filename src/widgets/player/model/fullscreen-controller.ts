@@ -1,5 +1,4 @@
 import {
-  isIosLikeBrowser,
   unlockScreenOrientation,
   type FullscreenHostDocument,
   type FullscreenHostElement,
@@ -18,9 +17,25 @@ export class FullscreenController {
     return this.host.current as FullscreenHostElement | null;
   }
 
-  /** iOS Safari never grants element fullscreen; callers fall back to CSS. */
+  /**
+   * Asked of the element rather than of the user agent. iPhone Safari exposes
+   * neither request method and falls back to the CSS fullscreen, while iPadOS
+   * — which a user-agent check would lump in with it — does support the real
+   * thing and now gets it.
+   */
   get supportsNative() {
-    return !isIosLikeBrowser();
+    const target = this.element;
+    if (!target) {
+      return false;
+    }
+
+    const canRequest = Boolean(
+      target.requestFullscreen || target.webkitRequestFullscreen,
+    );
+    const isEnabled =
+      document.fullscreenEnabled ?? Boolean(target.webkitRequestFullscreen);
+
+    return canRequest && isEnabled;
   }
 
   get isNativeActive() {

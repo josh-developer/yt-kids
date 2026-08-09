@@ -579,6 +579,12 @@ button {
   opacity: 0;
 }
 
+/*
+ * Split from the unprefixed rule on purpose: a selector list is thrown away
+ * whole when any selector in it is unknown, so grouping `:-webkit-full-screen`
+ * with `:fullscreen` loses every fullscreen style in the browsers that only
+ * understand one of them.
+ */
 /* Once the controls have faded in fullscreen the pointer goes with them. */
 .player-box:fullscreen.controls-hidden,
 .player-box.virtual-fullscreen.controls-hidden {
@@ -619,7 +625,18 @@ button {
   }
 }
 
-.player-box:fullscreen,
+.player-box:fullscreen {
+  display: grid;
+  place-items: center;
+  width: 100vw;
+  height: 100vh;
+  height: 100dvh;
+  max-height: none;
+  padding-bottom: 0;
+  border-radius: 0;
+  background: #000000;
+}
+
 .player-box:-webkit-full-screen {
   display: grid;
   place-items: center;
@@ -627,6 +644,7 @@ button {
   height: 100vh;
   height: 100dvh;
   max-height: none;
+  padding-bottom: 0;
   border-radius: 0;
   background: #000000;
 }
@@ -642,6 +660,7 @@ button {
   height: 100vh;
   height: 100dvh;
   max-height: none;
+  padding-bottom: 0;
   aspect-ratio: auto;
   border-radius: 0;
   background: #000000;
@@ -650,17 +669,32 @@ button {
 }
 
 .player-box:fullscreen .youtube-mount,
-.player-box:-webkit-full-screen .youtube-mount,
 .player-box.virtual-fullscreen .youtube-mount {
   position: absolute;
   inset: 0;
 }
 
+.player-box:-webkit-full-screen .youtube-mount {
+  position: absolute;
+  inset: 0;
+}
+
+/* Phone notches and the home indicator eat the bottom of either fullscreen. */
+.player-box:fullscreen .safe-player-controls,
 .player-box.virtual-fullscreen .safe-player-controls {
   bottom: max(12px, env(safe-area-inset-bottom));
 }
 
+.player-box:-webkit-full-screen .safe-player-controls {
+  bottom: max(12px, env(safe-area-inset-bottom));
+}
+
+.player-box:fullscreen .player-progress-wrap,
 .player-box.virtual-fullscreen .player-progress-wrap {
+  bottom: max(54px, calc(env(safe-area-inset-bottom) + 46px));
+}
+
+.player-box:-webkit-full-screen .player-progress-wrap {
   bottom: max(54px, calc(env(safe-area-inset-bottom) + 46px));
 }
 
@@ -715,8 +749,11 @@ button {
 }
 
 .player-box:fullscreen .player-skeleton,
-.player-box:-webkit-full-screen .player-skeleton,
 .player-box.virtual-fullscreen .player-skeleton {
+  border-radius: 0;
+}
+
+.player-box:-webkit-full-screen .player-skeleton {
   border-radius: 0;
 }
 
