@@ -12,7 +12,6 @@ export type Video = {
   sourceLabel?: "playlist" | "youtube";
   /** Legacy pre-i18n display string, kept for libraries stored before v8. */
   views?: string;
-  tags: string[];
   accent: string;
   source: VideoSource;
 };
