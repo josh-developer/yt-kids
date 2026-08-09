@@ -631,6 +631,44 @@ button {
   opacity: 0;
 }
 
+.player-skeleton {
+  position: absolute;
+  inset: 0;
+  z-index: 10000;
+  display: grid;
+  place-items: center;
+  border-radius: 8px;
+  pointer-events: none;
+  background: #000000;
+  opacity: 1;
+  transition: opacity 300ms ease;
+}
+
+.player-skeleton.hidden {
+  opacity: 0;
+}
+
+.player-box:fullscreen .player-skeleton,
+.player-box:-webkit-full-screen .player-skeleton,
+.player-box.virtual-fullscreen .player-skeleton {
+  border-radius: 0;
+}
+
+.player-skeleton-spinner {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  border: 5px solid rgba(255, 255, 255, 0.18);
+  border-top-color: var(--brand-red, #ff3157);
+  animation: player-skeleton-spin 800ms linear infinite;
+}
+
+@keyframes player-skeleton-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 .player-poster {
   position: absolute;
   inset: 0;
@@ -725,6 +763,29 @@ button {
   display: flex;
   align-items: center;
   gap: 5px;
+}
+
+.player-unmute-button {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  z-index: 7;
+  display: grid;
+  place-items: center;
+  width: clamp(52px, 6vw, 64px);
+  height: clamp(52px, 6vw, 64px);
+  border: 0;
+  border-radius: 50%;
+  background: rgba(255, 49, 87, 0.9);
+  color: white;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.32);
+  backdrop-filter: blur(12px);
+}
+
+.player-unmute-button:hover,
+.player-unmute-button:focus-visible {
+  background: var(--brand-red, #ff3157);
+  transform: scale(1.05);
 }
 
 .controls-hidden .player-lock-button {
@@ -907,6 +968,27 @@ button {
 .volume-step {
   font-size: 17px;
   line-height: 1;
+}
+
+.seek-step {
+  width: auto;
+  padding: 0 10px;
+  border-radius: 14px;
+  font-size: 12px;
+  letter-spacing: 0;
+  white-space: nowrap;
+}
+
+.wide-screen-video-nav {
+  display: none;
+  align-items: center;
+  gap: 5px;
+}
+
+@media (min-width: 1081px) {
+  .wide-screen-video-nav {
+    display: flex;
+  }
 }
 
 .control-divider {

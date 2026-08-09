@@ -1,6 +1,6 @@
 "use client";
 
-import { Languages, Moon, Play, Plus, RotateCcw, Search, Sun } from "lucide-react";
+import { Languages, Moon, Play, Plus, Search, Sun } from "lucide-react";
 import type { CopyText } from "../lib/copy";
 import type { AppRoute, Language, Theme } from "../lib/types";
 
@@ -15,7 +15,6 @@ export function TopBar({
   onSearchSubmit,
   onHomeQueryChange,
   onSettings,
-  onShuffle,
   onThemeToggle,
   onLanguageToggle,
 }: {
@@ -29,7 +28,6 @@ export function TopBar({
   onSearchSubmit: () => void;
   onHomeQueryChange: (value: string) => void;
   onSettings: () => void;
-  onShuffle: () => void;
   onThemeToggle: () => void;
   onLanguageToggle: () => void;
 }) {
@@ -80,15 +78,6 @@ export function TopBar({
       </div>
 
       <div className="top-actions">
-        <button
-          className="icon-button"
-          type="button"
-          onClick={onShuffle}
-          aria-label={copy.shuffleHome}
-          data-tooltip={copy.shuffleHome}
-        >
-          <RotateCcw size={19} />
-        </button>
         <button
           className="icon-button"
           type="button"

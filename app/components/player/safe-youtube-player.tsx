@@ -23,6 +23,12 @@ import {
   useState,
 } from "react";
 import type { CopyText } from "../../lib/copy";
+import {
+  readStoredPlayerMuted,
+  readStoredPlayerVolume,
+  storePlayerMuted,
+  storePlayerVolume,
+} from "../../lib/player-preferences";
 import { isIosLikeBrowser, unlockScreenOrientation } from "../../lib/platform";
 import type { FullscreenHostDocument, FullscreenHostElement, Video } from "../../lib/types";
 import {
@@ -62,14 +68,15 @@ export function SafeYouTubePlayer({
   const [isLocked, setIsLocked] = useState(false);
   const [isNativeFullscreen, setIsNativeFullscreen] = useState(false);
   const [isVirtualFullscreen, setIsVirtualFullscreen] = useState(false);
-  const [isMuted, setIsMuted] = useState(false);
+  const [isMuted, setIsMuted] = useState(readStoredPlayerMuted);
   const [isRepeatOne, setIsRepeatOne] = useState(false);
   const [playerReloadKey, setPlayerReloadKey] = useState(0);
   const [shouldAutoplay, setShouldAutoplay] = useState(true);
   const [activeSeekHint, setActiveSeekHint] = useState<"previous" | "next" | null>(
     null,
   );
-  const [volume, setVolumeState] = useState(80);
+  const [volume, setVolumeState] = useState(readStoredPlayerVolume);
+  const [showSkeleton, setShowSkeleton] = useState(true);
   const [currentTime, setCurrentTime] = useState(0);
   const [durationSeconds, setDurationSeconds] = useState(() =>
     parseDurationText(video.duration),
@@ -97,6 +104,9 @@ export function SafeYouTubePlayer({
   const controlsTimerRef = useRef<ReturnType<typeof window.setTimeout> | null>(
     null,
   );
+  const skeletonTimerRef = useRef<ReturnType<typeof window.setTimeout> | null>(
+    null,
+  );
   const progressTimerRef = useRef<ReturnType<typeof window.setInterval> | null>(
     null,
   );
@@ -112,12 +122,12 @@ export function SafeYouTubePlayer({
   const publishedDurationRef = useRef(0);
   const seekRelativeRef = useRef<(seconds: number) => void>(() => {});
   const toggleFullscreenRef = useRef<() => void>(() => {});
+  const toggleMuteRef = useRef<() => void>(() => {});
   const exitFullscreenRef = useRef<() => void>(() => {});
   const isVirtualFullscreenRef = useRef(false);
   const isLockedRef = useRef(false);
   const isFullscreen = isNativeFullscreen || isVirtualFullscreen;
   const onFullscreenChangeRef = useRef(onFullscreenChange);
-  const shouldStartMuted = shouldAutoplay;
 
   useEffect(() => {
     if (!isTvBrowser) {
@@ -160,6 +170,14 @@ export function SafeYouTubePlayer({
   }, [isRepeatOne]);
 
   useEffect(() => {
+    storePlayerMuted(isMuted);
+  }, [isMuted]);
+
+  useEffect(() => {
+    storePlayerVolume(volume);
+  }, [volume]);
+
+  useEffect(() => {
     videoRef.current = video;
   }, [video]);
 
@@ -179,13 +197,21 @@ export function SafeYouTubePlayer({
       window.clearInterval(telemetryTimerRef.current);
       telemetryTimerRef.current = null;
     }
+    if (skeletonTimerRef.current) {
+      window.clearTimeout(skeletonTimerRef.current);
+    }
+
+    setShowSkeleton(true);
+    skeletonTimerRef.current = window.setTimeout(() => {
+      setShowSkeleton(false);
+      skeletonTimerRef.current = null;
+    }, 1200);
 
     const frame = window.requestAnimationFrame(() => {
       setCurrentTime(0);
       setDurationSeconds(fallbackDurationSeconds);
       setShouldAutoplay(true);
       setIsPlaying(true);
-      setIsMuted(false);
       setControlsVisible(true);
       setActiveSeekHint(null);
     });
@@ -334,6 +360,9 @@ export function SafeYouTubePlayer({
       }
       if (progressTimerRef.current) {
         window.clearInterval(progressTimerRef.current);
+      }
+      if (skeletonTimerRef.current) {
+        window.clearTimeout(skeletonTimerRef.current);
       }
     };
   }, []);
@@ -493,29 +522,25 @@ export function SafeYouTubePlayer({
     }, 650);
   }
 
-  function sendPlayCommand(forceMuted = false) {
-    const shouldKeepMuted = forceMuted;
+  function sendPlayCommand() {
     primePlayerTelemetry();
     sendPlayerCommand("setVolume", [volume]);
-    if (shouldKeepMuted || isMuted || volume === 0) {
+    if (isMuted || volume === 0) {
       sendPlayerCommand("mute");
-      if (shouldKeepMuted) {
-        setIsMuted(true);
-      }
     } else {
       sendPlayerCommand("unMute");
     }
     sendPlayerCommand("playVideo");
   }
 
-  function schedulePlayCommand(forceMuted = false) {
+  function schedulePlayCommand() {
     if (playTimerRef.current) {
       window.clearTimeout(playTimerRef.current);
     }
 
-    sendPlayCommand(forceMuted);
+    sendPlayCommand();
     playTimerRef.current = window.setTimeout(() => {
-      sendPlayCommand(forceMuted);
+      sendPlayCommand();
     }, 350);
   }
 
@@ -531,7 +556,7 @@ export function SafeYouTubePlayer({
     } else {
       setShouldAutoplay(true);
       setIsPlaying(true);
-      schedulePlayCommand(false);
+      schedulePlayCommand();
       scheduleControlsHide();
     }
   }
@@ -585,6 +610,7 @@ export function SafeYouTubePlayer({
   }
 
   seekRelativeRef.current = seekRelative;
+  toggleMuteRef.current = toggleMute;
   isVirtualFullscreenRef.current = isVirtualFullscreen;
   isLockedRef.current = isLocked;
 
@@ -620,6 +646,12 @@ export function SafeYouTubePlayer({
       if (event.key.toLowerCase() === "f") {
         event.preventDefault();
         toggleFullscreenRef.current();
+        return;
+      }
+
+      if (event.key.toLowerCase() === "m") {
+        event.preventDefault();
+        toggleMuteRef.current();
         return;
       }
 
@@ -1028,18 +1060,16 @@ export function SafeYouTubePlayer({
           startTelemetryPolling();
           sendPlayerCommand("setVolume", [volume]);
           if (shouldAutoplay) {
-            // Browsers only allow autoplay when muted, and won't allow a
-            // script (without a real user gesture) to unmute it afterwards
-            // — YouTube's player just pauses itself instead. So the very
-            // first autoplay must stay muted; unmuting only happens once
-            // the user taps something themselves (mute button, play/pause).
-            schedulePlayCommand(true);
+            // The user already tapped something on this page to get here
+            // (picking the video), so Chrome's "user interacted with this
+            // domain" autoplay allowance lets us start unmuted directly.
+            schedulePlayCommand();
           }
         }}
         ref={iframeRef}
         referrerPolicy="strict-origin-when-cross-origin"
         sandbox="allow-scripts allow-same-origin allow-presentation"
-        src={lockedEmbedUrl(video.videoId, shouldAutoplay, shouldStartMuted)}
+        src={lockedEmbedUrl(video.videoId, shouldAutoplay)}
         tabIndex={-1}
         title={copy.videoSurface(video.title)}
         onContextMenu={(event) => event.preventDefault()}
@@ -1048,6 +1078,12 @@ export function SafeYouTubePlayer({
         className={`youtube-title-cover ${controlsVisible ? "" : "hidden"}`}
         aria-hidden="true"
       />
+      <div
+        className={`player-skeleton ${showSkeleton ? "" : "hidden"}`}
+        aria-hidden="true"
+      >
+        <span className="player-skeleton-spinner" />
+      </div>
       <div
         className={`seek-zones ${activeSeekHint ? `show-${activeSeekHint}` : ""}`}
         aria-hidden="true"
@@ -1068,6 +1104,20 @@ export function SafeYouTubePlayer({
           aria-pressed={isLocked}
         >
           {isLocked ? <Lock size={24} /> : <Unlock size={24} />}
+        </button>
+      ) : null}
+      {!isLocked && isMuted ? (
+        <button
+          className="player-unmute-button"
+          onClick={(event) => {
+            event.stopPropagation();
+            toggleMute();
+          }}
+          onDoubleClick={(event) => event.stopPropagation()}
+          type="button"
+          aria-label={copy.unmute}
+        >
+          <VolumeX size={28} />
         </button>
       ) : null}
       {!isLocked ? (
@@ -1163,35 +1213,54 @@ export function SafeYouTubePlayer({
       {!isLocked ? (
       <div className="safe-player-controls" aria-label={copy.videoControls}>
         <div className="footer-transport-controls">
+          <div className="wide-screen-video-nav">
+            <button
+              className="player-control-button"
+              disabled={!previousVideo}
+              onClick={onPreviousVideo}
+              type="button"
+              aria-label={copy.previousVideo}
+            >
+              <SkipBack size={16} fill="currentColor" />
+            </button>
+            <button
+              className="player-control-button primary"
+              onClick={playPause}
+              type="button"
+              aria-label={isPlaying ? copy.pause : copy.playVideo}
+            >
+              {isPlaying ? (
+                <Pause size={16} fill="currentColor" />
+              ) : (
+                <Play size={16} fill="currentColor" />
+              )}
+            </button>
+            <button
+              className="player-control-button"
+              disabled={!nextVideo}
+              onClick={onNextVideo}
+              type="button"
+              aria-label={copy.nextVideo}
+            >
+              <SkipForward size={16} fill="currentColor" />
+            </button>
+            <span className="control-divider" />
+          </div>
           <button
-            className="player-control-button"
-            disabled={!previousVideo}
-            onClick={onPreviousVideo}
+            className="player-control-button seek-step"
+            onClick={() => seekRelative(-15)}
             type="button"
-            aria-label={copy.previousVideo}
+            aria-label={copy.back15}
           >
-            <SkipBack size={16} fill="currentColor" />
+            -15
           </button>
           <button
-            className="player-control-button primary"
-            onClick={playPause}
+            className="player-control-button seek-step"
+            onClick={() => seekRelative(15)}
             type="button"
-            aria-label={isPlaying ? copy.pause : copy.playVideo}
+            aria-label={copy.forward15}
           >
-            {isPlaying ? (
-              <Pause size={16} fill="currentColor" />
-            ) : (
-              <Play size={16} fill="currentColor" />
-            )}
-          </button>
-          <button
-            className="player-control-button"
-            disabled={!nextVideo}
-            onClick={onNextVideo}
-            type="button"
-            aria-label={copy.nextVideo}
-          >
-            <SkipForward size={16} fill="currentColor" />
+            +15
           </button>
           <span className="control-divider" />
         </div>

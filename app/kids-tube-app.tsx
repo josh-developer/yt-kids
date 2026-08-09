@@ -642,7 +642,6 @@ export function KidsTubeApp({
         onSearchSubmit={submitHomeSearch}
         onHomeQueryChange={setHomeQuery}
         onSettings={() => navigateTo({ view: "settings" })}
-        onShuffle={() => setShuffleSalt(Date.now() % 233280)}
         onThemeToggle={toggleTheme}
         onLanguageToggle={toggleLanguage}
       />
