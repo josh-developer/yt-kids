@@ -1498,6 +1498,7 @@ button {
 .settings-layout {
   display: block;
   max-width: 1100px;
+  margin-inline: auto;
 }
 
 .section-heading {
