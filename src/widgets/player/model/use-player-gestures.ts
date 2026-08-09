@@ -1,5 +1,3 @@
-"use client";
-
 import { useEffect, useRef, useState } from "react";
 import type { MouseEvent, PointerEvent } from "react";
 import { SEEK_STEP_SECONDS } from "@/shared/config/app-config";

@@ -1,5 +1,3 @@
-"use client";
-
 import type { LibraryController } from "@/entities/library";
 import { SettingsPanel } from "@/widgets/settings-panel";
 

@@ -1,5 +1,3 @@
-"use client";
-
 import { useEffect, useRef } from "react";
 import type { KeyboardEvent } from "react";
 import { SEEK_STEP_SECONDS } from "@/shared/config/app-config";

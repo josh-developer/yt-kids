@@ -1,5 +1,3 @@
-"use client";
-
 import { Lock, Pause, Play, SkipBack, SkipForward, Unlock } from "lucide-react";
 import { useTranslations } from "next-intl";
 import type { MouseEvent } from "react";

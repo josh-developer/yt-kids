@@ -1,5 +1,3 @@
-"use client";
-
 import { useVideoLabels } from "../model/use-video-labels";
 import type { Video } from "../model/types";
 

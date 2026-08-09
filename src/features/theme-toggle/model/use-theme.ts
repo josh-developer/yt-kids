@@ -1,5 +1,3 @@
-"use client";
-
 import { useEffect, useMemo, useState } from "react";
 import { STORAGE_KEYS } from "@/shared/config/app-config";
 import { preferredDeviceTheme, type Theme } from "@/shared/lib/platform";

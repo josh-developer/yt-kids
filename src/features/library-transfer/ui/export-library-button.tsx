@@ -1,5 +1,3 @@
-"use client";
-
 import { Check, Copy, Upload } from "lucide-react";
 import { useTranslations } from "next-intl";
 import type { ExportState } from "../model/use-library-transfer";

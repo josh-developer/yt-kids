@@ -1,5 +1,3 @@
-"use client";
-
 import { useTranslations } from "next-intl";
 import { useRef } from "react";
 import type { PointerEvent } from "react";

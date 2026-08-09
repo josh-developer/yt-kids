@@ -1,5 +1,3 @@
-"use client";
-
 import { useTranslations } from "next-intl";
 import { VideoSummary, VideoThumbnail, type Video } from "@/entities/video";
 

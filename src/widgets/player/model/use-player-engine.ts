@@ -1,5 +1,3 @@
-"use client";
-
 import { useEffect, useMemo, useRef, useState } from "react";
 import { lockedEmbedUrl, youTubeApi, watchUrl } from "@/shared/api/youtube";
 import { clamp, parseDurationText } from "@/shared/lib/time";

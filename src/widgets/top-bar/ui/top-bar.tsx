@@ -1,5 +1,3 @@
-"use client";
-
 import { Plus, RotateCcw } from "lucide-react";
 import { useTranslations } from "next-intl";
 import type { AppLocale } from "@/shared/config/i18n/routing";

@@ -1,5 +1,3 @@
-"use client";
-
 export type ConfirmTone = "approve" | "danger";
 
 export function ConfirmPopover({

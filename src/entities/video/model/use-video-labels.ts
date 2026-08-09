@@ -1,5 +1,3 @@
-"use client";
-
 import { useTranslations } from "next-intl";
 import { useLocaleNumbers } from "@/shared/lib/i18n/use-locale-numbers";
 import type { Video } from "./types";

@@ -1,5 +1,3 @@
-"use client";
-
 import { Moon, Sun } from "lucide-react";
 import { useTranslations } from "next-intl";
 import type { Theme } from "@/shared/lib/platform";

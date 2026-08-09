@@ -1,5 +1,3 @@
-"use client";
-
 import { Download, Plus, RotateCcw, X } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useState } from "react";

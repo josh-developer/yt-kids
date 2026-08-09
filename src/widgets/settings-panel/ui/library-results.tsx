@@ -1,5 +1,3 @@
-"use client";
-
 import { EyeOff, Plus, Trash2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { IconButton } from "@/shared/ui/icon-button";

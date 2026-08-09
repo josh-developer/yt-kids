@@ -1,5 +1,3 @@
-"use client";
-
 import { thumbnailUrl } from "@/shared/api/youtube";
 import type { Video } from "../model/types";
 

@@ -1,5 +1,3 @@
-"use client";
-
 import type { Video } from "../model/types";
 import { ChannelAvatar } from "./channel-avatar";
 import { VideoSummary } from "./video-summary";

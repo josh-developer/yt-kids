@@ -1,5 +1,3 @@
-"use client";
-
 import {
   Maximize2,
   Minimize2,

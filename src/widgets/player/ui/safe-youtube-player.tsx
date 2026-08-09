@@ -1,5 +1,3 @@
-"use client";
-
 import { useTranslations } from "next-intl";
 import { useEffect, useRef, useState } from "react";
 import { useVideoLabels, type Video } from "@/entities/video";

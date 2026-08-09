@@ -1,5 +1,3 @@
-"use client";
-
 import { Upload } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { ModalPanel } from "@/shared/ui/modal-panel";

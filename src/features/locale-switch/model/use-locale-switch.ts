@@ -1,5 +1,3 @@
-"use client";
-
 import { useLocale } from "next-intl";
 import { useRouter } from "next/navigation";
 import { routing, type AppLocale } from "@/shared/config/i18n/routing";

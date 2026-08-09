@@ -1,5 +1,3 @@
-"use client";
-
 import { useState } from "react";
 import type { LibraryController } from "@/entities/library";
 import type { Video } from "@/entities/video";

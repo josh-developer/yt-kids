@@ -1,5 +1,3 @@
-"use client";
-
 import { useTranslations } from "next-intl";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { CATALOG, type LibraryRepository, type VideoLibrary } from "@/entities/library";

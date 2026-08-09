@@ -1,5 +1,3 @@
-"use client";
-
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { createBrowserStore } from "@/shared/lib/storage/key-value-store";
 import { LibraryRepository } from "./library-repository";

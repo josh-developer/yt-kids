@@ -1,5 +1,3 @@
-"use client";
-
 import { VideoCard, type Video } from "@/entities/video";
 
 export function VideoGrid({
