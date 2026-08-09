@@ -1028,7 +1028,12 @@ export function SafeYouTubePlayer({
           startTelemetryPolling();
           sendPlayerCommand("setVolume", [volume]);
           if (shouldAutoplay) {
-            schedulePlayCommand(false);
+            // Browsers only allow autoplay when muted, and won't allow a
+            // script (without a real user gesture) to unmute it afterwards
+            // — YouTube's player just pauses itself instead. So the very
+            // first autoplay must stay muted; unmuting only happens once
+            // the user taps something themselves (mute button, play/pause).
+            schedulePlayCommand(true);
           }
         }}
         ref={iframeRef}
