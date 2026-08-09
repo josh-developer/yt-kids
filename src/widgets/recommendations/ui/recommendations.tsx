@@ -12,6 +12,13 @@ const GROUP_TITLES = {
   more: "moreTitle",
 } as const;
 
+/**
+ * Below this a group is cheaper to mount whole than to measure. Above it —
+ * a serial can run to eighty episodes — every card would be a thumbnail and
+ * five nodes the viewer never scrolls to.
+ */
+const VIRTUALISE_ABOVE = 12;
+
 export function Recommendations({
   groups,
   isEnabled,
@@ -52,12 +59,7 @@ export function Recommendations({
                 </h2>
               ) : null}
 
-              {/*
-                Only the open-ended "everything else" group is virtualised; a
-                series is short enough that mounting it whole keeps the episode
-                list scrollable without measurement.
-              */}
-              {group.key === "more" ? (
+              {group.videos.length > VIRTUALISE_ABOVE ? (
                 <VirtualGrid
                   items={group.videos}
                   className={styles.recommendations}
