@@ -205,7 +205,7 @@ export function SafeYouTubePlayer({
     skeletonTimerRef.current = window.setTimeout(() => {
       setShowSkeleton(false);
       skeletonTimerRef.current = null;
-    }, 1200);
+    }, 8000);
 
     const frame = window.requestAnimationFrame(() => {
       setCurrentTime(0);
@@ -324,6 +324,11 @@ export function SafeYouTubePlayer({
         setIsPlaying(true);
         setControlsVisible(true);
         scheduleControlsHide();
+        if (skeletonTimerRef.current) {
+          window.clearTimeout(skeletonTimerRef.current);
+          skeletonTimerRef.current = null;
+        }
+        setShowSkeleton(false);
       } else {
         setIsPlaying(false);
         setControlsVisible(true);
@@ -525,12 +530,15 @@ export function SafeYouTubePlayer({
   function sendPlayCommand() {
     primePlayerTelemetry();
     sendPlayerCommand("setVolume", [volume]);
-    if (isMuted || volume === 0) {
-      sendPlayerCommand("mute");
-    } else {
+    // Browsers only allow autoplay to start when muted, and won't let a
+    // script unmute it afterwards unless playback already began — so every
+    // autoplay attempt has to start muted, then unmute right after if the
+    // user's preference is to have sound on.
+    sendPlayerCommand("mute");
+    sendPlayerCommand("playVideo");
+    if (!isMuted && volume > 0) {
       sendPlayerCommand("unMute");
     }
-    sendPlayerCommand("playVideo");
   }
 
   function schedulePlayCommand() {
@@ -1060,16 +1068,13 @@ export function SafeYouTubePlayer({
           startTelemetryPolling();
           sendPlayerCommand("setVolume", [volume]);
           if (shouldAutoplay) {
-            // The user already tapped something on this page to get here
-            // (picking the video), so Chrome's "user interacted with this
-            // domain" autoplay allowance lets us start unmuted directly.
             schedulePlayCommand();
           }
         }}
         ref={iframeRef}
         referrerPolicy="strict-origin-when-cross-origin"
         sandbox="allow-scripts allow-same-origin allow-presentation"
-        src={lockedEmbedUrl(video.videoId, shouldAutoplay)}
+        src={lockedEmbedUrl(video.videoId, shouldAutoplay, shouldAutoplay)}
         tabIndex={-1}
         title={copy.videoSurface(video.title)}
         onContextMenu={(event) => event.preventDefault()}
