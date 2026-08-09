@@ -4,7 +4,10 @@ import { prefetchVideo } from "@/shared/api/youtube";
 import { AUTOPLAY_COUNTDOWN_SECONDS } from "@/shared/config/app-config";
 import { TimerBag } from "@/shared/lib/timers";
 import { useVideoLabels, type Video } from "@/entities/video";
-import { useControlsVisibility } from "../model/use-controls-visibility";
+import {
+  TOUCH_AUTO_HIDE_MS,
+  useControlsVisibility,
+} from "../model/use-controls-visibility";
 import { usePlayerEngine } from "../model/use-player-engine";
 import { usePlayerFullscreen } from "../model/use-player-fullscreen";
 import { usePlayerGestures } from "../model/use-player-gestures";
@@ -153,20 +156,16 @@ export function SafeYouTubePlayer({
   }, [isRepeatOne, nextVideo]);
 
   /**
-   * Every deliberate press goes through here, and what it means depends on the
-   * device. A tap pins the controls — they stay up until the next tap asks
-   * them to go. A mouse press only re-arms the timer, because the mouse has
-   * its own way of dismissing them by moving away; pinning on a mouse press
-   * strands the controls in fullscreen, where there is no "away" to move to
-   * and a viewer who then sits still never gets the video back.
+   * Every deliberate press goes through here. It re-arms the idle timer rather
+   * than pinning the controls open: pressing things keeps them up, and a
+   * viewer who stops touching gets the video back. A finger gets the longer
+   * window, since it has no way to dismiss them by moving away.
    */
   function revealControls() {
-    if (gestures.isMousePointer()) {
-      controls.show({ autoHide: engine.isPlaying });
-      return;
-    }
-
-    controls.pin();
+    controls.show({
+      autoHide: engine.isPlaying,
+      delayMs: gestures.isMousePointer() ? undefined : TOUCH_AUTO_HIDE_MS,
+    });
   }
 
   /**
@@ -427,7 +426,9 @@ export function SafeYouTubePlayer({
               revealControls();
               engine.seekToRatio(ratio);
             }}
-            onScrubEnd={() => controls.scheduleHide()}
+            // Same idle rules as any other press: device-aware, and no
+            // timer at all while the video is paused.
+            onScrubEnd={revealControls}
           />
           <PlayerControls
             hasNext={Boolean(nextVideo)}
