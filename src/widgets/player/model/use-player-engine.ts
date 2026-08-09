@@ -3,6 +3,7 @@ import { lockedEmbedUrl, warmYouTubeOrigins } from "@/shared/api/youtube";
 import {
   PLAYER_BOOT_KICK_MS,
   PLAYER_SKELETON_MS,
+  PLAYER_STARTED_FALLBACK_MS,
   PLAYER_UNREACHABLE_MS,
 } from "@/shared/config/app-config";
 import { createSessionStore } from "@/shared/lib/storage/key-value-store";
@@ -357,6 +358,25 @@ export function usePlayerEngine({
     if (shouldAutoplay && isPlayingRef.current) {
       schedulePlay(hasUnmutedGestureRef.current);
     }
+
+    // Telemetry can lag well past this or never arrive at all — seen on iOS
+    // Safari, where cross-origin iframe -> parent messaging is throttled
+    // harder than on desktop. The play command above already went out, so
+    // stop hiding real, playing video behind the spinner and poster on its
+    // account — both covers share this fallback, or the spinner (it sits on
+    // top of the poster) would keep the poster's own fallback invisible
+    // until the much longer `PLAYER_SKELETON_MS` ceiling.
+    timers.current.timeout(
+      "started-fallback",
+      () => {
+        setIsBooting(false);
+        if (!hasStartedRef.current) {
+          hasStartedRef.current = true;
+          setHasStarted(true);
+        }
+      },
+      PLAYER_STARTED_FALLBACK_MS,
+    );
   }
 
   function handleFrameLoad() {

@@ -23,8 +23,10 @@ export const SEEK_STEP_SECONDS = 15;
 export const DEFAULT_VOLUME = 80;
 
 /**
- * Fallback only: the loader normally clears the moment playback reports it
- * started, so this just bounds how long a stuck embed can hide behind it.
+ * Last-resort ceiling only. In practice the spinner clears well before this,
+ * either because playback reports it started or via `PLAYER_STARTED_FALLBACK_MS`
+ * — this just bounds how long a truly stuck embed (the play command itself
+ * never went out) can hide behind it.
  */
 export const PLAYER_SKELETON_MS = 8000;
 
@@ -33,6 +35,15 @@ export const PLAYER_SKELETON_MS = 8000;
  * the common case), so the embed is primed on a timer as well.
  */
 export const PLAYER_BOOT_KICK_MS = 1200;
+
+/**
+ * How long to wait, after sending the first play command, before assuming
+ * playback started even without telemetry confirming it — clearing both the
+ * spinner and the poster. Otherwise they'd keep covering a video that is
+ * genuinely playing whenever the embed's postMessage channel is slow or
+ * never opens (seen on iOS Safari), for as long as `PLAYER_SKELETON_MS`.
+ */
+export const PLAYER_STARTED_FALLBACK_MS = 2500;
 
 /**
  * If the embed has not said a single word by now it is not going to: the
