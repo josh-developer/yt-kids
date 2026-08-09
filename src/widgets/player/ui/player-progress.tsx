@@ -1,20 +1,27 @@
 import { useTranslations } from "next-intl";
-import { useRef } from "react";
+import { useRef, useSyncExternalStore } from "react";
 import type { PointerEvent } from "react";
 import { formatTimestamp } from "@/shared/lib/time";
+import type { PlaybackClock } from "../model/playback-clock";
+import styles from "./player.module.css";
 
+/**
+ * The one component that redraws as the video plays: it subscribes to the play
+ * head instead of taking it as a prop, so a tick stops here.
+ */
 export function PlayerProgress({
-  currentTime,
+  clock,
   durationSeconds,
   onSeekToRatio,
   onScrubEnd,
 }: {
-  currentTime: number;
+  clock: PlaybackClock;
   durationSeconds: number;
   onSeekToRatio: (ratio: number) => void;
   onScrubEnd: () => void;
 }) {
   const t = useTranslations("Player");
+  const currentTime = useSyncExternalStore(clock.subscribe, clock.get, clock.get);
   const isScrubbing = useRef(false);
   const hasDuration = durationSeconds > 0;
 
@@ -63,9 +70,9 @@ export function PlayerProgress({
   }
 
   return (
-    <div className="player-progress-wrap">
+    <div className={styles.playerProgressWrap}>
       <button
-        className="player-progress"
+        className={styles.playerProgress}
         disabled={!hasDuration}
         onPointerCancel={handlePointerEnd}
         onPointerDown={handlePointerDown}
@@ -75,7 +82,7 @@ export function PlayerProgress({
         aria-label={t("seek")}
       >
         <span
-          className="player-progress-fill"
+          className={styles.playerProgressFill}
           style={{
             width: hasDuration
               ? `${Math.min(100, (currentTime / durationSeconds) * 100)}%`
@@ -83,7 +90,7 @@ export function PlayerProgress({
           }}
         />
       </button>
-      <span className="player-time">
+      <span className={styles.playerTime}>
         {formatTimestamp(currentTime)} /{" "}
         {hasDuration ? formatTimestamp(durationSeconds) : "--:--"}
       </span>

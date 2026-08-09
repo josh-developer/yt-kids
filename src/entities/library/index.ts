@@ -1,4 +1,8 @@
-export type { StoredLibrary } from "./model/types";
+export type {
+  RecommendationGroup,
+  RecommendationGroupKey,
+  StoredLibrary,
+} from "./model/types";
 export { CATALOG, VideoCatalog } from "./model/video-catalog";
 export { VideoLibrary } from "./model/video-library";
 export { LibraryRepository } from "./model/library-repository";

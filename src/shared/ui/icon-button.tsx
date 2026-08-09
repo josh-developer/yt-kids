@@ -1,4 +1,5 @@
 import type { MouseEvent, ReactNode } from "react";
+import primitives from "./primitives.module.css";
 
 /**
  * Every icon button in the app pairs an `aria-label` with the identical
@@ -29,7 +30,9 @@ export function IconButton({
 }) {
   return (
     <button
-      className={`icon-button ${isActive ? "active" : ""} ${className}`.trim()}
+      className={`${primitives.iconButton} ${
+        isActive ? primitives.active : ""
+      } ${className}`.trim()}
       type="button"
       disabled={isDisabled}
       aria-label={label}

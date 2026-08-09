@@ -19,7 +19,6 @@ export function createCustomVideo(
     title: metadata.title || "",
     channel: metadata.channel || "",
     duration: metadata.duration || UNKNOWN_DURATION,
-    tags: ["custom"],
     accent: CUSTOM_VIDEO_ACCENT,
     source: "custom",
   };

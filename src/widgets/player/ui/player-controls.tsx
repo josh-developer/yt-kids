@@ -1,4 +1,6 @@
 import {
+  Captions,
+  CaptionsOff,
   Maximize2,
   Minimize2,
   Pause,
@@ -13,12 +15,15 @@ import {
 import { useTranslations } from "next-intl";
 
 import { SEEK_STEP_SECONDS } from "@/shared/config/app-config";
+import { bindPreview, type PreviewRequest } from "./player-overlays";
+import styles from "./player.module.css";
 
 const VOLUME_STEP = 10;
 
 export function PlayerControls({
   hasNext,
   hasPrevious,
+  areCaptionsEnabled,
   isFullscreen,
   isMuted,
   isPlaying,
@@ -27,6 +32,8 @@ export function PlayerControls({
   onNext,
   onPlayPause,
   onPrevious,
+  onPreview,
+  onToggleCaptions,
   onToggleFullscreen,
   onToggleMute,
   onSeekBy,
@@ -35,6 +42,7 @@ export function PlayerControls({
 }: {
   hasNext: boolean;
   hasPrevious: boolean;
+  areCaptionsEnabled: boolean;
   isFullscreen: boolean;
   isMuted: boolean;
   isPlaying: boolean;
@@ -43,7 +51,9 @@ export function PlayerControls({
   onNext: () => void;
   onPlayPause: () => void;
   onPrevious: () => void;
+  onPreview: (request: PreviewRequest) => void;
   onSeekBy: (seconds: number) => void;
+  onToggleCaptions: () => void;
   onToggleFullscreen: () => void;
   onToggleMute: () => void;
   onToggleRepeat: () => void;
@@ -53,21 +63,22 @@ export function PlayerControls({
   const isSilent = isMuted || volume === 0;
 
   return (
-    <div className="safe-player-controls" aria-label={t("controls")}>
-      <div className="footer-transport-controls">
+    <div className={styles.safePlayerControls} aria-label={t("controls")}>
+      <div className={styles.footerTransportControls}>
         {/* Narrow layouts reach these through the on-video side buttons. */}
-        <div className="wide-screen-video-nav">
+        <div className={styles.wideScreenVideoNav}>
           <button
-            className="player-control-button"
+            className={styles.playerControlButton}
             disabled={!hasPrevious}
             onClick={onPrevious}
             type="button"
             aria-label={t("previousVideo")}
+            {...bindPreview("previous", onPreview)}
           >
             <SkipBack size={16} fill="currentColor" />
           </button>
           <button
-            className="player-control-button primary"
+            className={`${styles.playerControlButton} ${styles.primary}`}
             onClick={onPlayPause}
             type="button"
             aria-label={isPlaying ? t("pause") : t("play")}
@@ -79,18 +90,19 @@ export function PlayerControls({
             )}
           </button>
           <button
-            className="player-control-button"
+            className={styles.playerControlButton}
             disabled={!hasNext}
             onClick={onNext}
             type="button"
             aria-label={t("nextVideo")}
+            {...bindPreview("next", onPreview)}
           >
             <SkipForward size={16} fill="currentColor" />
           </button>
-          <span className="control-divider" />
+          <span className={styles.controlDivider} />
         </div>
         <button
-          className="player-control-button seek-step"
+          className={`${styles.playerControlButton} ${styles.seekStep}`}
           onClick={() => onSeekBy(-SEEK_STEP_SECONDS)}
           type="button"
           aria-label={t("back15")}
@@ -98,17 +110,17 @@ export function PlayerControls({
           -{SEEK_STEP_SECONDS}
         </button>
         <button
-          className="player-control-button seek-step"
+          className={`${styles.playerControlButton} ${styles.seekStep}`}
           onClick={() => onSeekBy(SEEK_STEP_SECONDS)}
           type="button"
           aria-label={t("forward15")}
         >
           +{SEEK_STEP_SECONDS}
         </button>
-        <span className="control-divider" />
+        <span className={styles.controlDivider} />
       </div>
       <button
-        className="player-control-button"
+        className={styles.playerControlButton}
         onClick={onToggleMute}
         type="button"
         aria-label={isMuted ? t("unmute") : t("mute")}
@@ -122,18 +134,25 @@ export function PlayerControls({
         )}
       </button>
       <button
-        className="player-control-button volume-step"
+        className={`${styles.playerControlButton} ${styles.volumeStep}`}
         onClick={() => onVolumeChange(volume - VOLUME_STEP)}
         type="button"
         aria-label={t("volumeDown")}
       >
         -
       </button>
-      <span className="volume-meter" aria-label={t("volume", { value: volume })}>
+      <span
+        className={styles.volumeMeter}
+        role="meter"
+        aria-valuemin={0}
+        aria-valuemax={100}
+        aria-valuenow={volume}
+        aria-label={t("volume", { value: volume })}
+      >
         <span style={{ width: `${volume}%` }} />
       </span>
       <button
-        className="player-control-button volume-step"
+        className={`${styles.playerControlButton} ${styles.volumeStep}`}
         onClick={() => onVolumeChange(volume + VOLUME_STEP)}
         type="button"
         aria-label={t("volumeUp")}
@@ -141,7 +160,7 @@ export function PlayerControls({
         +
       </button>
       <button
-        className={`player-control-button repeat-button ${isRepeatOne ? "active" : ""}`}
+        className={`${styles.playerControlButton} ${styles.repeatButton} ${isRepeatOne ? styles.active : ""}`}
         onClick={onToggleRepeat}
         type="button"
         aria-label={isRepeatOne ? t("repeatOneEnabled") : t("repeatOneDisabled")}
@@ -150,7 +169,18 @@ export function PlayerControls({
         <Repeat1 size={18} />
       </button>
       <button
-        className="player-control-button fullscreen-button"
+        className={`${styles.playerControlButton} ${
+          areCaptionsEnabled ? styles.active : ""
+        }`}
+        onClick={onToggleCaptions}
+        type="button"
+        aria-label={areCaptionsEnabled ? t("hideCaptions") : t("showCaptions")}
+        aria-pressed={areCaptionsEnabled}
+      >
+        {areCaptionsEnabled ? <Captions size={16} /> : <CaptionsOff size={16} />}
+      </button>
+      <button
+        className={`${styles.playerControlButton} ${styles.fullscreenButton}`}
         onClick={onToggleFullscreen}
         type="button"
         aria-label={isFullscreen ? t("exitFullScreen") : t("fullScreen")}

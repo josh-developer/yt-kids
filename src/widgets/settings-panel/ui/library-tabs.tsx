@@ -1,5 +1,6 @@
 import { useTranslations } from "next-intl";
 import type { CurationTab } from "@/features/library-curation";
+import styles from "./settings-panel.module.css";
 
 export function LibraryTabs({
   approvedCount,
@@ -30,11 +31,11 @@ export function LibraryTabs({
   ];
 
   return (
-    <div className="settings-tabs" role="tablist" aria-label={t("searchVideos")}>
+    <div className={styles.settingsTabs} role="tablist" aria-label={t("searchVideos")}>
       {tabs.map((entry) => (
         <button
           key={entry.key}
-          className={`settings-tab ${tab === entry.key ? "active" : ""}`}
+          className={`${styles.settingsTab} ${tab === entry.key ? styles.active : ""}`}
           type="button"
           onClick={() => onTabChange(entry.key)}
           role="tab"

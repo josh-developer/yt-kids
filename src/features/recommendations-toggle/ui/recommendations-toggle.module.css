@@ -1,0 +1,12 @@
+.recommendationsHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.recommendationsTitle {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text-soft);
+}

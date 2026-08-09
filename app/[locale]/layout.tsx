@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Geist, Geist_Mono, Nunito } from "next/font/google";
+import { Geist, Nunito } from "next/font/google";
 import { notFound } from "next/navigation";
 import type { Locale } from "next-intl";
 import { hasLocale, NextIntlClientProvider } from "next-intl";
@@ -10,11 +10,6 @@ import { PwaRegistrar } from "../_providers/pwa-registrar";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
   subsets: ["latin"],
 });
 
@@ -64,8 +59,6 @@ export async function generateMetadata({
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
-  maximumScale: 1,
-  userScalable: false,
 };
 
 export default async function LocaleLayout({
@@ -81,8 +74,18 @@ export default async function LocaleLayout({
 
   return (
     <html lang={locale}>
+      <head>
+        {/*
+          Thumbnails are on every screen, so this connection is always used.
+          The embed's own hosts are deliberately not here: nothing on the home
+          or settings screens requests them, and an unused preconnect holds a
+          socket open for nothing. `warmYouTubeOrigins` adds them the moment a
+          player mounts, which is early enough to still be ahead of the embed.
+        */}
+        <link rel="preconnect" href="https://i.ytimg.com" />
+      </head>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} ${nunitoBrand.variable} antialiased`}
+        className={`${geistSans.variable} ${nunitoBrand.variable} antialiased`}
       >
         <NextIntlClientProvider>
           <PwaRegistrar />

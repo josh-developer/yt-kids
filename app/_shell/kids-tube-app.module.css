@@ -1,0 +1,83 @@
+/*
+ * The application frame. It also publishes the app's mode as attributes —
+ * `data-theme`, `data-view`, `data-tv` — which is how every other slice styles
+ * itself against the mode without knowing this file exists.
+ */
+
+.appShell {
+  min-height: 100vh;
+  position: relative;
+  isolation: isolate;
+  overflow-x: clip;
+  background: linear-gradient(
+    180deg,
+    var(--kid-bg-top) 0%,
+    var(--kid-bg-mid) 48%,
+    var(--kid-bg-bottom) 100%
+  );
+  color: var(--text);
+}
+
+.appShell::before {
+  content: "";
+  position: fixed;
+  /* Fixed and full-bleed: without its own layer this repaints per scroll frame. */
+  will-change: transform;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 960'%3E%3Cg fill='none' stroke-linecap='round' stroke-dasharray='12 18' stroke-width='4'%3E%3Cpath d='M-80 160 C 110 30 270 130 170 310' stroke='%2347aeea' opacity='.34'/%3E%3Cpath d='M360 80 C 520 -20 610 120 500 230' stroke='%23ffca2e' opacity='.29'/%3E%3Cpath d='M1180 44 C 1040 170 1210 260 1070 390' stroke='%2362c986' opacity='.31'/%3E%3Cpath d='M1510 300 C 1320 280 1360 480 1190 520' stroke='%23966ce8' opacity='.28'/%3E%3Cpath d='M90 720 C 210 560 390 700 270 890' stroke='%23ff8a3d' opacity='.27'/%3E%3Cpath d='M710 900 C 810 720 1040 840 1110 650' stroke='%23ef5da8' opacity='.25'/%3E%3Cpath d='M1350 860 C 1190 760 1310 620 1100 590' stroke='%2300a6a6' opacity='.27'/%3E%3C/g%3E%3C/svg%3E");
+  background-position: center top;
+  background-repeat: no-repeat;
+  background-size: cover;
+  opacity: 0.76;
+}
+
+.appShell::after {
+  content: "";
+  position: fixed;
+  will-change: transform;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 960'%3E%3Cg opacity='.62'%3E%3Cpath d='M96 96 l10 20 22 3 -16 15 4 22 -20 -11 -20 11 4 -22 -16 -15 22 -3z' fill='%23ffd84d'/%3E%3Cpath d='M1280 104 c-18 -25 -58 8 -19 40 l19 18 19 -18 c39 -32 -1 -65 -19 -40z' fill='%23ff6f91'/%3E%3Cpolygon points='790,150 840,174 790,200 804,174' fill='%2347aeea'/%3E%3Ccircle cx='300' cy='300' r='18' fill='%2362c986'/%3E%3Cpath d='M288 300 q12 12 24 0' fill='none' stroke='%23ffffff' stroke-width='3' stroke-linecap='round'/%3E%3Cpath d='M1150 350 l12 24 27 4 -20 18 5 27 -24 -14 -24 14 5 -27 -20 -18 27 -4z' fill='%23966ce8'/%3E%3Cpath d='M180 610 c-16 -22 -52 8 -17 42 l17 15 17 -15 c35 -34 -1 -64 -17 -42z' fill='%23ff8a3d'/%3E%3Ccircle cx='610' cy='760' r='18' fill='%232878ff'/%3E%3Cpath d='M598 760 q12 12 24 0' fill='none' stroke='%23ffffff' stroke-width='3' stroke-linecap='round'/%3E%3Cpolygon points='1300,760 1342,782 1300,804 1312,782' fill='%2300a6a6'/%3E%3C/g%3E%3C/svg%3E");
+  background-position: center top;
+  background-repeat: no-repeat;
+  background-size: cover;
+  opacity: 0.28;
+}
+
+/* The decorative layers sit back in dark mode. */
+.appShell[data-theme="dark"]::before {
+  opacity: 0.32;
+}
+
+.appShell[data-theme="dark"]::after {
+  opacity: 0.14;
+}
+
+.pageFrame {
+  display: block;
+}
+
+.content {
+  min-width: 0;
+  padding: 22px 26px 44px;
+  position: relative;
+}
+
+@media (min-width: 1280px) {
+  :global([data-tv]) .content {
+    padding: 34px 54px 64px;
+  }
+}
+
+@media (max-width: 720px) {
+  .pageFrame {
+    grid-template-columns: 1fr;
+  }
+
+  .content {
+    padding: 16px 14px 32px;
+  }
+}

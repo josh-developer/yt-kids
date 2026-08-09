@@ -1,14 +1,15 @@
 import { Plus } from "lucide-react";
 import { useTranslations } from "next-intl";
+import primitives from "@/shared/ui/primitives.module.css";
 
 export function WatchLoading() {
   const t = useTranslations("Watch");
 
   return (
-    <div className="empty-state">
+    <div className={primitives.emptyState}>
       <div>
         <h2>{t("loadingTitle")}</h2>
-        <p className="muted">{t("loadingBody")}</p>
+        <p className={primitives.muted}>{t("loadingBody")}</p>
       </div>
     </div>
   );
@@ -24,13 +25,13 @@ export function WatchUnavailable({
   const t = useTranslations("Watch");
 
   return (
-    <div className="empty-state">
+    <div className={primitives.emptyState}>
       <div>
         <h2>{t("unavailableTitle")}</h2>
-        <p className="muted">{t("unavailableBody")}</p>
-        <div className="empty-actions">
+        <p className={primitives.muted}>{t("unavailableBody")}</p>
+        <div className={primitives.emptyActions}>
           <button
-            className="primary-button"
+            className={primitives.primaryButton}
             type="button"
             onClick={onHome}
             data-tooltip={t("goHome")}
@@ -38,7 +39,7 @@ export function WatchUnavailable({
             {t("home")}
           </button>
           <button
-            className="pill-button"
+            className={primitives.pillButton}
             type="button"
             onClick={onSettings}
             data-tooltip={t("openSettings")}

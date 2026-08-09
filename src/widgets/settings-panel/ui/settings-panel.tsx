@@ -8,6 +8,8 @@ import { BulkActions } from "./bulk-actions";
 import { LibraryResults } from "./library-results";
 import { LibraryTabs } from "./library-tabs";
 import { SettingsHeader } from "./settings-header";
+import primitives from "@/shared/ui/primitives.module.css";
+import styles from "./settings-panel.module.css";
 
 /** The parent screen: curate the library, add videos, move it between devices. */
 export function SettingsPanel({
@@ -28,7 +30,7 @@ export function SettingsPanel({
   const [isTransferImportOpen, setIsTransferImportOpen] = useState(false);
 
   return (
-    <div className="settings-layout">
+    <div className={styles.settingsLayout}>
       <section>
         <SettingsHeader
           approvedCount={library.approvedCount}
@@ -48,9 +50,10 @@ export function SettingsPanel({
           }
         />
 
-        <div className="settings-toolbar">
-          <div className="settings-search">
+        <div className={styles.settingsToolbar}>
+          <div className={primitives.field}>
             <input
+              className={primitives.fieldInput}
               value={curation.query}
               onChange={(event) => curation.setQuery(event.target.value)}
               placeholder={t("searchVideos")}

@@ -1,0 +1,12 @@
+/*
+* One virtualized row. Rows are absolutely positioned over each other, so an
+* under-measured row would cover the cards above it: the row surface is inert
+* and only its cards accept clicks.
+*/
+.virtualGridRow {
+  pointer-events: none;
+}
+
+.virtualGridRow > * {
+  pointer-events: auto;
+}

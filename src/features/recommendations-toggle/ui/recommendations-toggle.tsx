@@ -1,5 +1,6 @@
 import { useTranslations } from "next-intl";
 import { Switch } from "@/shared/ui/switch";
+import styles from "./recommendations-toggle.module.css";
 
 export function RecommendationsToggle({
   isEnabled,
@@ -11,8 +12,8 @@ export function RecommendationsToggle({
   const t = useTranslations("Watch");
 
   return (
-    <div className="recommendations-header">
-      <span className="recommendations-title">{t("recommendationsTitle")}</span>
+    <div className={styles.recommendationsHeader}>
+      <span className={styles.recommendationsTitle}>{t("recommendationsTitle")}</span>
       <Switch
         isChecked={isEnabled}
         label={t("showRecommendations")}

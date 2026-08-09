@@ -36,6 +36,8 @@ export function usePlayerGestures({
   const timers = useRef(new TimerBag());
   const swipeStart = useRef<{ x: number; y: number; time: number } | null>(null);
   const didSwipe = useRef(false);
+  // A `click` no longer says what produced it, so the last pointer down does.
+  const lastPointerType = useRef("touch");
   const [seekHint, setSeekHint] = useState<SeekDirection | null>(null);
 
   useEffect(() => {
@@ -69,6 +71,13 @@ export function usePlayerGestures({
       return;
     }
 
+    // Tap-to-toggle is the touch story. With a mouse the controls belong to
+    // hover, and toggling here would only fight it: the click would hide them
+    // and the next pixel of mouse movement would bring them straight back.
+    if (lastPointerType.current === "mouse") {
+      return;
+    }
+
     timers.current.timeout("frame-click", onToggleControls, CLICK_SETTLE_MS);
   }
 
@@ -85,6 +94,10 @@ export function usePlayerGestures({
   }
 
   function handlePointerDown(event: PointerEvent<HTMLDivElement>) {
+    // Recorded before any early return: the click handler needs it even for
+    // presses that are not swipe candidates.
+    lastPointerType.current = event.pointerType;
+
     if (isControl(event.target) || isLocked || !isFullscreen) {
       swipeStart.current = null;
       return;
@@ -138,6 +151,8 @@ export function usePlayerGestures({
 
   return {
     seekHint,
+    /** Which device drove the last press, for handlers a `click` cannot tell. */
+    isMousePointer: () => lastPointerType.current === "mouse",
     flashSeekHint,
     handleFrameClick,
     handleFrameDoubleClick,

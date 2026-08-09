@@ -1,0 +1,56 @@
+.watchLayout {
+  display: grid;
+  grid-template-columns: minmax(0, 1120px) minmax(300px, 360px);
+  gap: 24px;
+  align-items: start;
+  max-width: 1510px;
+  margin: 0 auto;
+}
+
+.watchTitle {
+  margin: 16px 0 12px;
+  font-size: 28px;
+  line-height: 1.15;
+  letter-spacing: 0;
+}
+
+.watchBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--line);
+}
+
+.channelLine {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+@media (min-width: 1280px) {
+  :global([data-tv]) .watchLayout {
+    grid-template-columns: minmax(0, 1fr) minmax(360px, 440px);
+    gap: 36px;
+    max-width: 1760px;
+  }
+
+  :global([data-tv]) .watchTitle {
+    font-size: 34px;
+  }
+}
+
+@media (max-width: 1080px) {
+  .watchLayout {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 720px) {
+  .watchBar {
+    grid-template-columns: 1fr;
+    display: grid;
+    align-items: start;
+  }
+}

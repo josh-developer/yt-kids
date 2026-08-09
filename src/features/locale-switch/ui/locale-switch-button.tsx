@@ -1,6 +1,7 @@
 import { Languages } from "lucide-react";
 import { useTranslations } from "next-intl";
 import type { AppLocale } from "@/shared/config/i18n/routing";
+import primitives from "@/shared/ui/primitives.module.css";
 
 export function LocaleSwitchButton({
   nextLocale,
@@ -13,7 +14,7 @@ export function LocaleSwitchButton({
 
   return (
     <button
-      className="language-button"
+      className={primitives.languageButton}
       type="button"
       onClick={onSwitch}
       aria-label={t("label")}

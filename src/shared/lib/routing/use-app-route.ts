@@ -57,11 +57,17 @@ export function useAppRoute({
 
     const nextPath = pathForRoute(next, locale);
     if (window.location.pathname + window.location.search !== nextPath) {
-      window.history[mode === "replace" ? "replaceState" : "pushState"](
-        null,
-        "",
-        nextPath,
-      );
+      try {
+        window.history[mode === "replace" ? "replaceState" : "pushState"](
+          null,
+          "",
+          nextPath,
+        );
+      } catch {
+        // Safari throws once a page pushes more than ~100 entries in 30
+        // seconds, which a child tapping through videos reaches. The view has
+        // already switched; only the address bar falls behind.
+      }
     }
 
     window.scrollTo({ top: 0, behavior: "smooth" });

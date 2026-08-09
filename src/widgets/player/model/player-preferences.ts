@@ -17,6 +17,14 @@ export class PlayerPreferences {
     this.store.write(SESSION_KEYS.playerMuted, isMuted ? "1" : "0");
   }
 
+  readCaptions() {
+    return this.store.read(SESSION_KEYS.playerCaptions) === "1";
+  }
+
+  saveCaptions(areEnabled: boolean) {
+    this.store.write(SESSION_KEYS.playerCaptions, areEnabled ? "1" : "0");
+  }
+
   readVolume() {
     const stored = Number(this.store.read(SESSION_KEYS.playerVolume));
     return Number.isFinite(stored) && stored >= 0 && stored <= 100

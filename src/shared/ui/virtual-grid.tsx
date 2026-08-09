@@ -1,6 +1,7 @@
 import { useWindowVirtualizer } from "@tanstack/react-virtual";
 import { Fragment, useEffect, useRef, useState } from "react";
 import type { ReactNode } from "react";
+import styles from "./virtual-grid.module.css";
 
 const ESTIMATED_ROW_HEIGHT = 340;
 const OVERSCAN_ROWS = 4;
@@ -27,7 +28,7 @@ export function VirtualGrid<Item>({
   className: string;
   ariaLabel?: string;
   getKey: (item: Item) => string;
-  renderItem: (item: Item) => ReactNode;
+  renderItem: (item: Item, index: number) => ReactNode;
 }) {
   const gridRef = useRef<HTMLDivElement>(null);
   const [columnCount, setColumnCount] = useState(1);
@@ -51,16 +52,32 @@ export function VirtualGrid<Item>({
       setRowGap(Number.parseFloat(style.rowGap) || 0);
     };
 
+    // `getComputedStyle` and `offsetTop` both force the browser to settle
+    // layout. A resize fires them in bursts and the observer fires again for
+    // every row the virtualiser mounts, so measuring is held to one a frame.
+    let pendingFrame = 0;
+    const scheduleMeasure = () => {
+      if (pendingFrame) {
+        return;
+      }
+
+      pendingFrame = window.requestAnimationFrame(() => {
+        pendingFrame = 0;
+        measure();
+      });
+    };
+
     measure();
     const frame = window.requestAnimationFrame(() => setIsMeasured(true));
-    const resizeObserver = new ResizeObserver(measure);
+    const resizeObserver = new ResizeObserver(scheduleMeasure);
     resizeObserver.observe(grid);
-    window.addEventListener("resize", measure);
+    window.addEventListener("resize", scheduleMeasure);
 
     return () => {
       window.cancelAnimationFrame(frame);
+      window.cancelAnimationFrame(pendingFrame);
       resizeObserver.disconnect();
-      window.removeEventListener("resize", measure);
+      window.removeEventListener("resize", scheduleMeasure);
     };
   }, []);
 
@@ -76,8 +93,8 @@ export function VirtualGrid<Item>({
   if (!isMeasured) {
     return (
       <div ref={gridRef} className={className} aria-label={ariaLabel}>
-        {items.slice(0, INITIAL_ITEMS).map((item) => (
-          <Fragment key={getKey(item)}>{renderItem(item)}</Fragment>
+        {items.slice(0, INITIAL_ITEMS).map((item, index) => (
+          <Fragment key={getKey(item)}>{renderItem(item, index)}</Fragment>
         ))}
       </div>
     );
@@ -102,7 +119,11 @@ export function VirtualGrid<Item>({
             key={row.key}
             data-index={row.index}
             ref={virtualizer.measureElement}
-            className={className}
+            // Rows are absolutely positioned siblings, so a row whose measured
+            // height is behind reality overlaps the one above it and swallows
+            // taps meant for the cards there. Only the cards take pointer
+            // events; the row itself is inert.
+            className={`${className} ${styles.virtualGridRow}`}
             style={{
               position: "absolute",
               top: 0,
@@ -113,8 +134,10 @@ export function VirtualGrid<Item>({
             }}
           >
             {/* Fragments keep the rendered cards as direct grid children. */}
-            {items.slice(start, start + columnCount).map((item) => (
-              <Fragment key={getKey(item)}>{renderItem(item)}</Fragment>
+            {items.slice(start, start + columnCount).map((item, column) => (
+              <Fragment key={getKey(item)}>
+                {renderItem(item, start + column)}
+              </Fragment>
             ))}
           </div>
         );

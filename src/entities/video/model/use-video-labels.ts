@@ -1,4 +1,5 @@
 import { useTranslations } from "next-intl";
+import { useMemo } from "react";
 import { useLocaleNumbers } from "@/shared/lib/i18n/use-locale-numbers";
 import type { Video } from "./types";
 
@@ -33,30 +34,34 @@ export function useVideoLabels() {
   const t = useTranslations("Video");
   const numbers = useLocaleNumbers();
 
-  return {
-    title: (video: Video) => video.title || t("untitled"),
-    channel: (video: Video) => video.channel || t("parentAdded"),
-    views: (video: Video) => {
-      if (typeof video.viewCount === "number") {
-        const { key, value } = compactViews(video.viewCount);
-        return t(key, {
-          value:
-            key === "views" ? numbers.integer(value) : numbers.decimal(value),
-        });
-      }
+  // Stable across renders: consumers put this in effect dependency lists.
+  return useMemo(
+    () => ({
+      title: (video: Video) => video.title || t("untitled"),
+      channel: (video: Video) => video.channel || t("parentAdded"),
+      views: (video: Video) => {
+        if (typeof video.viewCount === "number") {
+          const { key, value } = compactViews(video.viewCount);
+          return t(key, {
+            value:
+              key === "views" ? numbers.integer(value) : numbers.decimal(value),
+          });
+        }
 
-      if (video.sourceLabel) {
-        return t(video.sourceLabel);
-      }
+        if (video.sourceLabel) {
+          return t(video.sourceLabel);
+        }
 
-      if (video.source === "custom") {
-        return t("parentAdded");
-      }
+        if (video.source === "custom") {
+          return t("parentAdded");
+        }
 
-      // Libraries stored before v8 keep a pre-i18n display string.
-      return video.views ?? "";
-    },
-  };
+        // Libraries stored before v8 keep a pre-i18n display string.
+        return video.views ?? "";
+      },
+    }),
+    [numbers, t],
+  );
 }
 
 export type VideoLabels = ReturnType<typeof useVideoLabels>;

@@ -100,6 +100,11 @@ test("keeps the feature-sliced layout intact", async () => {
       readFile(new URL("../package.json", import.meta.url), "utf8"),
     ]);
 
+  const playerCss = await readFile(
+    new URL("../src/widgets/player/ui/player.module.css", import.meta.url),
+    "utf8",
+  );
+
   // The app layer only routes and composes; logic lives in the layers below.
   assert.match(page, /export async function generateMetadata/);
   assert.match(page, /<KidsTubeApp \/>/);
@@ -116,7 +121,14 @@ test("keeps the feature-sliced layout intact", async () => {
     player,
     /sandbox="allow-scripts allow-same-origin allow-presentation"/,
   );
-  assert.match(css, /pointer-events:\s*none/);
+  // The embed stays untouchable, wherever its stylesheet lives.
+  assert.match(playerCss, /\.youtubeMount[\s\S]*?pointer-events:\s*none/);
+
+  // globals.css is tokens, element defaults and the tooltip — nothing else.
+  // Component rules belong to a `*.module.css` beside the component.
+  assert.match(css, /--brand-red/);
+  assert.match(css, /\[data-tooltip\]/);
+  assert.doesNotMatch(css, /\.(player|video|topbar|settings|recommendation)/);
 
   assert.match(packageJson, /"name": "yt-kids"/);
   assert.match(packageJson, /"lucide-react":/);

@@ -16,6 +16,7 @@ import { HomePage } from "@/pages/home";
 import { SettingsPage } from "@/pages/settings";
 import { WatchLoading, WatchPage, WatchUnavailable } from "@/pages/watch";
 import { TopBar, useTopbarAutoHide } from "@/widgets/top-bar";
+import styles from "./kids-tube-app.module.css";
 
 function randomSalt() {
   return Date.now() % 233280;
@@ -89,10 +90,15 @@ export function KidsTubeApp({
   const previousEntry = currentVideo
     ? watchStack.previous(currentVideo.id, lookup)
     : null;
-  const recommendations = currentVideo
-    ? library.recommendationsFor(currentVideo, recommendationSeed)
+  const recommendationGroups = currentVideo
+    ? library.recommendationGroupsFor(currentVideo, recommendationSeed)
     : [];
-  const nextVideo = recommendations[0] ?? null;
+  // The next button walks one stable ring over the whole library — seeded once
+  // per session, not re-picked per video — so it plays every approved video
+  // before coming back to any of them.
+  const nextVideo = currentVideo
+    ? library.nextAfter(currentVideo, shuffleSalt)
+    : null;
   const homeVideos = library.feed(homeQuery, shuffleSalt);
 
   useEffect(() => {
@@ -153,9 +159,13 @@ export function KidsTubeApp({
 
   return (
     <main
-      className={`app-shell theme-${theme} view-${route.view} ${
-        isTvBrowser ? "tv-mode" : ""
-      }`}
+      className={styles.appShell}
+      // The app's mode, published as attributes rather than as classes. A
+      // stylesheet anywhere in the app can read `[data-theme="dark"]` or
+      // `[data-tv]`; none of them has to know which class this file uses.
+      data-theme={theme}
+      data-view={route.view}
+      data-tv={isTvBrowser ? "" : undefined}
     >
       <TopBar
         homeQuery={homeQuery}
@@ -174,8 +184,8 @@ export function KidsTubeApp({
         onThemeToggle={toggleTheme}
       />
 
-      <div className="page-frame">
-        <section className="content">
+      <div className={styles.pageFrame}>
+        <section className={styles.content}>
           {route.view === "settings" ? (
             <SettingsPage libraryController={libraryController} />
           ) : route.view === "watch" && !isLoaded ? (
@@ -185,7 +195,7 @@ export function KidsTubeApp({
               isTvBrowser={isTvBrowser}
               nextVideo={nextVideo}
               previousVideo={previousEntry?.video ?? null}
-              recommendations={recommendations}
+              recommendationGroups={recommendationGroups}
               showRecommendations={recommendationsPreference.isEnabled}
               video={currentVideo}
               onDurationResolved={(video, seconds) =>

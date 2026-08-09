@@ -28,7 +28,8 @@ type TransferVideo = {
   c: string;
   d: string;
   w: string;
-  g: string[];
+  /** Tags, written by versions before they were dropped. Read and ignored. */
+  g?: string[];
   a: string;
 };
 
@@ -115,7 +116,6 @@ export class EncryptedTransferCodec implements LibraryTransferCodec {
         c: video.channel,
         d: video.duration,
         w: video.views ?? "",
-        g: video.tags,
         a: video.accent,
       })),
     };
@@ -148,7 +148,6 @@ export class EncryptedTransferCodec implements LibraryTransferCodec {
       channel: video.c || "",
       duration: video.d || UNKNOWN_DURATION,
       views: video.w || "",
-      tags: Array.isArray(video.g) && video.g.length > 0 ? video.g : ["custom"],
       accent: video.a || CUSTOM_VIDEO_ACCENT,
       source: "custom",
     };

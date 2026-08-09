@@ -1,5 +1,9 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { unlockScreenOrientation } from "@/shared/lib/platform";
+import {
+  lockLandscapeOrientation,
+  supportsOrientationLock,
+  unlockScreenOrientation,
+} from "@/shared/lib/platform";
 import { FullscreenController } from "./fullscreen-controller";
 
 /**
@@ -23,6 +27,7 @@ export function usePlayerFullscreen({
   const isFullscreen = isNative || isVirtual;
 
   const onChangeRef = useRef(onChange);
+  const wasNativeRef = useRef(false);
 
   useEffect(() => {
     onChangeRef.current = onChange;
@@ -33,28 +38,41 @@ export function usePlayerFullscreen({
   }, [isFullscreen]);
 
   useEffect(() => {
-    function handleFullscreenChange() {
+    function syncWithDocument() {
       const isActive = controller.isNativeActive;
       setIsNative(isActive);
 
       if (isActive) {
+        wasNativeRef.current = true;
         setIsVirtual(false);
+        return;
+      }
+
+      if (!wasNativeRef.current) {
         return;
       }
 
       // The browser's own UI (Android back gesture, Esc) closed fullscreen
       // out from under us — mirror that everywhere.
+      wasNativeRef.current = false;
       unlockScreenOrientation();
     }
 
-    document.addEventListener("fullscreenchange", handleFullscreenChange);
-    document.addEventListener("webkitfullscreenchange", handleFullscreenChange);
+    document.addEventListener("fullscreenchange", syncWithDocument);
+    document.addEventListener("webkitfullscreenchange", syncWithDocument);
+    // Some mobile browsers leave fullscreen on rotation or on a tab switch
+    // without ever firing `fullscreenchange`; re-reading the document on those
+    // events is what keeps the button and the layout from disagreeing.
+    document.addEventListener("fullscreenerror", syncWithDocument);
+    window.addEventListener("orientationchange", syncWithDocument);
+    window.addEventListener("pageshow", syncWithDocument);
+
     return () => {
-      document.removeEventListener("fullscreenchange", handleFullscreenChange);
-      document.removeEventListener(
-        "webkitfullscreenchange",
-        handleFullscreenChange,
-      );
+      document.removeEventListener("fullscreenchange", syncWithDocument);
+      document.removeEventListener("webkitfullscreenchange", syncWithDocument);
+      document.removeEventListener("fullscreenerror", syncWithDocument);
+      window.removeEventListener("orientationchange", syncWithDocument);
+      window.removeEventListener("pageshow", syncWithDocument);
     };
   }, [controller]);
 
@@ -86,12 +104,27 @@ export function usePlayerFullscreen({
     };
   }, [isVirtual]);
 
+  /**
+   * Phones are held upright but videos are wide, so fullscreen asks for
+   * landscape. The lock is best-effort: desktops have nothing to rotate and
+   * iOS refuses outright, and neither should stop fullscreen from happening.
+   */
+  async function requestLandscape() {
+    if (!supportsOrientationLock()) {
+      return;
+    }
+
+    await lockLandscapeOrientation();
+  }
+
   async function enter() {
     if (controller.supportsNative) {
       try {
         if (await controller.enterNative()) {
+          wasNativeRef.current = true;
           setIsNative(true);
           setIsVirtual(false);
+          await requestLandscape();
           return;
         }
       } catch {
@@ -99,12 +132,16 @@ export function usePlayerFullscreen({
       }
     }
 
+    wasNativeRef.current = false;
     setIsNative(false);
     setIsVirtual(true);
+    await requestLandscape();
   }
 
   async function exit() {
+    wasNativeRef.current = false;
     await controller.exitNative();
+    unlockScreenOrientation();
     setIsNative(false);
     setIsVirtual(false);
   }

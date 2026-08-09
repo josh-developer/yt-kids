@@ -51,7 +51,10 @@
     "parentSettings": "Parent settings",
     "openSettings": "Open settings",
     "recommendationsTitle": "Recommendations",
-    "showRecommendations": "Show recommendations"
+    "showRecommendations": "Show recommendations",
+    "seriesTitle": "Next in this series",
+    "similarTitle": "Similar videos",
+    "moreTitle": "More videos"
   },
   "Player": {
     "play": "Play video",
@@ -74,7 +77,17 @@
     "help": "Video player. Use left and right to seek, up and down for volume, and enter to play or pause.",
     "surface": "{title} video surface",
     "back15": "Go back 15 seconds",
-    "forward15": "Go forward 15 seconds"
+    "forward15": "Go forward 15 seconds",
+    "retry": "Try again",
+    "blockedTitle": "This video will not play here",
+    "blockedBody": "YouTube would not open it in the app. Try again, or pick another video.",
+    "unreachableTitle": "Cannot reach YouTube",
+    "unreachableBody": "Check the internet connection, and turn off a VPN if one is on.",
+    "upNext": "Up next",
+    "replay": "Watch again",
+    "cancelAutoplay": "Stay here",
+    "showCaptions": "Show captions",
+    "hideCaptions": "Hide captions"
   },
   "Settings": {
     "title": "Parent settings",

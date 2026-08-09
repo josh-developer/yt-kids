@@ -11,12 +11,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "Союзмультфильм (Ўзбек тилида)",
     duration: "10:05",
     viewCount: 270798,
-    tags: [
-      "uzbek",
-      "old cartoons",
-      "soyuzmultfilm",
-      "fairy tale"
-    ],
     accent: "#d93025",
     source: "catalog"
   },
@@ -27,10 +21,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "Bõri 01 AUF",
     duration: "18:32",
     viewCount: 690619,
-    tags: [
-      "uzbek",
-      "old cartoons"
-    ],
     accent: "#0b8043",
     source: "catalog"
   },
@@ -41,11 +31,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "Pravilnie Multiki",
     duration: "9:40",
     viewCount: 2014205,
-    tags: [
-      "uzbek",
-      "old cartoons",
-      "soyuzmultfilm"
-    ],
     accent: "#1a73e8",
     source: "catalog"
   },
@@ -56,11 +41,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "Союзмультфильм (Ўзбек тилида)",
     duration: "9:38",
     viewCount: 127287,
-    tags: [
-      "uzbek",
-      "old cartoons",
-      "soyuzmultfilm"
-    ],
     accent: "#f9ab00",
     source: "catalog"
   },
@@ -71,11 +51,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "Juda YOQIMTOY",
     duration: "47:40",
     viewCount: 29327,
-    tags: [
-      "uzbek",
-      "old cartoons",
-      "soyuzmultfilm"
-    ],
     accent: "#8e24aa",
     source: "catalog"
   },
@@ -86,11 +61,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "TARJIMA MULTFILIMLAR",
     duration: "21:31",
     viewCount: 290274,
-    tags: [
-      "uzbek",
-      "old cartoons",
-      "fairy tale"
-    ],
     accent: "#00897b",
     source: "catalog"
   },
@@ -101,11 +71,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "Tarjima Soyuzmultfilm",
     duration: "--:--",
     viewCount: 185000,
-    tags: [
-      "uzbek",
-      "old cartoons",
-      "soyuzmultfilm"
-    ],
     accent: "#e8710a",
     source: "catalog"
   },
@@ -116,11 +81,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "Uzbek Multfilm",
     duration: "9:43",
     viewCount: 4555782,
-    tags: [
-      "uzbek",
-      "old cartoons",
-      "uzbek classics"
-    ],
     accent: "#3949ab",
     source: "catalog"
   },
@@ -131,10 +91,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "Multfilmlar HD",
     duration: "1:13:16",
     viewCount: 2274563,
-    tags: [
-      "uzbek",
-      "old cartoons"
-    ],
     accent: "#d93025",
     source: "catalog"
   },
@@ -145,10 +101,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "Juda YOQIMTOY",
     duration: "8:42",
     viewCount: 63035,
-    tags: [
-      "uzbek",
-      "old cartoons"
-    ],
     accent: "#0b8043",
     source: "catalog"
   },
@@ -159,11 +111,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "Союзмультфильм (Ўзбек тилида)",
     duration: "10:01",
     viewCount: 63980,
-    tags: [
-      "uzbek",
-      "old cartoons",
-      "soyuzmultfilm"
-    ],
     accent: "#1a73e8",
     source: "catalog"
   },
@@ -174,11 +121,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "Oqshom ertaklari",
     duration: "17:57",
     viewCount: 245157,
-    tags: [
-      "uzbek",
-      "old cartoons",
-      "fairy tale"
-    ],
     accent: "#f9ab00",
     source: "catalog"
   },
@@ -189,10 +131,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "Juda YOQIMTOY",
     duration: "8:29",
     viewCount: 60297,
-    tags: [
-      "uzbek",
-      "old cartoons"
-    ],
     accent: "#8e24aa",
     source: "catalog"
   },
@@ -203,10 +141,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "JIMTV OFFICIAL",
     duration: "5:36",
     viewCount: 429275,
-    tags: [
-      "uzbek",
-      "old cartoons"
-    ],
     accent: "#00897b",
     source: "catalog"
   },
@@ -217,11 +151,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "Uzbek Multfilm",
     duration: "14:54",
     viewCount: 1077100,
-    tags: [
-      "uzbek",
-      "old cartoons",
-      "uzbek classics"
-    ],
     accent: "#e8710a",
     source: "catalog"
   },
@@ -232,11 +161,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "Союзмультфильм (Ўзбек тилида)",
     duration: "18:41",
     viewCount: 5171,
-    tags: [
-      "uzbek",
-      "old cartoons",
-      "soyuzmultfilm"
-    ],
     accent: "#3949ab",
     source: "catalog"
   },
@@ -247,11 +171,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "Союзмультфильм (Ўзбек тилида)",
     duration: "29:00",
     viewCount: 1760,
-    tags: [
-      "uzbek",
-      "old cartoons",
-      "soyuzmultfilm"
-    ],
     accent: "#d93025",
     source: "catalog"
   },
@@ -262,12 +181,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "Союзмультфильм (Ўзбек тилида)",
     duration: "9:58",
     viewCount: 5572,
-    tags: [
-      "uzbek",
-      "old cartoons",
-      "soyuzmultfilm",
-      "fairy tale"
-    ],
     accent: "#0b8043",
     source: "catalog"
   },
@@ -278,11 +191,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "Союзмультфильм (Ўзбек тилида)",
     duration: "10:42",
     viewCount: 8836,
-    tags: [
-      "uzbek",
-      "old cartoons",
-      "soyuzmultfilm"
-    ],
     accent: "#1a73e8",
     source: "catalog"
   },
@@ -293,11 +201,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "Durdona Burhonova",
     duration: "24:22",
     viewCount: 142938,
-    tags: [
-      "uzbek",
-      "old cartoons",
-      "fairy tale"
-    ],
     accent: "#f9ab00",
     source: "catalog"
   },
@@ -308,11 +211,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "Союзмультфильм (Ўзбек тилида)",
     duration: "10:01",
     viewCount: 112551,
-    tags: [
-      "uzbek",
-      "old cartoons",
-      "soyuzmultfilm"
-    ],
     accent: "#8e24aa",
     source: "catalog"
   },
@@ -323,10 +221,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "NURiSLOM-TV",
     duration: "9:17",
     viewCount: 9955,
-    tags: [
-      "uzbek",
-      "old cartoons"
-    ],
     accent: "#00897b",
     source: "catalog"
   },
@@ -337,11 +231,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "Uzbek Multfilm",
     duration: "10:15",
     viewCount: 54000,
-    tags: [
-      "uzbek",
-      "old cartoons",
-      "uzbek classics"
-    ],
     accent: "#e8710a",
     source: "catalog"
   },
@@ -352,11 +241,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "Soyuzmultfilm Uzbek",
     duration: "--:--",
     viewCount: 387,
-    tags: [
-      "uzbek",
-      "old cartoons",
-      "soyuzmultfilm"
-    ],
     accent: "#3949ab",
     source: "catalog"
   },
@@ -367,11 +251,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "Uzbek Multfilm",
     duration: "10:41",
     viewCount: 796565,
-    tags: [
-      "uzbek",
-      "old cartoons",
-      "uzbek classics"
-    ],
     accent: "#d93025",
     source: "catalog"
   },
@@ -382,10 +261,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "Juda YOQIMTOY",
     duration: "9:07",
     viewCount: 46541,
-    tags: [
-      "uzbek",
-      "old cartoons"
-    ],
     accent: "#0b8043",
     source: "catalog"
   },
@@ -396,11 +271,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "Tarjima Soyuzmultfilm",
     duration: "9:07",
     viewCount: 317,
-    tags: [
-      "uzbek",
-      "old cartoons",
-      "soyuzmultfilm"
-    ],
     accent: "#1a73e8",
     source: "catalog"
   },
@@ -411,11 +281,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "Uzbek Multfilm",
     duration: "12:01",
     viewCount: 15000,
-    tags: [
-      "uzbek",
-      "old cartoons",
-      "uzbek classics"
-    ],
     accent: "#f9ab00",
     source: "catalog"
   },
@@ -426,11 +291,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "Tarjima Soyuzmultfilm",
     duration: "--:--",
     viewCount: 1700,
-    tags: [
-      "uzbek",
-      "old cartoons",
-      "soyuzmultfilm"
-    ],
     accent: "#8e24aa",
     source: "catalog"
   },
@@ -441,12 +301,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "Союзмультфильм (Ўзбек тилида)",
     duration: "10:12",
     viewCount: 3639,
-    tags: [
-      "uzbek",
-      "old cartoons",
-      "soyuzmultfilm",
-      "fairy tale"
-    ],
     accent: "#00897b",
     source: "catalog"
   },
@@ -457,11 +311,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "Soyuzmultfilm Uzbek",
     duration: "7:33",
     viewCount: 1000,
-    tags: [
-      "uzbek",
-      "old cartoons",
-      "soyuzmultfilm"
-    ],
     accent: "#e8710a",
     source: "catalog"
   },
@@ -472,11 +321,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "Tarjima Soyuzmultfilm",
     duration: "7:35",
     viewCount: 745,
-    tags: [
-      "uzbek",
-      "old cartoons",
-      "soyuzmultfilm"
-    ],
     accent: "#3949ab",
     source: "catalog"
   },
@@ -487,11 +331,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "Uzbek Multfilm",
     duration: "2:44",
     viewCount: 25000,
-    tags: [
-      "uzbek",
-      "old cartoons",
-      "uzbek classics"
-    ],
     accent: "#d93025",
     source: "catalog"
   },
@@ -502,11 +341,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "Uzbek Multfilm",
     duration: "3:02",
     viewCount: 14000,
-    tags: [
-      "uzbek",
-      "old cartoons",
-      "uzbek classics"
-    ],
     accent: "#0b8043",
     source: "catalog"
   },
@@ -517,11 +351,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "Uzbek Multfilm",
     duration: "11:44",
     viewCount: 2540485,
-    tags: [
-      "uzbek",
-      "old cartoons",
-      "uzbek classics"
-    ],
     accent: "#1a73e8",
     source: "catalog"
   },
@@ -532,11 +361,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "Uzbek Multfilm",
     duration: "10:11",
     viewCount: 3463598,
-    tags: [
-      "uzbek",
-      "old cartoons",
-      "uzbek classics"
-    ],
     accent: "#f9ab00",
     source: "catalog"
   },
@@ -547,11 +371,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "Tarjima Soyuzmultfilm",
     duration: "10:04",
     viewCount: 2900,
-    tags: [
-      "uzbek",
-      "old cartoons",
-      "soyuzmultfilm"
-    ],
     accent: "#8e24aa",
     source: "catalog"
   },
@@ -562,11 +381,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "Uzbek Multfilm",
     duration: "3:04",
     viewCount: 13000,
-    tags: [
-      "uzbek",
-      "old cartoons",
-      "uzbek classics"
-    ],
     accent: "#00897b",
     source: "catalog"
   },
@@ -577,11 +391,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "Tarjima Soyuzmultfilm",
     duration: "--:--",
     viewCount: 406,
-    tags: [
-      "uzbek",
-      "old cartoons",
-      "soyuzmultfilm"
-    ],
     accent: "#e8710a",
     source: "catalog"
   },
@@ -592,11 +401,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "Tarjima Soyuzmultfilm",
     duration: "--:--",
     viewCount: 348,
-    tags: [
-      "uzbek",
-      "old cartoons",
-      "soyuzmultfilm"
-    ],
     accent: "#3949ab",
     source: "catalog"
   },
@@ -607,11 +411,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "Tarjima Soyuzmultfilm",
     duration: "9:15",
     viewCount: 222,
-    tags: [
-      "uzbek",
-      "old cartoons",
-      "soyuzmultfilm"
-    ],
     accent: "#d93025",
     source: "catalog"
   },
@@ -622,11 +421,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "Uzbek Multfilm",
     duration: "15:40",
     viewCount: 8538581,
-    tags: [
-      "uzbek",
-      "old cartoons",
-      "uzbek classics"
-    ],
     accent: "#0b8043",
     source: "catalog"
   },
@@ -637,11 +431,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "Uzbek Multfilm",
     duration: "14:48",
     viewCount: 8300000,
-    tags: [
-      "uzbek",
-      "old cartoons",
-      "uzbek classics"
-    ],
     accent: "#1a73e8",
     source: "catalog"
   },
@@ -652,11 +441,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "Tarjima Soyuzmultfilm",
     duration: "9:21",
     viewCount: 1500,
-    tags: [
-      "uzbek",
-      "old cartoons",
-      "soyuzmultfilm"
-    ],
     accent: "#f9ab00",
     source: "catalog"
   },
@@ -667,11 +451,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "Uzbek Multfilm",
     duration: "6:01",
     viewCount: 5100,
-    tags: [
-      "uzbek",
-      "old cartoons",
-      "uzbek classics"
-    ],
     accent: "#8e24aa",
     source: "catalog"
   },
@@ -682,11 +461,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "Союзмультфильм (Ўзбек тилида)",
     duration: "18:39",
     viewCount: 2285,
-    tags: [
-      "uzbek",
-      "old cartoons",
-      "soyuzmultfilm"
-    ],
     accent: "#00897b",
     source: "catalog"
   },
@@ -697,12 +471,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "Soyuzmultfilm Uzbek",
     duration: "13:25",
     viewCount: 219,
-    tags: [
-      "uzbek",
-      "old cartoons",
-      "soyuzmultfilm",
-      "nasriddin"
-    ],
     accent: "#e8710a",
     source: "catalog"
   },
@@ -713,11 +481,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "Soyuzmultfilm Uzbek",
     duration: "--:--",
     viewCount: 283,
-    tags: [
-      "uzbek",
-      "old cartoons",
-      "soyuzmultfilm"
-    ],
     accent: "#3949ab",
     source: "catalog"
   },
@@ -728,11 +491,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "Союзмультфильм (Ўзбек тилида)",
     duration: "19:00",
     viewCount: 1707,
-    tags: [
-      "uzbek",
-      "old cartoons",
-      "soyuzmultfilm"
-    ],
     accent: "#d93025",
     source: "catalog"
   },
@@ -743,11 +501,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "Soyuzmultfilm Uzbek",
     duration: "--:--",
     viewCount: 821,
-    tags: [
-      "uzbek",
-      "old cartoons",
-      "soyuzmultfilm"
-    ],
     accent: "#0b8043",
     source: "catalog"
   },
@@ -758,11 +511,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "Uzbek Multfilm",
     duration: "12:52",
     viewCount: 3480923,
-    tags: [
-      "uzbek",
-      "old cartoons",
-      "uzbek classics"
-    ],
     accent: "#1a73e8",
     source: "catalog"
   },
@@ -773,11 +521,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "Uzbek Multfilm",
     duration: "9:12",
     viewCount: 14000,
-    tags: [
-      "uzbek",
-      "old cartoons",
-      "uzbek classics"
-    ],
     accent: "#f9ab00",
     source: "catalog"
   },
@@ -788,11 +531,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "Союзмультфильм (Ўзбек тилида)",
     duration: "10:08",
     viewCount: 228552,
-    tags: [
-      "uzbek",
-      "old cartoons",
-      "soyuzmultfilm"
-    ],
     accent: "#8e24aa",
     source: "catalog"
   },
@@ -803,11 +541,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "Soyuzmultfilm Uzbek",
     duration: "8:54",
     viewCount: 217,
-    tags: [
-      "uzbek",
-      "old cartoons",
-      "soyuzmultfilm"
-    ],
     accent: "#00897b",
     source: "catalog"
   },
@@ -818,11 +551,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "Uzbek Multfilm",
     duration: "3:09",
     viewCount: 47000,
-    tags: [
-      "uzbek",
-      "old cartoons",
-      "uzbek classics"
-    ],
     accent: "#3949ab",
     source: "catalog"
   },
@@ -833,11 +561,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "Soyuzmultfilm Uzbek",
     duration: "--:--",
     viewCount: 333,
-    tags: [
-      "uzbek",
-      "old cartoons",
-      "soyuzmultfilm"
-    ],
     accent: "#d93025",
     source: "catalog"
   },
@@ -848,11 +571,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "Союзмультфильм (Ўзбек тилида)",
     duration: "9:58",
     viewCount: 2977,
-    tags: [
-      "uzbek",
-      "old cartoons",
-      "soyuzmultfilm"
-    ],
     accent: "#0b8043",
     source: "catalog"
   },
@@ -863,11 +581,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "Uzbek Multfilm",
     duration: "10:05",
     viewCount: 1510972,
-    tags: [
-      "uzbek",
-      "old cartoons",
-      "uzbek classics"
-    ],
     accent: "#1a73e8",
     source: "catalog"
   },
@@ -878,12 +591,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "Uzbek Multfilm",
     duration: "19:00",
     viewCount: 1644105,
-    tags: [
-      "uzbek",
-      "old cartoons",
-      "fairy tale",
-      "uzbek classics"
-    ],
     accent: "#f9ab00",
     source: "catalog"
   },
@@ -894,11 +601,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "Tarjima Soyuzmultfilm",
     duration: "9:50",
     viewCount: 835,
-    tags: [
-      "uzbek",
-      "old cartoons",
-      "soyuzmultfilm"
-    ],
     accent: "#8e24aa",
     source: "catalog"
   },
@@ -909,11 +611,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "Uzbek Multfilm",
     duration: "3:05",
     viewCount: 4900,
-    tags: [
-      "uzbek",
-      "old cartoons",
-      "uzbek classics"
-    ],
     accent: "#00897b",
     source: "catalog"
   },
@@ -924,11 +621,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "Tarjima Soyuzmultfilm",
     duration: "9:37",
     viewCount: 1000,
-    tags: [
-      "uzbek",
-      "old cartoons",
-      "soyuzmultfilm"
-    ],
     accent: "#e8710a",
     source: "catalog"
   },
@@ -939,11 +631,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "Soyuzmultfilm Uzbek",
     duration: "--:--",
     viewCount: 799,
-    tags: [
-      "uzbek",
-      "old cartoons",
-      "soyuzmultfilm"
-    ],
     accent: "#3949ab",
     source: "catalog"
   },
@@ -954,12 +641,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "Союзмультфильм (Ўзбек тилида)",
     duration: "10:12",
     viewCount: 7281,
-    tags: [
-      "uzbek",
-      "old cartoons",
-      "soyuzmultfilm",
-      "fairy tale"
-    ],
     accent: "#d93025",
     source: "catalog"
   },
@@ -970,11 +651,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "Союзмультфильм (Ўзбек тилида)",
     duration: "23:52",
     viewCount: 5328,
-    tags: [
-      "uzbek",
-      "old cartoons",
-      "soyuzmultfilm"
-    ],
     accent: "#0b8043",
     source: "catalog"
   },
@@ -985,11 +661,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "Tarjima Soyuzmultfilm",
     duration: "8:54",
     viewCount: 390,
-    tags: [
-      "uzbek",
-      "old cartoons",
-      "soyuzmultfilm"
-    ],
     accent: "#1a73e8",
     source: "catalog"
   },
@@ -1000,10 +671,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "Juda YOQIMTOY",
     duration: "8:48",
     viewCount: 92292,
-    tags: [
-      "uzbek",
-      "old cartoons"
-    ],
     accent: "#f9ab00",
     source: "catalog"
   },
@@ -1014,11 +681,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "Tarjima Soyuzmultfilm",
     duration: "9:27",
     viewCount: 1100,
-    tags: [
-      "uzbek",
-      "old cartoons",
-      "soyuzmultfilm"
-    ],
     accent: "#8e24aa",
     source: "catalog"
   },
@@ -1029,11 +691,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "Tarjima Soyuzmultfilm",
     duration: "8:42",
     viewCount: 1000,
-    tags: [
-      "uzbek",
-      "old cartoons",
-      "soyuzmultfilm"
-    ],
     accent: "#00897b",
     source: "catalog"
   },
@@ -1044,11 +701,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "Tarjima Soyuzmultfilm",
     duration: "9:23",
     viewCount: 442,
-    tags: [
-      "uzbek",
-      "old cartoons",
-      "soyuzmultfilm"
-    ],
     accent: "#e8710a",
     source: "catalog"
   },
@@ -1059,11 +711,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "Tarjima Soyuzmultfilm",
     duration: "8:58",
     viewCount: 873,
-    tags: [
-      "uzbek",
-      "old cartoons",
-      "soyuzmultfilm"
-    ],
     accent: "#3949ab",
     source: "catalog"
   },
@@ -1074,12 +721,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "Tarjima Soyuzmultfilm",
     duration: "11:22",
     viewCount: 391,
-    tags: [
-      "uzbek",
-      "old cartoons",
-      "soyuzmultfilm",
-      "fairy tale"
-    ],
     accent: "#d93025",
     source: "catalog"
   },
@@ -1090,11 +731,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "Tarjima Soyuzmultfilm",
     duration: "--:--",
     viewCount: 202,
-    tags: [
-      "uzbek",
-      "old cartoons",
-      "soyuzmultfilm"
-    ],
     accent: "#0b8043",
     source: "catalog"
   },
@@ -1105,11 +741,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "Tarjima Soyuzmultfilm",
     duration: "9:38",
     viewCount: 478,
-    tags: [
-      "uzbek",
-      "old cartoons",
-      "soyuzmultfilm"
-    ],
     accent: "#1a73e8",
     source: "catalog"
   },
@@ -1120,11 +751,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "Tarjima Soyuzmultfilm",
     duration: "9:13",
     viewCount: 267,
-    tags: [
-      "uzbek",
-      "old cartoons",
-      "soyuzmultfilm"
-    ],
     accent: "#f9ab00",
     source: "catalog"
   },
@@ -1135,11 +761,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "Tarjima Soyuzmultfilm",
     duration: "--:--",
     viewCount: 1000,
-    tags: [
-      "uzbek",
-      "old cartoons",
-      "soyuzmultfilm"
-    ],
     accent: "#8e24aa",
     source: "catalog"
   },
@@ -1150,11 +771,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "Tarjima Soyuzmultfilm",
     duration: "--:--",
     viewCount: 1600,
-    tags: [
-      "uzbek",
-      "old cartoons",
-      "soyuzmultfilm"
-    ],
     accent: "#00897b",
     source: "catalog"
   },
@@ -1165,11 +781,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "Tarjima Soyuzmultfilm",
     duration: "--:--",
     viewCount: 4700,
-    tags: [
-      "uzbek",
-      "old cartoons",
-      "soyuzmultfilm"
-    ],
     accent: "#e8710a",
     source: "catalog"
   },
@@ -1180,11 +791,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "Uzbek Multfilm",
     duration: "11:11",
     viewCount: 2900,
-    tags: [
-      "uzbek",
-      "old cartoons",
-      "uzbek classics"
-    ],
     accent: "#3949ab",
     source: "catalog"
   },
@@ -1195,11 +801,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "Uzbek Multfilm",
     duration: "14:58",
     viewCount: 3400,
-    tags: [
-      "uzbek",
-      "old cartoons",
-      "uzbek classics"
-    ],
     accent: "#d93025",
     source: "catalog"
   },
@@ -1210,11 +811,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "Tarjima Soyuzmultfilm",
     duration: "8:30",
     viewCount: 1100,
-    tags: [
-      "uzbek",
-      "old cartoons",
-      "soyuzmultfilm"
-    ],
     accent: "#0b8043",
     source: "catalog"
   },
@@ -1225,12 +821,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "Uzbek Multfilm",
     duration: "10:03",
     viewCount: 54000,
-    tags: [
-      "uzbek",
-      "old cartoons",
-      "nasriddin",
-      "uzbek classics"
-    ],
     accent: "#1a73e8",
     source: "catalog"
   },
@@ -1241,12 +831,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "Uzbek Multfilm",
     duration: "8:49",
     viewCount: 44000,
-    tags: [
-      "uzbek",
-      "old cartoons",
-      "nasriddin",
-      "uzbek classics"
-    ],
     accent: "#f9ab00",
     source: "catalog"
   },
@@ -1257,11 +841,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "JIMTV OFFICIAL",
     duration: "22:02",
     viewCount: 207942,
-    tags: [
-      "uzbek",
-      "old cartoons",
-      "fairy tale"
-    ],
     accent: "#8e24aa",
     source: "catalog"
   },
@@ -1272,11 +851,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "Omad hammaga",
     duration: "26:41",
     viewCount: 252050,
-    tags: [
-      "uzbek",
-      "old cartoons",
-      "fairy tale"
-    ],
     accent: "#00897b",
     source: "catalog"
   },
@@ -1287,10 +861,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "SHOKUZ",
     duration: "9:32",
     viewCount: 492984,
-    tags: [
-      "uzbek",
-      "old cartoons"
-    ],
     accent: "#e8710a",
     source: "catalog"
   },
@@ -1301,10 +871,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "MULTFILM_24",
     duration: "1:06:15",
     viewCount: 5654838,
-    tags: [
-      "uzbek",
-      "old cartoons"
-    ],
     accent: "#3949ab",
     source: "catalog"
   },
@@ -1315,10 +881,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "Mutfilimlar Uz",
     duration: "1:14:21",
     viewCount: 516854,
-    tags: [
-      "uzbek",
-      "old cartoons"
-    ],
     accent: "#d93025",
     source: "catalog"
   },
@@ -1329,10 +891,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "Mr. EAGERLY",
     duration: "1:15:39",
     viewCount: 735742,
-    tags: [
-      "uzbek",
-      "old cartoons"
-    ],
     accent: "#0b8043",
     source: "catalog"
   },
@@ -1343,10 +901,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "Shirin Mamajonova",
     duration: "9:20",
     viewCount: 2248852,
-    tags: [
-      "uzbek",
-      "old cartoons"
-    ],
     accent: "#1a73e8",
     source: "catalog"
   },
@@ -1357,10 +911,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "Paradise 13",
     duration: "18:32",
     viewCount: 277709,
-    tags: [
-      "uzbek",
-      "old cartoons"
-    ],
     accent: "#f9ab00",
     source: "catalog"
   },
@@ -1371,10 +921,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "O'zbekcha tarjima Multfilmlar",
     duration: "9:38",
     viewCount: 2656010,
-    tags: [
-      "uzbek",
-      "old cartoons"
-    ],
     accent: "#8e24aa",
     source: "catalog"
   },
@@ -1385,10 +931,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "JIMTV OFFICIAL",
     duration: "1:03:55",
     viewCount: 67564,
-    tags: [
-      "uzbek",
-      "old cartoons"
-    ],
     accent: "#00897b",
     source: "catalog"
   },
@@ -1399,10 +941,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "TARJIMA MULTFILIMLAR",
     duration: "1:24:49",
     viewCount: 420551,
-    tags: [
-      "uzbek",
-      "old cartoons"
-    ],
     accent: "#e8710a",
     source: "catalog"
   },
@@ -1413,10 +951,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "Sultan Media",
     duration: "8:39",
     viewCount: 99072,
-    tags: [
-      "uzbek",
-      "old cartoons"
-    ],
     accent: "#3949ab",
     source: "catalog"
   },
@@ -1427,10 +961,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "мултик multfilm",
     duration: "10:11",
     viewCount: 118392,
-    tags: [
-      "uzbek",
-      "old cartoons"
-    ],
     accent: "#d93025",
     source: "catalog"
   },
@@ -1441,10 +971,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "SHOKUZ",
     duration: "9:25",
     viewCount: 24103887,
-    tags: [
-      "uzbek",
-      "old cartoons"
-    ],
     accent: "#1a73e8",
     source: "catalog"
   },
@@ -1455,10 +981,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "Болажон канали",
     duration: "7:15",
     viewCount: 111614,
-    tags: [
-      "uzbek",
-      "old cartoons"
-    ],
     accent: "#f9ab00",
     source: "catalog"
   },
@@ -1469,11 +991,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "Alpomish Ali",
     duration: "40:41",
     viewCount: 265006,
-    tags: [
-      "uzbek",
-      "old cartoons",
-      "soyuzmultfilm"
-    ],
     accent: "#8e24aa",
     source: "catalog"
   },
@@ -1484,10 +1001,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "Pazanda TV",
     duration: "9:27",
     viewCount: 136483,
-    tags: [
-      "uzbek",
-      "old cartoons"
-    ],
     accent: "#00897b",
     source: "catalog"
   },
@@ -1498,12 +1011,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "Bolajon RTV",
     duration: "10:16",
     sourceLabel: "youtube",
-    tags: [
-      "uzbek",
-      "islamic",
-      "omar va hana",
-      "series"
-    ],
     accent: "#e8710a",
     source: "catalog"
   },
@@ -1514,12 +1021,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "Bolajon RTV",
     duration: "10:18",
     sourceLabel: "youtube",
-    tags: [
-      "uzbek",
-      "islamic",
-      "omar va hana",
-      "series"
-    ],
     accent: "#3949ab",
     source: "catalog"
   },
@@ -1530,12 +1031,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "Bolajon RTV",
     duration: "10:25",
     sourceLabel: "youtube",
-    tags: [
-      "uzbek",
-      "islamic",
-      "omar va hana",
-      "series"
-    ],
     accent: "#d93025",
     source: "catalog"
   },
@@ -1546,12 +1041,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "Bolajon RTV",
     duration: "10:22",
     sourceLabel: "youtube",
-    tags: [
-      "uzbek",
-      "islamic",
-      "omar va hana",
-      "series"
-    ],
     accent: "#0b8043",
     source: "catalog"
   },
@@ -1562,12 +1051,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "Bolajon RTV",
     duration: "10:23",
     sourceLabel: "youtube",
-    tags: [
-      "uzbek",
-      "islamic",
-      "omar va hana",
-      "series"
-    ],
     accent: "#1a73e8",
     source: "catalog"
   },
@@ -1578,12 +1061,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "Bolajon RTV",
     duration: "6:01",
     sourceLabel: "youtube",
-    tags: [
-      "uzbek",
-      "islamic",
-      "omar va hana",
-      "series"
-    ],
     accent: "#f9ab00",
     source: "catalog"
   },
@@ -1594,12 +1071,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "Bolajon RTV",
     duration: "6:16",
     sourceLabel: "youtube",
-    tags: [
-      "uzbek",
-      "islamic",
-      "omar va hana",
-      "series"
-    ],
     accent: "#8e24aa",
     source: "catalog"
   },
@@ -1610,12 +1081,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "Bolajon RTV",
     duration: "6:16",
     sourceLabel: "youtube",
-    tags: [
-      "uzbek",
-      "islamic",
-      "omar va hana",
-      "series"
-    ],
     accent: "#00897b",
     source: "catalog"
   },
@@ -1626,12 +1091,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "Bolajon RTV",
     duration: "6:16",
     sourceLabel: "youtube",
-    tags: [
-      "uzbek",
-      "islamic",
-      "omar va hana",
-      "series"
-    ],
     accent: "#e8710a",
     source: "catalog"
   },
@@ -1642,12 +1101,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "Bolajon RTV",
     duration: "6:16",
     sourceLabel: "youtube",
-    tags: [
-      "uzbek",
-      "islamic",
-      "omar va hana",
-      "series"
-    ],
     accent: "#3949ab",
     source: "catalog"
   },
@@ -1658,12 +1111,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "Bolajon RTV",
     duration: "6:01",
     sourceLabel: "youtube",
-    tags: [
-      "uzbek",
-      "islamic",
-      "omar va hana",
-      "series"
-    ],
     accent: "#d93025",
     source: "catalog"
   },
@@ -1674,12 +1121,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "Bolajon RTV",
     duration: "6:15",
     sourceLabel: "youtube",
-    tags: [
-      "uzbek",
-      "islamic",
-      "omar va hana",
-      "series"
-    ],
     accent: "#0b8043",
     source: "catalog"
   },
@@ -1690,12 +1131,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "Bolajon RTV",
     duration: "10:21",
     sourceLabel: "youtube",
-    tags: [
-      "uzbek",
-      "islamic",
-      "omar va hana",
-      "series"
-    ],
     accent: "#1a73e8",
     source: "catalog"
   },
@@ -1706,12 +1141,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "Bolajon RTV",
     duration: "10:21",
     sourceLabel: "youtube",
-    tags: [
-      "uzbek",
-      "islamic",
-      "omar va hana",
-      "series"
-    ],
     accent: "#f9ab00",
     source: "catalog"
   },
@@ -1722,12 +1151,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "Bolajon RTV",
     duration: "10:20",
     sourceLabel: "youtube",
-    tags: [
-      "uzbek",
-      "islamic",
-      "omar va hana",
-      "series"
-    ],
     accent: "#8e24aa",
     source: "catalog"
   },
@@ -1738,12 +1161,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "Bolajon RTV",
     duration: "6:15",
     sourceLabel: "youtube",
-    tags: [
-      "uzbek",
-      "islamic",
-      "omar va hana",
-      "series"
-    ],
     accent: "#00897b",
     source: "catalog"
   },
@@ -1754,12 +1171,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "Bolajon RTV",
     duration: "10:21",
     sourceLabel: "youtube",
-    tags: [
-      "uzbek",
-      "islamic",
-      "omar va hana",
-      "series"
-    ],
     accent: "#e8710a",
     source: "catalog"
   },
@@ -1770,12 +1181,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "Bolajon RTV",
     duration: "7:12",
     sourceLabel: "youtube",
-    tags: [
-      "uzbek",
-      "islamic",
-      "omar va hana",
-      "series"
-    ],
     accent: "#3949ab",
     source: "catalog"
   },
@@ -1786,12 +1191,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "Bolajon RTV",
     duration: "6:16",
     sourceLabel: "youtube",
-    tags: [
-      "uzbek",
-      "islamic",
-      "omar va hana",
-      "series"
-    ],
     accent: "#d93025",
     source: "catalog"
   },
@@ -1802,12 +1201,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "Bolajon RTV",
     duration: "10:21",
     sourceLabel: "youtube",
-    tags: [
-      "uzbek",
-      "islamic",
-      "omar va hana",
-      "series"
-    ],
     accent: "#0b8043",
     source: "catalog"
   },
@@ -1818,12 +1211,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "Bolajon RTV",
     duration: "6:16",
     sourceLabel: "youtube",
-    tags: [
-      "uzbek",
-      "islamic",
-      "omar va hana",
-      "series"
-    ],
     accent: "#1a73e8",
     source: "catalog"
   },
@@ -1834,12 +1221,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "Bolajon RTV",
     duration: "7:14",
     sourceLabel: "youtube",
-    tags: [
-      "uzbek",
-      "islamic",
-      "omar va hana",
-      "series"
-    ],
     accent: "#f9ab00",
     source: "catalog"
   },
@@ -1850,12 +1231,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "Bolajon RTV",
     duration: "6:16",
     sourceLabel: "youtube",
-    tags: [
-      "uzbek",
-      "islamic",
-      "omar va hana",
-      "series"
-    ],
     accent: "#8e24aa",
     source: "catalog"
   },
@@ -1866,12 +1241,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "Bolajon RTV",
     duration: "6:16",
     sourceLabel: "youtube",
-    tags: [
-      "uzbek",
-      "islamic",
-      "omar va hana",
-      "series"
-    ],
     accent: "#00897b",
     source: "catalog"
   },
@@ -1882,12 +1251,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "Bolajon RTV",
     duration: "6:15",
     sourceLabel: "youtube",
-    tags: [
-      "uzbek",
-      "islamic",
-      "omar va hana",
-      "series"
-    ],
     accent: "#e8710a",
     source: "catalog"
   },
@@ -1898,12 +1261,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "Bolajon RTV",
     duration: "7:11",
     sourceLabel: "youtube",
-    tags: [
-      "uzbek",
-      "islamic",
-      "omar va hana",
-      "series"
-    ],
     accent: "#3949ab",
     source: "catalog"
   },
@@ -1914,12 +1271,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "Bolajon RTV",
     duration: "7:12",
     sourceLabel: "youtube",
-    tags: [
-      "uzbek",
-      "islamic",
-      "omar va hana",
-      "series"
-    ],
     accent: "#d93025",
     source: "catalog"
   },
@@ -1930,12 +1281,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "Bolajon RTV",
     duration: "6:16",
     sourceLabel: "youtube",
-    tags: [
-      "uzbek",
-      "islamic",
-      "omar va hana",
-      "series"
-    ],
     accent: "#0b8043",
     source: "catalog"
   },
@@ -1946,12 +1291,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "Bolajon RTV",
     duration: "6:16",
     sourceLabel: "youtube",
-    tags: [
-      "uzbek",
-      "islamic",
-      "omar va hana",
-      "series"
-    ],
     accent: "#1a73e8",
     source: "catalog"
   },
@@ -1962,12 +1301,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "Bolajon RTV",
     duration: "5:18",
     sourceLabel: "youtube",
-    tags: [
-      "uzbek",
-      "islamic",
-      "omar va hana",
-      "series"
-    ],
     accent: "#f9ab00",
     source: "catalog"
   },
@@ -1978,12 +1311,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "Bolajon RTV",
     duration: "10:21",
     sourceLabel: "youtube",
-    tags: [
-      "uzbek",
-      "islamic",
-      "omar va hana",
-      "series"
-    ],
     accent: "#8e24aa",
     source: "catalog"
   },
@@ -1994,12 +1321,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "Bolajon RTV",
     duration: "6:16",
     sourceLabel: "youtube",
-    tags: [
-      "uzbek",
-      "islamic",
-      "omar va hana",
-      "series"
-    ],
     accent: "#00897b",
     source: "catalog"
   },
@@ -2010,12 +1331,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "Bolajon RTV",
     duration: "6:17",
     sourceLabel: "youtube",
-    tags: [
-      "uzbek",
-      "islamic",
-      "omar va hana",
-      "series"
-    ],
     accent: "#e8710a",
     source: "catalog"
   },
@@ -2026,12 +1341,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "Bolajon RTV",
     duration: "6:16",
     sourceLabel: "youtube",
-    tags: [
-      "uzbek",
-      "islamic",
-      "omar va hana",
-      "series"
-    ],
     accent: "#3949ab",
     source: "catalog"
   },
@@ -2042,12 +1351,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "Bolajon RTV",
     duration: "10:21",
     sourceLabel: "youtube",
-    tags: [
-      "uzbek",
-      "islamic",
-      "omar va hana",
-      "series"
-    ],
     accent: "#d93025",
     source: "catalog"
   },
@@ -2058,12 +1361,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "Bolajon RTV",
     duration: "10:21",
     sourceLabel: "youtube",
-    tags: [
-      "uzbek",
-      "islamic",
-      "omar va hana",
-      "series"
-    ],
     accent: "#0b8043",
     source: "catalog"
   },
@@ -2074,12 +1371,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "Bolajon RTV",
     duration: "10:21",
     sourceLabel: "youtube",
-    tags: [
-      "uzbek",
-      "islamic",
-      "omar va hana",
-      "series"
-    ],
     accent: "#1a73e8",
     source: "catalog"
   },
@@ -2090,12 +1381,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "Bolajon RTV",
     duration: "6:16",
     sourceLabel: "youtube",
-    tags: [
-      "uzbek",
-      "islamic",
-      "omar va hana",
-      "series"
-    ],
     accent: "#f9ab00",
     source: "catalog"
   },
@@ -2106,12 +1391,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "Bolajon RTV",
     duration: "6:16",
     sourceLabel: "youtube",
-    tags: [
-      "uzbek",
-      "islamic",
-      "omar va hana",
-      "series"
-    ],
     accent: "#8e24aa",
     source: "catalog"
   },
@@ -2122,12 +1401,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "Bolajon RTV",
     duration: "6:16",
     sourceLabel: "youtube",
-    tags: [
-      "uzbek",
-      "islamic",
-      "omar va hana",
-      "series"
-    ],
     accent: "#00897b",
     source: "catalog"
   },
@@ -2138,12 +1411,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "Bolajon RTV",
     duration: "6:15",
     sourceLabel: "youtube",
-    tags: [
-      "uzbek",
-      "islamic",
-      "omar va hana",
-      "series"
-    ],
     accent: "#e8710a",
     source: "catalog"
   },
@@ -2154,12 +1421,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "Bolajon RTV",
     duration: "6:17",
     sourceLabel: "youtube",
-    tags: [
-      "uzbek",
-      "islamic",
-      "omar va hana",
-      "series"
-    ],
     accent: "#3949ab",
     source: "catalog"
   },
@@ -2170,12 +1431,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "Bolajon RTV",
     duration: "6:16",
     sourceLabel: "youtube",
-    tags: [
-      "uzbek",
-      "islamic",
-      "omar va hana",
-      "series"
-    ],
     accent: "#d93025",
     source: "catalog"
   },
@@ -2186,12 +1441,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "Bolajon RTV",
     duration: "6:16",
     sourceLabel: "youtube",
-    tags: [
-      "uzbek",
-      "islamic",
-      "omar va hana",
-      "series"
-    ],
     accent: "#0b8043",
     source: "catalog"
   },
@@ -2202,12 +1451,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "Bolajon RTV",
     duration: "6:16",
     sourceLabel: "youtube",
-    tags: [
-      "uzbek",
-      "islamic",
-      "omar va hana",
-      "series"
-    ],
     accent: "#1a73e8",
     source: "catalog"
   },
@@ -2218,12 +1461,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "Bolajon RTV",
     duration: "6:14",
     sourceLabel: "youtube",
-    tags: [
-      "uzbek",
-      "islamic",
-      "omar va hana",
-      "series"
-    ],
     accent: "#f9ab00",
     source: "catalog"
   },
@@ -2234,12 +1471,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "Bolajon RTV",
     duration: "6:12",
     sourceLabel: "youtube",
-    tags: [
-      "uzbek",
-      "islamic",
-      "omar va hana",
-      "series"
-    ],
     accent: "#8e24aa",
     source: "catalog"
   },
@@ -2250,12 +1481,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "Bolajon RTV",
     duration: "6:15",
     sourceLabel: "youtube",
-    tags: [
-      "uzbek",
-      "islamic",
-      "omar va hana",
-      "series"
-    ],
     accent: "#00897b",
     source: "catalog"
   },
@@ -2266,12 +1491,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "Bolajon RTV",
     duration: "6:19",
     sourceLabel: "youtube",
-    tags: [
-      "uzbek",
-      "islamic",
-      "omar va hana",
-      "series"
-    ],
     accent: "#e8710a",
     source: "catalog"
   },
@@ -2282,12 +1501,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "Bolajon RTV",
     duration: "6:16",
     sourceLabel: "youtube",
-    tags: [
-      "uzbek",
-      "islamic",
-      "omar va hana",
-      "series"
-    ],
     accent: "#3949ab",
     source: "catalog"
   },
@@ -2298,12 +1511,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "Bek va Lola",
     duration: "3:40",
     viewCount: 28000,
-    tags: [
-      "uzbek",
-      "educational",
-      "bek va lola",
-      "series"
-    ],
     accent: "#d93025",
     source: "catalog"
   },
@@ -2314,12 +1521,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "Bek va Lola",
     duration: "3:47",
     viewCount: 715000,
-    tags: [
-      "uzbek",
-      "educational",
-      "bek va lola",
-      "series"
-    ],
     accent: "#0b8043",
     source: "catalog"
   },
@@ -2330,12 +1531,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "Bek va Lola",
     duration: "2:59",
     viewCount: 1600000,
-    tags: [
-      "uzbek",
-      "educational",
-      "bek va lola",
-      "series"
-    ],
     accent: "#1a73e8",
     source: "catalog"
   },
@@ -2346,12 +1541,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "Bek va Lola",
     duration: "3:33",
     viewCount: 1900000,
-    tags: [
-      "uzbek",
-      "educational",
-      "bek va lola",
-      "series"
-    ],
     accent: "#f9ab00",
     source: "catalog"
   },
@@ -2362,12 +1551,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "Bek va Lola",
     duration: "3:43",
     viewCount: 6600000,
-    tags: [
-      "uzbek",
-      "educational",
-      "bek va lola",
-      "series"
-    ],
     accent: "#8e24aa",
     source: "catalog"
   },
@@ -2378,12 +1561,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "Bek va Lola",
     duration: "3:26",
     sourceLabel: "youtube",
-    tags: [
-      "uzbek",
-      "educational",
-      "bek va lola",
-      "series"
-    ],
     accent: "#00897b",
     source: "catalog"
   },
@@ -2394,12 +1571,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "Bek va Lola",
     duration: "4:17",
     viewCount: 3600000,
-    tags: [
-      "uzbek",
-      "educational",
-      "bek va lola",
-      "series"
-    ],
     accent: "#e8710a",
     source: "catalog"
   },
@@ -2410,12 +1581,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "Bek va Lola",
     duration: "3:09",
     viewCount: 3500000,
-    tags: [
-      "uzbek",
-      "educational",
-      "bek va lola",
-      "series"
-    ],
     accent: "#3949ab",
     source: "catalog"
   },
@@ -2426,12 +1591,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "Bek va Lola",
     duration: "3:52",
     viewCount: 3700000,
-    tags: [
-      "uzbek",
-      "educational",
-      "bek va lola",
-      "series"
-    ],
     accent: "#d93025",
     source: "catalog"
   },
@@ -2442,12 +1601,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "Bek va Lola",
     duration: "4:21",
     sourceLabel: "youtube",
-    tags: [
-      "uzbek",
-      "educational",
-      "bek va lola",
-      "series"
-    ],
     accent: "#0b8043",
     source: "catalog"
   },
@@ -2458,12 +1611,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "Bek va Lola",
     duration: "4:21",
     viewCount: 7700000,
-    tags: [
-      "uzbek",
-      "educational",
-      "bek va lola",
-      "series"
-    ],
     accent: "#1a73e8",
     source: "catalog"
   },
@@ -2474,12 +1621,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "Bek va Lola",
     duration: "4:04",
     viewCount: 6300000,
-    tags: [
-      "uzbek",
-      "educational",
-      "bek va lola",
-      "series"
-    ],
     accent: "#f9ab00",
     source: "catalog"
   },
@@ -2490,12 +1631,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "Bek va Lola",
     duration: "5:01",
     viewCount: 4000000,
-    tags: [
-      "uzbek",
-      "educational",
-      "bek va lola",
-      "series"
-    ],
     accent: "#8e24aa",
     source: "catalog"
   },
@@ -2506,12 +1641,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "Bek va Lola",
     duration: "3:14",
     viewCount: 7400000,
-    tags: [
-      "uzbek",
-      "educational",
-      "bek va lola",
-      "series"
-    ],
     accent: "#00897b",
     source: "catalog"
   },
@@ -2522,12 +1651,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "Bek va Lola",
     duration: "5:40",
     viewCount: 29000000,
-    tags: [
-      "uzbek",
-      "educational",
-      "bek va lola",
-      "series"
-    ],
     accent: "#e8710a",
     source: "catalog"
   },
@@ -2538,12 +1661,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "Bek va Lola",
     duration: "6:18",
     viewCount: 2900000,
-    tags: [
-      "uzbek",
-      "educational",
-      "bek va lola",
-      "series"
-    ],
     accent: "#3949ab",
     source: "catalog"
   },
@@ -2554,12 +1671,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "Bek va Lola",
     duration: "3:51",
     sourceLabel: "youtube",
-    tags: [
-      "uzbek",
-      "educational",
-      "bek va lola",
-      "series"
-    ],
     accent: "#d93025",
     source: "catalog"
   },
@@ -2570,12 +1681,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "Bek va Lola",
     duration: "3:51",
     viewCount: 8000000,
-    tags: [
-      "uzbek",
-      "educational",
-      "bek va lola",
-      "series"
-    ],
     accent: "#0b8043",
     source: "catalog"
   },
@@ -2586,12 +1691,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "Bek va Lola",
     duration: "2:43",
     viewCount: 10000000,
-    tags: [
-      "uzbek",
-      "educational",
-      "bek va lola",
-      "series"
-    ],
     accent: "#1a73e8",
     source: "catalog"
   },
@@ -2602,12 +1701,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "Bek va Lola",
     duration: "4:11",
     viewCount: 5400000,
-    tags: [
-      "uzbek",
-      "educational",
-      "bek va lola",
-      "series"
-    ],
     accent: "#f9ab00",
     source: "catalog"
   },
@@ -2618,12 +1711,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "Bek va Lola",
     duration: "4:51",
     viewCount: 3900000,
-    tags: [
-      "uzbek",
-      "educational",
-      "bek va lola",
-      "series"
-    ],
     accent: "#8e24aa",
     source: "catalog"
   },
@@ -2634,12 +1721,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "Bek va Lola",
     duration: "5:01",
     viewCount: 3000000,
-    tags: [
-      "uzbek",
-      "educational",
-      "bek va lola",
-      "series"
-    ],
     accent: "#00897b",
     source: "catalog"
   },
@@ -2650,12 +1731,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "Bek va Lola",
     duration: "4:35",
     viewCount: 4600000,
-    tags: [
-      "uzbek",
-      "educational",
-      "bek va lola",
-      "series"
-    ],
     accent: "#e8710a",
     source: "catalog"
   },
@@ -2666,12 +1741,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "Bek va Lola",
     duration: "4:24",
     viewCount: 3100000,
-    tags: [
-      "uzbek",
-      "educational",
-      "bek va lola",
-      "series"
-    ],
     accent: "#3949ab",
     source: "catalog"
   },
@@ -2682,12 +1751,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "Bek va Lola",
     duration: "4:50",
     viewCount: 4200000,
-    tags: [
-      "uzbek",
-      "educational",
-      "bek va lola",
-      "series"
-    ],
     accent: "#d93025",
     source: "catalog"
   },
@@ -2698,12 +1761,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "Bek va Lola",
     duration: "4:31",
     viewCount: 3300000,
-    tags: [
-      "uzbek",
-      "educational",
-      "bek va lola",
-      "series"
-    ],
     accent: "#0b8043",
     source: "catalog"
   },
@@ -2714,12 +1771,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "Bek va Lola",
     duration: "5:26",
     viewCount: 21000000,
-    tags: [
-      "uzbek",
-      "educational",
-      "bek va lola",
-      "series"
-    ],
     accent: "#1a73e8",
     source: "catalog"
   },
@@ -2730,12 +1781,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "Bek va Lola",
     duration: "4:15",
     sourceLabel: "youtube",
-    tags: [
-      "uzbek",
-      "educational",
-      "bek va lola",
-      "series"
-    ],
     accent: "#f9ab00",
     source: "catalog"
   },
@@ -2746,12 +1791,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "Bek va Lola",
     duration: "5:18",
     viewCount: 7100000,
-    tags: [
-      "uzbek",
-      "educational",
-      "bek va lola",
-      "series"
-    ],
     accent: "#8e24aa",
     source: "catalog"
   },
@@ -2762,12 +1801,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "Bek va Lola",
     duration: "3:45",
     viewCount: 73272086,
-    tags: [
-      "uzbek",
-      "educational",
-      "bek va lola",
-      "series"
-    ],
     accent: "#00897b",
     source: "catalog"
   },
@@ -2778,12 +1811,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "Bek va Lola",
     duration: "4:33",
     viewCount: 10691786,
-    tags: [
-      "uzbek",
-      "educational",
-      "bek va lola",
-      "series"
-    ],
     accent: "#e8710a",
     source: "catalog"
   },
@@ -2794,12 +1821,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "Bek va Lola",
     duration: "4:58",
     viewCount: 5142078,
-    tags: [
-      "uzbek",
-      "educational",
-      "bek va lola",
-      "series"
-    ],
     accent: "#3949ab",
     source: "catalog"
   },
@@ -2810,12 +1831,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "Bek va Lola",
     duration: "4:19",
     viewCount: 19684026,
-    tags: [
-      "uzbek",
-      "educational",
-      "bek va lola",
-      "series"
-    ],
     accent: "#d93025",
     source: "catalog"
   },
@@ -2826,12 +1841,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "Bek va Lola",
     duration: "5:19",
     viewCount: 13434089,
-    tags: [
-      "uzbek",
-      "educational",
-      "bek va lola",
-      "series"
-    ],
     accent: "#0b8043",
     source: "catalog"
   },
@@ -2842,12 +1851,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "Bek va Lola",
     duration: "4:09",
     viewCount: 9023473,
-    tags: [
-      "uzbek",
-      "educational",
-      "bek va lola",
-      "series"
-    ],
     accent: "#1a73e8",
     source: "catalog"
   },
@@ -2858,12 +1861,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "Bek va Lola",
     duration: "4:06",
     viewCount: 4957173,
-    tags: [
-      "uzbek",
-      "educational",
-      "bek va lola",
-      "series"
-    ],
     accent: "#f9ab00",
     source: "catalog"
   },
@@ -2874,12 +1871,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "Bek va Lola",
     duration: "5:01",
     viewCount: 5623197,
-    tags: [
-      "uzbek",
-      "educational",
-      "bek va lola",
-      "series"
-    ],
     accent: "#8e24aa",
     source: "catalog"
   },
@@ -2890,12 +1881,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "MAKTABGACHA VA MAKTAB TA'LIMI VAZIRLIGI",
     duration: "8:39",
     viewCount: 2200,
-    tags: [
-      "uzbek",
-      "educational",
-      "bolalar sayyorasi",
-      "series"
-    ],
     accent: "#d93025",
     source: "catalog"
   },
@@ -2906,12 +1891,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "MAKTABGACHA VA MAKTAB TA'LIMI VAZIRLIGI",
     duration: "6:52",
     viewCount: 811,
-    tags: [
-      "uzbek",
-      "educational",
-      "bolalar sayyorasi",
-      "series"
-    ],
     accent: "#0b8043",
     source: "catalog"
   },
@@ -2922,12 +1901,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "MAKTABGACHA VA MAKTAB TA'LIMI VAZIRLIGI",
     duration: "8:29",
     viewCount: 508,
-    tags: [
-      "uzbek",
-      "educational",
-      "bolalar sayyorasi",
-      "series"
-    ],
     accent: "#1a73e8",
     source: "catalog"
   },
@@ -2938,12 +1911,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "MAKTABGACHA VA MAKTAB TA'LIMI VAZIRLIGI",
     duration: "6:33",
     viewCount: 362,
-    tags: [
-      "uzbek",
-      "educational",
-      "bolalar sayyorasi",
-      "series"
-    ],
     accent: "#f9ab00",
     source: "catalog"
   },
@@ -2954,12 +1921,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "MAKTABGACHA VA MAKTAB TA'LIMI VAZIRLIGI",
     duration: "7:15",
     viewCount: 382,
-    tags: [
-      "uzbek",
-      "educational",
-      "bolalar sayyorasi",
-      "series"
-    ],
     accent: "#8e24aa",
     source: "catalog"
   },
@@ -2970,12 +1931,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "MAKTABGACHA VA MAKTAB TA'LIMI VAZIRLIGI",
     duration: "9:32",
     viewCount: 285,
-    tags: [
-      "uzbek",
-      "educational",
-      "bolalar sayyorasi",
-      "series"
-    ],
     accent: "#00897b",
     source: "catalog"
   },
@@ -2986,12 +1941,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "MAKTABGACHA VA MAKTAB TA'LIMI VAZIRLIGI",
     duration: "6:56",
     viewCount: 393,
-    tags: [
-      "uzbek",
-      "educational",
-      "bolalar sayyorasi",
-      "series"
-    ],
     accent: "#c26401",
     source: "catalog"
   },
@@ -3002,12 +1951,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "MAKTABGACHA VA MAKTAB TA'LIMI VAZIRLIGI",
     duration: "8:11",
     viewCount: 724,
-    tags: [
-      "uzbek",
-      "educational",
-      "bolalar sayyorasi",
-      "series"
-    ],
     accent: "#5f6368",
     source: "catalog"
   },
@@ -3018,12 +1961,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "MAKTABGACHA VA MAKTAB TA'LIMI VAZIRLIGI",
     duration: "7:37",
     viewCount: 320,
-    tags: [
-      "uzbek",
-      "educational",
-      "bolalar sayyorasi",
-      "series"
-    ],
     accent: "#d93025",
     source: "catalog"
   },
@@ -3034,12 +1971,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "MAKTABGACHA VA MAKTAB TA'LIMI VAZIRLIGI",
     duration: "8:37",
     viewCount: 442,
-    tags: [
-      "uzbek",
-      "educational",
-      "bolalar sayyorasi",
-      "series"
-    ],
     accent: "#0b8043",
     source: "catalog"
   },
@@ -3050,12 +1981,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "MAKTABGACHA VA MAKTAB TA'LIMI VAZIRLIGI",
     duration: "7:41",
     viewCount: 128,
-    tags: [
-      "uzbek",
-      "educational",
-      "bolalar sayyorasi",
-      "series"
-    ],
     accent: "#1a73e8",
     source: "catalog"
   },
@@ -3066,12 +1991,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "MAKTABGACHA VA MAKTAB TA'LIMI VAZIRLIGI",
     duration: "6:46",
     viewCount: 159,
-    tags: [
-      "uzbek",
-      "educational",
-      "bolalar sayyorasi",
-      "series"
-    ],
     accent: "#f9ab00",
     source: "catalog"
   },
@@ -3082,12 +2001,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "MAKTABGACHA VA MAKTAB TA'LIMI VAZIRLIGI",
     duration: "7:18",
     viewCount: 92,
-    tags: [
-      "uzbek",
-      "educational",
-      "bolalar sayyorasi",
-      "series"
-    ],
     accent: "#8e24aa",
     source: "catalog"
   },
@@ -3098,12 +2011,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "MAKTABGACHA VA MAKTAB TA'LIMI VAZIRLIGI",
     duration: "9:07",
     viewCount: 124,
-    tags: [
-      "uzbek",
-      "educational",
-      "bolalar sayyorasi",
-      "series"
-    ],
     accent: "#00897b",
     source: "catalog"
   },
@@ -3114,12 +2021,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "MAKTABGACHA VA MAKTAB TA'LIMI VAZIRLIGI",
     duration: "7:11",
     viewCount: 842,
-    tags: [
-      "uzbek",
-      "educational",
-      "bolalar sayyorasi",
-      "series"
-    ],
     accent: "#c26401",
     source: "catalog"
   },
@@ -3130,12 +2031,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "MAKTABGACHA VA MAKTAB TA'LIMI VAZIRLIGI",
     duration: "7:27",
     viewCount: 570,
-    tags: [
-      "uzbek",
-      "educational",
-      "bolalar sayyorasi",
-      "series"
-    ],
     accent: "#5f6368",
     source: "catalog"
   },
@@ -3146,12 +2041,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "MAKTABGACHA VA MAKTAB TA'LIMI VAZIRLIGI",
     duration: "8:52",
     viewCount: 319,
-    tags: [
-      "uzbek",
-      "educational",
-      "bolalar sayyorasi",
-      "series"
-    ],
     accent: "#d93025",
     source: "catalog"
   },
@@ -3162,12 +2051,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "MAKTABGACHA VA MAKTAB TA'LIMI VAZIRLIGI",
     duration: "9:18",
     viewCount: 151,
-    tags: [
-      "uzbek",
-      "educational",
-      "bolalar sayyorasi",
-      "series"
-    ],
     accent: "#0b8043",
     source: "catalog"
   },
@@ -3178,12 +2061,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "MAKTABGACHA VA MAKTAB TA'LIMI VAZIRLIGI",
     duration: "9:33",
     viewCount: 164,
-    tags: [
-      "uzbek",
-      "educational",
-      "bolalar sayyorasi",
-      "series"
-    ],
     accent: "#1a73e8",
     source: "catalog"
   },
@@ -3194,12 +2071,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "MAKTABGACHA VA MAKTAB TA'LIMI VAZIRLIGI",
     duration: "9:00",
     viewCount: 127,
-    tags: [
-      "uzbek",
-      "educational",
-      "bolalar sayyorasi",
-      "series"
-    ],
     accent: "#f9ab00",
     source: "catalog"
   },
@@ -3210,12 +2081,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "MAKTABGACHA VA MAKTAB TA'LIMI VAZIRLIGI",
     duration: "8:29",
     viewCount: 65,
-    tags: [
-      "uzbek",
-      "educational",
-      "bolalar sayyorasi",
-      "series"
-    ],
     accent: "#8e24aa",
     source: "catalog"
   },
@@ -3226,12 +2091,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "MAKTABGACHA VA MAKTAB TA'LIMI VAZIRLIGI",
     duration: "8:56",
     viewCount: 106,
-    tags: [
-      "uzbek",
-      "educational",
-      "bolalar sayyorasi",
-      "series"
-    ],
     accent: "#00897b",
     source: "catalog"
   },
@@ -3242,12 +2101,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "MAKTABGACHA VA MAKTAB TA'LIMI VAZIRLIGI",
     duration: "10:13",
     viewCount: 72,
-    tags: [
-      "uzbek",
-      "educational",
-      "bolalar sayyorasi",
-      "series"
-    ],
     accent: "#c26401",
     source: "catalog"
   },
@@ -3258,12 +2111,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "MAKTABGACHA VA MAKTAB TA'LIMI VAZIRLIGI",
     duration: "7:12",
     viewCount: 58,
-    tags: [
-      "uzbek",
-      "educational",
-      "bolalar sayyorasi",
-      "series"
-    ],
     accent: "#5f6368",
     source: "catalog"
   },
@@ -3274,12 +2121,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "MAKTABGACHA VA MAKTAB TA'LIMI VAZIRLIGI",
     duration: "9:08",
     viewCount: 373,
-    tags: [
-      "uzbek",
-      "educational",
-      "bolalar sayyorasi",
-      "series"
-    ],
     accent: "#d93025",
     source: "catalog"
   },
@@ -3290,12 +2131,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "MAKTABGACHA VA MAKTAB TA'LIMI VAZIRLIGI",
     duration: "8:43",
     viewCount: 453,
-    tags: [
-      "uzbek",
-      "educational",
-      "bolalar sayyorasi",
-      "series"
-    ],
     accent: "#0b8043",
     source: "catalog"
   },
@@ -3306,12 +2141,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "MAKTABGACHA VA MAKTAB TA'LIMI VAZIRLIGI",
     duration: "7:36",
     viewCount: 84,
-    tags: [
-      "uzbek",
-      "educational",
-      "bolalar sayyorasi",
-      "series"
-    ],
     accent: "#1a73e8",
     source: "catalog"
   },
@@ -3322,12 +2151,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "MAKTABGACHA VA MAKTAB TA'LIMI VAZIRLIGI",
     duration: "9:02",
     viewCount: 495,
-    tags: [
-      "uzbek",
-      "educational",
-      "bolalar sayyorasi",
-      "series"
-    ],
     accent: "#f9ab00",
     source: "catalog"
   },
@@ -3338,12 +2161,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "MAKTABGACHA VA MAKTAB TA'LIMI VAZIRLIGI",
     duration: "7:32",
     viewCount: 61,
-    tags: [
-      "uzbek",
-      "educational",
-      "bolalar sayyorasi",
-      "series"
-    ],
     accent: "#8e24aa",
     source: "catalog"
   },
@@ -3354,12 +2171,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "MAKTABGACHA VA MAKTAB TA'LIMI VAZIRLIGI",
     duration: "7:55",
     viewCount: 395,
-    tags: [
-      "uzbek",
-      "educational",
-      "bolalar sayyorasi",
-      "series"
-    ],
     accent: "#00897b",
     source: "catalog"
   },
@@ -3370,12 +2181,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "MAKTABGACHA VA MAKTAB TA'LIMI VAZIRLIGI",
     duration: "8:24",
     viewCount: 148,
-    tags: [
-      "uzbek",
-      "educational",
-      "bolalar sayyorasi",
-      "series"
-    ],
     accent: "#c26401",
     source: "catalog"
   },
@@ -3386,12 +2191,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "MAKTABGACHA VA MAKTAB TA'LIMI VAZIRLIGI",
     duration: "8:13",
     viewCount: 815,
-    tags: [
-      "uzbek",
-      "educational",
-      "bolalar sayyorasi",
-      "series"
-    ],
     accent: "#5f6368",
     source: "catalog"
   },
@@ -3402,12 +2201,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "MAKTABGACHA VA MAKTAB TA'LIMI VAZIRLIGI",
     duration: "11:17",
     viewCount: 101,
-    tags: [
-      "uzbek",
-      "educational",
-      "bolalar sayyorasi",
-      "series"
-    ],
     accent: "#d93025",
     source: "catalog"
   },
@@ -3418,12 +2211,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "MAKTABGACHA VA MAKTAB TA'LIMI VAZIRLIGI",
     duration: "10:28",
     viewCount: 36,
-    tags: [
-      "uzbek",
-      "educational",
-      "bolalar sayyorasi",
-      "series"
-    ],
     accent: "#0b8043",
     source: "catalog"
   },
@@ -3434,12 +2221,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "MAKTABGACHA VA MAKTAB TA'LIMI VAZIRLIGI",
     duration: "8:50",
     viewCount: 72,
-    tags: [
-      "uzbek",
-      "educational",
-      "bolalar sayyorasi",
-      "series"
-    ],
     accent: "#1a73e8",
     source: "catalog"
   },
@@ -3450,12 +2231,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "MAKTABGACHA VA MAKTAB TA'LIMI VAZIRLIGI",
     duration: "10:05",
     viewCount: 165,
-    tags: [
-      "uzbek",
-      "educational",
-      "bolalar sayyorasi",
-      "series"
-    ],
     accent: "#f9ab00",
     source: "catalog"
   },
@@ -3466,12 +2241,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "MAKTABGACHA VA MAKTAB TA'LIMI VAZIRLIGI",
     duration: "7:05",
     viewCount: 137,
-    tags: [
-      "uzbek",
-      "educational",
-      "bolalar sayyorasi",
-      "series"
-    ],
     accent: "#8e24aa",
     source: "catalog"
   },
@@ -3482,12 +2251,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "MAKTABGACHA VA MAKTAB TA'LIMI VAZIRLIGI",
     duration: "6:52",
     viewCount: 46,
-    tags: [
-      "uzbek",
-      "educational",
-      "bolalar sayyorasi",
-      "series"
-    ],
     accent: "#00897b",
     source: "catalog"
   },
@@ -3498,12 +2261,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "MAKTABGACHA VA MAKTAB TA'LIMI VAZIRLIGI",
     duration: "8:48",
     viewCount: 142,
-    tags: [
-      "uzbek",
-      "educational",
-      "bolalar sayyorasi",
-      "series"
-    ],
     accent: "#c26401",
     source: "catalog"
   },
@@ -3514,12 +2271,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "MAKTABGACHA VA MAKTAB TA'LIMI VAZIRLIGI",
     duration: "8:57",
     viewCount: 98,
-    tags: [
-      "uzbek",
-      "educational",
-      "bolalar sayyorasi",
-      "series"
-    ],
     accent: "#5f6368",
     source: "catalog"
   },
@@ -3530,12 +2281,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "MAKTABGACHA VA MAKTAB TA'LIMI VAZIRLIGI",
     duration: "7:05",
     viewCount: 36,
-    tags: [
-      "uzbek",
-      "educational",
-      "bolalar sayyorasi",
-      "series"
-    ],
     accent: "#d93025",
     source: "catalog"
   },
@@ -3546,12 +2291,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "MAKTABGACHA VA MAKTAB TA'LIMI VAZIRLIGI",
     duration: "9:04",
     viewCount: 51,
-    tags: [
-      "uzbek",
-      "educational",
-      "bolalar sayyorasi",
-      "series"
-    ],
     accent: "#0b8043",
     source: "catalog"
   },
@@ -3562,12 +2301,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "MAKTABGACHA VA MAKTAB TA'LIMI VAZIRLIGI",
     duration: "8:25",
     viewCount: 169,
-    tags: [
-      "uzbek",
-      "educational",
-      "bolalar sayyorasi",
-      "series"
-    ],
     accent: "#1a73e8",
     source: "catalog"
   },
@@ -3578,12 +2311,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "MAKTABGACHA VA MAKTAB TA'LIMI VAZIRLIGI",
     duration: "8:00",
     viewCount: 64,
-    tags: [
-      "uzbek",
-      "educational",
-      "bolalar sayyorasi",
-      "series"
-    ],
     accent: "#f9ab00",
     source: "catalog"
   },
@@ -3594,12 +2321,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "MAKTABGACHA VA MAKTAB TA'LIMI VAZIRLIGI",
     duration: "7:54",
     viewCount: 77,
-    tags: [
-      "uzbek",
-      "educational",
-      "bolalar sayyorasi",
-      "series"
-    ],
     accent: "#8e24aa",
     source: "catalog"
   },
@@ -3610,12 +2331,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "MAKTABGACHA VA MAKTAB TA'LIMI VAZIRLIGI",
     duration: "8:40",
     viewCount: 129,
-    tags: [
-      "uzbek",
-      "educational",
-      "bolalar sayyorasi",
-      "series"
-    ],
     accent: "#00897b",
     source: "catalog"
   },
@@ -3626,12 +2341,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "MAKTABGACHA VA MAKTAB TA'LIMI VAZIRLIGI",
     duration: "8:17",
     viewCount: 646,
-    tags: [
-      "uzbek",
-      "educational",
-      "bolalar sayyorasi",
-      "series"
-    ],
     accent: "#c26401",
     source: "catalog"
   },
@@ -3642,12 +2351,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "MAKTABGACHA VA MAKTAB TA'LIMI VAZIRLIGI",
     duration: "7:32",
     viewCount: 151,
-    tags: [
-      "uzbek",
-      "educational",
-      "bolalar sayyorasi",
-      "series"
-    ],
     accent: "#5f6368",
     source: "catalog"
   },
@@ -3658,12 +2361,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "MAKTABGACHA VA MAKTAB TA'LIMI VAZIRLIGI",
     duration: "7:46",
     viewCount: 40,
-    tags: [
-      "uzbek",
-      "educational",
-      "bolalar sayyorasi",
-      "series"
-    ],
     accent: "#d93025",
     source: "catalog"
   },
@@ -3674,12 +2371,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "MAKTABGACHA VA MAKTAB TA'LIMI VAZIRLIGI",
     duration: "9:59",
     viewCount: 181,
-    tags: [
-      "uzbek",
-      "educational",
-      "bolalar sayyorasi",
-      "series"
-    ],
     accent: "#0b8043",
     source: "catalog"
   },
@@ -3690,12 +2381,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "MAKTABGACHA VA MAKTAB TA'LIMI VAZIRLIGI",
     duration: "9:40",
     viewCount: 83,
-    tags: [
-      "uzbek",
-      "educational",
-      "bolalar sayyorasi",
-      "series"
-    ],
     accent: "#1a73e8",
     source: "catalog"
   },
@@ -3706,12 +2391,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "MAKTABGACHA VA MAKTAB TA'LIMI VAZIRLIGI",
     duration: "6:54",
     viewCount: 37,
-    tags: [
-      "uzbek",
-      "educational",
-      "bolalar sayyorasi",
-      "series"
-    ],
     accent: "#f9ab00",
     source: "catalog"
   },
@@ -3722,12 +2401,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "MAKTABGACHA VA MAKTAB TA'LIMI VAZIRLIGI",
     duration: "7:15",
     viewCount: 43,
-    tags: [
-      "uzbek",
-      "educational",
-      "bolalar sayyorasi",
-      "series"
-    ],
     accent: "#8e24aa",
     source: "catalog"
   },
@@ -3738,12 +2411,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "MAKTABGACHA VA MAKTAB TA'LIMI VAZIRLIGI",
     duration: "7:23",
     viewCount: 70,
-    tags: [
-      "uzbek",
-      "educational",
-      "bolalar sayyorasi",
-      "series"
-    ],
     accent: "#00897b",
     source: "catalog"
   },
@@ -3754,12 +2421,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "MAKTABGACHA VA MAKTAB TA'LIMI VAZIRLIGI",
     duration: "7:00",
     viewCount: 177,
-    tags: [
-      "uzbek",
-      "educational",
-      "bolalar sayyorasi",
-      "series"
-    ],
     accent: "#c26401",
     source: "catalog"
   },
@@ -3770,12 +2431,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "MAKTABGACHA VA MAKTAB TA'LIMI VAZIRLIGI",
     duration: "7:44",
     viewCount: 225,
-    tags: [
-      "uzbek",
-      "educational",
-      "bolalar sayyorasi",
-      "series"
-    ],
     accent: "#5f6368",
     source: "catalog"
   },
@@ -3786,12 +2441,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "MAKTABGACHA VA MAKTAB TA'LIMI VAZIRLIGI",
     duration: "6:54",
     viewCount: 354,
-    tags: [
-      "uzbek",
-      "educational",
-      "bolalar sayyorasi",
-      "series"
-    ],
     accent: "#d93025",
     source: "catalog"
   },
@@ -3802,12 +2451,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "MAKTABGACHA VA MAKTAB TA'LIMI VAZIRLIGI",
     duration: "9:03",
     viewCount: 242,
-    tags: [
-      "uzbek",
-      "educational",
-      "bolalar sayyorasi",
-      "series"
-    ],
     accent: "#0b8043",
     source: "catalog"
   },
@@ -3818,12 +2461,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "MAKTABGACHA VA MAKTAB TA'LIMI VAZIRLIGI",
     duration: "8:05",
     viewCount: 685,
-    tags: [
-      "uzbek",
-      "educational",
-      "bolalar sayyorasi",
-      "series"
-    ],
     accent: "#1a73e8",
     source: "catalog"
   },
@@ -3834,12 +2471,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "MAKTABGACHA VA MAKTAB TA'LIMI VAZIRLIGI",
     duration: "8:08",
     viewCount: 440,
-    tags: [
-      "uzbek",
-      "educational",
-      "bolalar sayyorasi",
-      "series"
-    ],
     accent: "#f9ab00",
     source: "catalog"
   },
@@ -3850,12 +2481,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "MAKTABGACHA VA MAKTAB TA'LIMI VAZIRLIGI",
     duration: "12:12",
     viewCount: 2400,
-    tags: [
-      "uzbek",
-      "educational",
-      "bolalar sayyorasi",
-      "series"
-    ],
     accent: "#8e24aa",
     source: "catalog"
   },
@@ -3866,12 +2491,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "MAKTABGACHA VA MAKTAB TA'LIMI VAZIRLIGI",
     duration: "7:55",
     viewCount: 102,
-    tags: [
-      "uzbek",
-      "educational",
-      "bolalar sayyorasi",
-      "series"
-    ],
     accent: "#00897b",
     source: "catalog"
   },
@@ -3882,12 +2501,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "MAKTABGACHA VA MAKTAB TA'LIMI VAZIRLIGI",
     duration: "7:05",
     viewCount: 98,
-    tags: [
-      "uzbek",
-      "educational",
-      "bolalar sayyorasi",
-      "series"
-    ],
     accent: "#c26401",
     source: "catalog"
   },
@@ -3898,12 +2511,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "MAKTABGACHA VA MAKTAB TA'LIMI VAZIRLIGI",
     duration: "7:18",
     viewCount: 308,
-    tags: [
-      "uzbek",
-      "educational",
-      "bolalar sayyorasi",
-      "series"
-    ],
     accent: "#5f6368",
     source: "catalog"
   },
@@ -3914,12 +2521,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "MAKTABGACHA VA MAKTAB TA'LIMI VAZIRLIGI",
     duration: "6:07",
     viewCount: 32,
-    tags: [
-      "uzbek",
-      "educational",
-      "bolalar sayyorasi",
-      "series"
-    ],
     accent: "#d93025",
     source: "catalog"
   },
@@ -3930,12 +2531,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "MAKTABGACHA VA MAKTAB TA'LIMI VAZIRLIGI",
     duration: "7:20",
     viewCount: 56,
-    tags: [
-      "uzbek",
-      "educational",
-      "bolalar sayyorasi",
-      "series"
-    ],
     accent: "#0b8043",
     source: "catalog"
   },
@@ -3946,12 +2541,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "MAKTABGACHA VA MAKTAB TA'LIMI VAZIRLIGI",
     duration: "10:02",
     viewCount: 432,
-    tags: [
-      "uzbek",
-      "educational",
-      "bolalar sayyorasi",
-      "series"
-    ],
     accent: "#1a73e8",
     source: "catalog"
   },
@@ -3962,12 +2551,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "MAKTABGACHA VA MAKTAB TA'LIMI VAZIRLIGI",
     duration: "7:19",
     viewCount: 66,
-    tags: [
-      "uzbek",
-      "educational",
-      "bolalar sayyorasi",
-      "series"
-    ],
     accent: "#f9ab00",
     source: "catalog"
   },
@@ -3978,12 +2561,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "MAKTABGACHA VA MAKTAB TA'LIMI VAZIRLIGI",
     duration: "11:47",
     viewCount: 98,
-    tags: [
-      "uzbek",
-      "educational",
-      "bolalar sayyorasi",
-      "series"
-    ],
     accent: "#8e24aa",
     source: "catalog"
   },
@@ -3994,12 +2571,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "MAKTABGACHA VA MAKTAB TA'LIMI VAZIRLIGI",
     duration: "8:43",
     viewCount: 122,
-    tags: [
-      "uzbek",
-      "educational",
-      "bolalar sayyorasi",
-      "series"
-    ],
     accent: "#00897b",
     source: "catalog"
   },
@@ -4010,12 +2581,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "MAKTABGACHA VA MAKTAB TA'LIMI VAZIRLIGI",
     duration: "9:19",
     viewCount: 67,
-    tags: [
-      "uzbek",
-      "educational",
-      "bolalar sayyorasi",
-      "series"
-    ],
     accent: "#c26401",
     source: "catalog"
   },
@@ -4026,12 +2591,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "MAKTABGACHA VA MAKTAB TA'LIMI VAZIRLIGI",
     duration: "8:03",
     viewCount: 79,
-    tags: [
-      "uzbek",
-      "educational",
-      "bolalar sayyorasi",
-      "series"
-    ],
     accent: "#5f6368",
     source: "catalog"
   },
@@ -4042,12 +2601,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "MAKTABGACHA VA MAKTAB TA'LIMI VAZIRLIGI",
     duration: "8:47",
     viewCount: 72,
-    tags: [
-      "uzbek",
-      "educational",
-      "bolalar sayyorasi",
-      "series"
-    ],
     accent: "#d93025",
     source: "catalog"
   },
@@ -4058,12 +2611,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "MAKTABGACHA VA MAKTAB TA'LIMI VAZIRLIGI",
     duration: "6:55",
     viewCount: 64,
-    tags: [
-      "uzbek",
-      "educational",
-      "bolalar sayyorasi",
-      "series"
-    ],
     accent: "#0b8043",
     source: "catalog"
   },
@@ -4074,12 +2621,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "MAKTABGACHA VA MAKTAB TA'LIMI VAZIRLIGI",
     duration: "8:41",
     viewCount: 71,
-    tags: [
-      "uzbek",
-      "educational",
-      "bolalar sayyorasi",
-      "series"
-    ],
     accent: "#1a73e8",
     source: "catalog"
   },
@@ -4090,12 +2631,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "MAKTABGACHA VA MAKTAB TA'LIMI VAZIRLIGI",
     duration: "8:25",
     viewCount: 94,
-    tags: [
-      "uzbek",
-      "educational",
-      "bolalar sayyorasi",
-      "series"
-    ],
     accent: "#f9ab00",
     source: "catalog"
   },
@@ -4106,12 +2641,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "MAKTABGACHA VA MAKTAB TA'LIMI VAZIRLIGI",
     duration: "7:31",
     viewCount: 103,
-    tags: [
-      "uzbek",
-      "educational",
-      "bolalar sayyorasi",
-      "series"
-    ],
     accent: "#8e24aa",
     source: "catalog"
   },
@@ -4122,12 +2651,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "MAKTABGACHA VA MAKTAB TA'LIMI VAZIRLIGI",
     duration: "8:17",
     viewCount: 1200,
-    tags: [
-      "uzbek",
-      "educational",
-      "bolalar sayyorasi",
-      "series"
-    ],
     accent: "#00897b",
     source: "catalog"
   },
@@ -4138,12 +2661,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "MAKTABGACHA VA MAKTAB TA'LIMI VAZIRLIGI",
     duration: "9:44",
     viewCount: 234,
-    tags: [
-      "uzbek",
-      "educational",
-      "bolalar sayyorasi",
-      "series"
-    ],
     accent: "#c26401",
     source: "catalog"
   },
@@ -4154,12 +2671,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "MAKTABGACHA VA MAKTAB TA'LIMI VAZIRLIGI",
     duration: "9:41",
     viewCount: 55,
-    tags: [
-      "uzbek",
-      "educational",
-      "bolalar sayyorasi",
-      "series"
-    ],
     accent: "#5f6368",
     source: "catalog"
   },
@@ -4170,12 +2681,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "MAKTABGACHA VA MAKTAB TA'LIMI VAZIRLIGI",
     duration: "7:58",
     viewCount: 240,
-    tags: [
-      "uzbek",
-      "educational",
-      "bolalar sayyorasi",
-      "series"
-    ],
     accent: "#d93025",
     source: "catalog"
   },
@@ -4186,12 +2691,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "MAKTABGACHA VA MAKTAB TA'LIMI VAZIRLIGI",
     duration: "8:26",
     viewCount: 146,
-    tags: [
-      "uzbek",
-      "educational",
-      "bolalar sayyorasi",
-      "series"
-    ],
     accent: "#0b8043",
     source: "catalog"
   },
@@ -4202,12 +2701,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "MAKTABGACHA VA MAKTAB TA'LIMI VAZIRLIGI",
     duration: "8:14",
     viewCount: 233,
-    tags: [
-      "uzbek",
-      "educational",
-      "bolalar sayyorasi",
-      "series"
-    ],
     accent: "#1a73e8",
     source: "catalog"
   },
@@ -4218,12 +2711,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "MAKTABGACHA VA MAKTAB TA'LIMI VAZIRLIGI",
     duration: "8:18",
     viewCount: 554,
-    tags: [
-      "uzbek",
-      "educational",
-      "bolalar sayyorasi",
-      "series"
-    ],
     accent: "#f9ab00",
     source: "catalog"
   },
@@ -4234,12 +2721,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "MAKTABGACHA VA MAKTAB TA'LIMI VAZIRLIGI",
     duration: "9:52",
     viewCount: 418,
-    tags: [
-      "uzbek",
-      "educational",
-      "bolalar sayyorasi",
-      "series"
-    ],
     accent: "#8e24aa",
     source: "catalog"
   },
@@ -4250,12 +2731,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "MAKTABGACHA VA MAKTAB TA'LIMI VAZIRLIGI",
     duration: "8:39",
     viewCount: 276,
-    tags: [
-      "uzbek",
-      "educational",
-      "bolalar sayyorasi",
-      "series"
-    ],
     accent: "#00897b",
     source: "catalog"
   },
@@ -4266,12 +2741,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "MAKTABGACHA VA MAKTAB TA'LIMI VAZIRLIGI",
     duration: "8:03",
     viewCount: 67,
-    tags: [
-      "uzbek",
-      "educational",
-      "bolalar sayyorasi",
-      "series"
-    ],
     accent: "#c26401",
     source: "catalog"
   },
@@ -4282,12 +2751,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "MAKTABGACHA VA MAKTAB TA'LIMI VAZIRLIGI",
     duration: "7:50",
     viewCount: 111,
-    tags: [
-      "uzbek",
-      "educational",
-      "bolalar sayyorasi",
-      "series"
-    ],
     accent: "#5f6368",
     source: "catalog"
   },
@@ -4298,12 +2761,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "MAKTABGACHA VA MAKTAB TA'LIMI VAZIRLIGI",
     duration: "10:29",
     viewCount: 222,
-    tags: [
-      "uzbek",
-      "educational",
-      "bolalar sayyorasi",
-      "series"
-    ],
     accent: "#d93025",
     source: "catalog"
   },
@@ -4314,12 +2771,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "MAKTABGACHA VA MAKTAB TA'LIMI VAZIRLIGI",
     duration: "8:14",
     viewCount: 755,
-    tags: [
-      "uzbek",
-      "educational",
-      "bolalar sayyorasi",
-      "series"
-    ],
     accent: "#0b8043",
     source: "catalog"
   },
@@ -4330,12 +2781,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "MAKTABGACHA VA MAKTAB TA'LIMI VAZIRLIGI",
     duration: "8:36",
     viewCount: 332,
-    tags: [
-      "uzbek",
-      "educational",
-      "bolalar sayyorasi",
-      "series"
-    ],
     accent: "#1a73e8",
     source: "catalog"
   },
@@ -4346,12 +2791,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "MAKTABGACHA VA MAKTAB TA'LIMI VAZIRLIGI",
     duration: "7:22",
     viewCount: 1300,
-    tags: [
-      "uzbek",
-      "educational",
-      "bolalar sayyorasi",
-      "series"
-    ],
     accent: "#f9ab00",
     source: "catalog"
   },
@@ -4362,12 +2801,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "MAKTABGACHA VA MAKTAB TA'LIMI VAZIRLIGI",
     duration: "7:27",
     viewCount: 97,
-    tags: [
-      "uzbek",
-      "educational",
-      "bolalar sayyorasi",
-      "series"
-    ],
     accent: "#8e24aa",
     source: "catalog"
   },
@@ -4378,12 +2811,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "MAKTABGACHA VA MAKTAB TA'LIMI VAZIRLIGI",
     duration: "8:56",
     viewCount: 106,
-    tags: [
-      "uzbek",
-      "educational",
-      "bolalar sayyorasi",
-      "series"
-    ],
     accent: "#00897b",
     source: "catalog"
   },
@@ -4394,12 +2821,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "MAKTABGACHA VA MAKTAB TA'LIMI VAZIRLIGI",
     duration: "7:26",
     viewCount: 142,
-    tags: [
-      "uzbek",
-      "educational",
-      "bolalar sayyorasi",
-      "series"
-    ],
     accent: "#c26401",
     source: "catalog"
   },
@@ -4410,12 +2831,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "MAKTABGACHA VA MAKTAB TA'LIMI VAZIRLIGI",
     duration: "7:37",
     viewCount: 83,
-    tags: [
-      "uzbek",
-      "educational",
-      "bolalar sayyorasi",
-      "series"
-    ],
     accent: "#5f6368",
     source: "catalog"
   },
@@ -4426,12 +2841,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "MAKTABGACHA VA MAKTAB TA'LIMI VAZIRLIGI",
     duration: "9:29",
     viewCount: 109,
-    tags: [
-      "uzbek",
-      "educational",
-      "bolalar sayyorasi",
-      "series"
-    ],
     accent: "#d93025",
     source: "catalog"
   },
@@ -4442,12 +2851,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "MAKTABGACHA VA MAKTAB TA'LIMI VAZIRLIGI",
     duration: "7:03",
     viewCount: 222,
-    tags: [
-      "uzbek",
-      "educational",
-      "bolalar sayyorasi",
-      "series"
-    ],
     accent: "#0b8043",
     source: "catalog"
   },
@@ -4458,12 +2861,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "MAKTABGACHA VA MAKTAB TA'LIMI VAZIRLIGI",
     duration: "8:55",
     viewCount: 443,
-    tags: [
-      "uzbek",
-      "educational",
-      "bolalar sayyorasi",
-      "series"
-    ],
     accent: "#1a73e8",
     source: "catalog"
   },
@@ -4474,12 +2871,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "MAKTABGACHA VA MAKTAB TA'LIMI VAZIRLIGI",
     duration: "8:45",
     viewCount: 1700,
-    tags: [
-      "uzbek",
-      "educational",
-      "bolalar sayyorasi",
-      "series"
-    ],
     accent: "#f9ab00",
     source: "catalog"
   },
@@ -4490,11 +2881,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "AVIценна",
     duration: "9:49",
     sourceLabel: "playlist",
-    tags: [
-      "uzbek",
-      "cartoons",
-      "playlist"
-    ],
     accent: "#0b8043",
     source: "catalog"
   },
@@ -4505,11 +2891,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "HAMMASI HAQIDA",
     duration: "6:01",
     sourceLabel: "playlist",
-    tags: [
-      "uzbek",
-      "cartoons",
-      "playlist"
-    ],
     accent: "#1a73e8",
     source: "catalog"
   },
@@ -4520,11 +2901,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "29UZ",
     duration: "52:10",
     sourceLabel: "playlist",
-    tags: [
-      "uzbek",
-      "cartoons",
-      "playlist"
-    ],
     accent: "#f9ab00",
     source: "catalog"
   },
@@ -4535,11 +2911,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "Тамаша роликтер Тамаша роликтер",
     duration: "9:13",
     sourceLabel: "playlist",
-    tags: [
-      "uzbek",
-      "cartoons",
-      "playlist"
-    ],
     accent: "#8e24aa",
     source: "catalog"
   },
@@ -4550,11 +2921,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "Болажон канали",
     duration: "10:53",
     sourceLabel: "playlist",
-    tags: [
-      "uzbek",
-      "cartoons",
-      "playlist"
-    ],
     accent: "#00897b",
     source: "catalog"
   },
@@ -4565,11 +2931,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "HAMMASI HAQIDA",
     duration: "18:31",
     sourceLabel: "playlist",
-    tags: [
-      "uzbek",
-      "cartoons",
-      "playlist"
-    ],
     accent: "#e8710a",
     source: "catalog"
   },
@@ -4580,11 +2941,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "Мурад Джураев",
     duration: "0:32",
     sourceLabel: "playlist",
-    tags: [
-      "uzbek",
-      "cartoons",
-      "playlist"
-    ],
     accent: "#5f6368",
     source: "catalog"
   },
@@ -4595,11 +2951,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "БОЛАЖОН",
     duration: "2:00",
     sourceLabel: "playlist",
-    tags: [
-      "uzbek",
-      "cartoons",
-      "playlist"
-    ],
     accent: "#d93025",
     source: "catalog"
   },
@@ -4610,11 +2961,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: " Аудио эртаклар",
     duration: "18:44",
     sourceLabel: "playlist",
-    tags: [
-      "uzbek",
-      "cartoons",
-      "playlist"
-    ],
     accent: "#0b8043",
     source: "catalog"
   },
@@ -4625,11 +2971,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "Bek Tv Asaka",
     duration: "0:15",
     sourceLabel: "playlist",
-    tags: [
-      "uzbek",
-      "cartoons",
-      "playlist"
-    ],
     accent: "#1a73e8",
     source: "catalog"
   },
@@ -4640,11 +2981,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "29UZ",
     duration: "1:33:19",
     sourceLabel: "playlist",
-    tags: [
-      "uzbek",
-      "cartoons",
-      "playlist"
-    ],
     accent: "#f9ab00",
     source: "catalog"
   },
@@ -4655,11 +2991,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "Uzbek Multfilm",
     duration: "10:11",
     sourceLabel: "playlist",
-    tags: [
-      "uzbek",
-      "cartoons",
-      "playlist"
-    ],
     accent: "#8e24aa",
     source: "catalog"
   },
@@ -4670,11 +3001,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "Ertak va Hikoyalar olami",
     duration: "1:28",
     sourceLabel: "playlist",
-    tags: [
-      "uzbek",
-      "cartoons",
-      "playlist"
-    ],
     accent: "#00897b",
     source: "catalog"
   },
@@ -4685,11 +3011,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "Uzbek Multfilm",
     duration: "12:19",
     sourceLabel: "playlist",
-    tags: [
-      "uzbek",
-      "cartoons",
-      "playlist"
-    ],
     accent: "#e8710a",
     source: "catalog"
   },
@@ -4700,11 +3021,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "Mutfilimlar Uz",
     duration: "47:16",
     sourceLabel: "playlist",
-    tags: [
-      "uzbek",
-      "cartoons",
-      "playlist"
-    ],
     accent: "#5f6368",
     source: "catalog"
   },
@@ -4715,11 +3031,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "Uzbek Multfilm",
     duration: "19:51",
     sourceLabel: "playlist",
-    tags: [
-      "uzbek",
-      "cartoons",
-      "playlist"
-    ],
     accent: "#d93025",
     source: "catalog"
   },
@@ -4730,11 +3041,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "Ставьте LIKE",
     duration: "4:49",
     sourceLabel: "playlist",
-    tags: [
-      "uzbek",
-      "cartoons",
-      "playlist"
-    ],
     accent: "#0b8043",
     source: "catalog"
   },
@@ -4745,11 +3051,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "Uzbek Multfilm",
     duration: "14:35",
     sourceLabel: "playlist",
-    tags: [
-      "uzbek",
-      "cartoons",
-      "playlist"
-    ],
     accent: "#1a73e8",
     source: "catalog"
   },
@@ -4760,11 +3061,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "НАСРИДДИН АФАНДИ УЗ",
     duration: "13:01",
     sourceLabel: "playlist",
-    tags: [
-      "uzbek",
-      "cartoons",
-      "playlist"
-    ],
     accent: "#f9ab00",
     source: "catalog"
   },
@@ -4775,11 +3071,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "Uzbek Multfilm",
     duration: "10:51",
     sourceLabel: "playlist",
-    tags: [
-      "uzbek",
-      "cartoons",
-      "playlist"
-    ],
     accent: "#8e24aa",
     source: "catalog"
   },
@@ -4790,11 +3081,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "Uzbek Multfilm",
     duration: "11:49",
     sourceLabel: "playlist",
-    tags: [
-      "uzbek",
-      "cartoons",
-      "playlist"
-    ],
     accent: "#00897b",
     source: "catalog"
   },
@@ -4805,11 +3091,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "Muyassar Shermatova",
     duration: "10:07",
     sourceLabel: "playlist",
-    tags: [
-      "uzbek",
-      "cartoons",
-      "playlist"
-    ],
     accent: "#e8710a",
     source: "catalog"
   },
@@ -4820,11 +3101,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "Uzbek Multfilm",
     duration: "12:32",
     sourceLabel: "playlist",
-    tags: [
-      "uzbek",
-      "cartoons",
-      "playlist"
-    ],
     accent: "#5f6368",
     source: "catalog"
   },
@@ -4835,11 +3111,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "Mitti Kinoteatr",
     duration: "12:35",
     sourceLabel: "playlist",
-    tags: [
-      "uzbek",
-      "cartoons",
-      "playlist"
-    ],
     accent: "#d93025",
     source: "catalog"
   },
@@ -4850,11 +3121,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "Uzbek Moral Stories",
     duration: "5:29",
     sourceLabel: "playlist",
-    tags: [
-      "uzbek",
-      "cartoons",
-      "playlist"
-    ],
     accent: "#0b8043",
     source: "catalog"
   },
@@ -4865,11 +3131,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "Uzbek Multfilm",
     duration: "11:59",
     sourceLabel: "playlist",
-    tags: [
-      "uzbek",
-      "cartoons",
-      "playlist"
-    ],
     accent: "#1a73e8",
     source: "catalog"
   },
@@ -4880,11 +3141,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "Uzbek Multfilm",
     duration: "11:12",
     sourceLabel: "playlist",
-    tags: [
-      "uzbek",
-      "cartoons",
-      "playlist"
-    ],
     accent: "#f9ab00",
     source: "catalog"
   },
@@ -4895,11 +3151,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "multfilm TV",
     duration: "4:40",
     sourceLabel: "playlist",
-    tags: [
-      "uzbek",
-      "cartoons",
-      "playlist"
-    ],
     accent: "#8e24aa",
     source: "catalog"
   },
@@ -4910,11 +3161,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "Uzbek Multfilm",
     duration: "10:50",
     sourceLabel: "playlist",
-    tags: [
-      "uzbek",
-      "cartoons",
-      "playlist"
-    ],
     accent: "#00897b",
     source: "catalog"
   },
@@ -4925,11 +3171,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "Uzbek Multfilm",
     duration: "10:29",
     sourceLabel: "playlist",
-    tags: [
-      "uzbek",
-      "cartoons",
-      "playlist"
-    ],
     accent: "#e8710a",
     source: "catalog"
   },
@@ -4940,11 +3181,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "Bolajon multfilm",
     duration: "2:42",
     sourceLabel: "playlist",
-    tags: [
-      "uzbek",
-      "cartoons",
-      "playlist"
-    ],
     accent: "#5f6368",
     source: "catalog"
   },
@@ -4955,11 +3191,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "Три богатыря",
     duration: "1:08:36",
     sourceLabel: "playlist",
-    tags: [
-      "uzbek",
-      "cartoons",
-      "playlist"
-    ],
     accent: "#d93025",
     source: "catalog"
   },
@@ -4970,11 +3201,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "Uzbek Multfilm",
     duration: "10:07",
     sourceLabel: "playlist",
-    tags: [
-      "uzbek",
-      "cartoons",
-      "playlist"
-    ],
     accent: "#0b8043",
     source: "catalog"
   },
@@ -4985,11 +3211,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "Uzbek Multfilm",
     duration: "9:43",
     sourceLabel: "playlist",
-    tags: [
-      "uzbek",
-      "cartoons",
-      "playlist"
-    ],
     accent: "#1a73e8",
     source: "catalog"
   },
@@ -5000,11 +3221,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "Azon Global",
     duration: "8:42",
     sourceLabel: "playlist",
-    tags: [
-      "uzbek",
-      "cartoons",
-      "playlist"
-    ],
     accent: "#f9ab00",
     source: "catalog"
   },
@@ -5015,11 +3231,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "Uzbek Multfilm",
     duration: "15:00",
     sourceLabel: "playlist",
-    tags: [
-      "uzbek",
-      "cartoons",
-      "playlist"
-    ],
     accent: "#8e24aa",
     source: "catalog"
   },
@@ -5030,11 +3241,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "Uzbek Multfilm",
     duration: "11:53",
     sourceLabel: "playlist",
-    tags: [
-      "uzbek",
-      "cartoons",
-      "playlist"
-    ],
     accent: "#00897b",
     source: "catalog"
   },
@@ -5045,11 +3251,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "Uzbek Multfilm",
     duration: "35:08",
     sourceLabel: "playlist",
-    tags: [
-      "uzbek",
-      "cartoons",
-      "playlist"
-    ],
     accent: "#e8710a",
     source: "catalog"
   },
@@ -5060,11 +3261,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "Мультяшкино",
     duration: "21:54",
     sourceLabel: "playlist",
-    tags: [
-      "uzbek",
-      "cartoons",
-      "playlist"
-    ],
     accent: "#5f6368",
     source: "catalog"
   },
@@ -5075,11 +3271,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "Uzbek Multfilm",
     duration: "1:05:23",
     sourceLabel: "playlist",
-    tags: [
-      "uzbek",
-      "cartoons",
-      "playlist"
-    ],
     accent: "#d93025",
     source: "catalog"
   },
@@ -5090,11 +3281,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "Uzbek Multfilm",
     duration: "10:05",
     sourceLabel: "playlist",
-    tags: [
-      "uzbek",
-      "cartoons",
-      "playlist"
-    ],
     accent: "#0b8043",
     source: "catalog"
   },
@@ -5105,11 +3291,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "UZFOYDA",
     duration: "2:57",
     sourceLabel: "playlist",
-    tags: [
-      "uzbek",
-      "cartoons",
-      "playlist"
-    ],
     accent: "#1a73e8",
     source: "catalog"
   },
@@ -5120,11 +3301,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "Bolajonlar uchun multfilmlar",
     duration: "11:03",
     sourceLabel: "playlist",
-    tags: [
-      "uzbek",
-      "cartoons",
-      "playlist"
-    ],
     accent: "#f9ab00",
     source: "catalog"
   },
@@ -5135,11 +3311,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "Uzbek Multfilm",
     duration: "15:39",
     sourceLabel: "playlist",
-    tags: [
-      "uzbek",
-      "cartoons",
-      "playlist"
-    ],
     accent: "#8e24aa",
     source: "catalog"
   },
@@ -5150,11 +3321,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "Uzbek Multfilm",
     duration: "10:48",
     sourceLabel: "playlist",
-    tags: [
-      "uzbek",
-      "cartoons",
-      "playlist"
-    ],
     accent: "#00897b",
     source: "catalog"
   },
@@ -5165,11 +3331,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "Bolajon multfilm",
     duration: "3:00",
     sourceLabel: "playlist",
-    tags: [
-      "uzbek",
-      "cartoons",
-      "playlist"
-    ],
     accent: "#e8710a",
     source: "catalog"
   },
@@ -5180,11 +3341,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "Uzbek Multfilm",
     duration: "10:07",
     sourceLabel: "playlist",
-    tags: [
-      "uzbek",
-      "cartoons",
-      "playlist"
-    ],
     accent: "#5f6368",
     source: "catalog"
   },
@@ -5195,11 +3351,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "Uzbek Moral Stories",
     duration: "3:42",
     sourceLabel: "playlist",
-    tags: [
-      "uzbek",
-      "cartoons",
-      "playlist"
-    ],
     accent: "#d93025",
     source: "catalog"
   },
@@ -5210,11 +3361,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "Pubg.Moshin",
     duration: "5:42",
     sourceLabel: "playlist",
-    tags: [
-      "uzbek",
-      "cartoons",
-      "playlist"
-    ],
     accent: "#0b8043",
     source: "catalog"
   },
@@ -5225,11 +3371,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "Uzbek Multfilm",
     duration: "13:59",
     sourceLabel: "playlist",
-    tags: [
-      "uzbek",
-      "cartoons",
-      "playlist"
-    ],
     accent: "#1a73e8",
     source: "catalog"
   },
@@ -5240,11 +3381,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "Uzbek Multfilm",
     duration: "11:37",
     sourceLabel: "playlist",
-    tags: [
-      "uzbek",
-      "cartoons",
-      "playlist"
-    ],
     accent: "#f9ab00",
     source: "catalog"
   },
@@ -5255,11 +3391,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "Uzbek Multfilm",
     duration: "11:02",
     sourceLabel: "playlist",
-    tags: [
-      "uzbek",
-      "cartoons",
-      "playlist"
-    ],
     accent: "#8e24aa",
     source: "catalog"
   },
@@ -5270,11 +3401,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "Mutfilimlar Uz",
     duration: "1:25:42",
     sourceLabel: "playlist",
-    tags: [
-      "uzbek",
-      "cartoons",
-      "playlist"
-    ],
     accent: "#00897b",
     source: "catalog"
   },
@@ -5285,11 +3411,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "Uzbek Multfilm",
     duration: "10:24",
     sourceLabel: "playlist",
-    tags: [
-      "uzbek",
-      "cartoons",
-      "playlist"
-    ],
     accent: "#e8710a",
     source: "catalog"
   },
@@ -5300,11 +3421,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "Uzbek Moral Stories",
     duration: "6:03",
     sourceLabel: "playlist",
-    tags: [
-      "uzbek",
-      "cartoons",
-      "playlist"
-    ],
     accent: "#5f6368",
     source: "catalog"
   },
@@ -5315,11 +3431,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "Uzbek Moral Stories",
     duration: "3:54",
     sourceLabel: "playlist",
-    tags: [
-      "uzbek",
-      "cartoons",
-      "playlist"
-    ],
     accent: "#d93025",
     source: "catalog"
   },
@@ -5330,11 +3441,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "Bolajon multfilm",
     duration: "1:06",
     sourceLabel: "playlist",
-    tags: [
-      "uzbek",
-      "cartoons",
-      "playlist"
-    ],
     accent: "#0b8043",
     source: "catalog"
   },
@@ -5345,11 +3451,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "Uzbek Multfilm",
     duration: "10:58",
     sourceLabel: "playlist",
-    tags: [
-      "uzbek",
-      "cartoons",
-      "playlist"
-    ],
     accent: "#1a73e8",
     source: "catalog"
   },
@@ -5360,11 +3461,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "Uzbek Multfilm",
     duration: "12:19",
     sourceLabel: "playlist",
-    tags: [
-      "uzbek",
-      "cartoons",
-      "playlist"
-    ],
     accent: "#f9ab00",
     source: "catalog"
   },
@@ -5375,11 +3471,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "Uzbek Moral Stories",
     duration: "12:40",
     sourceLabel: "playlist",
-    tags: [
-      "uzbek",
-      "cartoons",
-      "playlist"
-    ],
     accent: "#8e24aa",
     source: "catalog"
   },
@@ -5390,11 +3481,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "Qiziqarli kanal",
     duration: "2:57",
     sourceLabel: "playlist",
-    tags: [
-      "uzbek",
-      "cartoons",
-      "playlist"
-    ],
     accent: "#00897b",
     source: "catalog"
   },
@@ -5405,11 +3491,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "AudioTaskin",
     duration: "23:36",
     sourceLabel: "playlist",
-    tags: [
-      "uzbek",
-      "cartoons",
-      "playlist"
-    ],
     accent: "#e8710a",
     source: "catalog"
   },
@@ -5420,11 +3501,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "Uzbek Multfilm",
     duration: "19:21",
     sourceLabel: "playlist",
-    tags: [
-      "uzbek",
-      "cartoons",
-      "playlist"
-    ],
     accent: "#5f6368",
     source: "catalog"
   },
@@ -5435,11 +3511,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "Multfilm olami",
     duration: "3:33",
     sourceLabel: "playlist",
-    tags: [
-      "uzbek",
-      "cartoons",
-      "playlist"
-    ],
     accent: "#d93025",
     source: "catalog"
   },
@@ -5450,11 +3521,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "MARUZALAR TO'PLAMI",
     duration: "3:15",
     sourceLabel: "playlist",
-    tags: [
-      "uzbek",
-      "cartoons",
-      "playlist"
-    ],
     accent: "#0b8043",
     source: "catalog"
   },
@@ -5465,11 +3531,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "MEO Server1",
     duration: "13:22",
     sourceLabel: "playlist",
-    tags: [
-      "uzbek",
-      "cartoons",
-      "playlist"
-    ],
     accent: "#1a73e8",
     source: "catalog"
   },
@@ -5480,11 +3541,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "Respublika ta`lim markazi | Rasmiy",
     duration: "9:54",
     sourceLabel: "playlist",
-    tags: [
-      "uzbek",
-      "cartoons",
-      "playlist"
-    ],
     accent: "#f9ab00",
     source: "catalog"
   },
@@ -5495,11 +3551,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "Uzbek Multfilm",
     duration: "10:49",
     sourceLabel: "playlist",
-    tags: [
-      "uzbek",
-      "cartoons",
-      "playlist"
-    ],
     accent: "#8e24aa",
     source: "catalog"
   },
@@ -5510,11 +3561,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "Mutfilimlar Uz",
     duration: "1:26:05",
     sourceLabel: "playlist",
-    tags: [
-      "uzbek",
-      "cartoons",
-      "playlist"
-    ],
     accent: "#00897b",
     source: "catalog"
   },
@@ -5525,11 +3571,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "AVIценна",
     duration: "8:44",
     sourceLabel: "playlist",
-    tags: [
-      "uzbek",
-      "cartoons",
-      "playlist"
-    ],
     accent: "#e8710a",
     source: "catalog"
   },
@@ -5540,11 +3581,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "Ma‘rifat uz",
     duration: "19:31",
     sourceLabel: "playlist",
-    tags: [
-      "uzbek",
-      "cartoons",
-      "playlist"
-    ],
     accent: "#5f6368",
     source: "catalog"
   },
@@ -5555,11 +3591,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "Abdulloh Abdusalomov",
     duration: "0:51",
     sourceLabel: "playlist",
-    tags: [
-      "uzbek",
-      "cartoons",
-      "playlist"
-    ],
     accent: "#d93025",
     source: "catalog"
   },
@@ -5570,11 +3601,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "Uzbek Moral Stories",
     duration: "10:01",
     sourceLabel: "playlist",
-    tags: [
-      "uzbek",
-      "cartoons",
-      "playlist"
-    ],
     accent: "#0b8043",
     source: "catalog"
   },
@@ -5585,11 +3611,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "Uzbek Moral Stories",
     duration: "2:50",
     sourceLabel: "playlist",
-    tags: [
-      "uzbek",
-      "cartoons",
-      "playlist"
-    ],
     accent: "#1a73e8",
     source: "catalog"
   },
@@ -5600,11 +3621,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "Мирошка ТВ",
     duration: "5:11",
     sourceLabel: "playlist",
-    tags: [
-      "uzbek",
-      "cartoons",
-      "playlist"
-    ],
     accent: "#f9ab00",
     source: "catalog"
   },
@@ -5615,11 +3631,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "Bolajon multfilm",
     duration: "8:27",
     sourceLabel: "playlist",
-    tags: [
-      "uzbek",
-      "cartoons",
-      "playlist"
-    ],
     accent: "#8e24aa",
     source: "catalog"
   },
@@ -5630,11 +3641,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "Uzbekiya",
     duration: "2:36",
     sourceLabel: "playlist",
-    tags: [
-      "uzbek",
-      "cartoons",
-      "playlist"
-    ],
     accent: "#00897b",
     source: "catalog"
   },
@@ -5645,11 +3651,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "Bolajon multfilm",
     duration: "2:08",
     sourceLabel: "playlist",
-    tags: [
-      "uzbek",
-      "cartoons",
-      "playlist"
-    ],
     accent: "#e8710a",
     source: "catalog"
   },
@@ -5660,11 +3661,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "Musulmon Uz",
     duration: "4:00",
     sourceLabel: "playlist",
-    tags: [
-      "uzbek",
-      "cartoons",
-      "playlist"
-    ],
     accent: "#5f6368",
     source: "catalog"
   },
@@ -5675,11 +3671,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "Bolajon multfilm",
     duration: "2:15",
     sourceLabel: "playlist",
-    tags: [
-      "uzbek",
-      "cartoons",
-      "playlist"
-    ],
     accent: "#d93025",
     source: "catalog"
   },
@@ -5690,11 +3681,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     channel: "Islom Tv",
     duration: "1:27:08",
     sourceLabel: "playlist",
-    tags: [
-      "uzbek",
-      "cartoons",
-      "playlist"
-    ],
     accent: "#0b8043",
     source: "catalog"
   }
