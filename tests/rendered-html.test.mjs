@@ -79,6 +79,52 @@ test("redirects locale-less URLs to a negotiated locale", async () => {
   assert.match(remembered.headers.get("location") ?? "", /\/uz$/);
 });
 
+test("keeps the feature-sliced layout intact", async () => {
+  const [shell, layout, page, player, urls, css, packageJson] =
+    await Promise.all([
+      readFile(new URL("../app/_shell/kids-tube-app.tsx", import.meta.url), "utf8"),
+      readFile(new URL("../app/[locale]/layout.tsx", import.meta.url), "utf8"),
+      readFile(new URL("../app/[locale]/page.tsx", import.meta.url), "utf8"),
+      readFile(
+        new URL(
+          "../src/widgets/player/ui/safe-youtube-player.tsx",
+          import.meta.url,
+        ),
+        "utf8",
+      ),
+      readFile(
+        new URL("../src/shared/api/youtube/youtube-urls.ts", import.meta.url),
+        "utf8",
+      ),
+      readFile(new URL("../app/globals.css", import.meta.url), "utf8"),
+      readFile(new URL("../package.json", import.meta.url), "utf8"),
+    ]);
+
+  // The app layer only routes and composes; logic lives in the layers below.
+  assert.match(page, /export async function generateMetadata/);
+  assert.match(page, /<KidsTubeApp \/>/);
+  assert.match(layout, /<html lang=\{locale\}>/);
+  assert.match(layout, /NextIntlClientProvider/);
+  assert.match(shell, /@\/pages\/home/);
+  assert.match(shell, /@\/entities\/library/);
+  assert.doesNotMatch(shell, /localStorage/);
+
+  // Player hardening must survive the split into hooks and sub-components.
+  assert.match(urls, /youtube-nocookie\.com/);
+  assert.match(urls, /controls:\s*"0"/);
+  assert.match(
+    player,
+    /sandbox="allow-scripts allow-same-origin allow-presentation"/,
+  );
+  assert.match(css, /pointer-events:\s*none/);
+
+  assert.match(packageJson, /"name": "yt-kids"/);
+  assert.match(packageJson, /"lucide-react":/);
+  assert.match(packageJson, /"next-intl":/);
+  assert.doesNotMatch(layout, /codex-preview|_sites-preview|themeColor/);
+  assert.doesNotMatch(packageJson, /react-loading-skeleton/);
+});
+
 test("keeps every message key in sync across locales", async () => {
   const [en, uz] = await Promise.all([
     readFile(new URL("../messages/en.json", import.meta.url), "utf8"),

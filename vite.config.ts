@@ -30,6 +30,9 @@ export default defineConfig(async () => {
   return {
     resolve: {
       alias: {
+        // Mirrors the tsconfig `@/*` path. Declared here too so resolution does
+        // not depend on when a tool last read tsconfig.json.
+        "@/": `${fileURLToPath(new URL("./src", import.meta.url))}/`,
         "next-intl/config": nextIntlRequestConfig,
       },
     },
