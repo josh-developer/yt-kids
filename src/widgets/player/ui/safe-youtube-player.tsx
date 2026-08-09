@@ -442,9 +442,14 @@ export function SafeYouTubePlayer({
               revealControls();
               engine.playPause();
             }}
+            areCaptionsEnabled={engine.areCaptionsEnabled}
             onPrevious={onPreviousVideo}
             onPreview={requestPreview}
             onSeekBy={seekBy}
+            onToggleCaptions={() => {
+              revealControls();
+              engine.toggleCaptions();
+            }}
             onToggleFullscreen={() => {
               revealControls();
               void fullscreen.toggle();

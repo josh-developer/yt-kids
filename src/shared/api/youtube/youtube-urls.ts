@@ -38,6 +38,9 @@ export function lockedEmbedUrl(
     modestbranding: "1",
     playsinline: "1",
     rel: "0",
+    // Some uploads default their captions on. Captions are the viewer's
+    // choice here, made through the player's own button.
+    cc_load_policy: "0",
   });
 
   if (shouldStartMuted) {

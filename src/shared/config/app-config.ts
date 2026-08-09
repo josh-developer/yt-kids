@@ -8,6 +8,7 @@ export const STORAGE_KEYS = {
 export const SESSION_KEYS = {
   playerMuted: "kidtube-player-muted",
   playerVolume: "kidtube-player-volume",
+  playerCaptions: "kidtube-player-captions",
 } as const;
 
 /** Bumped whenever `StoredLibrary` changes shape; drives migrations on read. */
@@ -39,6 +40,7 @@ export const PLAYER_BOOT_KICK_MS = 1200;
  * leaving a black rectangle.
  */
 export const PLAYER_UNREACHABLE_MS = 18000;
+
 /**
  * How long the next video waits before it starts on its own. Long enough to
  * read the title and reach the replay button, short enough not to feel stuck.

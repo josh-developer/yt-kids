@@ -44,6 +44,17 @@ export class PlayerController {
     this.command("getDuration");
   }
 
+  /**
+   * Captions live in a loadable module. The embed has answered to two names
+   * for it across player versions, and asking for the wrong one is ignored
+   * rather than an error, so both are sent.
+   */
+  setCaptions(areEnabled: boolean) {
+    for (const name of ["captions", "cc"]) {
+      this.command(areEnabled ? "loadModule" : "unloadModule", [name]);
+    }
+  }
+
   command(func: string, args: Array<boolean | number | string> = []) {
     this.post({ event: "command", func, args });
   }

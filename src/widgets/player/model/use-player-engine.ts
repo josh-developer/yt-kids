@@ -55,6 +55,9 @@ export function usePlayerEngine({
   const [isPlaying, setIsPlaying] = useState(true);
   const [isMuted, setIsMuted] = useState(() => preferences.readMuted());
   const [volume, setVolumeState] = useState(() => preferences.readVolume());
+  const [areCaptionsEnabled, setAreCaptionsEnabled] = useState(() =>
+    preferences.readCaptions(),
+  );
   // Covers the embed while it boots, instead of showing YouTube's own chrome.
   const [isBooting, setIsBooting] = useState(true);
   // Playback has produced at least one frame, so the poster is no longer the
@@ -75,12 +78,14 @@ export function usePlayerEngine({
   const isPlayingRef = useRef(true);
   const hasStartedRef = useRef(false);
   const hasTelemetryRef = useRef(false);
+  const captionsRef = useRef(areCaptionsEnabled);
   const videoRef = useRef(video);
   const callbacks = useRef({ onDurationResolved, onEnded, onPlayingChange });
 
   useEffect(() => {
     videoRef.current = video;
     isPlayingRef.current = isPlaying;
+    captionsRef.current = areCaptionsEnabled;
     callbacks.current = { onDurationResolved, onEnded, onPlayingChange };
   });
 
@@ -91,6 +96,10 @@ export function usePlayerEngine({
   useEffect(() => {
     preferences.saveVolume(volume);
   }, [preferences, volume]);
+
+  useEffect(() => {
+    preferences.saveCaptions(areCaptionsEnabled);
+  }, [areCaptionsEnabled, preferences]);
 
   // The embed's own connections cost as much as its first frame; open them as
   // soon as a player exists rather than when the src is set.
@@ -227,6 +236,11 @@ export function usePlayerEngine({
       // Buffering, cued and unstarted are not pauses. Treating them as one is
       // what made the poster and the big play button flash mid-playback.
       if (telemetry.playerState === PLAYER_STATE.playing) {
+        if (!hasStartedRef.current) {
+          // A fresh embed starts with captions off; restore the viewer's choice.
+          player.setCaptions(captionsRef.current);
+        }
+
         hasStartedRef.current = true;
         setHasStarted(true);
         setIsPlaying(true);
@@ -243,7 +257,7 @@ export function usePlayerEngine({
 
     window.addEventListener("message", handleMessage);
     return () => window.removeEventListener("message", handleMessage);
-  }, [iframeRef]);
+  }, [iframeRef, player]);
 
   // Between telemetry packets, advance the clock ourselves so the progress bar
   // stays smooth — and detect the end even if `onStateChange` never arrives.
@@ -355,6 +369,13 @@ export function usePlayerEngine({
     schedulePlay();
   }
 
+  function toggleCaptions() {
+    setAreCaptionsEnabled((areEnabled) => {
+      player.setCaptions(!areEnabled);
+      return !areEnabled;
+    });
+  }
+
   function toggleMute() {
     if (isMuted) {
       player.unMute();
@@ -439,6 +460,7 @@ export function usePlayerEngine({
     reloadKey,
     isBooting,
     hasStarted,
+    areCaptionsEnabled,
     failure,
     // Autoplay implies muted; `sendPlay` unmutes once playback is running.
     embedUrl: lockedEmbedUrl(video.videoId, shouldAutoplay, shouldAutoplay),
@@ -454,6 +476,7 @@ export function usePlayerEngine({
     seekBy,
     seekToRatio,
     setVolume,
+    toggleCaptions,
     toggleMute,
   };
 }

@@ -1,4 +1,6 @@
 import {
+  Captions,
+  CaptionsOff,
   Maximize2,
   Minimize2,
   Pause,
@@ -21,6 +23,7 @@ const VOLUME_STEP = 10;
 export function PlayerControls({
   hasNext,
   hasPrevious,
+  areCaptionsEnabled,
   isFullscreen,
   isMuted,
   isPlaying,
@@ -30,6 +33,7 @@ export function PlayerControls({
   onPlayPause,
   onPrevious,
   onPreview,
+  onToggleCaptions,
   onToggleFullscreen,
   onToggleMute,
   onSeekBy,
@@ -38,6 +42,7 @@ export function PlayerControls({
 }: {
   hasNext: boolean;
   hasPrevious: boolean;
+  areCaptionsEnabled: boolean;
   isFullscreen: boolean;
   isMuted: boolean;
   isPlaying: boolean;
@@ -48,6 +53,7 @@ export function PlayerControls({
   onPrevious: () => void;
   onPreview: (request: PreviewRequest) => void;
   onSeekBy: (seconds: number) => void;
+  onToggleCaptions: () => void;
   onToggleFullscreen: () => void;
   onToggleMute: () => void;
   onToggleRepeat: () => void;
@@ -156,7 +162,18 @@ export function PlayerControls({
         <Repeat1 size={18} />
       </button>
       <button
-        className="player-control-button fullscreen-button"
+        className={`${styles.playerControlButton} ${
+          areCaptionsEnabled ? styles.active : ""
+        }`}
+        onClick={onToggleCaptions}
+        type="button"
+        aria-label={areCaptionsEnabled ? t("hideCaptions") : t("showCaptions")}
+        aria-pressed={areCaptionsEnabled}
+      >
+        {areCaptionsEnabled ? <Captions size={16} /> : <CaptionsOff size={16} />}
+      </button>
+      <button
+        className={`${styles.playerControlButton} ${styles.fullscreenButton}`}
         onClick={onToggleFullscreen}
         type="button"
         aria-label={isFullscreen ? t("exitFullScreen") : t("fullScreen")}

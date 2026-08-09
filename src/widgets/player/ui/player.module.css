@@ -464,6 +464,12 @@
   color: #0f0f0f;
 }
 
+/* Any control that can be left switched on: repeat, captions. */
+.playerControlButton.active {
+  background: #1a73e8;
+  color: white;
+}
+
 .repeatButton {
   margin-left: auto;
   width: 32px;
