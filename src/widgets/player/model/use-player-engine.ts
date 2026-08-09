@@ -1,10 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import {
-  lockedEmbedUrl,
-  warmYouTubeOrigins,
-  watchUrl,
-  youTubeApi,
-} from "@/shared/api/youtube";
+import { lockedEmbedUrl, warmYouTubeOrigins } from "@/shared/api/youtube";
 import {
   PLAYER_BOOT_KICK_MS,
   PLAYER_SKELETON_MS,
@@ -164,28 +159,6 @@ export function usePlayerEngine({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [reloadKey, video.id]);
 
-  // The catalog duration is a display string; oEmbed knows the real length.
-  useEffect(() => {
-    let isCancelled = false;
-
-    void (async () => {
-      const metadata = await youTubeApi.fetchMetadata(watchUrl(video.videoId));
-      const seconds = metadata.durationSeconds ?? 0;
-      if (isCancelled || seconds <= 0) {
-        return;
-      }
-
-      durationRef.current = seconds;
-      publishedDurationRef.current = seconds;
-      setDurationSeconds(seconds);
-      callbacks.current.onDurationResolved(videoRef.current, seconds);
-    })();
-
-    return () => {
-      isCancelled = true;
-    };
-  }, [video.id, video.videoId]);
-
   useEffect(() => {
     function handleMessage(event: MessageEvent) {
       const telemetry = readPlayerTelemetry(event, iframeRef.current);
@@ -210,6 +183,8 @@ export function usePlayerEngine({
         setCurrentTime(telemetry.currentTime);
       }
 
+      // The only source of a real duration: the embed reports it within a
+      // second of starting, so there is nothing to ask the network for.
       if (typeof telemetry.duration === "number" && telemetry.duration > 0) {
         durationRef.current = telemetry.duration;
         setDurationSeconds(telemetry.duration);

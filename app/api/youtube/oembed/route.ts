@@ -187,12 +187,37 @@ async function fetchVideoDurationSeconds(videoId: string) {
   }
 }
 
+/**
+ * A video's title and length do not change, so a hit here can be served from
+ * the edge for a long time. Only the parent's import screen reaches this
+ * route — the player reads duration straight off the embed — but an import of
+ * a large playlist calls it once per video, and those repeat across devices.
+ */
+const CACHE_SECONDS = 60 * 60 * 24 * 7;
+
+/**
+ * `caches.default` is the Workers edge cache. Read off `globalThis` on
+ * purpose: where the Cache API is missing entirely, naming the bare global
+ * would throw rather than read as undefined.
+ */
+type EdgeCacheStorage = { default?: Cache };
+
+function edgeCache() {
+  return (globalThis as { caches?: EdgeCacheStorage }).caches?.default;
+}
+
 export async function GET(request: Request) {
   const requestUrl = new URL(request.url);
   const rawUrl = requestUrl.searchParams.get("url")?.trim();
 
   if (!rawUrl) {
     return Response.json({ error: "url is required" }, { status: 400 });
+  }
+
+  const cache = edgeCache();
+  const cached = await cache?.match(request).catch(() => undefined);
+  if (cached) {
+    return cached;
   }
 
   try {
@@ -207,12 +232,18 @@ export async function GET(request: Request) {
     oembedUrl.searchParams.set("url", videoUrl.toString());
     oembedUrl.searchParams.set("format", "json");
 
-    const response = await fetch(oembedUrl, {
-      headers: {
-        accept: "application/json",
-        "user-agent": "KidTube parent import",
-      },
-    });
+    // The title and the length come from unrelated endpoints, and the length
+    // costs several round trips. Asking for both at once makes the route as
+    // slow as its slowest half rather than the sum of the two.
+    const [response, durationSeconds] = await Promise.all([
+      fetch(oembedUrl, {
+        headers: {
+          accept: "application/json",
+          "user-agent": "KidTube parent import",
+        },
+      }),
+      videoId ? fetchVideoDurationSeconds(videoId) : Promise.resolve(0),
+    ]);
 
     if (!response.ok) {
       return Response.json({ error: "Video details unavailable" }, { status: 404 });
@@ -224,15 +255,26 @@ export async function GET(request: Request) {
       thumbnail_url?: string;
     };
 
-    const durationSeconds = videoId ? await fetchVideoDurationSeconds(videoId) : 0;
+    const result = Response.json(
+      {
+        title: data.title ?? "",
+        channel: data.author_name ?? "",
+        duration: durationSeconds > 0 ? formatDuration(durationSeconds) : "",
+        durationSeconds,
+        thumbnailUrl: data.thumbnail_url ?? "",
+      },
+      {
+        headers: {
+          "cache-control": `public, max-age=${CACHE_SECONDS}, s-maxage=${CACHE_SECONDS}`,
+        },
+      },
+    );
 
-    return Response.json({
-      title: data.title ?? "",
-      channel: data.author_name ?? "",
-      duration: durationSeconds > 0 ? formatDuration(durationSeconds) : "",
-      durationSeconds,
-      thumbnailUrl: data.thumbnail_url ?? "",
+    await cache?.put(request, result.clone()).catch(() => {
+      // An uncached response is slower, not broken.
     });
+
+    return result;
   } catch {
     return Response.json({ error: "Invalid YouTube link" }, { status: 400 });
   }

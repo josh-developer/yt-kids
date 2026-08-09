@@ -1,4 +1,4 @@
-import { thumbnailUrl, watchUrl } from "./youtube-urls";
+import { thumbnailUrl } from "./youtube-urls";
 
 /**
  * Warming a video before it is asked for.
@@ -49,9 +49,9 @@ export function warmYouTubeOrigins() {
 }
 
 /**
- * Pulls what is knowable about one video into the browser's caches: its
- * poster, its embed document, and the duration lookup the watch page makes on
- * mount. Repeat calls for the same video do nothing.
+ * Pulls what is knowable about one video into the browser's caches: the
+ * connections its embed will need and the poster the next screen opens with.
+ * Repeat calls for the same video do nothing.
  */
 export function prefetchVideo(videoId: string) {
   if (typeof document === "undefined" || warmedVideoIds.has(videoId)) {
@@ -65,11 +65,4 @@ export function prefetchVideo(videoId: string) {
   const poster = new Image();
   poster.decoding = "async";
   poster.src = thumbnailUrl(videoId);
-
-  // Same request the player makes on mount, so it lands in the HTTP cache.
-  void fetch(`/api/youtube/oembed?url=${encodeURIComponent(watchUrl(videoId))}`, {
-    priority: "low",
-  }).catch(() => {
-    // A warm cache is a bonus, never a requirement.
-  });
 }
