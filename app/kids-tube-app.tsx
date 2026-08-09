@@ -227,15 +227,25 @@ export function KidsTubeApp({
     : null;
   const previousVideo = previousStackEntry?.video ?? null;
 
+  const [recommendationSeed, setRecommendationSeed] = useState(() =>
+    Math.floor(Math.random() * 233280),
+  );
+
+  useEffect(() => {
+    if (currentVideo) {
+      setRecommendationSeed(Math.floor(Math.random() * 233280));
+    }
+  }, [currentVideo?.id]);
+
   const recommendations = useMemo(() => {
     if (!currentVideo) {
       return [];
     }
     return shuffleVideos(
       selectedVideos.filter((video) => video.id !== currentVideo.id),
-      shuffleSalt + currentVideo.id.length,
+      recommendationSeed,
     );
-  }, [currentVideo, selectedVideos, shuffleSalt]);
+  }, [currentVideo, selectedVideos, recommendationSeed]);
 
   const nextVideo = recommendations[0] ?? null;
 
