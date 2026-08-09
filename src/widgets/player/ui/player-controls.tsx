@@ -13,6 +13,7 @@ import {
 import { useTranslations } from "next-intl";
 
 import { SEEK_STEP_SECONDS } from "@/shared/config/app-config";
+import { bindPreview, type PreviewRequest } from "./player-overlays";
 
 const VOLUME_STEP = 10;
 
@@ -27,6 +28,7 @@ export function PlayerControls({
   onNext,
   onPlayPause,
   onPrevious,
+  onPreview,
   onToggleFullscreen,
   onToggleMute,
   onSeekBy,
@@ -43,6 +45,7 @@ export function PlayerControls({
   onNext: () => void;
   onPlayPause: () => void;
   onPrevious: () => void;
+  onPreview: (request: PreviewRequest) => void;
   onSeekBy: (seconds: number) => void;
   onToggleFullscreen: () => void;
   onToggleMute: () => void;
@@ -63,6 +66,7 @@ export function PlayerControls({
             onClick={onPrevious}
             type="button"
             aria-label={t("previousVideo")}
+            {...bindPreview("previous", onPreview)}
           >
             <SkipBack size={16} fill="currentColor" />
           </button>
@@ -84,6 +88,7 @@ export function PlayerControls({
             onClick={onNext}
             type="button"
             aria-label={t("nextVideo")}
+            {...bindPreview("next", onPreview)}
           >
             <SkipForward size={16} fill="currentColor" />
           </button>

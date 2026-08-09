@@ -1,8 +1,50 @@
 import { LIBRARY_VERSION } from "@/shared/config/app-config";
 import { shuffleWithSeed, unique } from "@/shared/lib/collections";
-import { matchesQuery, type Video } from "@/entities/video";
-import type { StoredLibrary } from "./types";
+import {
+  episodeNumberOf,
+  isSameSeries,
+  isSimilar,
+  matchesQuery,
+  signatureSimilarity,
+  titleSignature,
+  type TitleSignature,
+  type Video,
+} from "@/entities/video";
+import type { RecommendationGroup, StoredLibrary } from "./types";
 import type { VideoCatalog } from "./video-catalog";
+
+/**
+ * Serial episodes are offered in reading order starting from the one after the
+ * current episode, so "next" on episode 4 is episode 5 rather than a random
+ * one, and finishing the last episode wraps to the beginning of the series.
+ */
+function orderEpisodes(videos: Video[], currentEpisode: number | null) {
+  const numbered = videos
+    .map((video) => ({ video, episode: episodeNumberOf(video.title) }))
+    .filter(
+      (entry): entry is { video: Video; episode: number } =>
+        entry.episode !== null,
+    )
+    .sort((a, b) => a.episode - b.episode);
+
+  const unnumbered = videos.filter(
+    (video) => episodeNumberOf(video.title) === null,
+  );
+
+  if (currentEpisode === null) {
+    return [...numbered.map((entry) => entry.video), ...unnumbered];
+  }
+
+  return [
+    ...numbered
+      .filter((entry) => entry.episode > currentEpisode)
+      .map((entry) => entry.video),
+    ...numbered
+      .filter((entry) => entry.episode <= currentEpisode)
+      .map((entry) => entry.video),
+    ...unnumbered,
+  ];
+}
 
 /**
  * The parent-approved library, as a value.
@@ -19,6 +61,10 @@ export class VideoLibrary {
   readonly approvedVideos: Video[];
   private readonly videoById: Map<string, Video>;
   private readonly approvedIds: Set<string>;
+  /** Derived views, kept because the library value itself never changes. */
+  private readonly signatures = new Map<string, TitleSignature>();
+  private seriesClustersCache: Video[][] | null = null;
+  private playbackOrderCache: { salt: number; videos: Video[] } | null = null;
 
   private constructor(
     private readonly catalog: VideoCatalog,
@@ -80,11 +126,127 @@ export class VideoLibrary {
     );
   }
 
+  /**
+   * The sidebar for one video, split into the rest of its series, videos with
+   * related titles, and the remaining library shuffled. Only the last group is
+   * randomised: an episode list that reshuffled on every video would be
+   * useless for watching a serial in order.
+   */
+  /** Title signatures are re-read on every render; each is only worth one pass. */
+  private signatureOf(video: Video) {
+    const cached = this.signatures.get(video.id);
+    if (cached) {
+      return cached;
+    }
+
+    const signature = titleSignature(video.title);
+    this.signatures.set(video.id, signature);
+    return signature;
+  }
+
+  recommendationGroupsFor(video: Video, salt: number): RecommendationGroup[] {
+    const signature = this.signatureOf(video);
+    const series: Video[] = [];
+    const similar: Video[] = [];
+    const rest: Video[] = [];
+
+    for (const candidate of this.approvedVideos) {
+      if (candidate.id === video.id) {
+        continue;
+      }
+
+      const score = signatureSimilarity(
+        signature,
+        this.signatureOf(candidate),
+      );
+
+      if (isSameSeries(score)) {
+        series.push(candidate);
+      } else if (isSimilar(score)) {
+        similar.push(candidate);
+      } else {
+        rest.push(candidate);
+      }
+    }
+
+    const groups: RecommendationGroup[] = [
+      {
+        key: "series",
+        videos: orderEpisodes(series, episodeNumberOf(video.title)),
+      },
+      { key: "similar", videos: similar },
+      { key: "more", videos: shuffleWithSeed(rest, salt + video.id.length) },
+    ];
+
+    return groups.filter((group) => group.videos.length > 0);
+  }
+
+  /** The same recommendations as one flat list, series first. */
   recommendationsFor(video: Video, salt: number) {
-    return shuffleWithSeed(
-      this.approvedVideos.filter((candidate) => candidate.id !== video.id),
-      salt + video.id.length,
+    return this.recommendationGroupsFor(video, salt).flatMap(
+      (group) => group.videos,
     );
+  }
+
+  /** Approved videos bundled into series, each bundle in episode order. */
+  private seriesClusters() {
+    if (this.seriesClustersCache) {
+      return this.seriesClustersCache;
+    }
+
+    const clusters: { signature: TitleSignature; videos: Video[] }[] = [];
+
+    for (const video of this.approvedVideos) {
+      const signature = this.signatureOf(video);
+      const existing = clusters.find((cluster) =>
+        isSameSeries(signatureSimilarity(cluster.signature, signature)),
+      );
+
+      if (existing) {
+        existing.videos.push(video);
+        continue;
+      }
+
+      clusters.push({ signature, videos: [video] });
+    }
+
+    this.seriesClustersCache = clusters.map((cluster) =>
+      orderEpisodes(cluster.videos, null),
+    );
+
+    return this.seriesClustersCache;
+  }
+
+  /**
+   * The running order behind the next button: every approved video exactly
+   * once, episodes of a series kept together and in order, the series
+   * themselves shuffled by the session's salt.
+   *
+   * It is a ring, not a fresh guess per video. Picking "most related to what
+   * is on screen" each time looks reasonable and behaves badly — relatedness
+   * is symmetric, so two similar videos each name the other as next and the
+   * viewer bounces between the same handful forever.
+   */
+  playbackOrder(salt: number) {
+    if (this.playbackOrderCache?.salt === salt) {
+      return this.playbackOrderCache.videos;
+    }
+
+    const videos = shuffleWithSeed(this.seriesClusters(), salt).flat();
+    this.playbackOrderCache = { salt, videos };
+    return videos;
+  }
+
+  /** The next video in that ring, wrapping round at the end. */
+  nextAfter(video: Video, salt: number): Video | null {
+    const order = this.playbackOrder(salt);
+    if (order.length < 2) {
+      return null;
+    }
+
+    const index = order.findIndex((candidate) => candidate.id === video.id);
+    // Watching something that is no longer approved: start the ring over.
+    return index < 0 ? order[0] : order[(index + 1) % order.length];
   }
 
   approve(id: string) {

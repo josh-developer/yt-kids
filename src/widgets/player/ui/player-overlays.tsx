@@ -10,11 +10,71 @@ import {
   WifiOff,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
-import type { MouseEvent } from "react";
+import type { MouseEvent, PointerEvent } from "react";
 import { thumbnailUrl } from "@/shared/api/youtube";
 import { SEEK_STEP_SECONDS } from "@/shared/config/app-config";
+import { useVideoLabels, type Video } from "@/entities/video";
 import type { PlayerFailure } from "../model/use-player-engine";
 import type { SeekDirection } from "../model/use-player-gestures";
+
+/** Hover/focus on a previous or next button, or nothing. */
+export type PreviewRequest = SeekDirection | null;
+
+/**
+ * Binds "show me what this button would play" to a button. Hover is limited to
+ * a real mouse — a finger hovers nothing, and letting touch through would pop
+ * the card up on the way to a tap that is about to navigate anyway.
+ */
+export function bindPreview(
+  direction: SeekDirection,
+  onPreview: (request: PreviewRequest) => void,
+) {
+  return {
+    onPointerEnter: (event: PointerEvent<HTMLButtonElement>) => {
+      if (event.pointerType === "mouse") {
+        onPreview(direction);
+      }
+    },
+    onPointerLeave: () => onPreview(null),
+    onFocus: () => onPreview(direction),
+    onBlur: () => onPreview(null),
+  };
+}
+
+/** The card that says what the previous or next button is pointing at. */
+export function VideoPreviewCard({
+  direction,
+  isVisible,
+  video,
+}: {
+  direction: SeekDirection;
+  isVisible: boolean;
+  video: Video;
+}) {
+  const t = useTranslations("Player");
+  const labels = useVideoLabels();
+
+  return (
+    <div
+      className={`player-preview ${direction} ${isVisible ? "" : "hidden"}`}
+      aria-hidden="true"
+    >
+      <span className="player-preview-label">
+        {direction === "next" ? t("upNext") : t("previousVideo")}
+      </span>
+      <span className="player-preview-card">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img alt="" src={thumbnailUrl(video.videoId)} />
+        <span className="player-preview-text">
+          <span className="player-preview-title">{labels.title(video)}</span>
+          <span className="player-preview-channel">
+            {labels.channel(video)}
+          </span>
+        </span>
+      </span>
+    </div>
+  );
+}
 
 /** Covers the embed while it boots, hiding YouTube's own loading chrome. */
 export function PlayerSkeleton({ isVisible }: { isVisible: boolean }) {
@@ -160,16 +220,19 @@ export function SideNavButtons({
   hasPrevious,
   onClick,
   onDoubleClick,
+  onPreview,
 }: {
   hasNext: boolean;
   hasPrevious: boolean;
   onClick: (direction: SeekDirection) => void;
   onDoubleClick: (direction: SeekDirection) => void;
+  onPreview: (request: PreviewRequest) => void;
 }) {
   const t = useTranslations("Player");
 
   function bind(direction: SeekDirection) {
     return {
+      ...bindPreview(direction, onPreview),
       onClick: (event: MouseEvent<HTMLButtonElement>) => {
         event.stopPropagation();
         onClick(direction);

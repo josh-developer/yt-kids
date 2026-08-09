@@ -51,7 +51,10 @@
     "parentSettings": "Ota-ona sozlamalari",
     "openSettings": "Sozlamalarni ochish",
     "recommendationsTitle": "Tavsiyalar",
-    "showRecommendations": "Tavsiyalarni ko'rsatish"
+    "showRecommendations": "Tavsiyalarni ko'rsatish",
+    "seriesTitle": "Shu turkumning davomi",
+    "similarTitle": "O'xshash videolar",
+    "moreTitle": "Boshqa videolar"
   },
   "Player": {
     "play": "Videoni yoqish",

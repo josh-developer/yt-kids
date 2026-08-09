@@ -6,6 +6,14 @@ export {
   customVideoId,
   matchesQuery,
 } from "./model/video-factory";
+export {
+  episodeNumberOf,
+  isSameSeries,
+  isSimilar,
+  signatureSimilarity,
+  titleSignature,
+} from "./model/video-similarity";
+export type { TitleSignature } from "./model/video-similarity";
 export { useVideoLabels } from "./model/use-video-labels";
 export type { VideoLabels } from "./model/use-video-labels";
 export { ChannelAvatar } from "./ui/channel-avatar";

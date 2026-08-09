@@ -17,6 +17,8 @@ import {
   SideNavButtons,
   TitleCover,
   UnmuteButton,
+  VideoPreviewCard,
+  type PreviewRequest,
 } from "./player-overlays";
 import { PlayerProgress } from "./player-progress";
 
@@ -51,6 +53,12 @@ export function SafeYouTubePlayer({
   const iframeRef = useRef<HTMLIFrameElement | null>(null);
   const [isLocked, setIsLocked] = useState(false);
   const [isRepeatOne, setIsRepeatOne] = useState(false);
+  // Which button is being hovered, plus a separate visibility flag: the card
+  // stays mounted through its fade-out, and its video is re-read every render
+  // so a preview under the cursor updates itself after the jump.
+  const [previewDirection, setPreviewDirection] =
+    useState<PreviewRequest>(null);
+  const [isPreviewVisible, setIsPreviewVisible] = useState(false);
   const repeatOneRef = useRef(false);
   const hasNextRef = useRef(false);
 
@@ -206,8 +214,24 @@ export function SafeYouTubePlayer({
     });
   }
 
+  function requestPreview(request: PreviewRequest) {
+    if (request) {
+      setPreviewDirection(request);
+      setIsPreviewVisible(true);
+      return;
+    }
+
+    setIsPreviewVisible(false);
+  }
+
   const showControls = controls.isVisible && !isLocked;
   const hasFailed = engine.failure !== null;
+  const previewVideo =
+    previewDirection === "previous"
+      ? previousVideo
+      : previewDirection === "next"
+        ? nextVideo
+        : null;
 
   return (
     <div
@@ -269,8 +293,17 @@ export function SafeYouTubePlayer({
           hasPrevious={Boolean(previousVideo)}
           onClick={gestures.handleSideNavClick}
           onDoubleClick={gestures.handleSideNavDoubleClick}
+          onPreview={requestPreview}
         />
       )}
+
+      {previewVideo && previewDirection ? (
+        <VideoPreviewCard
+          direction={previewDirection}
+          isVisible={isPreviewVisible && showControls}
+          video={previewVideo}
+        />
+      ) : null}
 
       {/*
         Only before the first frame. Dropping it over every pause meant the
@@ -327,6 +360,7 @@ export function SafeYouTubePlayer({
               engine.playPause();
             }}
             onPrevious={onPreviousVideo}
+            onPreview={requestPreview}
             onSeekBy={seekBy}
             onToggleFullscreen={() => {
               revealControls();

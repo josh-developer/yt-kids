@@ -1,3 +1,4 @@
+import type { RecommendationGroup } from "@/entities/library";
 import {
   ChannelAvatar,
   useVideoLabels,
@@ -10,7 +11,7 @@ export function WatchPage({
   isTvBrowser,
   nextVideo,
   previousVideo,
-  recommendations,
+  recommendationGroups,
   showRecommendations,
   video,
   onDurationResolved,
@@ -23,7 +24,7 @@ export function WatchPage({
   isTvBrowser: boolean;
   nextVideo: Video | null;
   previousVideo: Video | null;
-  recommendations: Video[];
+  recommendationGroups: RecommendationGroup[];
   showRecommendations: boolean;
   video: Video;
   onDurationResolved: (video: Video, seconds: number) => void;
@@ -61,8 +62,8 @@ export function WatchPage({
       </article>
 
       <Recommendations
+        groups={recommendationGroups}
         isEnabled={showRecommendations}
-        videos={recommendations}
         onOpenVideo={onOpenVideo}
         onToggle={onToggleRecommendations}
       />

@@ -89,10 +89,15 @@ export function KidsTubeApp({
   const previousEntry = currentVideo
     ? watchStack.previous(currentVideo.id, lookup)
     : null;
-  const recommendations = currentVideo
-    ? library.recommendationsFor(currentVideo, recommendationSeed)
+  const recommendationGroups = currentVideo
+    ? library.recommendationGroupsFor(currentVideo, recommendationSeed)
     : [];
-  const nextVideo = recommendations[0] ?? null;
+  // The next button walks one stable ring over the whole library — seeded once
+  // per session, not re-picked per video — so it plays every approved video
+  // before coming back to any of them.
+  const nextVideo = currentVideo
+    ? library.nextAfter(currentVideo, shuffleSalt)
+    : null;
   const homeVideos = library.feed(homeQuery, shuffleSalt);
 
   useEffect(() => {
@@ -185,7 +190,7 @@ export function KidsTubeApp({
               isTvBrowser={isTvBrowser}
               nextVideo={nextVideo}
               previousVideo={previousEntry?.video ?? null}
-              recommendations={recommendations}
+              recommendationGroups={recommendationGroups}
               showRecommendations={recommendationsPreference.isEnabled}
               video={currentVideo}
               onDurationResolved={(video, seconds) =>

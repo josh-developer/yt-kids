@@ -51,7 +51,10 @@
     "parentSettings": "Parent settings",
     "openSettings": "Open settings",
     "recommendationsTitle": "Recommendations",
-    "showRecommendations": "Show recommendations"
+    "showRecommendations": "Show recommendations",
+    "seriesTitle": "Next in this series",
+    "similarTitle": "Similar videos",
+    "moreTitle": "More videos"
   },
   "Player": {
     "play": "Play video",
