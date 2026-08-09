@@ -83,14 +83,13 @@ export default async function LocaleLayout({
     <html lang={locale}>
       <head>
         {/*
-          The embed's first frame waits on a DNS lookup and a TLS handshake to
-          hosts this document already knows it will need. Opening them during
-          the first paint takes that off the player's critical path.
+          Thumbnails are on every screen, so this connection is always used.
+          The embed's own hosts are deliberately not here: nothing on the home
+          or settings screens requests them, and an unused preconnect holds a
+          socket open for nothing. `warmYouTubeOrigins` adds them the moment a
+          player mounts, which is early enough to still be ahead of the embed.
         */}
-        <link rel="preconnect" href="https://www.youtube-nocookie.com" />
         <link rel="preconnect" href="https://i.ytimg.com" />
-        <link rel="preconnect" href="https://www.youtube.com" />
-        <link rel="dns-prefetch" href="https://googlevideo.com" />
       </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} ${nunitoBrand.variable} antialiased`}

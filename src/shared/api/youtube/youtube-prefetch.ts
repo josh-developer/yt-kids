@@ -13,11 +13,15 @@ import { thumbnailUrl } from "./youtube-urls";
  * simply pays the cost later, exactly as it does today.
  */
 
+/**
+ * Only what an embed really contacts. `www.youtube.com` and the font host are
+ * deliberately absent: the embed is served from the nocookie domain, and a
+ * preconnect that goes unused holds a socket open for nothing — which is what
+ * an audit reports against you.
+ */
 const MEDIA_ORIGINS = [
   "https://www.youtube-nocookie.com",
-  "https://www.youtube.com",
   "https://i.ytimg.com",
-  "https://fonts.gstatic.com",
 ];
 
 const warmedVideoIds = new Set<string>();
