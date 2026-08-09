@@ -83,7 +83,11 @@
     "blockedBody": "YouTube uni ilovada ochmadi. Qayta urinib ko'ring yoki boshqa video tanlang.",
     "unreachableTitle": "YouTube bilan aloqa yo'q",
     "unreachableBody": "Internetni tekshiring, VPN yoqilgan bo'lsa o'chiring.",
-    "upNext": "Keyingisi"
+    "upNext": "Keyingisi",
+    "replay": "Qaytadan ko'rish",
+    "cancelAutoplay": "Shu yerda qolish",
+    "showCaptions": "Taglavhalarni yoqish",
+    "hideCaptions": "Taglavhalarni o'chirish"
   },
   "Settings": {
     "title": "Ota-ona sozlamalari",

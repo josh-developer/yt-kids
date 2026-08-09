@@ -77,9 +77,88 @@ export function VideoPreviewCard({
   );
 }
 
+/**
+ * The end-of-video screen: what plays next, how long until it does, and the
+ * two ways out — start it now, or watch this one again. The ring drains as the
+ * count falls so the wait is visible rather than a number to be read.
+ */
+export function UpNextCountdown({
+  secondsLeft,
+  totalSeconds,
+  video,
+  onCancel,
+  onPlayNow,
+  onReplay,
+}: {
+  secondsLeft: number;
+  totalSeconds: number;
+  video: Video;
+  onCancel: () => void;
+  onPlayNow: () => void;
+  onReplay: () => void;
+}) {
+  const t = useTranslations("Player");
+  const labels = useVideoLabels();
+  const progress = Math.max(0, Math.min(1, secondsLeft / totalSeconds));
+
   function stop(event: MouseEvent<HTMLElement>) {
     event.stopPropagation();
   }
+
+  return (
+    <div className={styles.upNext} role="dialog" aria-label={t("upNext")}>
+      <button
+        className={styles.upNextCard}
+        type="button"
+        onClick={(event) => {
+          stop(event);
+          onPlayNow();
+        }}
+        onDoubleClick={stop}
+      >
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img alt="" src={thumbnailUrl(video.videoId)} />
+        <span className={styles.upNextText}>
+          <span className={styles.upNextLabel}>{t("upNext")}</span>
+          <span className={styles.upNextTitle}>{labels.title(video)}</span>
+        </span>
+        <span
+          className={styles.upNextRing}
+          style={{ "--countdown-progress": progress }}
+          aria-hidden="true"
+        >
+          {secondsLeft}
+        </span>
+      </button>
+
+      <div className={styles.upNextActions}>
+        <button
+          className={styles.upNextButton}
+          type="button"
+          onClick={(event) => {
+            stop(event);
+            onReplay();
+          }}
+          onDoubleClick={stop}
+        >
+          <RotateCcw size={18} />
+          {t("replay")}
+        </button>
+        <button
+          className={styles.upNextButton}
+          type="button"
+          onClick={(event) => {
+            stop(event);
+            onCancel();
+          }}
+          onDoubleClick={stop}
+        >
+          {t("cancelAutoplay")}
+        </button>
+      </div>
+    </div>
+  );
+}
 
 /** Covers the embed while it boots, hiding YouTube's own loading chrome. */
 export function PlayerSkeleton({ isVisible }: { isVisible: boolean }) {

@@ -1,6 +1,8 @@
 import { useTranslations } from "next-intl";
 import { useEffect, useRef, useState } from "react";
 import { prefetchVideo } from "@/shared/api/youtube";
+import { AUTOPLAY_COUNTDOWN_SECONDS } from "@/shared/config/app-config";
+import { TimerBag } from "@/shared/lib/timers";
 import { useVideoLabels, type Video } from "@/entities/video";
 import { useControlsVisibility } from "../model/use-controls-visibility";
 import { usePlayerEngine } from "../model/use-player-engine";
@@ -17,6 +19,7 @@ import {
   SeekHints,
   SideNavButtons,
   TitleCover,
+  UpNextCountdown,
   UnmuteButton,
   VideoPreviewCard,
   type PreviewRequest,
@@ -63,6 +66,15 @@ export function SafeYouTubePlayer({
   const [isPreviewVisible, setIsPreviewVisible] = useState(false);
   const repeatOneRef = useRef(false);
   const hasNextRef = useRef(false);
+  // Counts down after the video ends; null whenever nothing is pending.
+  const [autoplaySecondsLeft, setAutoplaySecondsLeft] = useState<number | null>(
+    null,
+  );
+  const autoplayTimers = useRef(new TimerBag());
+  // `onEnded` keeps arriving while the video sits at its last frame, so the
+  // countdown has to know it is already running.
+  const isCountingDownRef = useRef(false);
+  const secondsLeftRef = useRef(0);
 
   const controls = useControlsVisibility();
   const fullscreen = usePlayerFullscreen({
@@ -81,11 +93,59 @@ export function SafeYouTubePlayer({
       }
 
       if (hasNextRef.current) {
-        onNextVideo();
+        startAutoplayCountdown();
       }
     },
     onPlayingChange: (isPlaying) => controls.show({ autoHide: isPlaying }),
   });
+
+  /**
+   * The gap between one video ending and the next starting. The next video is
+   * fetched the moment the count begins, so the wait doubles as its head start.
+   */
+  function startAutoplayCountdown() {
+    if (!nextVideo || isCountingDownRef.current) {
+      return;
+    }
+
+    isCountingDownRef.current = true;
+    secondsLeftRef.current = AUTOPLAY_COUNTDOWN_SECONDS;
+    prefetchVideo(nextVideo.videoId);
+    controls.pin();
+    setAutoplaySecondsLeft(AUTOPLAY_COUNTDOWN_SECONDS);
+
+    autoplayTimers.current.interval(
+      "countdown",
+      () => {
+        secondsLeftRef.current -= 1;
+
+        if (secondsLeftRef.current > 0) {
+          setAutoplaySecondsLeft(secondsLeftRef.current);
+          return;
+        }
+
+        cancelAutoplayCountdown();
+        onNextVideo();
+      },
+      1000,
+    );
+  }
+
+  function cancelAutoplayCountdown() {
+    autoplayTimers.current.clear("countdown");
+    isCountingDownRef.current = false;
+    setAutoplaySecondsLeft(null);
+  }
+
+  // Leaving a video ends any countdown it left running.
+  useEffect(() => {
+    const timers = autoplayTimers.current;
+    return () => {
+      timers.clearAll();
+      isCountingDownRef.current = false;
+      setAutoplaySecondsLeft(null);
+    };
+  }, [video.id]);
 
   useEffect(() => {
     repeatOneRef.current = isRepeatOne;
@@ -316,6 +376,23 @@ export function SafeYouTubePlayer({
         thumbnail flashed in on each pause — and on every buffer stall.
       */}
       {engine.hasStarted ? null : <PlayerPoster videoId={video.videoId} />}
+
+      {autoplaySecondsLeft !== null && nextVideo ? (
+        <UpNextCountdown
+          secondsLeft={autoplaySecondsLeft}
+          totalSeconds={AUTOPLAY_COUNTDOWN_SECONDS}
+          video={nextVideo}
+          onCancel={cancelAutoplayCountdown}
+          onPlayNow={() => {
+            cancelAutoplayCountdown();
+            onNextVideo();
+          }}
+          onReplay={() => {
+            cancelAutoplayCountdown();
+            engine.restart();
+          }}
+        />
+      ) : null}
 
       {engine.failure ? (
         <PlayerFailureNotice

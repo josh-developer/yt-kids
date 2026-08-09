@@ -878,3 +878,127 @@
   }
 }
 
+/*
+ * The end-of-video screen. It sits above the controls but below the failure
+ * notice, and its ring is a conic gradient driven by `--countdown-progress`,
+ * so the count animates without a repaint per frame.
+ */
+.upNext {
+  position: absolute;
+  inset: 0;
+  z-index: 8;
+  display: grid;
+  align-content: center;
+  justify-items: center;
+  gap: 14px;
+  padding: 20px;
+  background: rgba(6, 6, 8, 0.82);
+  backdrop-filter: blur(6px);
+}
+
+.upNextCard {
+  display: grid;
+  grid-template-columns: clamp(96px, 18vw, 168px) minmax(0, 1fr) auto;
+  gap: 14px;
+  align-items: center;
+  width: min(520px, 92%);
+  padding: 10px;
+  border: 0;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+  text-align: left;
+  transition: background var(--controls-fade) var(--controls-ease);
+}
+
+.upNextCard:hover,
+.upNextCard:focus-visible {
+  background: rgba(255, 255, 255, 0.18);
+}
+
+.upNextCard img {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  border-radius: 8px;
+  background: #1c1c1c;
+}
+
+.upNextText {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+
+.upNextLabel {
+  color: rgba(255, 255, 255, 0.66);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.upNextTitle {
+  display: -webkit-box;
+  overflow: hidden;
+  line-clamp: 2;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  font-size: clamp(14px, 1.8vw, 17px);
+  font-weight: 800;
+  line-height: 1.25;
+}
+
+.upNextRing {
+  position: relative;
+  isolation: isolate;
+  display: grid;
+  place-items: center;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background:
+    conic-gradient(
+      var(--brand-red) calc(var(--countdown-progress, 1) * 360deg),
+      rgba(255, 255, 255, 0.18) 0
+    );
+  color: white;
+  font-size: 16px;
+  font-weight: 900;
+}
+
+/* The number sits on its own disc so the ring stays a ring. */
+.upNextRing::before {
+  content: "";
+  position: absolute;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: rgba(12, 12, 14, 0.92);
+  z-index: -1;
+}
+
+.upNextActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: center;
+}
+
+.upNextButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  min-height: 38px;
+  padding: 0 16px;
+  border: 0;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.14);
+  color: white;
+  font-weight: 800;
+}
+
+.upNextButton:hover,
+.upNextButton:focus-visible {
+  background: rgba(255, 255, 255, 0.24);
+}

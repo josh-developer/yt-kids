@@ -83,7 +83,11 @@
     "blockedBody": "YouTube would not open it in the app. Try again, or pick another video.",
     "unreachableTitle": "Cannot reach YouTube",
     "unreachableBody": "Check the internet connection, and turn off a VPN if one is on.",
-    "upNext": "Up next"
+    "upNext": "Up next",
+    "replay": "Watch again",
+    "cancelAutoplay": "Stay here",
+    "showCaptions": "Show captions",
+    "hideCaptions": "Hide captions"
   },
   "Settings": {
     "title": "Parent settings",
