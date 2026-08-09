@@ -28,7 +28,15 @@ export default defineConfig(async () => {
   const { cloudflare } = await import("@cloudflare/vite-plugin");
 
   return {
+    // The RSC graph references next-intl's client provider by its real file
+    // path, so the browser must not get a second, pre-bundled copy: two module
+    // instances mean two `IntlContext`s and "No intl context found" on every
+    // `useTranslations` call.
+    optimizeDeps: {
+      exclude: ["next-intl", "use-intl"],
+    },
     resolve: {
+      dedupe: ["next-intl", "use-intl", "react", "react-dom"],
       alias: {
         // Mirrors the tsconfig `@/*` path. Declared here too so resolution does
         // not depend on when a tool last read tsconfig.json.
