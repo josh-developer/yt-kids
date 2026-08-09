@@ -14,6 +14,15 @@ import type { RecommendationGroup, StoredLibrary } from "./types";
 import type { VideoCatalog } from "./video-catalog";
 
 /**
+ * A title's signature never changes, and a library value is replaced on every
+ * edit — approving a video, backfilling a duration. Keeping these outside the
+ * instance is what stops each edit from re-deriving all of it.
+ */
+const signatureCache = new Map<string, TitleSignature>();
+/** Keyed by the `selectedIds` array itself, which `withState` reuses. */
+const clusterCache = new WeakMap<readonly string[], Video[][]>();
+
+/**
  * Serial episodes are offered in reading order starting from the one after the
  * current episode, so "next" on episode 4 is episode 5 rather than a random
  * one, and finishing the last episode wraps to the beginning of the series.
@@ -61,9 +70,6 @@ export class VideoLibrary {
   readonly approvedVideos: Video[];
   private readonly videoById: Map<string, Video>;
   private readonly approvedIds: Set<string>;
-  /** Derived views, kept because the library value itself never changes. */
-  private readonly signatures = new Map<string, TitleSignature>();
-  private seriesClustersCache: Video[][] | null = null;
   private playbackOrderCache: { salt: number; videos: Video[] } | null = null;
 
   private constructor(
@@ -126,24 +132,24 @@ export class VideoLibrary {
     );
   }
 
+  /** Title signatures are re-read on every render; each is only worth one pass. */
+  private signatureOf(video: Video) {
+    const cached = signatureCache.get(video.id);
+    if (cached) {
+      return cached;
+    }
+
+    const signature = titleSignature(video.title);
+    signatureCache.set(video.id, signature);
+    return signature;
+  }
+
   /**
    * The sidebar for one video, split into the rest of its series, videos with
    * related titles, and the remaining library shuffled. Only the last group is
    * randomised: an episode list that reshuffled on every video would be
    * useless for watching a serial in order.
    */
-  /** Title signatures are re-read on every render; each is only worth one pass. */
-  private signatureOf(video: Video) {
-    const cached = this.signatures.get(video.id);
-    if (cached) {
-      return cached;
-    }
-
-    const signature = titleSignature(video.title);
-    this.signatures.set(video.id, signature);
-    return signature;
-  }
-
   recommendationGroupsFor(video: Video, salt: number): RecommendationGroup[] {
     const signature = this.signatureOf(video);
     const series: Video[] = [];
@@ -190,8 +196,9 @@ export class VideoLibrary {
 
   /** Approved videos bundled into series, each bundle in episode order. */
   private seriesClusters() {
-    if (this.seriesClustersCache) {
-      return this.seriesClustersCache;
+    const cached = clusterCache.get(this.state.selectedIds);
+    if (cached) {
+      return cached;
     }
 
     const clusters: { signature: TitleSignature; videos: Video[] }[] = [];
@@ -210,11 +217,12 @@ export class VideoLibrary {
       clusters.push({ signature, videos: [video] });
     }
 
-    this.seriesClustersCache = clusters.map((cluster) =>
+    const ordered = clusters.map((cluster) =>
       orderEpisodes(cluster.videos, null),
     );
 
-    return this.seriesClustersCache;
+    clusterCache.set(this.state.selectedIds, ordered);
+    return ordered;
   }
 
   /**
