@@ -76,6 +76,10 @@ export function usePlayerEngine({
   const hasTelemetryRef = useRef(false);
   const hasFrameLoadedRef = useRef(false);
   const captionsRef = useRef(areCaptionsEnabled);
+  // WebKit grants audio-autoplay page-wide once the viewer has unmuted via a
+  // real gesture, not just to the element that was tapped — so once this
+  // flips, later videos' boots can ask for sound instead of starting muted.
+  const hasUnmutedGestureRef = useRef(false);
   const videoRef = useRef(video);
   const callbacks = useRef({ onDurationResolved, onEnded, onPlayingChange });
 
@@ -313,23 +317,33 @@ export function usePlayerEngine({
     );
   }
 
-  function sendPlay() {
+  /**
+   * `allowUnmute` must only be true when this runs synchronously inside a
+   * real user gesture (a click/tap handler). WebKit's rule for iOS Safari is
+   * stricter than "playback is running": unmuting a video from script
+   * outside a user gesture doesn't just get ignored, it pauses the video
+   * outright. Autoplay (frame load, boot timer, up-next countdown) never has
+   * a gesture behind it, so those paths must stay muted and let the
+   * `UnmuteButton` overlay hand the real gesture back to the viewer.
+   */
+  function sendPlay(allowUnmute: boolean) {
     primeTelemetry();
     player.setVolume(volume);
-    // Browsers only allow autoplay to start muted, and refuse a scripted
-    // unmute until playback is actually running — so always start muted and
-    // lift it immediately afterwards when the viewer wants sound.
     player.mute();
     player.play();
-    if (!isMuted && volume > 0) {
+    if (allowUnmute && !isMuted && volume > 0) {
       player.unMute();
+    } else if (!allowUnmute && !isMuted && volume > 0) {
+      // Reflect that playback is actually muted right now, so the overlay
+      // shows up and the viewer's own tap becomes the unmuting gesture.
+      setIsMuted(true);
     }
   }
 
   /** Autoplay is racy right after load, so the play command is sent twice. */
-  function schedulePlay() {
-    sendPlay();
-    timers.current.timeout("play", sendPlay, PLAY_RETRY_MS);
+  function schedulePlay(allowUnmute: boolean) {
+    sendPlay(allowUnmute);
+    timers.current.timeout("play", () => sendPlay(allowUnmute), PLAY_RETRY_MS);
   }
 
   /**
@@ -341,7 +355,7 @@ export function usePlayerEngine({
     startTelemetryPolling();
     player.setVolume(volume);
     if (shouldAutoplay && isPlayingRef.current) {
-      schedulePlay();
+      schedulePlay(hasUnmutedGestureRef.current);
     }
   }
 
@@ -359,7 +373,7 @@ export function usePlayerEngine({
 
     setShouldAutoplay(true);
     setIsPlaying(true);
-    schedulePlay();
+    schedulePlay(true);
   }
 
   function toggleCaptions() {
@@ -372,6 +386,7 @@ export function usePlayerEngine({
   function toggleMute() {
     if (isMuted) {
       player.unMute();
+      hasUnmutedGestureRef.current = true;
     } else {
       player.mute();
     }
@@ -390,6 +405,7 @@ export function usePlayerEngine({
     }
 
     player.unMute();
+    hasUnmutedGestureRef.current = true;
     setIsMuted(false);
   }
 
