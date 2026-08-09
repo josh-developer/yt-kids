@@ -52,16 +52,32 @@ export function VirtualGrid<Item>({
       setRowGap(Number.parseFloat(style.rowGap) || 0);
     };
 
+    // `getComputedStyle` and `offsetTop` both force the browser to settle
+    // layout. A resize fires them in bursts and the observer fires again for
+    // every row the virtualiser mounts, so measuring is held to one a frame.
+    let pendingFrame = 0;
+    const scheduleMeasure = () => {
+      if (pendingFrame) {
+        return;
+      }
+
+      pendingFrame = window.requestAnimationFrame(() => {
+        pendingFrame = 0;
+        measure();
+      });
+    };
+
     measure();
     const frame = window.requestAnimationFrame(() => setIsMeasured(true));
-    const resizeObserver = new ResizeObserver(measure);
+    const resizeObserver = new ResizeObserver(scheduleMeasure);
     resizeObserver.observe(grid);
-    window.addEventListener("resize", measure);
+    window.addEventListener("resize", scheduleMeasure);
 
     return () => {
       window.cancelAnimationFrame(frame);
+      window.cancelAnimationFrame(pendingFrame);
       resizeObserver.disconnect();
-      window.removeEventListener("resize", measure);
+      window.removeEventListener("resize", scheduleMeasure);
     };
   }, []);
 

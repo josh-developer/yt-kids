@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Geist, Geist_Mono, Nunito } from "next/font/google";
+import { Geist, Nunito } from "next/font/google";
 import { notFound } from "next/navigation";
 import type { Locale } from "next-intl";
 import { hasLocale, NextIntlClientProvider } from "next-intl";
@@ -10,11 +10,6 @@ import { PwaRegistrar } from "../_providers/pwa-registrar";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
   subsets: ["latin"],
 });
 
@@ -90,7 +85,7 @@ export default async function LocaleLayout({
         <link rel="preconnect" href="https://i.ytimg.com" />
       </head>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} ${nunitoBrand.variable} antialiased`}
+        className={`${geistSans.variable} ${nunitoBrand.variable} antialiased`}
       >
         <NextIntlClientProvider>
           <PwaRegistrar />
