@@ -217,22 +217,27 @@ export function PlayerPoster({ videoId }: { videoId: string }) {
 
 export function BigPlayButton({
   isPlaying,
+  isVisible,
   onClick,
 }: {
   isPlaying: boolean;
+  isVisible: boolean;
   onClick: () => void;
 }) {
   const t = useTranslations("Player");
 
   return (
     <button
-      className="big-play-button"
+      className={`big-play-button ${isVisible ? "" : "hidden"}`}
       onClick={(event) => {
         event.stopPropagation();
         onClick();
       }}
       onDoubleClick={(event) => event.stopPropagation()}
       type="button"
+      // Faded out rather than unmounted, so it must leave the tab order too.
+      tabIndex={isVisible ? undefined : -1}
+      aria-hidden={isVisible ? undefined : true}
       aria-label={isPlaying ? t("pause") : t("play")}
     >
       {isPlaying ? (

@@ -82,8 +82,51 @@ export function SafeYouTubePlayer({
     hasNextRef.current = Boolean(nextVideo);
   }, [isRepeatOne, nextVideo]);
 
+  /**
+   * Every deliberate press goes through here, and what it means depends on the
+   * device. A tap pins the controls — they stay up until the next tap asks
+   * them to go. A mouse press only re-arms the timer, because the mouse has
+   * its own way of dismissing them by moving away; pinning on a mouse press
+   * strands the controls in fullscreen, where there is no "away" to move to
+   * and a viewer who then sits still never gets the video back.
+   */
   function revealControls() {
+    if (gestures.isMousePointer()) {
+      controls.show({ autoHide: engine.isPlaying });
+      return;
+    }
+
+    controls.pin();
+  }
+
+  /**
+   * Hover behaviour, and only hover: a real mouse over the video keeps the
+   * controls up and takes them away again when it leaves, the way a desktop
+   * player is expected to behave. Touch is deliberately excluded — a finger
+   * "enters" and "leaves" on every tap, so letting it through here would fight
+   * the tap-to-toggle handling and make the controls flicker on phones.
+   */
+  function isHoverPointer(pointerType: string) {
+    return pointerType === "mouse" && !isLocked;
+  }
+
+  function handleHoverMove(pointerType: string) {
+    if (!isHoverPointer(pointerType)) {
+      return;
+    }
+
+    // Still auto-hides after a while of a motionless mouse, as YouTube does.
     controls.show({ autoHide: engine.isPlaying });
+  }
+
+  function handleHoverLeave(pointerType: string) {
+    // A paused video keeps its controls: there is nothing playing to get out
+    // of the way of, and the viewer is most likely coming back to them.
+    if (!isHoverPointer(pointerType) || !engine.isPlaying) {
+      return;
+    }
+
+    controls.hide();
   }
 
   function seekBy(seconds: number) {
@@ -154,7 +197,7 @@ export function SafeYouTubePlayer({
   function toggleLock() {
     setIsLocked((locked) => {
       if (locked) {
-        controls.show({ autoHide: engine.isPlaying });
+        revealControls();
       } else {
         controls.hide();
       }
@@ -175,7 +218,9 @@ export function SafeYouTubePlayer({
       onDoubleClick={gestures.handleFrameDoubleClick}
       onKeyDown={(event) => handlePlayerKeyDown(event, { isTvBrowser })}
       onPointerDown={gestures.handlePointerDown}
-      onPointerMove={isLocked ? undefined : revealControls}
+      onPointerEnter={(event) => handleHoverMove(event.pointerType)}
+      onPointerMove={(event) => handleHoverMove(event.pointerType)}
+      onPointerLeave={(event) => handleHoverLeave(event.pointerType)}
       onPointerUp={gestures.handlePointerUp}
       onPointerCancel={gestures.handlePointerCancel}
       role={isTvBrowser ? "region" : undefined}
@@ -242,9 +287,14 @@ export function SafeYouTubePlayer({
         />
       ) : null}
 
-      {!isLocked && (!engine.isPlaying || controls.isVisible) ? (
+      {/*
+        Kept mounted so it fades with the rest of the controls; unmounting it
+        made it pop in and out.
+      */}
+      {!isLocked && !hasFailed ? (
         <BigPlayButton
           isPlaying={engine.isPlaying}
+          isVisible={!engine.isPlaying || controls.isVisible}
           onClick={() => {
             revealControls();
             engine.playPause();

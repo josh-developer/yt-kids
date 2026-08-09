@@ -527,6 +527,9 @@ button {
 }
 
 .player-box {
+  /* One timing for the whole control layer, so nothing lags behind. */
+  --controls-fade: 200ms;
+  --controls-ease: cubic-bezier(0.2, 0, 0.2, 1);
   position: relative;
   width: min(100%, 1120px);
   max-height: min(74vh, 630px);
@@ -545,6 +548,45 @@ button {
 .player-box * {
   user-select: none;
   -webkit-user-select: none;
+}
+
+/*
+ * The scrim under the controls. It rides the same `.controls-hidden` flag as
+ * everything else on the surface, so the whole control layer — scrims, bar,
+ * progress, side buttons, centre button — fades in and out as one piece
+ * instead of a handful of elements each doing their own thing.
+ */
+.player-box::after {
+  content: "";
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 2;
+  height: clamp(88px, 22%, 148px);
+  pointer-events: none;
+  background: linear-gradient(
+    0deg,
+    rgba(0, 0, 0, 0.78) 0%,
+    rgba(0, 0, 0, 0.42) 46%,
+    rgba(0, 0, 0, 0) 100%
+  );
+  opacity: 1;
+  transition: opacity var(--controls-fade) var(--controls-ease);
+}
+
+.player-box.controls-hidden::after {
+  opacity: 0;
+}
+
+/* Once the controls have faded in fullscreen the pointer goes with them. */
+.player-box:fullscreen.controls-hidden,
+.player-box.virtual-fullscreen.controls-hidden {
+  cursor: none;
+}
+
+.player-box:-webkit-full-screen.controls-hidden {
+  cursor: none;
 }
 
 /*
@@ -648,7 +690,7 @@ button {
     rgba(0, 0, 0, 0) 100%
   );
   opacity: 1;
-  transition: opacity 180ms ease;
+  transition: opacity var(--controls-fade) var(--controls-ease);
 }
 
 .youtube-title-cover.hidden {
@@ -784,7 +826,17 @@ button {
   background: linear-gradient(135deg, var(--brand-red), #ff7147);
   color: white;
   box-shadow: 0 12px 34px rgba(0, 0, 0, 0.36);
-  transform: translate(-50%, -50%);
+  opacity: 1;
+  transform: translate(-50%, -50%) scale(1);
+  transition:
+    opacity var(--controls-fade) var(--controls-ease),
+    transform var(--controls-fade) var(--controls-ease);
+}
+
+.big-play-button.hidden {
+  opacity: 0;
+  transform: translate(-50%, -50%) scale(0.82);
+  pointer-events: none;
 }
 
 .big-play-button:disabled,
@@ -813,14 +865,14 @@ button {
   opacity: 1;
   transform: translateY(0);
   transition:
-    opacity 180ms ease,
-    transform 180ms ease;
+    opacity var(--controls-fade) var(--controls-ease),
+    transform var(--controls-fade) var(--controls-ease);
 }
 
 .controls-hidden .safe-player-controls,
 .controls-hidden .player-progress-wrap {
   opacity: 0;
-  transform: translateY(8px);
+  transform: translateY(12px);
   pointer-events: none;
 }
 
@@ -839,6 +891,10 @@ button {
   color: white;
   box-shadow: 0 8px 26px rgba(0, 0, 0, 0.24);
   backdrop-filter: blur(12px);
+  opacity: 1;
+  transition:
+    opacity var(--controls-fade) var(--controls-ease),
+    transform var(--controls-fade) var(--controls-ease);
 }
 
 .footer-transport-controls {
@@ -970,9 +1026,9 @@ button {
   opacity: 0.92;
   pointer-events: auto;
   transition:
-    opacity 180ms ease,
-    transform 180ms ease,
-    background 180ms ease;
+    opacity var(--controls-fade) var(--controls-ease),
+    transform var(--controls-fade) var(--controls-ease),
+    background var(--controls-fade) var(--controls-ease);
 }
 
 .side-player-button:hover,
@@ -992,6 +1048,31 @@ button {
   transform: scale(0.96);
 }
 
+/*
+ * What the previous / next button is pointing at. Decorative and never
+ * clickable: it sits over the video only while a mouse rests on the button.
+ */
+.player-preview {
+  position: absolute;
+  bottom: 92px;
+  z-index: 6;
+  display: grid;
+  gap: 6px;
+  width: min(268px, 46%);
+  padding: 9px;
+  border-radius: 10px;
+  background: rgba(12, 12, 12, 0.86);
+  color: white;
+  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(12px);
+  pointer-events: none;
+  opacity: 1;
+  transform: translateY(0);
+  transition:
+    opacity var(--controls-fade) var(--controls-ease),
+    transform var(--controls-fade) var(--controls-ease);
+}
+
 .player-progress-wrap {
   position: absolute;
   left: 12px;
@@ -1005,8 +1086,8 @@ button {
   opacity: 1;
   transform: translateY(0);
   transition:
-    opacity 180ms ease,
-    transform 180ms ease;
+    opacity var(--controls-fade) var(--controls-ease),
+    transform var(--controls-fade) var(--controls-ease);
 }
 
 .player-progress {
@@ -1615,6 +1696,18 @@ button {
   opacity: 1;
   transform: translateY(0);
   pointer-events: auto;
+}
+
+/* A remote has no pointer, so the TV keeps the controls — and their scrim. */
+.tv-mode .player-box.controls-hidden::after,
+.tv-mode .player-box:focus-within::after {
+  opacity: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .player-box {
+    --controls-fade: 1ms;
+  }
 }
 
 .tv-mode .video-card:focus-visible,
