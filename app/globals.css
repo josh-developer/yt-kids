@@ -547,6 +547,36 @@ button {
   -webkit-user-select: none;
 }
 
+/*
+ * TV browsers run years behind the phones and desktops: several still have no
+ * `aspect-ratio`, and there a `.player-box` with no height of its own collapses
+ * to zero — the video is on the page but a strip of nothing tall, which is why
+ * TV sets could not play anything. The padding trick reserves the same 16:9.
+ * Declared before the fullscreen rules so those still override it.
+ */
+@supports not (aspect-ratio: 16 / 9) {
+  .player-box {
+    height: 0;
+    padding-bottom: 56.25%;
+    max-height: none;
+  }
+
+  .youtube-mount {
+    position: absolute;
+    inset: 0;
+  }
+
+  .thumbnail {
+    height: 0;
+    padding-bottom: 56.25%;
+  }
+
+  .thumbnail img {
+    position: absolute;
+    inset: 0;
+  }
+}
+
 .player-box:fullscreen,
 .player-box:-webkit-full-screen {
   display: grid;
@@ -566,6 +596,8 @@ button {
   display: grid;
   place-items: center;
   width: 100vw;
+  /* `dvh` first fails on older TV and mobile browsers; `vh` is the floor. */
+  height: 100vh;
   height: 100dvh;
   max-height: none;
   aspect-ratio: auto;
