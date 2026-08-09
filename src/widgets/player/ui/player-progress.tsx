@@ -1,21 +1,27 @@
 import { useTranslations } from "next-intl";
-import { useRef } from "react";
+import { useRef, useSyncExternalStore } from "react";
 import type { PointerEvent } from "react";
 import { formatTimestamp } from "@/shared/lib/time";
+import type { PlaybackClock } from "../model/playback-clock";
 import styles from "./player.module.css";
 
+/**
+ * The one component that redraws as the video plays: it subscribes to the play
+ * head instead of taking it as a prop, so a tick stops here.
+ */
 export function PlayerProgress({
-  currentTime,
+  clock,
   durationSeconds,
   onSeekToRatio,
   onScrubEnd,
 }: {
-  currentTime: number;
+  clock: PlaybackClock;
   durationSeconds: number;
   onSeekToRatio: (ratio: number) => void;
   onScrubEnd: () => void;
 }) {
   const t = useTranslations("Player");
+  const currentTime = useSyncExternalStore(clock.subscribe, clock.get, clock.get);
   const isScrubbing = useRef(false);
   const hasDuration = durationSeconds > 0;
 

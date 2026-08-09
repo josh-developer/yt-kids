@@ -420,7 +420,7 @@ export function SafeYouTubePlayer({
       {isLocked ? null : (
         <>
           <PlayerProgress
-            currentTime={engine.currentTime}
+            clock={engine.clock}
             durationSeconds={engine.durationSeconds}
             onSeekToRatio={(ratio) => {
               revealControls();

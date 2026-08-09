@@ -9,6 +9,7 @@ import { createSessionStore } from "@/shared/lib/storage/key-value-store";
 import { clamp, parseDurationText } from "@/shared/lib/time";
 import { TimerBag } from "@/shared/lib/timers";
 import type { Video } from "@/entities/video";
+import { PlaybackClock } from "./playback-clock";
 import { PlayerController } from "./player-controller";
 import { PlayerPreferences } from "./player-preferences";
 import { PLAYER_STATE, readPlayerTelemetry } from "./player-messages";
@@ -46,6 +47,8 @@ export function usePlayerEngine({
     [],
   );
   const timers = useRef(new TimerBag());
+  // The play head lives here rather than in state; see PlaybackClock.
+  const clock = useMemo(() => new PlaybackClock(), []);
 
   const [isPlaying, setIsPlaying] = useState(true);
   const [isMuted, setIsMuted] = useState(() => preferences.readMuted());
@@ -59,14 +62,12 @@ export function usePlayerEngine({
   // right thing to show when the video pauses.
   const [hasStarted, setHasStarted] = useState(false);
   const [failure, setFailure] = useState<PlayerFailure | null>(null);
-  const [currentTime, setCurrentTime] = useState(0);
   const [durationSeconds, setDurationSeconds] = useState(() =>
     parseDurationText(video.duration),
   );
   const [reloadKey, setReloadKey] = useState(0);
   const [shouldAutoplay, setShouldAutoplay] = useState(true);
 
-  const currentTimeRef = useRef(0);
   const durationRef = useRef(0);
   const publishedDurationRef = useRef(0);
   const isRestartingRef = useRef(false);
@@ -101,10 +102,6 @@ export function usePlayerEngine({
   useEffect(warmYouTubeOrigins, []);
 
   useEffect(() => {
-    currentTimeRef.current = currentTime;
-  }, [currentTime]);
-
-  useEffect(() => {
     durationRef.current = durationSeconds;
   }, [durationSeconds]);
 
@@ -118,7 +115,7 @@ export function usePlayerEngine({
   // the same one.
   useEffect(() => {
     const fallbackDuration = parseDurationText(video.duration);
-    currentTimeRef.current = 0;
+    clock.set(0);
     durationRef.current = fallbackDuration;
     publishedDurationRef.current = fallbackDuration;
     hasStartedRef.current = false;
@@ -144,7 +141,6 @@ export function usePlayerEngine({
     );
 
     const frame = window.requestAnimationFrame(() => {
-      setCurrentTime(0);
       setDurationSeconds(fallbackDuration);
       setShouldAutoplay(true);
       setIsPlaying(true);
@@ -179,8 +175,7 @@ export function usePlayerEngine({
       }
 
       if (typeof telemetry.currentTime === "number") {
-        currentTimeRef.current = telemetry.currentTime;
-        setCurrentTime(telemetry.currentTime);
+        clock.set(telemetry.currentTime);
       }
 
       // The only source of a real duration: the embed reports it within a
@@ -232,7 +227,7 @@ export function usePlayerEngine({
 
     window.addEventListener("message", handleMessage);
     return () => window.removeEventListener("message", handleMessage);
-  }, [iframeRef, player]);
+  }, [clock, iframeRef, player]);
 
   // Between telemetry packets, advance the clock ourselves so the progress bar
   // stays smooth — and detect the end even if `onStateChange` never arrives.
@@ -246,15 +241,16 @@ export function usePlayerEngine({
       "progress",
       () => {
         player.requestProgress();
-        currentTimeRef.current = Math.min(
-          durationRef.current || Number.MAX_SAFE_INTEGER,
-          currentTimeRef.current + PROGRESS_TICK_MS / 1000,
+        clock.set(
+          Math.min(
+            durationRef.current || Number.MAX_SAFE_INTEGER,
+            clock.get() + PROGRESS_TICK_MS / 1000,
+          ),
         );
-        setCurrentTime(currentTimeRef.current);
 
         if (
           durationRef.current > 0 &&
-          currentTimeRef.current >= durationRef.current - END_TOLERANCE_SECONDS
+          clock.get() >= durationRef.current - END_TOLERANCE_SECONDS
         ) {
           callbacks.current.onEnded();
         }
@@ -267,7 +263,7 @@ export function usePlayerEngine({
     // `reloadKey` and the video id are here because switching embeds clears
     // every timer; without them the ticker would stay dead for a video that
     // was already playing when the switch happened.
-  }, [isPlaying, player, reloadKey, video.id]);
+  }, [clock, isPlaying, player, reloadKey, video.id]);
 
   useEffect(() => {
     const bag = timers.current;
@@ -379,13 +375,12 @@ export function usePlayerEngine({
     const upperBound =
       durationRef.current > 0 ? durationRef.current : Number.MAX_SAFE_INTEGER;
     const target = clamp(seconds, 0, upperBound);
-    currentTimeRef.current = target;
-    setCurrentTime(target);
+    clock.set(target);
     player.seekTo(target);
   }
 
   function seekBy(seconds: number) {
-    seekTo(currentTimeRef.current + seconds);
+    seekTo(clock.get() + seconds);
   }
 
   function seekToRatio(ratio: number) {
@@ -403,8 +398,7 @@ export function usePlayerEngine({
     }
 
     isRestartingRef.current = true;
-    currentTimeRef.current = 0;
-    setCurrentTime(0);
+    clock.set(0);
     setShouldAutoplay(true);
     setIsPlaying(true);
     setReloadKey((key) => key + 1);
@@ -412,8 +406,7 @@ export function usePlayerEngine({
 
   /** After a blocked or unreachable embed: throw the iframe away and retry. */
   function retry() {
-    currentTimeRef.current = 0;
-    setCurrentTime(0);
+    clock.set(0);
     setFailure(null);
     setShouldAutoplay(true);
     setIsPlaying(true);
@@ -433,6 +426,7 @@ export function usePlayerEngine({
 
   return {
     reloadKey,
+    clock,
     isBooting,
     hasStarted,
     areCaptionsEnabled,
@@ -442,7 +436,6 @@ export function usePlayerEngine({
     isPlaying,
     isMuted,
     volume,
-    currentTime,
     durationSeconds,
     handleFrameLoad,
     playPause,
