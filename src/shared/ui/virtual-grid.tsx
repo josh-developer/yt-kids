@@ -28,7 +28,7 @@ export function VirtualGrid<Item>({
   className: string;
   ariaLabel?: string;
   getKey: (item: Item) => string;
-  renderItem: (item: Item) => ReactNode;
+  renderItem: (item: Item, index: number) => ReactNode;
 }) {
   const gridRef = useRef<HTMLDivElement>(null);
   const [columnCount, setColumnCount] = useState(1);
@@ -77,8 +77,8 @@ export function VirtualGrid<Item>({
   if (!isMeasured) {
     return (
       <div ref={gridRef} className={className} aria-label={ariaLabel}>
-        {items.slice(0, INITIAL_ITEMS).map((item) => (
-          <Fragment key={getKey(item)}>{renderItem(item)}</Fragment>
+        {items.slice(0, INITIAL_ITEMS).map((item, index) => (
+          <Fragment key={getKey(item)}>{renderItem(item, index)}</Fragment>
         ))}
       </div>
     );
@@ -118,8 +118,10 @@ export function VirtualGrid<Item>({
             }}
           >
             {/* Fragments keep the rendered cards as direct grid children. */}
-            {items.slice(start, start + columnCount).map((item) => (
-              <Fragment key={getKey(item)}>{renderItem(item)}</Fragment>
+            {items.slice(start, start + columnCount).map((item, column) => (
+              <Fragment key={getKey(item)}>
+                {renderItem(item, start + column)}
+              </Fragment>
             ))}
           </div>
         );

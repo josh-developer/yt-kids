@@ -356,6 +356,11 @@ export function SideNavButtons({
 export function PlayerPoster({ videoId }: { videoId: string }) {
   return (
     <div className={styles.playerPoster}>
+      {/*
+        The largest paint on a watch page. It is on screen before the embed
+        has a frame to show, so it is fetched at high priority rather than
+        left to compete with everything else the player is starting.
+      */}
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
         alt=""
