@@ -74,6 +74,7 @@ export function usePlayerEngine({
   const isPlayingRef = useRef(true);
   const hasStartedRef = useRef(false);
   const hasTelemetryRef = useRef(false);
+  const hasFrameLoadedRef = useRef(false);
   const captionsRef = useRef(areCaptionsEnabled);
   const videoRef = useRef(video);
   const callbacks = useRef({ onDurationResolved, onEnded, onPlayingChange });
@@ -120,6 +121,7 @@ export function usePlayerEngine({
     publishedDurationRef.current = fallbackDuration;
     hasStartedRef.current = false;
     hasTelemetryRef.current = false;
+    hasFrameLoadedRef.current = false;
     timers.current.clearAll();
     timers.current.timeout(
       "skeleton",
@@ -130,6 +132,15 @@ export function usePlayerEngine({
       "unreachable",
       () => {
         if (hasTelemetryRef.current) {
+          return;
+        }
+
+        // The embed's document loaded, so YouTube is plainly reachable; what
+        // was lost is the message channel, and the video is most likely
+        // playing. Accusing the network over a video the viewer can hear
+        // would be worse than saying nothing: the progress bar keeps its own
+        // time and everything except live position stays usable.
+        if (hasFrameLoadedRef.current) {
           return;
         }
 
@@ -275,7 +286,17 @@ export function usePlayerEngine({
     player.requestProgress();
   }
 
-  /** The embed ignores early commands, so we re-ask until it answers. */
+  /**
+   * The embed ignores commands sent before its own scripts are ready, so the
+   * `listening` handshake is re-sent until it answers.
+   *
+   * "Answers" means telemetry arrived. It used to mean `durationRef > 0`,
+   * which is seeded from the catalog's duration string and is therefore
+   * already true on the first tick — so the handshake was attempted about
+   * twice and then abandoned. An embed that booted slowly, which is most
+   * likely right after pressing next, never got its channel opened: playback
+   * ran with sound while the app heard nothing back from it.
+   */
   function startTelemetryPolling() {
     let attempts = 0;
     primeTelemetry();
@@ -284,7 +305,7 @@ export function usePlayerEngine({
       () => {
         attempts += 1;
         primeTelemetry();
-        if (attempts >= TELEMETRY_ATTEMPTS || durationRef.current > 0) {
+        if (attempts >= TELEMETRY_ATTEMPTS || hasTelemetryRef.current) {
           timers.current.clear("telemetry");
         }
       },
@@ -325,6 +346,7 @@ export function usePlayerEngine({
   }
 
   function handleFrameLoad() {
+    hasFrameLoadedRef.current = true;
     bootEmbed();
   }
 
