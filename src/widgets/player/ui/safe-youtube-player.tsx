@@ -302,7 +302,9 @@ export function SafeYouTubePlayer({
     <div
       className={`${styles.playerBox} ${showControls ? "" : styles.controlsHidden} ${
         fullscreen.isVirtual ? styles.virtualFullscreen : ""
-      } ${isLocked ? styles.playerLocked : ""}`}
+      } ${isLocked ? styles.playerLocked : ""} ${
+        engine.hasConfirmedPlaying ? "" : styles.awaitingStart
+      }`}
       onClick={gestures.handleFrameClick}
       onDoubleClick={gestures.handleFrameDoubleClick}
       onKeyDown={(event) => handlePlayerKeyDown(event, { isTvBrowser })}

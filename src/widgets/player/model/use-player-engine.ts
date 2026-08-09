@@ -19,6 +19,8 @@ const PROGRESS_TICK_MS = 750;
 const TELEMETRY_TICK_MS = 650;
 const TELEMETRY_ATTEMPTS = 12;
 const PLAY_RETRY_MS = 350;
+/** How many times a still-unstarted embed is asked to play once it answers. */
+const AUTO_START_ATTEMPTS = 4;
 const END_TOLERANCE_SECONDS = 0.25;
 
 /** What went wrong, in the two flavours the viewer can act on. */
@@ -76,6 +78,15 @@ export function usePlayerEngine({
   const hasStartedRef = useRef(false);
   const hasTelemetryRef = useRef(false);
   const hasFrameLoadedRef = useRef(false);
+  // Distinct from `hasStarted`, which is optimistic and gets forced true on a
+  // timer: this one is only ever set by the embed reporting `playing`. It is
+  // what decides whether the embed still needs to be reachable by a tap.
+  const [hasConfirmedPlaying, setHasConfirmedPlaying] = useState(false);
+  const hasConfirmedPlayingRef = useRef(false);
+  // "We are trying to start this video and the viewer has not taken over."
+  // Cleared by a deliberate pause so the retry below never fights the viewer.
+  const wantsPlaybackRef = useRef(true);
+  const autoStartAttemptsRef = useRef(0);
   const captionsRef = useRef(areCaptionsEnabled);
   // WebKit grants audio-autoplay page-wide once the viewer has unmuted via a
   // real gesture, not just to the element that was tapped — so once this
@@ -127,6 +138,9 @@ export function usePlayerEngine({
     hasStartedRef.current = false;
     hasTelemetryRef.current = false;
     hasFrameLoadedRef.current = false;
+    hasConfirmedPlayingRef.current = false;
+    wantsPlaybackRef.current = true;
+    autoStartAttemptsRef.current = 0;
     timers.current.clearAll();
     timers.current.timeout(
       "skeleton",
@@ -162,6 +176,7 @@ export function usePlayerEngine({
       setIsPlaying(true);
       setIsBooting(true);
       setHasStarted(false);
+      setHasConfirmedPlaying(false);
       setFailure(null);
     });
 
@@ -228,15 +243,52 @@ export function usePlayerEngine({
         }
 
         hasStartedRef.current = true;
+        hasConfirmedPlayingRef.current = true;
         setHasStarted(true);
+        setHasConfirmedPlaying(true);
         setIsPlaying(true);
         setFailure(null);
         timers.current.clear("skeleton");
+        timers.current.clear("started-fallback");
         setIsBooting(false);
         return;
       }
 
       if (telemetry.playerState === PLAYER_STATE.paused) {
+        setIsPlaying(false);
+        return;
+      }
+
+      // Still sitting at "unstarted"/"cued" after we asked it to play. Those
+      // are not the mid-playback buffering the comment above guards against:
+      // before the first frame they mean the play command never landed.
+      //
+      // The likely cause is timing. Every play command goes out inside the
+      // first ~1.5s (frame load, boot kick, one 350ms retry), but the embed
+      // ignores commands until its own scripts are up — and on iPhone it
+      // takes far longer than that to boot. All of them are dropped into the
+      // void and nothing ever asks again, which is exactly the "loads for
+      // many seconds, then nothing" report. Now that telemetry is flowing
+      // the embed is demonstrably listening, so asking again is worth more
+      // than it was at boot. Muted, because no gesture is behind it.
+      if (
+        !hasConfirmedPlayingRef.current &&
+        wantsPlaybackRef.current &&
+        (telemetry.playerState === PLAYER_STATE.unstarted ||
+          telemetry.playerState === PLAYER_STATE.cued)
+      ) {
+        if (autoStartAttemptsRef.current < AUTO_START_ATTEMPTS) {
+          autoStartAttemptsRef.current += 1;
+          player.mute();
+          player.play();
+          return;
+        }
+
+        // Out of retries: the embed is reachable and simply will not start
+        // itself, so hand it to the viewer. `isPlaying` would otherwise sit
+        // at its optimistic default forever, keeping our own play button
+        // hidden while YouTube shows its paused one — and that one is behind
+        // a `pointer-events: none` iframe, so the viewer can reach neither.
         setIsPlaying(false);
       }
     }
@@ -386,11 +438,14 @@ export function usePlayerEngine({
 
   function playPause() {
     if (isPlaying) {
+      wantsPlaybackRef.current = false;
       player.pause();
       setIsPlaying(false);
       return;
     }
 
+    wantsPlaybackRef.current = true;
+    autoStartAttemptsRef.current = 0;
     setShouldAutoplay(true);
     setIsPlaying(true);
     schedulePlay(true);
@@ -487,6 +542,7 @@ export function usePlayerEngine({
     clock,
     isBooting,
     hasStarted,
+    hasConfirmedPlaying,
     areCaptionsEnabled,
     failure,
     // Autoplay implies muted; `sendPlay` unmutes once playback is running.
