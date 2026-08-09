@@ -74,7 +74,13 @@
     "help": "Video pleyer. Chap va o'ng tugmalar bilan videoni surasiz, yuqori va pastki tugmalar bilan ovozni sozlaysiz, Enter tugmasi yoqadi yoki to'xtatadi.",
     "surface": "{title} video oynasi",
     "back15": "15 soniya orqaga",
-    "forward15": "15 soniya oldinga"
+    "forward15": "15 soniya oldinga",
+    "retry": "Qayta urinish",
+    "blockedTitle": "Bu video bu yerda ochilmadi",
+    "blockedBody": "YouTube uni ilovada ochmadi. Qayta urinib ko'ring yoki boshqa video tanlang.",
+    "unreachableTitle": "YouTube bilan aloqa yo'q",
+    "unreachableBody": "Internetni tekshiring, VPN yoqilgan bo'lsa o'chiring.",
+    "upNext": "Keyingisi"
   },
   "Settings": {
     "title": "Ota-ona sozlamalari",

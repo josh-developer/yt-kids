@@ -26,3 +26,16 @@ export const DEFAULT_VOLUME = 80;
  * started, so this just bounds how long a stuck embed can hide behind it.
  */
 export const PLAYER_SKELETON_MS = 8000;
+
+/**
+ * Some browsers never fire `load` for a cross-origin iframe (TV browsers are
+ * the common case), so the embed is primed on a timer as well.
+ */
+export const PLAYER_BOOT_KICK_MS = 1200;
+
+/**
+ * If the embed has not said a single word by now it is not going to: the
+ * network, a VPN, or a filter is blocking YouTube. Offer a retry instead of
+ * leaving a black rectangle.
+ */
+export const PLAYER_UNREACHABLE_MS = 18000;

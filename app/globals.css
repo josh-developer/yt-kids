@@ -661,6 +661,64 @@ button {
   }
 }
 
+.player-failure {
+  position: absolute;
+  inset: 0;
+  z-index: 9;
+  display: grid;
+  align-content: center;
+  justify-items: center;
+  gap: 6px;
+  padding: 20px;
+  text-align: center;
+  background: rgba(6, 6, 8, 0.88);
+  color: white;
+}
+
+.player-failure-title {
+  margin: 6px 0 0;
+  font-size: clamp(16px, 2.2vw, 21px);
+  font-weight: 900;
+}
+
+.player-failure-body {
+  max-width: 34ch;
+  margin: 0;
+  color: rgba(255, 255, 255, 0.76);
+  font-size: clamp(13px, 1.6vw, 15px);
+  line-height: 1.35;
+}
+
+.player-failure-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: center;
+  margin-top: 12px;
+}
+
+.player-failure-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  min-height: 40px;
+  padding: 0 16px;
+  border: 0;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.14);
+  color: white;
+  font-weight: 800;
+}
+
+.player-failure-button.primary {
+  background: var(--brand-red, #ff3157);
+}
+
+.player-failure-button:hover,
+.player-failure-button:focus-visible {
+  transform: scale(1.03);
+}
+
 .player-poster {
   position: absolute;
   inset: 0;

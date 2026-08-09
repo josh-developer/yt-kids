@@ -1,6 +1,10 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { lockedEmbedUrl, youTubeApi, watchUrl } from "@/shared/api/youtube";
-import { PLAYER_SKELETON_MS } from "@/shared/config/app-config";
+import {
+  PLAYER_BOOT_KICK_MS,
+  PLAYER_SKELETON_MS,
+  PLAYER_UNREACHABLE_MS,
+} from "@/shared/config/app-config";
 import { createSessionStore } from "@/shared/lib/storage/key-value-store";
 import { clamp, parseDurationText } from "@/shared/lib/time";
 import { TimerBag } from "@/shared/lib/timers";
@@ -14,6 +18,9 @@ const TELEMETRY_TICK_MS = 650;
 const TELEMETRY_ATTEMPTS = 12;
 const PLAY_RETRY_MS = 350;
 const END_TOLERANCE_SECONDS = 0.25;
+
+/** What went wrong, in the two flavours the viewer can act on. */
+export type PlayerFailure = "blocked" | "unreachable";
 
 /**
  * Playback state for one video: sends commands to the embed, folds the
@@ -45,6 +52,10 @@ export function usePlayerEngine({
   const [volume, setVolumeState] = useState(() => preferences.readVolume());
   // Covers the embed while it boots, instead of showing YouTube's own chrome.
   const [isBooting, setIsBooting] = useState(true);
+  // Playback has produced at least one frame, so the poster is no longer the
+  // right thing to show when the video pauses.
+  const [hasStarted, setHasStarted] = useState(false);
+  const [failure, setFailure] = useState<PlayerFailure | null>(null);
   const [currentTime, setCurrentTime] = useState(0);
   const [durationSeconds, setDurationSeconds] = useState(() =>
     parseDurationText(video.duration),
@@ -56,11 +67,15 @@ export function usePlayerEngine({
   const durationRef = useRef(0);
   const publishedDurationRef = useRef(0);
   const isRestartingRef = useRef(false);
+  const isPlayingRef = useRef(true);
+  const hasStartedRef = useRef(false);
+  const hasTelemetryRef = useRef(false);
   const videoRef = useRef(video);
   const callbacks = useRef({ onDurationResolved, onEnded, onPlayingChange });
 
   useEffect(() => {
     videoRef.current = video;
+    isPlayingRef.current = isPlaying;
     callbacks.current = { onDurationResolved, onEnded, onPlayingChange };
   });
 
@@ -86,18 +101,33 @@ export function usePlayerEngine({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isPlaying]);
 
-  // Reset everything when the watched video changes.
+  // Reset everything when the watched video changes, or when a retry reloads
+  // the same one.
   useEffect(() => {
     const fallbackDuration = parseDurationText(video.duration);
     currentTimeRef.current = 0;
     durationRef.current = fallbackDuration;
     publishedDurationRef.current = fallbackDuration;
-    isRestartingRef.current = false;
+    hasStartedRef.current = false;
+    hasTelemetryRef.current = false;
     timers.current.clearAll();
     timers.current.timeout(
       "skeleton",
       () => setIsBooting(false),
       PLAYER_SKELETON_MS,
+    );
+    timers.current.timeout(
+      "unreachable",
+      () => {
+        if (hasTelemetryRef.current) {
+          return;
+        }
+
+        setIsBooting(false);
+        setIsPlaying(false);
+        setFailure("unreachable");
+      },
+      PLAYER_UNREACHABLE_MS,
     );
 
     const frame = window.requestAnimationFrame(() => {
@@ -106,10 +136,15 @@ export function usePlayerEngine({
       setShouldAutoplay(true);
       setIsPlaying(true);
       setIsBooting(true);
+      setHasStarted(false);
+      setFailure(null);
     });
 
     return () => window.cancelAnimationFrame(frame);
-  }, [video.duration, video.id]);
+    // Keyed by the embed, not by `video.duration`: backfilling a duration must
+    // not reset a video that is already playing.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [reloadKey, video.id]);
 
   // The catalog duration is a display string; oEmbed knows the real length.
   useEffect(() => {
@@ -137,6 +172,18 @@ export function usePlayerEngine({
     function handleMessage(event: MessageEvent) {
       const telemetry = readPlayerTelemetry(event, iframeRef.current);
       if (!telemetry) {
+        return;
+      }
+
+      // Anything at all from the embed proves the network reaches YouTube.
+      hasTelemetryRef.current = true;
+      timers.current.clear("unreachable");
+
+      if (typeof telemetry.errorCode === "number") {
+        timers.current.clearAll();
+        setIsBooting(false);
+        setIsPlaying(false);
+        setFailure("blocked");
         return;
       }
 
@@ -168,12 +215,20 @@ export function usePlayerEngine({
         return;
       }
 
-      const isNowPlaying = telemetry.playerState === PLAYER_STATE.playing;
-      setIsPlaying(isNowPlaying);
-
-      if (isNowPlaying) {
+      // Buffering, cued and unstarted are not pauses. Treating them as one is
+      // what made the poster and the big play button flash mid-playback.
+      if (telemetry.playerState === PLAYER_STATE.playing) {
+        hasStartedRef.current = true;
+        setHasStarted(true);
+        setIsPlaying(true);
+        setFailure(null);
         timers.current.clear("skeleton");
         setIsBooting(false);
+        return;
+      }
+
+      if (telemetry.playerState === PLAYER_STATE.paused) {
+        setIsPlaying(false);
       }
     }
 
@@ -211,7 +266,10 @@ export function usePlayerEngine({
 
     const bag = timers.current;
     return () => bag.clear("progress");
-  }, [isPlaying, player]);
+    // `reloadKey` and the video id are here because switching embeds clears
+    // every timer; without them the ticker would stay dead for a video that
+    // was already playing when the switch happened.
+  }, [isPlaying, player, reloadKey, video.id]);
 
   useEffect(() => {
     const bag = timers.current;
@@ -259,13 +317,21 @@ export function usePlayerEngine({
     timers.current.timeout("play", sendPlay, PLAY_RETRY_MS);
   }
 
-  function handleFrameLoad() {
+  /**
+   * Open the telemetry channel and, if the viewer has not taken over yet, ask
+   * for playback. Safe to run more than once: both halves are idempotent.
+   */
+  function bootEmbed() {
     isRestartingRef.current = false;
     startTelemetryPolling();
     player.setVolume(volume);
-    if (shouldAutoplay) {
+    if (shouldAutoplay && isPlayingRef.current) {
       schedulePlay();
     }
+  }
+
+  function handleFrameLoad() {
+    bootEmbed();
   }
 
   function playPause() {
@@ -339,9 +405,32 @@ export function usePlayerEngine({
     setReloadKey((key) => key + 1);
   }
 
+  /** After a blocked or unreachable embed: throw the iframe away and retry. */
+  function retry() {
+    currentTimeRef.current = 0;
+    setCurrentTime(0);
+    setFailure(null);
+    setShouldAutoplay(true);
+    setIsPlaying(true);
+    setIsBooting(true);
+    setReloadKey((key) => key + 1);
+  }
+
+  // A cross-origin iframe does not always fire `load` — TV browsers in
+  // particular — so the embed is primed on a timer too, not only from `onLoad`.
+  useEffect(() => {
+    const bag = timers.current;
+    bag.timeout("boot", bootEmbed, PLAYER_BOOT_KICK_MS);
+    return () => bag.clear("boot");
+    // `bootEmbed` is re-created every render; the embed identity is what matters.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [reloadKey, video.videoId]);
+
   return {
     reloadKey,
     isBooting,
+    hasStarted,
+    failure,
     // Autoplay implies muted; `sendPlay` unmutes once playback is running.
     embedUrl: lockedEmbedUrl(video.videoId, shouldAutoplay, shouldAutoplay),
     isPlaying,
@@ -352,6 +441,7 @@ export function usePlayerEngine({
     handleFrameLoad,
     playPause,
     restart,
+    retry,
     seekBy,
     seekToRatio,
     setVolume,

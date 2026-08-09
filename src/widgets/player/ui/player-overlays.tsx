@@ -2,15 +2,18 @@ import {
   Lock,
   Pause,
   Play,
+  RotateCcw,
   SkipBack,
   SkipForward,
   Unlock,
   VolumeX,
+  WifiOff,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import type { MouseEvent } from "react";
 import { thumbnailUrl } from "@/shared/api/youtube";
 import { SEEK_STEP_SECONDS } from "@/shared/config/app-config";
+import type { PlayerFailure } from "../model/use-player-engine";
 import type { SeekDirection } from "../model/use-player-gestures";
 
 /** Covers the embed while it boots, hiding YouTube's own loading chrome. */
@@ -21,6 +24,65 @@ export function PlayerSkeleton({ isVisible }: { isVisible: boolean }) {
       aria-hidden="true"
     >
       <span className="player-skeleton-spinner" />
+    </div>
+  );
+}
+
+/**
+ * Replaces YouTube's own error screen when the embed cannot play: a VPN or
+ * network filter blocking the request, a region lock, or an owner who
+ * disallows embedding. Offers the two moves that can actually help.
+ */
+export function PlayerFailureNotice({
+  failure,
+  hasNext,
+  onRetry,
+  onNext,
+}: {
+  failure: PlayerFailure;
+  hasNext: boolean;
+  onRetry: () => void;
+  onNext: () => void;
+}) {
+  const t = useTranslations("Player");
+
+  return (
+    <div className="player-failure" role="alert">
+      <WifiOff size={38} aria-hidden="true" />
+      <p className="player-failure-title">
+        {failure === "blocked" ? t("blockedTitle") : t("unreachableTitle")}
+      </p>
+      <p className="player-failure-body">
+        {failure === "blocked" ? t("blockedBody") : t("unreachableBody")}
+      </p>
+      <div className="player-failure-actions">
+        <button
+          className="player-failure-button primary"
+          onClick={(event) => {
+            event.stopPropagation();
+            onRetry();
+          }}
+          onDoubleClick={(event) => event.stopPropagation()}
+          type="button"
+        >
+          <RotateCcw size={18} />
+          {t("retry")}
+        </button>
+        {hasNext ? (
+          <button
+            className="player-failure-button"
+            onClick={(event) => {
+              event.stopPropagation();
+              onNext();
+            }}
+            onDoubleClick={(event) => event.stopPropagation()}
+            type="button"
+          >
+            <SkipForward size={18} />
+            {t("nextVideo")}
+          </button>
+        ) : null}
+      </div>
     </div>
   );
 }

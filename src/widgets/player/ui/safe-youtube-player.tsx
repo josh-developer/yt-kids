@@ -10,6 +10,7 @@ import { PlayerControls } from "./player-controls";
 import {
   BigPlayButton,
   LockButton,
+  PlayerFailureNotice,
   PlayerPoster,
   PlayerSkeleton,
   SeekHints,
@@ -163,6 +164,7 @@ export function SafeYouTubePlayer({
   }
 
   const showControls = controls.isVisible && !isLocked;
+  const hasFailed = engine.failure !== null;
 
   return (
     <div
@@ -207,7 +209,7 @@ export function SafeYouTubePlayer({
         <LockButton isLocked={isLocked} onToggle={toggleLock} />
       ) : null}
 
-      {!isLocked && engine.isMuted ? (
+      {!isLocked && !hasFailed && engine.isMuted ? (
         <UnmuteButton
           onUnmute={() => {
             revealControls();
@@ -225,7 +227,20 @@ export function SafeYouTubePlayer({
         />
       )}
 
-      {engine.isPlaying ? null : <PlayerPoster videoId={video.videoId} />}
+      {/*
+        Only before the first frame. Dropping it over every pause meant the
+        thumbnail flashed in on each pause — and on every buffer stall.
+      */}
+      {engine.hasStarted ? null : <PlayerPoster videoId={video.videoId} />}
+
+      {engine.failure ? (
+        <PlayerFailureNotice
+          failure={engine.failure}
+          hasNext={Boolean(nextVideo)}
+          onRetry={engine.retry}
+          onNext={onNextVideo}
+        />
+      ) : null}
 
       {!isLocked && (!engine.isPlaying || controls.isVisible) ? (
         <BigPlayButton
