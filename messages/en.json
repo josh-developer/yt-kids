@@ -1,0 +1,133 @@
+{
+  "Metadata": {
+    "home": "KidTube",
+    "homeDescription": "A parent-curated YouTube-style video room for kids.",
+    "settings": "Parent settings",
+    "settingsDescription": "Manage the parent-approved KidTube video library.",
+    "watch": "Watch",
+    "watchDescription": "Watch a parent-approved KidTube video.",
+    "search": "{query} - Search | KidTube",
+    "page": "{page} | KidTube"
+  },
+  "LocaleSwitcher": {
+    "label": "Switch language",
+    "name": "{locale, select, en {English} uz {O'zbekcha} other {{locale}}}",
+    "short": "{locale, select, en {EN} uz {UZ} other {{locale}}}"
+  },
+  "TopBar": {
+    "goHome": "Go home",
+    "searchApprovedVideos": "Search approved videos",
+    "search": "Search",
+    "useDarkMode": "Use dark mode",
+    "useLightMode": "Use light mode",
+    "parentSettings": "Parent settings"
+  },
+  "Format": {
+    "decimalSeparator": ".",
+    "groupSeparator": ","
+  },
+  "Video": {
+    "views": "{value} views",
+    "viewsThousands": "{value}K views",
+    "viewsMillions": "{value}M views",
+    "parentAdded": "Parent added",
+    "playlist": "Playlist",
+    "youtube": "YouTube",
+    "untitled": "Imported YouTube video"
+  },
+  "Home": {
+    "emptyTitle": "No approved videos yet",
+    "emptyBody": "Add videos from Parent settings.",
+    "openSettings": "Open settings"
+  },
+  "Watch": {
+    "recommendations": "Play recommended video",
+    "loadingTitle": "Loading video",
+    "loadingBody": "Checking the parent-approved library.",
+    "unavailableTitle": "Video unavailable",
+    "unavailableBody": "This video is hidden, removed, or not in this library.",
+    "home": "Home",
+    "goHome": "Go home",
+    "parentSettings": "Parent settings",
+    "openSettings": "Open settings",
+    "recommendationsTitle": "Recommendations",
+    "showRecommendations": "Show recommendations"
+  },
+  "Player": {
+    "play": "Play video",
+    "pause": "Pause",
+    "mute": "Mute",
+    "unmute": "Unmute",
+    "volume": "Volume {value}%",
+    "volumeUp": "Volume up",
+    "volumeDown": "Volume down",
+    "nextVideo": "Next approved video",
+    "previousVideo": "Previous approved video",
+    "fullScreen": "Full screen",
+    "exitFullScreen": "Exit full screen",
+    "lockControls": "Lock controls",
+    "unlockControls": "Unlock controls",
+    "repeatOneEnabled": "Repeat one enabled",
+    "repeatOneDisabled": "Repeat one disabled",
+    "controls": "Video controls",
+    "seek": "Seek video",
+    "help": "Video player. Use left and right to seek, up and down for volume, and enter to play or pause.",
+    "surface": "{title} video surface",
+    "back15": "Go back 15 seconds",
+    "forward15": "Go forward 15 seconds"
+  },
+  "Settings": {
+    "title": "Parent settings",
+    "approvedCount": "{count, plural, =0 {No approved videos} one {{value} approved video} other {{value} approved videos}}",
+    "exportParentSettings": "Export parent settings",
+    "importParentSettings": "Import parent settings",
+    "addVideoLink": "Add video link",
+    "addVideo": "Add video",
+    "resetAllVideos": "Reset all videos",
+    "resetAllVideosConfirm": "Reset to the default video list? Parent-added videos and hidden choices will be cleared.",
+    "cancel": "Cancel",
+    "close": "Close",
+    "searchVideos": "Search videos",
+    "approvedVideos": "Approved videos",
+    "hiddenVideos": "Hidden videos",
+    "showApprovedVideos": "Show approved videos",
+    "showHiddenVideos": "Show hidden videos",
+    "approveAll": "Approve all",
+    "approveAllVideos": "Approve all videos",
+    "approveAllConfirm": "Approve every video in the library?",
+    "hideAll": "Hide all",
+    "hideAllVideos": "Hide all videos",
+    "hideAllConfirm": "Hide every approved video from home?",
+    "importSettings": "Import settings",
+    "pasteYoutubeLink": "Paste YouTube video or playlist link",
+    "pasteExportCode": "Paste KidTube export code",
+    "noVideosFound": "{tab, select, approved {No approved videos found.} other {No hidden videos found.}}",
+    "hide": "Hide",
+    "show": "Show",
+    "hideVideo": "Hide {title}",
+    "showVideo": "Show {title}",
+    "removeCompletely": "Remove completely",
+    "removeVideoCompletely": "Remove {title} completely",
+    "exportCopied": "Export copied",
+    "copying": "Copying...",
+    "copyFailed": "Copy failed"
+  },
+  "Library": {
+    "checkingPlaylist": "Checking playlist...",
+    "playlistNoVideos": "No videos found in this playlist.",
+    "checkingVideoDetails": "Checking video details...",
+    "checkingVideoDetailsProgress": "Checking video details... {done}/{total}",
+    "playlistAdded": "{count, plural, one {# playlist video added.} other {# playlist videos added.}}",
+    "invalidYoutubeLink": "Paste a valid YouTube video, playlist link, or video ID.",
+    "readingImportCode": "Reading import code...",
+    "importComplete": "Import complete.",
+    "errors": {
+      "invalidCode": "Paste a valid KidTube export code.",
+      "codeTooShort": "Transfer code is too short.",
+      "decompressUnsupported": "This browser cannot read compressed transfer codes.",
+      "unsupportedVersion": "Unsupported transfer code version.",
+      "invalidVideo": "Transfer code contains an invalid video.",
+      "unknown": "Could not import this code."
+    }
+  }
+}

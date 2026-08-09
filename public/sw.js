@@ -1,7 +1,10 @@
-const CACHE_NAME = "kidtube-pwa-v1";
+const CACHE_NAME = "kidtube-pwa-v3";
+const LOCALES = ["en", "uz"];
+const DEFAULT_LOCALE = "en";
+// Every page lives under a locale prefix, so `/` is a redirect and cannot be
+// precached (Cache.addAll rejects redirected responses).
 const APP_SHELL = [
-  "/",
-  "/settings",
+  ...LOCALES.flatMap((locale) => [`/${locale}`, `/${locale}/settings`]),
   "/favicon.svg",
   "/manifest.webmanifest",
   "/icon-192.png",
@@ -34,6 +37,29 @@ self.addEventListener("activate", (event) => {
   );
 });
 
+/**
+ * Dev-server URLs must never be cached: Vite serves modules with a version
+ * query that changes whenever dependencies are re-optimized, and replaying a
+ * stale one loads a second copy of React.
+ */
+function isDevAsset(url) {
+  return (
+    url.pathname.startsWith("/@") ||
+    url.pathname.startsWith("/node_modules/") ||
+    url.pathname.startsWith("/src/") ||
+    url.pathname.startsWith("/app/") ||
+    url.searchParams.has("v") ||
+    /\.(tsx?|jsx)$/.test(url.pathname)
+  );
+}
+
+function offlineShellFor(url) {
+  const [maybeLocale] = url.pathname.split("/").filter(Boolean);
+  return LOCALES.includes(maybeLocale)
+    ? `/${maybeLocale}`
+    : `/${DEFAULT_LOCALE}`;
+}
+
 self.addEventListener("fetch", (event) => {
   const { request } = event;
 
@@ -42,7 +68,11 @@ self.addEventListener("fetch", (event) => {
   }
 
   const url = new URL(request.url);
-  if (url.origin !== self.location.origin || url.pathname.startsWith("/api/")) {
+  if (
+    url.origin !== self.location.origin ||
+    url.pathname.startsWith("/api/") ||
+    isDevAsset(url)
+  ) {
     return;
   }
 
@@ -50,11 +80,17 @@ self.addEventListener("fetch", (event) => {
     event.respondWith(
       fetch(request)
         .then((response) => {
-          const copy = response.clone();
-          caches.open(CACHE_NAME).then((cache) => cache.put(request, copy));
+          if (!response.redirected) {
+            const copy = response.clone();
+            caches.open(CACHE_NAME).then((cache) => cache.put(request, copy));
+          }
           return response;
         })
-        .catch(() => caches.match(request).then((match) => match ?? caches.match("/"))),
+        .catch(() =>
+          caches
+            .match(request)
+            .then((match) => match ?? caches.match(offlineShellFor(url))),
+        ),
     );
     return;
   }

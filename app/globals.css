@@ -20,11 +20,7 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family:
-    "Avenir Next Rounded",
-    "Nunito",
-    "Trebuchet MS",
-    Arial,
-    Helvetica,
+    "Avenir Next Rounded", "Nunito", "Trebuchet MS", Arial, Helvetica,
     sans-serif;
   margin: 0;
   touch-action: pan-x pan-y;
@@ -180,8 +176,7 @@ button {
   width: 46px;
   height: 34px;
   border-radius: 8px;
-  background:
-    linear-gradient(135deg, var(--brand-red), #ff7147);
+  background: linear-gradient(135deg, var(--brand-red), #ff7147);
   color: white;
   box-shadow:
     0 8px 0 rgba(130, 28, 51, 0.14),
@@ -190,7 +185,8 @@ button {
 }
 
 .brand-name {
-  font-family: var(--font-brand), "Avenir Next Rounded", "Trebuchet MS", sans-serif;
+  font-family:
+    var(--font-brand), "Avenir Next Rounded", "Trebuchet MS", sans-serif;
   display: inline-flex;
   align-items: baseline;
   font-size: 24px;
@@ -274,11 +270,7 @@ button {
   border-radius: 8px;
   padding: 12px 14px;
   font-family:
-    "Avenir Next Rounded",
-    "Nunito",
-    "Trebuchet MS",
-    Arial,
-    sans-serif;
+    "Avenir Next Rounded", "Nunito", "Trebuchet MS", Arial, sans-serif;
   line-height: 1.4;
 }
 
@@ -505,6 +497,7 @@ button {
 .video-title {
   display: -webkit-box;
   overflow: hidden;
+  line-clamp: 3;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   min-height: 40px;
@@ -616,13 +609,12 @@ button {
   z-index: 3;
   height: clamp(46px, 8vw, 68px);
   pointer-events: none;
-  background:
-    linear-gradient(
-      180deg,
-      rgba(0, 0, 0, 0.92) 0%,
-      rgba(0, 0, 0, 0.72) 44%,
-      rgba(0, 0, 0, 0) 100%
-    );
+  background: linear-gradient(
+    180deg,
+    rgba(0, 0, 0, 0.92) 0%,
+    rgba(0, 0, 0, 0.72) 44%,
+    rgba(0, 0, 0, 0) 100%
+  );
   opacity: 1;
   transition: opacity 180ms ease;
 }

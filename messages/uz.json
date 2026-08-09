@@ -1,0 +1,133 @@
+{
+  "Metadata": {
+    "home": "KidTube",
+    "homeDescription": "Ota-ona tanlagan, bolalar uchun YouTube uslubidagi video xona.",
+    "settings": "Ota-ona sozlamalari",
+    "settingsDescription": "Ota-ona tasdiqlagan KidTube video kutubxonasini boshqaring.",
+    "watch": "Ko'rish",
+    "watchDescription": "Ota-ona tasdiqlagan KidTube videosini ko'ring.",
+    "search": "{query} - Qidiruv | KidTube",
+    "page": "{page} | KidTube"
+  },
+  "LocaleSwitcher": {
+    "label": "Tilni almashtirish",
+    "name": "{locale, select, en {English} uz {O'zbekcha} other {{locale}}}",
+    "short": "{locale, select, en {EN} uz {UZ} other {{locale}}}"
+  },
+  "TopBar": {
+    "goHome": "Bosh sahifaga",
+    "searchApprovedVideos": "Tanlangan videolarni qidirish",
+    "search": "Qidirish",
+    "useDarkMode": "Tungi rejimga o'tish",
+    "useLightMode": "Kunduzgi rejimga o'tish",
+    "parentSettings": "Ota-ona sozlamalari"
+  },
+  "Format": {
+    "decimalSeparator": ",",
+    "groupSeparator": " "
+  },
+  "Video": {
+    "views": "{value} marta ko'rilgan",
+    "viewsThousands": "{value} ming marta ko'rilgan",
+    "viewsMillions": "{value} mln marta ko'rilgan",
+    "parentAdded": "Ota-ona qo'shgan",
+    "playlist": "Pleylist",
+    "youtube": "YouTube",
+    "untitled": "Qo'shilgan YouTube videosi"
+  },
+  "Home": {
+    "emptyTitle": "Hali tanlangan video yo'q",
+    "emptyBody": "Ota-ona sozlamalari orqali video qo'shing.",
+    "openSettings": "Sozlamalarni ochish"
+  },
+  "Watch": {
+    "recommendations": "Tavsiya etilgan videoni ko'rish",
+    "loadingTitle": "Video yuklanmoqda",
+    "loadingBody": "Ota-ona tasdiqlagan kutubxona tekshirilmoqda.",
+    "unavailableTitle": "Video mavjud emas",
+    "unavailableBody": "Bu video yashirilgan, o'chirilgan yoki kutubxonada yo'q.",
+    "home": "Bosh sahifa",
+    "goHome": "Bosh sahifaga",
+    "parentSettings": "Ota-ona sozlamalari",
+    "openSettings": "Sozlamalarni ochish",
+    "recommendationsTitle": "Tavsiyalar",
+    "showRecommendations": "Tavsiyalarni ko'rsatish"
+  },
+  "Player": {
+    "play": "Videoni yoqish",
+    "pause": "To'xtatish",
+    "mute": "Ovozni o'chirish",
+    "unmute": "Ovozni yoqish",
+    "volume": "Ovoz {value}%",
+    "volumeUp": "Ovozni oshirish",
+    "volumeDown": "Ovozni pasaytirish",
+    "nextVideo": "Keyingi tanlangan video",
+    "previousVideo": "Oldingi tanlangan video",
+    "fullScreen": "To'liq ekran",
+    "exitFullScreen": "To'liq ekrandan chiqish",
+    "lockControls": "Boshqaruvni qulflash",
+    "unlockControls": "Boshqaruv qulfini ochish",
+    "repeatOneEnabled": "Takrorlash yoqilgan",
+    "repeatOneDisabled": "Takrorlash o'chirilgan",
+    "controls": "Video boshqaruvi",
+    "seek": "Videoni oldinga-orqaga surish",
+    "help": "Video pleyer. Chap va o'ng tugmalar bilan videoni surasiz, yuqori va pastki tugmalar bilan ovozni sozlaysiz, Enter tugmasi yoqadi yoki to'xtatadi.",
+    "surface": "{title} video oynasi",
+    "back15": "15 soniya orqaga",
+    "forward15": "15 soniya oldinga"
+  },
+  "Settings": {
+    "title": "Ota-ona sozlamalari",
+    "approvedCount": "{count, plural, =0 {Tanlangan video yo'q} other {{value} ta tanlangan video}}",
+    "exportParentSettings": "Sozlamalarni eksport qilish",
+    "importParentSettings": "Sozlamalarni import qilish",
+    "addVideoLink": "Video havolasini qo'shish",
+    "addVideo": "Qo'shish",
+    "resetAllVideos": "Standart ro'yxatga qaytarish",
+    "resetAllVideosConfirm": "Standart video ro'yxatiga qaytarilsinmi? Ota-ona qo'shgan videolar va yashirilgan tanlovlar o'chiriladi.",
+    "cancel": "Bekor qilish",
+    "close": "Yopish",
+    "searchVideos": "Videolarni qidirish",
+    "approvedVideos": "Tanlangan videolar",
+    "hiddenVideos": "Yashirilgan videolar",
+    "showApprovedVideos": "Tanlangan videolarni ko'rsatish",
+    "showHiddenVideos": "Yashirilgan videolarni ko'rsatish",
+    "approveAll": "Barchasini tanlash",
+    "approveAllVideos": "Barcha videolarni tanlash",
+    "approveAllConfirm": "Kutubxonadagi barcha videolar tanlansinmi?",
+    "hideAll": "Barchasini yashirish",
+    "hideAllVideos": "Barcha videolarni yashirish",
+    "hideAllConfirm": "Tanlangan barcha videolar bosh sahifadan yashirilsinmi?",
+    "importSettings": "Sozlamalarni import qilish",
+    "pasteYoutubeLink": "YouTube video yoki pleylist havolasini joylashtiring",
+    "pasteExportCode": "KidTube eksport kodini joylashtiring",
+    "noVideosFound": "{tab, select, approved {Tanlangan videolar topilmadi.} other {Yashirilgan videolar topilmadi.}}",
+    "hide": "Yashirish",
+    "show": "Ko'rsatish",
+    "hideVideo": "{title} videosini yashirish",
+    "showVideo": "{title} videosini ko'rsatish",
+    "removeCompletely": "Butunlay o'chirish",
+    "removeVideoCompletely": "{title} videosini butunlay o'chirish",
+    "exportCopied": "Eksport kodi nusxalandi",
+    "copying": "Nusxalanmoqda...",
+    "copyFailed": "Nusxalab bo'lmadi"
+  },
+  "Library": {
+    "checkingPlaylist": "Pleylist tekshirilmoqda...",
+    "playlistNoVideos": "Bu pleylistda video topilmadi.",
+    "checkingVideoDetails": "Video ma'lumotlari tekshirilmoqda...",
+    "checkingVideoDetailsProgress": "Video ma'lumotlari tekshirilmoqda... {done}/{total}",
+    "playlistAdded": "{count, plural, other {# ta pleylist videosi qo'shildi.}}",
+    "invalidYoutubeLink": "To'g'ri YouTube video, pleylist havolasi yoki video ID kiriting.",
+    "readingImportCode": "Import kodi o'qilmoqda...",
+    "importComplete": "Import yakunlandi.",
+    "errors": {
+      "invalidCode": "To'g'ri KidTube eksport kodini joylashtiring.",
+      "codeTooShort": "Eksport kodi juda qisqa.",
+      "decompressUnsupported": "Bu brauzer siqilgan eksport kodlarini o'qiy olmaydi.",
+      "unsupportedVersion": "Eksport kodi versiyasi qo'llab-quvvatlanmaydi.",
+      "invalidVideo": "Eksport kodida noto'g'ri video bor.",
+      "unknown": "Bu kodni import qilib bo'lmadi."
+    }
+  }
+}
