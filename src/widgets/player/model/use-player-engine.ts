@@ -1,5 +1,10 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { lockedEmbedUrl, youTubeApi, watchUrl } from "@/shared/api/youtube";
+import {
+  lockedEmbedUrl,
+  warmYouTubeOrigins,
+  watchUrl,
+  youTubeApi,
+} from "@/shared/api/youtube";
 import {
   PLAYER_BOOT_KICK_MS,
   PLAYER_SKELETON_MS,
@@ -86,6 +91,10 @@ export function usePlayerEngine({
   useEffect(() => {
     preferences.saveVolume(volume);
   }, [preferences, volume]);
+
+  // The embed's own connections cost as much as its first frame; open them as
+  // soon as a player exists rather than when the src is set.
+  useEffect(warmYouTubeOrigins, []);
 
   useEffect(() => {
     currentTimeRef.current = currentTime;

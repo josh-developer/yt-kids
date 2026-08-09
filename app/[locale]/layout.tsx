@@ -81,6 +81,17 @@ export default async function LocaleLayout({
 
   return (
     <html lang={locale}>
+      <head>
+        {/*
+          The embed's first frame waits on a DNS lookup and a TLS handshake to
+          hosts this document already knows it will need. Opening them during
+          the first paint takes that off the player's critical path.
+        */}
+        <link rel="preconnect" href="https://www.youtube-nocookie.com" />
+        <link rel="preconnect" href="https://i.ytimg.com" />
+        <link rel="preconnect" href="https://www.youtube.com" />
+        <link rel="dns-prefetch" href="https://googlevideo.com" />
+      </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} ${nunitoBrand.variable} antialiased`}
       >

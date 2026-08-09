@@ -1,5 +1,6 @@
 import { useTranslations } from "next-intl";
 import { useEffect, useRef, useState } from "react";
+import { prefetchVideo } from "@/shared/api/youtube";
 import { useVideoLabels, type Video } from "@/entities/video";
 import { useControlsVisibility } from "../model/use-controls-visibility";
 import { usePlayerEngine } from "../model/use-player-engine";
@@ -219,6 +220,10 @@ export function SafeYouTubePlayer({
     if (request) {
       setPreviewDirection(request);
       setIsPreviewVisible(true);
+      const target = request === "previous" ? previousVideo : nextVideo;
+      if (target) {
+        prefetchVideo(target.videoId);
+      }
       return;
     }
 
