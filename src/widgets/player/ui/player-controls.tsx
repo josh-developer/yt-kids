@@ -141,7 +141,14 @@ export function PlayerControls({
       >
         -
       </button>
-      <span className={styles.volumeMeter} aria-label={t("volume", { value: volume })}>
+      <span
+        className={styles.volumeMeter}
+        role="meter"
+        aria-valuemin={0}
+        aria-valuemax={100}
+        aria-valuenow={volume}
+        aria-label={t("volume", { value: volume })}
+      >
         <span style={{ width: `${volume}%` }} />
       </span>
       <button
