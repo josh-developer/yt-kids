@@ -86,14 +86,12 @@ export function UpNextCountdown({
   secondsLeft,
   totalSeconds,
   video,
-  onCancel,
   onPlayNow,
   onReplay,
 }: {
   secondsLeft: number;
   totalSeconds: number;
   video: Video;
-  onCancel: () => void;
   onPlayNow: () => void;
   onReplay: () => void;
 }) {
@@ -149,7 +147,7 @@ export function UpNextCountdown({
           type="button"
           onClick={(event) => {
             stop(event);
-            onCancel();
+            onPlayNow();
           }}
           onDoubleClick={stop}
         >

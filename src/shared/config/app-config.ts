@@ -45,4 +45,4 @@ export const PLAYER_UNREACHABLE_MS = 18000;
  * How long the next video waits before it starts on its own. Long enough to
  * read the title and reach the replay button, short enough not to feel stuck.
  */
-export const AUTOPLAY_COUNTDOWN_SECONDS = 6;
+export const AUTOPLAY_COUNTDOWN_SECONDS = 4;

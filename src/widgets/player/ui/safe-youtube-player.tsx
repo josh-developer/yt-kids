@@ -381,7 +381,6 @@ export function SafeYouTubePlayer({
           secondsLeft={autoplaySecondsLeft}
           totalSeconds={AUTOPLAY_COUNTDOWN_SECONDS}
           video={nextVideo}
-          onCancel={cancelAutoplayCountdown}
           onPlayNow={() => {
             cancelAutoplayCountdown();
             onNextVideo();

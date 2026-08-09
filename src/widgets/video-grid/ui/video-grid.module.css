@@ -6,8 +6,14 @@
 
 @media (min-width: 1081px) {
   .videoGrid {
+    grid-template-columns: repeat(auto-fill, minmax(420px, 1fr));
+    gap: 16px;
+  }
+
+  /* TV browsers alone get the couch-sized cards; everything else — iPads,
+     resized desktop windows — stays on the regular card width above. */
+  :global([data-tv]) .videoGrid {
     grid-template-columns: repeat(auto-fill, minmax(580px, 1fr));
-    gap: 36px 26px;
   }
 }
 
@@ -21,5 +27,6 @@
 @media (max-width: 720px) {
   .videoGrid {
     grid-template-columns: 1fr;
+    gap: 16px;
   }
 }
