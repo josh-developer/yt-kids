@@ -1,9 +1,12 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { lockedEmbedUrl, youTubeApi, watchUrl } from "@/shared/api/youtube";
+import { PLAYER_SKELETON_MS } from "@/shared/config/app-config";
+import { createSessionStore } from "@/shared/lib/storage/key-value-store";
 import { clamp, parseDurationText } from "@/shared/lib/time";
 import { TimerBag } from "@/shared/lib/timers";
 import type { Video } from "@/entities/video";
 import { PlayerController } from "./player-controller";
+import { PlayerPreferences } from "./player-preferences";
 import { PLAYER_STATE, readPlayerTelemetry } from "./player-messages";
 
 const PROGRESS_TICK_MS = 750;
@@ -11,7 +14,6 @@ const TELEMETRY_TICK_MS = 650;
 const TELEMETRY_ATTEMPTS = 12;
 const PLAY_RETRY_MS = 350;
 const END_TOLERANCE_SECONDS = 0.25;
-const DEFAULT_VOLUME = 80;
 
 /**
  * Playback state for one video: sends commands to the embed, folds the
@@ -32,11 +34,17 @@ export function usePlayerEngine({
   onPlayingChange: (isPlaying: boolean) => void;
 }) {
   const player = useMemo(() => new PlayerController(iframeRef), [iframeRef]);
+  const preferences = useMemo(
+    () => new PlayerPreferences(createSessionStore()),
+    [],
+  );
   const timers = useRef(new TimerBag());
 
   const [isPlaying, setIsPlaying] = useState(true);
-  const [isMuted, setIsMuted] = useState(false);
-  const [volume, setVolumeState] = useState(DEFAULT_VOLUME);
+  const [isMuted, setIsMuted] = useState(() => preferences.readMuted());
+  const [volume, setVolumeState] = useState(() => preferences.readVolume());
+  // Covers the embed while it boots, instead of showing YouTube's own chrome.
+  const [isBooting, setIsBooting] = useState(true);
   const [currentTime, setCurrentTime] = useState(0);
   const [durationSeconds, setDurationSeconds] = useState(() =>
     parseDurationText(video.duration),
@@ -55,6 +63,14 @@ export function usePlayerEngine({
     videoRef.current = video;
     callbacks.current = { onDurationResolved, onEnded, onPlayingChange };
   });
+
+  useEffect(() => {
+    preferences.saveMuted(isMuted);
+  }, [isMuted, preferences]);
+
+  useEffect(() => {
+    preferences.saveVolume(volume);
+  }, [preferences, volume]);
 
   useEffect(() => {
     currentTimeRef.current = currentTime;
@@ -78,13 +94,18 @@ export function usePlayerEngine({
     publishedDurationRef.current = fallbackDuration;
     isRestartingRef.current = false;
     timers.current.clearAll();
+    timers.current.timeout(
+      "skeleton",
+      () => setIsBooting(false),
+      PLAYER_SKELETON_MS,
+    );
 
     const frame = window.requestAnimationFrame(() => {
       setCurrentTime(0);
       setDurationSeconds(fallbackDuration);
       setShouldAutoplay(true);
       setIsPlaying(true);
-      setIsMuted(false);
+      setIsBooting(true);
     });
 
     return () => window.cancelAnimationFrame(frame);
@@ -312,8 +333,10 @@ export function usePlayerEngine({
 
   return {
     reloadKey,
-    // Autoplay only works muted; the play command unmutes right after.
-    embedUrl: lockedEmbedUrl(video.videoId, shouldAutoplay, shouldAutoplay),
+    isBooting,
+    // Started unmuted: opening a video is itself a user gesture on this
+    // origin, which satisfies Chrome's autoplay policy.
+    embedUrl: lockedEmbedUrl(video.videoId, shouldAutoplay),
     isPlaying,
     isMuted,
     volume,

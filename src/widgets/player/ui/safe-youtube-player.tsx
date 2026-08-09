@@ -11,9 +11,11 @@ import {
   BigPlayButton,
   LockButton,
   PlayerPoster,
+  PlayerSkeleton,
   SeekHints,
   SideNavButtons,
   TitleCover,
+  UnmuteButton,
 } from "./player-overlays";
 import { PlayerProgress } from "./player-progress";
 
@@ -126,6 +128,10 @@ export function SafeYouTubePlayer({
       revealControls();
       engine.playPause();
     },
+    onToggleMute: () => {
+      revealControls();
+      engine.toggleMute();
+    },
     onVolumeBy: (delta) => {
       revealControls();
       engine.setVolume(engine.volume + delta);
@@ -194,10 +200,20 @@ export function SafeYouTubePlayer({
       />
 
       <TitleCover isControlsVisible={controls.isVisible} />
+      <PlayerSkeleton isVisible={engine.isBooting} />
       <SeekHints hint={gestures.seekHint} />
 
       {isLocked || controls.isVisible ? (
         <LockButton isLocked={isLocked} onToggle={toggleLock} />
+      ) : null}
+
+      {!isLocked && engine.isMuted ? (
+        <UnmuteButton
+          onUnmute={() => {
+            revealControls();
+            engine.toggleMute();
+          }}
+        />
       ) : null}
 
       {isLocked ? null : (
@@ -246,6 +262,7 @@ export function SafeYouTubePlayer({
               engine.playPause();
             }}
             onPrevious={onPreviousVideo}
+            onSeekBy={seekBy}
             onToggleFullscreen={() => {
               revealControls();
               void fullscreen.toggle();

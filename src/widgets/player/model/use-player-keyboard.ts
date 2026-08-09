@@ -11,6 +11,7 @@ type PlayerKeyboardActions = {
   onToggleFullscreen: () => void;
   onExitFullscreen: () => void;
   onPlayPause: () => void;
+  onToggleMute: () => void;
   onVolumeBy: (delta: number) => void;
 };
 
@@ -58,6 +59,12 @@ export function usePlayerKeyboard(actions: PlayerKeyboardActions) {
       if (event.key.toLowerCase() === "f") {
         event.preventDefault();
         current.onToggleFullscreen();
+        return;
+      }
+
+      if (event.key.toLowerCase() === "m") {
+        event.preventDefault();
+        current.onToggleMute();
         return;
       }
 

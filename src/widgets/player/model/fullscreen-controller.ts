@@ -10,7 +10,13 @@ import {
  * fullscreen" case, so the hook above only deals in enter / exit / is-active.
  */
 export class FullscreenController {
-  constructor(private readonly element: () => FullscreenHostElement | null) {}
+  constructor(
+    private readonly host: { current: HTMLDivElement | null },
+  ) {}
+
+  private get element() {
+    return this.host.current as FullscreenHostElement | null;
+  }
 
   /** iOS Safari never grants element fullscreen; callers fall back to CSS. */
   get supportsNative() {
@@ -19,7 +25,7 @@ export class FullscreenController {
 
   get isNativeActive() {
     const host = document as FullscreenHostDocument;
-    const target = this.element();
+    const target = this.element;
     return (
       document.fullscreenElement === target ||
       host.webkitFullscreenElement === target
@@ -27,7 +33,7 @@ export class FullscreenController {
   }
 
   async enterNative() {
-    const target = this.element();
+    const target = this.element;
     if (!target) {
       return false;
     }

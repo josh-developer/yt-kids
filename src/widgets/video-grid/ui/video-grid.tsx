@@ -1,4 +1,5 @@
 import { VideoCard, type Video } from "@/entities/video";
+import { VirtualGrid } from "@/shared/ui/virtual-grid";
 
 export function VideoGrid({
   videos,
@@ -8,10 +9,11 @@ export function VideoGrid({
   onOpenVideo: (video: Video) => void;
 }) {
   return (
-    <div className="video-grid">
-      {videos.map((video) => (
-        <VideoCard key={video.id} video={video} onOpen={onOpenVideo} />
-      ))}
-    </div>
+    <VirtualGrid
+      items={videos}
+      className="video-grid"
+      getKey={(video) => video.id}
+      renderItem={(video) => <VideoCard video={video} onOpen={onOpenVideo} />}
+    />
   );
 }

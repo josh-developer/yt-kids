@@ -12,6 +12,8 @@ import {
 } from "lucide-react";
 import { useTranslations } from "next-intl";
 
+import { SEEK_STEP_SECONDS } from "@/shared/config/app-config";
+
 const VOLUME_STEP = 10;
 
 export function PlayerControls({
@@ -27,6 +29,7 @@ export function PlayerControls({
   onPrevious,
   onToggleFullscreen,
   onToggleMute,
+  onSeekBy,
   onToggleRepeat,
   onVolumeChange,
 }: {
@@ -40,6 +43,7 @@ export function PlayerControls({
   onNext: () => void;
   onPlayPause: () => void;
   onPrevious: () => void;
+  onSeekBy: (seconds: number) => void;
   onToggleFullscreen: () => void;
   onToggleMute: () => void;
   onToggleRepeat: () => void;
@@ -51,35 +55,55 @@ export function PlayerControls({
   return (
     <div className="safe-player-controls" aria-label={t("controls")}>
       <div className="footer-transport-controls">
+        {/* Narrow layouts reach these through the on-video side buttons. */}
+        <div className="wide-screen-video-nav">
+          <button
+            className="player-control-button"
+            disabled={!hasPrevious}
+            onClick={onPrevious}
+            type="button"
+            aria-label={t("previousVideo")}
+          >
+            <SkipBack size={16} fill="currentColor" />
+          </button>
+          <button
+            className="player-control-button primary"
+            onClick={onPlayPause}
+            type="button"
+            aria-label={isPlaying ? t("pause") : t("play")}
+          >
+            {isPlaying ? (
+              <Pause size={16} fill="currentColor" />
+            ) : (
+              <Play size={16} fill="currentColor" />
+            )}
+          </button>
+          <button
+            className="player-control-button"
+            disabled={!hasNext}
+            onClick={onNext}
+            type="button"
+            aria-label={t("nextVideo")}
+          >
+            <SkipForward size={16} fill="currentColor" />
+          </button>
+          <span className="control-divider" />
+        </div>
         <button
-          className="player-control-button"
-          disabled={!hasPrevious}
-          onClick={onPrevious}
+          className="player-control-button seek-step"
+          onClick={() => onSeekBy(-SEEK_STEP_SECONDS)}
           type="button"
-          aria-label={t("previousVideo")}
+          aria-label={t("back15")}
         >
-          <SkipBack size={16} fill="currentColor" />
+          -{SEEK_STEP_SECONDS}
         </button>
         <button
-          className="player-control-button primary"
-          onClick={onPlayPause}
+          className="player-control-button seek-step"
+          onClick={() => onSeekBy(SEEK_STEP_SECONDS)}
           type="button"
-          aria-label={isPlaying ? t("pause") : t("play")}
+          aria-label={t("forward15")}
         >
-          {isPlaying ? (
-            <Pause size={16} fill="currentColor" />
-          ) : (
-            <Play size={16} fill="currentColor" />
-          )}
-        </button>
-        <button
-          className="player-control-button"
-          disabled={!hasNext}
-          onClick={onNext}
-          type="button"
-          aria-label={t("nextVideo")}
-        >
-          <SkipForward size={16} fill="currentColor" />
+          +{SEEK_STEP_SECONDS}
         </button>
         <span className="control-divider" />
       </div>

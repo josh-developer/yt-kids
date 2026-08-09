@@ -25,10 +25,12 @@ export class MemoryStore implements KeyValueStore {
   }
 }
 
-export class LocalStorageStore implements KeyValueStore {
+class WebStorageStore implements KeyValueStore {
+  constructor(private readonly storage: () => Storage) {}
+
   read(key: string) {
     try {
-      return window.localStorage.getItem(key);
+      return this.storage().getItem(key);
     } catch {
       // Private-mode Safari throws on access rather than returning null.
       return null;
@@ -37,7 +39,7 @@ export class LocalStorageStore implements KeyValueStore {
 
   write(key: string, value: string) {
     try {
-      window.localStorage.setItem(key, value);
+      this.storage().setItem(key, value);
     } catch {
       // Out of quota: the app still works for this session.
     }
@@ -45,10 +47,23 @@ export class LocalStorageStore implements KeyValueStore {
 
   remove(key: string) {
     try {
-      window.localStorage.removeItem(key);
+      this.storage().removeItem(key);
     } catch {
       // Nothing to clean up if the store is unavailable.
     }
+  }
+}
+
+export class LocalStorageStore extends WebStorageStore {
+  constructor() {
+    super(() => window.localStorage);
+  }
+}
+
+/** Cleared when the tab closes; used for per-session player preferences. */
+export class SessionStorageStore extends WebStorageStore {
+  constructor() {
+    super(() => window.sessionStorage);
   }
 }
 
@@ -57,4 +72,11 @@ export function createBrowserStore(): KeyValueStore {
   return typeof window === "undefined"
     ? new MemoryStore()
     : new LocalStorageStore();
+}
+
+/** `SessionStorageStore` in the browser, an in-memory stand-in on the server. */
+export function createSessionStore(): KeyValueStore {
+  return typeof window === "undefined"
+    ? new MemoryStore()
+    : new SessionStorageStore();
 }

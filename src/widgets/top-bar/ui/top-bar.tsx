@@ -1,4 +1,4 @@
-import { Plus, RotateCcw } from "lucide-react";
+import { Plus } from "lucide-react";
 import { useTranslations } from "next-intl";
 import type { AppLocale } from "@/shared/config/i18n/routing";
 import type { AppView } from "@/shared/lib/routing/app-routes";
@@ -20,7 +20,6 @@ export function TopBar({
   onLocaleSwitch,
   onSearchSubmit,
   onSettings,
-  onShuffle,
   onThemeToggle,
 }: {
   homeQuery: string;
@@ -33,7 +32,6 @@ export function TopBar({
   onLocaleSwitch: () => void;
   onSearchSubmit: () => void;
   onSettings: () => void;
-  onShuffle: () => void;
   onThemeToggle: () => void;
 }) {
   const t = useTranslations("TopBar");
@@ -51,9 +49,6 @@ export function TopBar({
       </div>
 
       <div className="top-actions">
-        <IconButton label={t("shuffleHome")} onClick={onShuffle}>
-          <RotateCcw size={19} />
-        </IconButton>
         <ThemeToggleButton theme={theme} onToggle={onThemeToggle} />
         <IconButton
           label={t("parentSettings")}

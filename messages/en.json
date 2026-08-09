@@ -18,7 +18,6 @@
     "goHome": "Go home",
     "searchApprovedVideos": "Search approved videos",
     "search": "Search",
-    "shuffleHome": "Shuffle home",
     "useDarkMode": "Use dark mode",
     "useLightMode": "Use light mode",
     "parentSettings": "Parent settings"
@@ -50,7 +49,9 @@
     "home": "Home",
     "goHome": "Go home",
     "parentSettings": "Parent settings",
-    "openSettings": "Open settings"
+    "openSettings": "Open settings",
+    "recommendationsTitle": "Recommendations",
+    "showRecommendations": "Show recommendations"
   },
   "Player": {
     "play": "Play video",
@@ -71,7 +72,9 @@
     "controls": "Video controls",
     "seek": "Seek video",
     "help": "Video player. Use left and right to seek, up and down for volume, and enter to play or pause.",
-    "surface": "{title} video surface"
+    "surface": "{title} video surface",
+    "back15": "Go back 15 seconds",
+    "forward15": "Go forward 15 seconds"
   },
   "Settings": {
     "title": "Parent settings",

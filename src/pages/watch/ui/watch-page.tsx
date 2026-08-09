@@ -11,23 +11,27 @@ export function WatchPage({
   nextVideo,
   previousVideo,
   recommendations,
+  showRecommendations,
   video,
   onDurationResolved,
   onFullscreenChange,
   onNextVideo,
   onOpenVideo,
   onPreviousVideo,
+  onToggleRecommendations,
 }: {
   isTvBrowser: boolean;
   nextVideo: Video | null;
   previousVideo: Video | null;
   recommendations: Video[];
+  showRecommendations: boolean;
   video: Video;
   onDurationResolved: (video: Video, seconds: number) => void;
   onFullscreenChange?: (isFullscreen: boolean) => void;
   onNextVideo: () => void;
   onOpenVideo: (video: Video) => void;
   onPreviousVideo: () => void;
+  onToggleRecommendations: () => void;
 }) {
   const labels = useVideoLabels();
 
@@ -56,7 +60,12 @@ export function WatchPage({
         </div>
       </article>
 
-      <Recommendations videos={recommendations} onOpenVideo={onOpenVideo} />
+      <Recommendations
+        isEnabled={showRecommendations}
+        videos={recommendations}
+        onOpenVideo={onOpenVideo}
+        onToggle={onToggleRecommendations}
+      />
     </div>
   );
 }

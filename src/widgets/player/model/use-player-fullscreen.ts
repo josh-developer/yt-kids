@@ -1,17 +1,11 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import {
-  unlockScreenOrientation,
-  type FullscreenHostElement,
-} from "@/shared/lib/platform";
+import { unlockScreenOrientation } from "@/shared/lib/platform";
 import { FullscreenController } from "./fullscreen-controller";
-
-type FullscreenTrigger = "auto" | "manual";
 
 /**
  * Fullscreen with two backends: the real Fullscreen API where it exists, and a
- * CSS-only "virtual" fullscreen for iOS. Rotating to landscape enters it
- * automatically, and only that automatic entry is undone by rotating back —
- * a fullscreen the user asked for stays until they leave it.
+ * CSS-only "virtual" fullscreen for iOS. Entering is always an explicit
+ * choice; rotating the device does not decide it for the viewer.
  */
 export function usePlayerFullscreen({
   hostRef,
@@ -21,18 +15,13 @@ export function usePlayerFullscreen({
   onChange?: (isFullscreen: boolean) => void;
 }) {
   const controller = useMemo(
-    () =>
-      new FullscreenController(
-        () => hostRef.current as FullscreenHostElement | null,
-      ),
+    () => new FullscreenController(hostRef),
     [hostRef],
   );
   const [isNative, setIsNative] = useState(false);
   const [isVirtual, setIsVirtual] = useState(false);
   const isFullscreen = isNative || isVirtual;
 
-  const triggerRef = useRef<FullscreenTrigger | null>(null);
-  const isFullscreenRef = useRef(false);
   const onChangeRef = useRef(onChange);
 
   useEffect(() => {
@@ -40,7 +29,6 @@ export function usePlayerFullscreen({
   }, [onChange]);
 
   useEffect(() => {
-    isFullscreenRef.current = isFullscreen;
     onChangeRef.current?.(isFullscreen);
   }, [isFullscreen]);
 
@@ -56,7 +44,6 @@ export function usePlayerFullscreen({
 
       // The browser's own UI (Android back gesture, Esc) closed fullscreen
       // out from under us — mirror that everywhere.
-      triggerRef.current = null;
       unlockScreenOrientation();
     }
 
@@ -70,27 +57,6 @@ export function usePlayerFullscreen({
       );
     };
   }, [controller]);
-
-  useEffect(() => {
-    const query = window.matchMedia("(orientation: landscape)");
-
-    function handleOrientationChange(event: MediaQueryListEvent) {
-      if (event.matches) {
-        if (!isFullscreenRef.current) {
-          void enter("auto");
-        }
-        return;
-      }
-
-      if (isFullscreenRef.current && triggerRef.current === "auto") {
-        void exit();
-      }
-    }
-
-    query.addEventListener("change", handleOrientationChange);
-    return () => query.removeEventListener("change", handleOrientationChange);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
 
   // Virtual fullscreen covers the viewport with CSS, so the page underneath
   // must not scroll or rubber-band.
@@ -120,9 +86,7 @@ export function usePlayerFullscreen({
     };
   }, [isVirtual]);
 
-  async function enter(trigger: FullscreenTrigger) {
-    triggerRef.current = trigger;
-
+  async function enter() {
     if (controller.supportsNative) {
       try {
         if (await controller.enterNative()) {
@@ -141,7 +105,6 @@ export function usePlayerFullscreen({
 
   async function exit() {
     await controller.exitNative();
-    triggerRef.current = null;
     setIsNative(false);
     setIsVirtual(false);
   }
@@ -152,7 +115,7 @@ export function usePlayerFullscreen({
       return;
     }
 
-    await enter("manual");
+    await enter();
   }
 
   return { isFullscreen, isVirtual, enter, exit, toggle };

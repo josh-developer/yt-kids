@@ -18,14 +18,13 @@
     "goHome": "Bosh sahifaga",
     "searchApprovedVideos": "Tanlangan videolarni qidirish",
     "search": "Qidirish",
-    "shuffleHome": "Bosh sahifani aralashtirish",
     "useDarkMode": "Tungi rejimga o'tish",
     "useLightMode": "Kunduzgi rejimga o'tish",
     "parentSettings": "Ota-ona sozlamalari"
   },
   "Format": {
     "decimalSeparator": ",",
-    "groupSeparator": "\u00a0"
+    "groupSeparator": " "
   },
   "Video": {
     "views": "{value} marta ko'rilgan",
@@ -50,7 +49,9 @@
     "home": "Bosh sahifa",
     "goHome": "Bosh sahifaga",
     "parentSettings": "Ota-ona sozlamalari",
-    "openSettings": "Sozlamalarni ochish"
+    "openSettings": "Sozlamalarni ochish",
+    "recommendationsTitle": "Tavsiyalar",
+    "showRecommendations": "Tavsiyalarni ko'rsatish"
   },
   "Player": {
     "play": "Videoni yoqish",
@@ -71,7 +72,9 @@
     "controls": "Video boshqaruvi",
     "seek": "Videoni oldinga-orqaga surish",
     "help": "Video pleyer. Chap va o'ng tugmalar bilan videoni surasiz, yuqori va pastki tugmalar bilan ovozni sozlaysiz, Enter tugmasi yoqadi yoki to'xtatadi.",
-    "surface": "{title} video oynasi"
+    "surface": "{title} video oynasi",
+    "back15": "15 soniya orqaga",
+    "forward15": "15 soniya oldinga"
   },
   "Settings": {
     "title": "Ota-ona sozlamalari",

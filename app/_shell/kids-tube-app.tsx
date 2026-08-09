@@ -10,6 +10,7 @@ import { useLibrary } from "@/entities/library";
 import { useVideoLabels, type Video } from "@/entities/video";
 import { WatchStack } from "@/entities/watch-history";
 import { useLocaleSwitch } from "@/features/locale-switch";
+import { useRecommendationsPreference } from "@/features/recommendations-toggle";
 import { useTheme } from "@/features/theme-toggle";
 import { HomePage } from "@/pages/home";
 import { SettingsPage } from "@/pages/settings";
@@ -33,12 +34,15 @@ export function KidsTubeApp({
   const libraryController = useLibrary();
   const { library, isLoaded } = libraryController;
   const { theme, toggle: toggleTheme } = useTheme();
+  const recommendationsPreference = useRecommendationsPreference();
   const isTopbarHidden = useTopbarAutoHide();
 
   const [homeQuery, setHomeQuery] = useState(
     initialRoute.view === "home" ? initialRoute.query : "",
   );
   const [shuffleSalt, setShuffleSalt] = useState(8112);
+  // Re-rolled per video so the sidebar is not the same list every time.
+  const [recommendationSeed, setRecommendationSeed] = useState(8112);
   const [watchStack, setWatchStack] = useState(() =>
     initialRoute.view === "watch"
       ? WatchStack.startingAt(initialRoute.videoId)
@@ -77,6 +81,7 @@ export function KidsTubeApp({
 
   const currentVideo =
     route.view === "watch" ? library.find(route.videoId) : null;
+  const currentVideoId = currentVideo?.id ?? null;
   const lookup = useMemo(
     () => (id: string) => library.find(id),
     [library],
@@ -85,10 +90,22 @@ export function KidsTubeApp({
     ? watchStack.previous(currentVideo.id, lookup)
     : null;
   const recommendations = currentVideo
-    ? library.recommendationsFor(currentVideo, shuffleSalt)
+    ? library.recommendationsFor(currentVideo, recommendationSeed)
     : [];
   const nextVideo = recommendations[0] ?? null;
   const homeVideos = library.feed(homeQuery, shuffleSalt);
+
+  useEffect(() => {
+    if (!currentVideoId) {
+      return;
+    }
+
+    const frame = window.requestAnimationFrame(() =>
+      setRecommendationSeed(randomSalt()),
+    );
+
+    return () => window.cancelAnimationFrame(frame);
+  }, [currentVideoId]);
 
   useEffect(() => {
     // The in-app router moves between views with `history.pushState`, so the
@@ -154,7 +171,6 @@ export function KidsTubeApp({
           navigate({ view: "home", query: homeQuery });
         }}
         onSettings={() => navigate({ view: "settings" })}
-        onShuffle={() => setShuffleSalt(randomSalt())}
         onThemeToggle={toggleTheme}
       />
 
@@ -170,6 +186,7 @@ export function KidsTubeApp({
               nextVideo={nextVideo}
               previousVideo={previousEntry?.video ?? null}
               recommendations={recommendations}
+              showRecommendations={recommendationsPreference.isEnabled}
               video={currentVideo}
               onDurationResolved={(video, seconds) =>
                 libraryController.update((current) =>
@@ -180,6 +197,7 @@ export function KidsTubeApp({
               onNextVideo={openNextVideo}
               onOpenVideo={openVideo}
               onPreviousVideo={openPreviousVideo}
+              onToggleRecommendations={recommendationsPreference.toggle}
             />
           ) : route.view === "watch" ? (
             <WatchUnavailable

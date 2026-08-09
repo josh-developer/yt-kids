@@ -1,9 +1,49 @@
-import { Lock, Pause, Play, SkipBack, SkipForward, Unlock } from "lucide-react";
+import {
+  Lock,
+  Pause,
+  Play,
+  SkipBack,
+  SkipForward,
+  Unlock,
+  VolumeX,
+} from "lucide-react";
 import { useTranslations } from "next-intl";
 import type { MouseEvent } from "react";
 import { thumbnailUrl } from "@/shared/api/youtube";
 import { SEEK_STEP_SECONDS } from "@/shared/config/app-config";
 import type { SeekDirection } from "../model/use-player-gestures";
+
+/** Covers the embed while it boots, hiding YouTube's own loading chrome. */
+export function PlayerSkeleton({ isVisible }: { isVisible: boolean }) {
+  return (
+    <div
+      className={`player-skeleton ${isVisible ? "" : "hidden"}`}
+      aria-hidden="true"
+    >
+      <span className="player-skeleton-spinner" />
+    </div>
+  );
+}
+
+/** Shown while muted: one obvious tap to get sound back. */
+export function UnmuteButton({ onUnmute }: { onUnmute: () => void }) {
+  const t = useTranslations("Player");
+
+  return (
+    <button
+      className="player-unmute-button"
+      onClick={(event) => {
+        event.stopPropagation();
+        onUnmute();
+      }}
+      onDoubleClick={(event) => event.stopPropagation()}
+      type="button"
+      aria-label={t("unmute")}
+    >
+      <VolumeX size={28} />
+    </button>
+  );
+}
 
 /** Hides the YouTube title bar, which links out of the app. */
 export function TitleCover({ isControlsVisible }: { isControlsVisible: boolean }) {

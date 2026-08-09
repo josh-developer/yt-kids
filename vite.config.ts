@@ -45,7 +45,7 @@ export default defineConfig(async () => {
       },
     },
     server: {
-      allowedHosts: [".loca.lt"],
+      allowedHosts: [".loca.lt", ".trycloudflare.com"],
       ...(isCodexSeatbeltSandbox
         ? { watch: { useFsEvents: false, usePolling: true } }
         : undefined),
