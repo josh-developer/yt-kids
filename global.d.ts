@@ -7,3 +7,10 @@ declare module "next-intl" {
     Messages: typeof messages;
   }
 }
+
+declare module "react" {
+  interface CSSProperties {
+    // Inline styles pass design tokens through custom properties.
+    [key: `--${string}`]: string | number | undefined;
+  }
+}
