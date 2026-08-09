@@ -399,6 +399,19 @@ button {
   gap: 28px 18px;
 }
 
+/*
+ * One virtualized row. Rows are absolutely positioned over each other, so an
+ * under-measured row would cover the cards above it: the row surface is inert
+ * and only its cards accept clicks.
+ */
+.virtual-grid-row {
+  pointer-events: none;
+}
+
+.virtual-grid-row > * {
+  pointer-events: auto;
+}
+
 @media (min-width: 1081px) {
   .video-grid {
     grid-template-columns: repeat(auto-fill, minmax(580px, 1fr));

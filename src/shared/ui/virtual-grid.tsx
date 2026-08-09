@@ -102,7 +102,11 @@ export function VirtualGrid<Item>({
             key={row.key}
             data-index={row.index}
             ref={virtualizer.measureElement}
-            className={className}
+            // Rows are absolutely positioned siblings, so a row whose measured
+            // height is behind reality overlaps the one above it and swallows
+            // taps meant for the cards there. Only the cards take pointer
+            // events; the row itself is inert.
+            className={`${className} virtual-grid-row`}
             style={{
               position: "absolute",
               top: 0,
