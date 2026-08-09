@@ -116,8 +116,6 @@ export function SafeYouTubePlayer({
   const isVirtualFullscreenRef = useRef(false);
   const isLockedRef = useRef(false);
   const isFullscreen = isNativeFullscreen || isVirtualFullscreen;
-  const isFullscreenRef = useRef(false);
-  const fullscreenTriggerRef = useRef<"auto" | "manual" | null>(null);
   const onFullscreenChangeRef = useRef(onFullscreenChange);
   const shouldStartMuted = shouldAutoplay;
 
@@ -394,7 +392,6 @@ export function SafeYouTubePlayer({
       } else {
         // The browser's own UI (Android back gesture, etc.) closed native
         // fullscreen out from under us — mirror that everywhere.
-        fullscreenTriggerRef.current = null;
         unlockScreenOrientation();
       }
     }
@@ -408,35 +405,6 @@ export function SafeYouTubePlayer({
         handleFullscreenChange,
       );
     };
-  }, []);
-
-  useEffect(() => {
-    // Auto-enter fullscreen when the device physically rotates to
-    // landscape while watching, and auto-exit that specific auto-entered
-    // fullscreen when it rotates back. A manually-entered fullscreen (via
-    // the button) is left exactly as the user chose it — portrait stays
-    // portrait until they exit it themselves.
-    const query = window.matchMedia("(orientation: landscape)");
-
-    function handleOrientationChange(event: MediaQueryListEvent) {
-      if (event.matches) {
-        if (!isFullscreenRef.current) {
-          void enterFullscreen("auto");
-        }
-        return;
-      }
-
-      if (
-        isFullscreenRef.current &&
-        fullscreenTriggerRef.current === "auto"
-      ) {
-        void exitFullscreenAll();
-      }
-    }
-
-    query.addEventListener("change", handleOrientationChange);
-    return () => query.removeEventListener("change", handleOrientationChange);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -619,7 +587,6 @@ export function SafeYouTubePlayer({
   seekRelativeRef.current = seekRelative;
   isVirtualFullscreenRef.current = isVirtualFullscreen;
   isLockedRef.current = isLocked;
-  isFullscreenRef.current = isFullscreen;
 
   useEffect(() => {
     function handleWindowKeyDown(event: globalThis.KeyboardEvent) {
@@ -946,9 +913,7 @@ export function SafeYouTubePlayer({
     return false;
   }
 
-  async function enterFullscreen(trigger: "auto" | "manual") {
-    fullscreenTriggerRef.current = trigger;
-
+  async function enterFullscreen() {
     if (!isIosLikeBrowser() && playerBoxRef.current) {
       try {
         const didEnterNativeFullscreen = await requestNativeFullscreen();
@@ -974,7 +939,6 @@ export function SafeYouTubePlayer({
       await exitNativeFullscreen();
     }
 
-    fullscreenTriggerRef.current = null;
     setIsNativeFullscreen(false);
     setIsVirtualFullscreen(false);
     unlockScreenOrientation();
@@ -988,7 +952,7 @@ export function SafeYouTubePlayer({
       return;
     }
 
-    await enterFullscreen("manual");
+    await enterFullscreen();
   }
 
   function exitFallbackFullscreenOnEscape(event: KeyboardEvent<HTMLDivElement>) {

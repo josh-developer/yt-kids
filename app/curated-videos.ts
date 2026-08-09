@@ -1442,20 +1442,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     source: "catalog"
   },
   {
-    id: "uzbek-old-098",
-    videoId: "XkQrIeZrqgg",
-    title: "Oppog'oy va 7 mitti odam o'zbek tilida",
-    channel: "VIDEOVE",
-    duration: "1:20:08",
-    views: "6,875,730 views",
-    tags: [
-      "uzbek",
-      "old cartoons"
-    ],
-    accent: "#0b8043",
-    source: "catalog"
-  },
-  {
     id: "uzbek-old-099",
     videoId: "LS8133KOa54",
     title: "QIZALOQ VA QUYONCHALAR (O'zbek tilida) | ҚИЗАЛОҚ ВА ҚУЁНЧАЛАР (Узбек тилида) #shokuz",

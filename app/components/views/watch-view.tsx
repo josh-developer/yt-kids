@@ -11,24 +11,28 @@ export function WatchView({
   nextVideo,
   previousVideo,
   recommendations,
+  showRecommendations,
   video,
   onDurationResolved,
   onFullscreenChange,
   onNextVideo,
   onOpenVideo,
   onPreviousVideo,
+  onToggleRecommendations,
 }: {
   copy: CopyText;
   isTvBrowser: boolean;
   nextVideo: Video | null;
   previousVideo: Video | null;
   recommendations: Video[];
+  showRecommendations: boolean;
   video: Video;
   onDurationResolved: (video: Video, seconds: number) => void;
   onFullscreenChange?: (isFullscreen: boolean) => void;
   onNextVideo: () => void;
   onOpenVideo: (video: Video) => void;
   onPreviousVideo: () => void;
+  onToggleRecommendations: () => void;
 }) {
   return (
     <div className="watch-layout">
@@ -58,22 +62,42 @@ export function WatchView({
         </div>
       </article>
 
-      <aside className="recommendations" aria-label={copy.playRecommendedVideo}>
-        {recommendations.map((item) => (
-          <button
-            className="recommendation-card"
-            key={item.id}
-            type="button"
-            onClick={() => onOpenVideo(item)}
+      <aside className="recommendations-panel">
+        <div className="recommendations-header">
+          <span className="recommendations-title">{copy.recommendations}</span>
+          <label className="switch">
+            <input
+              checked={showRecommendations}
+              type="checkbox"
+              onChange={onToggleRecommendations}
+            />
+            <span className="switch-track" aria-hidden="true" />
+            <span className="sr-only">{copy.showRecommendations}</span>
+          </label>
+        </div>
+
+        {showRecommendations ? (
+          <div
+            className="recommendations"
+            aria-label={copy.playRecommendedVideo}
           >
-            <Thumbnail video={item} />
-            <span>
-              <span className="video-title">{item.title}</span>
-              <span className="video-subline">{item.channel}</span>
-              <span className="video-subline">{item.views}</span>
-            </span>
-          </button>
-        ))}
+            {recommendations.map((item) => (
+              <button
+                className="recommendation-card"
+                key={item.id}
+                type="button"
+                onClick={() => onOpenVideo(item)}
+              >
+                <Thumbnail video={item} />
+                <span>
+                  <span className="video-title">{item.title}</span>
+                  <span className="video-subline">{item.channel}</span>
+                  <span className="video-subline">{item.views}</span>
+                </span>
+              </button>
+            ))}
+          </div>
+        ) : null}
       </aside>
     </div>
   );

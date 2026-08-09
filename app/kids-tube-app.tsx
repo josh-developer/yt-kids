@@ -14,6 +14,7 @@ import {
   DEFAULT_LIBRARY,
   LANGUAGE_STORAGE_KEY,
   LIBRARY_VERSION,
+  RECOMMENDATIONS_STORAGE_KEY,
   STORAGE_KEY,
   THEME_STORAGE_KEY,
 } from "./lib/catalog";
@@ -77,6 +78,7 @@ export function KidsTubeApp({
   const [isTvBrowser, setIsTvBrowser] = useState(false);
   const [isTopbarHidden, setIsTopbarHidden] = useState(false);
   const [isPlayerFullscreen, setIsPlayerFullscreen] = useState(false);
+  const [showRecommendations, setShowRecommendations] = useState(true);
   const didLoadStoredLibrary = useRef(false);
   const exportTooltipTimer = useRef<number | null>(null);
   const lastScrollYRef = useRef(0);
@@ -90,6 +92,9 @@ export function KidsTubeApp({
       const storedLibrary = readStoredLibrary();
       const storedTheme = window.localStorage.getItem(THEME_STORAGE_KEY);
       const storedLanguage = window.localStorage.getItem(LANGUAGE_STORAGE_KEY);
+      const storedRecommendations = window.localStorage.getItem(
+        RECOMMENDATIONS_STORAGE_KEY,
+      );
       const currentRoute = browserRouteFromLocation(initialRoute);
       didLoadStoredLibrary.current = true;
       setLibrary(storedLibrary);
@@ -109,6 +114,9 @@ export function KidsTubeApp({
         setLanguage(storedLanguage);
       } else {
         setLanguage(preferredLanguage());
+      }
+      if (storedRecommendations === "off") {
+        setShowRecommendations(false);
       }
       setIsTvBrowser(isLikelyTvBrowser());
       setHasLoadedStoredLibrary(true);
@@ -606,6 +614,17 @@ export function KidsTubeApp({
     });
   }
 
+  function toggleRecommendations() {
+    setShowRecommendations((current) => {
+      const next = !current;
+      window.localStorage.setItem(
+        RECOMMENDATIONS_STORAGE_KEY,
+        next ? "on" : "off",
+      );
+      return next;
+    });
+  }
+
   return (
     <main
       className={`app-shell theme-${theme} view-${view} ${
@@ -670,12 +689,14 @@ export function KidsTubeApp({
               nextVideo={nextVideo}
               previousVideo={previousVideo}
               recommendations={recommendations}
+              showRecommendations={showRecommendations}
               video={currentVideo}
               onDurationResolved={updateCustomVideoDuration}
               onFullscreenChange={setIsPlayerFullscreen}
               onNextVideo={openNextVideo}
               onOpenVideo={openVideo}
               onPreviousVideo={openPreviousVideo}
+              onToggleRecommendations={toggleRecommendations}
             />
           ) : view === "watch" ? (
             <UnavailableVideoView

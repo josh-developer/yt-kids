@@ -4,6 +4,7 @@ import type { StoredLibrary, Video } from "./types";
 export const STORAGE_KEY = "kidtube-library-v1";
 export const THEME_STORAGE_KEY = "kidtube-theme-v1";
 export const LANGUAGE_STORAGE_KEY = "kidtube-language-v1";
+export const RECOMMENDATIONS_STORAGE_KEY = "kidtube-recommendations-v1";
 export const TRANSFER_PREFIX = "KIDTUBE1";
 export const TRANSFER_SECRET = "kidtube-parent-library-transfer-v1";
 export const LIBRARY_VERSION = 7;
