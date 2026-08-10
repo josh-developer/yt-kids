@@ -15,14 +15,17 @@ const nextIntlRequestConfig = fileURLToPath(
 // macOS Seatbelt blocks FSEvents, so Codex previews need polling for HMR.
 const isCodexSeatbeltSandbox = process.env.CODEX_SANDBOX === "seatbelt";
 
-const localBindingConfig = {
-  main: "./worker/index.ts",
-  compatibility_flags: ["nodejs_compat"],
-  // Transcodes proxied YouTube thumbnails to AVIF/WebP. Requires Images
-  // transformations enabled for the account; the worker falls back to the
-  // original JPEG when the binding is missing.
-  images: { binding: "IMAGES" },
-};
+// The banner is read by people in Tashkent, so stamp it in Tashkent time. An
+// ISO string would be UTC — and CI runners are UTC too, so there is no host
+// clock to fall back on — leaving the banner five hours behind every wall clock
+// in the room. `sv-SE` is the locale that formats as `YYYY-MM-DD HH:mm:ss`.
+const BUILD_TIME_ZONE = "Asia/Tashkent";
+
+const buildTime = `${new Intl.DateTimeFormat("sv-SE", {
+  timeZone: BUILD_TIME_ZONE,
+  dateStyle: "short",
+  timeStyle: "medium",
+}).format(new Date())} UTC+5`;
 
 export default defineConfig(async () => {
   // Keep Wrangler and Miniflare state project-local. These are non-secret tool
@@ -35,6 +38,13 @@ export default defineConfig(async () => {
   const { cloudflare } = await import("@cloudflare/vite-plugin");
 
   return {
+    // Baked in at build time so the banner costs nothing at runtime and needs
+    // no binding. `CLOUDFLARE_ENV` is the same variable that selects the
+    // wrangler environment, so the banner can never disagree with the deploy.
+    define: {
+      __BUILD_TIME__: JSON.stringify(buildTime),
+      __APP_ENV__: JSON.stringify(process.env.CLOUDFLARE_ENV ?? "development"),
+    },
     // The RSC graph references next-intl's client provider by its real file
     // path, so the browser must not get a second, pre-bundled copy: two module
     // instances mean two `IntlContext`s and "No intl context found" on every
@@ -61,7 +71,10 @@ export default defineConfig(async () => {
       vinext(),
       cloudflare({
         viteEnvironment: { name: "rsc", childEnvironments: ["ssr"] },
-        config: localBindingConfig,
+        // Bindings, routes and per-environment vars live in `wrangler.jsonc`
+        // so CI deploys exactly what local builds produce. `CLOUDFLARE_ENV`
+        // selects the environment; unset means the top level, i.e. local dev.
+        configPath: "./wrangler.jsonc",
       }),
     ],
   };

@@ -1,0 +1,655 @@
+.playerBox {
+  /* One timing for the whole control layer, mirroring the widget player. */
+  --kvp-controls-fade: 200ms;
+  --kvp-controls-ease: cubic-bezier(0.2, 0, 0.2, 1);
+  /* Layer order in one place: poster < shield < cover < overlay < controls. */
+  --kvp-z-poster: 1;
+  --kvp-z-shield: 2;
+  --kvp-z-cover: 3;
+  --kvp-z-overlay: 4;
+  --kvp-z-controls: 5;
+  position: relative;
+  width: min(100%, 1120px);
+  max-height: min(74vh, 630px);
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  border-radius: 8px;
+  background: #080808;
+  box-shadow: 0 18px 42px rgba(49, 71, 93, 0.2);
+  touch-action: manipulation;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+}
+
+.playerBox * {
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/*
+* Sized here rather than trusting the library stylesheet, so the embed always
+* fills the aspect-ratio box even if a Vidstack default changes underneath us.
+* The iframe is permanently inert: every interaction goes through our
+* controls, never through YouTube's surface.
+*/
+.playerBox :global(media-provider),
+.playerBox :global(media-provider iframe) {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+
+.playerBox :global(media-provider iframe) {
+  pointer-events: none;
+}
+
+.poster {
+  position: absolute;
+  inset: 0;
+  z-index: var(--kvp-z-poster);
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  transition: opacity var(--kvp-controls-fade) var(--kvp-controls-ease);
+  pointer-events: none;
+}
+
+.poster[data-visible] {
+  opacity: 1;
+}
+
+.poster :global(img) {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Swallows every click that would otherwise reach YouTube's iframe. */
+.shield {
+  position: absolute;
+  inset: 0;
+  z-index: var(--kvp-z-shield);
+}
+
+/*
+* Opaque strip over the top of the embed, where YouTube paints its title and
+* logo (both of which link out). Rides the controls visibility, same as the
+* widget player's cover.
+*/
+.titleCover {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: var(--kvp-z-cover);
+  height: clamp(46px, 8vw, 68px);
+  pointer-events: none;
+  background: linear-gradient(
+    180deg,
+    rgba(0, 0, 0, 0.92) 0%,
+    rgba(0, 0, 0, 0.72) 44%,
+    rgba(0, 0, 0, 0) 100%
+  );
+  opacity: 0;
+  transition: opacity var(--kvp-controls-fade) var(--kvp-controls-ease);
+}
+
+.playerBox[data-controls] .titleCover {
+  opacity: 1;
+}
+
+.overlay {
+  position: absolute;
+  inset: 0;
+  z-index: var(--kvp-z-overlay);
+  pointer-events: none;
+}
+
+.controls {
+  position: absolute;
+  inset: 0;
+  z-index: var(--kvp-z-controls);
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: 0 12px 8px;
+  opacity: 0;
+  transition: opacity var(--kvp-controls-fade) var(--kvp-controls-ease);
+  /* The container is a pass-through; only the rows catch the pointer. */
+  pointer-events: none;
+}
+
+.controls[data-visible] {
+  opacity: 1;
+}
+
+/* The scrim under the control rows. */
+.controls::before {
+  content: "";
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  height: clamp(88px, 22%, 148px);
+  pointer-events: none;
+  background: linear-gradient(
+    0deg,
+    rgba(0, 0, 0, 0.78) 0%,
+    rgba(0, 0, 0, 0.42) 46%,
+    rgba(0, 0, 0, 0) 100%
+  );
+}
+
+.controlsRow {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  pointer-events: auto;
+}
+
+.controlButton {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  color: #fff;
+  cursor: pointer;
+  transition: background var(--kvp-controls-fade) var(--kvp-controls-ease);
+}
+
+.controlButton:hover {
+  background: rgba(255, 255, 255, 0.16);
+}
+
+.controlButton:focus-visible {
+  outline: 2px solid var(--brand-yellow);
+  outline-offset: 2px;
+}
+
+.controlButton[aria-pressed="true"] {
+  background: rgba(255, 255, 255, 0.22);
+}
+
+.seekStepButton {
+  width: 44px;
+  font-size: 13px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.02em;
+}
+
+.spacer {
+  flex: 1;
+}
+
+/*
+* The bottom bar sits at the box's edge, so its tooltips flip above the
+* button; the global default would put them below, outside the player.
+*/
+.controlsRow .controlButton[data-tooltip]::after {
+  top: auto;
+  bottom: calc(100% + 8px);
+  transform: translate(-50%, 4px);
+}
+
+.controlsRow .controlButton[data-tooltip]:hover::after,
+.controlsRow .controlButton[data-tooltip]:focus-visible::after {
+  transform: translate(-50%, 0);
+}
+
+/*
+* A tooltip centred on a button that sits at the surface's edge reaches past
+* the player box, which clips it. These anchor the bubble to the button's own
+* edge instead, so it opens inwards.
+*/
+.controlsRow .controlButton.tooltipStart[data-tooltip]::after,
+.lockButton.tooltipStart[data-tooltip]::after {
+  left: 0;
+  transform: translate(0, 4px);
+}
+
+.controlsRow .controlButton.tooltipStart[data-tooltip]:hover::after,
+.controlsRow .controlButton.tooltipStart[data-tooltip]:focus-visible::after,
+.lockButton.tooltipStart[data-tooltip]:hover::after,
+.lockButton.tooltipStart[data-tooltip]:focus-visible::after {
+  transform: translate(0, 0);
+}
+
+.controlsRow .controlButton.tooltipEnd[data-tooltip]::after {
+  right: 0;
+  left: auto;
+  transform: translate(0, 4px);
+}
+
+.controlsRow .controlButton.tooltipEnd[data-tooltip]:hover::after,
+.controlsRow .controlButton.tooltipEnd[data-tooltip]:focus-visible::after {
+  transform: translate(0, 0);
+}
+
+/*
+* Big, obvious skip buttons on the player's edges — sized for small hands.
+* They live inside the controls layer, so they fade in and out with it.
+* Each sits in a wrapper together with its preview card; hovering anywhere
+* in the wrapper keeps the card open while the pointer travels to it.
+*/
+.sideNav {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  pointer-events: none;
+}
+
+.sideNavLeft {
+  left: 14px;
+}
+
+.sideNavRight {
+  right: 14px;
+  flex-direction: row-reverse;
+}
+
+.sideButton {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 56px;
+  height: 56px;
+  border: 0;
+  border-radius: 50%;
+  background: rgba(8, 8, 8, 0.6);
+  color: #fff;
+  cursor: pointer;
+  pointer-events: auto;
+  transition:
+    background var(--kvp-controls-fade) var(--kvp-controls-ease),
+    scale var(--kvp-controls-fade) var(--kvp-controls-ease);
+}
+
+.sideButton:hover {
+  background: rgba(8, 8, 8, 0.82);
+  scale: 1.08;
+}
+
+.sideButton:focus-visible {
+  outline: 2px solid var(--brand-yellow);
+  outline-offset: 2px;
+}
+
+/* Where the button leads: thumbnail card revealed on hover/focus. */
+.previewCard {
+  width: clamp(140px, 24vw, 200px);
+  padding: 8px;
+  border-radius: 12px;
+  background: rgba(8, 8, 8, 0.88);
+  color: #fff;
+  opacity: 0;
+  translate: 0 6px;
+  pointer-events: none;
+  transition:
+    opacity var(--kvp-controls-fade) var(--kvp-controls-ease),
+    translate var(--kvp-controls-fade) var(--kvp-controls-ease);
+}
+
+.sideNav:hover .previewCard,
+.sideNav:focus-within .previewCard {
+  opacity: 1;
+  translate: 0 0;
+}
+
+.previewThumb {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  border-radius: 8px;
+  background: #222;
+}
+
+.previewTitle {
+  margin-top: 6px;
+  font-size: 13px;
+  font-weight: 800;
+  line-height: 1.3;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.previewSubtitle {
+  margin-top: 2px;
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.72);
+}
+
+/*
+* Centre play button: the biggest target on the surface while the video is
+* paused. While playing it fades out and stops catching the pointer.
+*/
+.bigPlayButton {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: grid;
+  place-items: center;
+  width: 82px;
+  height: 82px;
+  border: 0;
+  border-radius: 50%;
+  background: var(--brand-red);
+  color: #fff;
+  cursor: pointer;
+  pointer-events: auto;
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.4);
+  transition:
+    opacity var(--kvp-controls-fade) var(--kvp-controls-ease),
+    scale var(--kvp-controls-fade) var(--kvp-controls-ease);
+}
+
+.bigPlayButton:hover {
+  scale: 1.07;
+}
+
+.bigPlayButton:focus-visible {
+  outline: 3px solid var(--brand-yellow);
+  outline-offset: 3px;
+}
+
+.bigPlayButtonHidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/*
+* Parent lock, top-left. It rides the controls visibility while unlocked;
+* once locked it stays reachable on its own, since the control layer it
+* would normally fade with is unmounted.
+*/
+.lockButton {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  z-index: var(--kvp-z-controls);
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border: 0;
+  border-radius: 50%;
+  background: rgba(8, 8, 8, 0.6);
+  color: #fff;
+  cursor: pointer;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--kvp-controls-fade) var(--kvp-controls-ease);
+}
+
+.playerBox[data-controls] .lockButton,
+.lockButtonLocked {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.lockButton:focus-visible {
+  outline: 2px solid var(--brand-yellow);
+  outline-offset: 2px;
+}
+
+/*
+* Sliders. Vidstack publishes the fill ratio as `--slider-fill` on the root,
+* so the track fill and thumb are pure CSS.
+*/
+.slider {
+  position: relative;
+  display: flex;
+  align-items: center;
+  height: 28px;
+  cursor: pointer;
+  touch-action: none;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+.timeSlider {
+  flex: 1;
+}
+
+.volumeSlider {
+  width: 76px;
+}
+
+.sliderTrack {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  transform: translateY(-50%);
+  width: 100%;
+  height: 4px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.sliderFill {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  transform: translateY(-50%);
+  width: var(--slider-fill);
+  height: 4px;
+  border-radius: 999px;
+  background: var(--brand-red);
+}
+
+.sliderThumb {
+  position: absolute;
+  top: 50%;
+  left: var(--slider-fill);
+  transform: translate(-50%, -50%);
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #fff;
+  opacity: 0;
+  transition: opacity var(--kvp-controls-fade) var(--kvp-controls-ease);
+}
+
+.slider:hover .sliderThumb,
+.slider[data-dragging] .sliderThumb,
+.slider[data-focus] .sliderThumb {
+  opacity: 1;
+}
+
+/*
+* The time bar goes chunky and colorful: a tall rounded track, a sunny
+* red-to-yellow fill, and a big always-visible handle a child can grab.
+* The volume slider keeps the slim grown-up look above.
+*/
+.timeSlider {
+  height: 34px;
+}
+
+.timeSlider .sliderTrack {
+  height: 10px;
+  background: rgba(255, 255, 255, 0.26);
+}
+
+.sliderBuffered {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  transform: translateY(-50%);
+  width: var(--slider-progress);
+  height: 10px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.18);
+}
+
+.timeSlider .sliderFill {
+  height: 10px;
+  background: linear-gradient(
+    90deg,
+    var(--brand-red) 0%,
+    #ff7a3d 55%,
+    var(--brand-yellow) 100%
+  );
+}
+
+.timeSlider .sliderThumb {
+  width: 22px;
+  height: 22px;
+  border: 4px solid var(--brand-red);
+  background: #fff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
+  opacity: 1;
+  transition:
+    opacity var(--kvp-controls-fade) var(--kvp-controls-ease),
+    scale var(--kvp-controls-fade) var(--kvp-controls-ease);
+}
+
+.timeSlider:hover .sliderThumb,
+.timeSlider[data-dragging] .sliderThumb {
+  scale: 1.15;
+}
+
+/* Quality picker popup, opening upward from the bottom bar. */
+.qualityMenu {
+  position: relative;
+}
+
+.qualityList {
+  position: absolute;
+  right: 0;
+  bottom: calc(100% + 10px);
+  min-width: 130px;
+  margin: 0;
+  padding: 6px;
+  list-style: none;
+  border-radius: 12px;
+  background: rgba(8, 8, 8, 0.92);
+}
+
+.qualityOption {
+  display: block;
+  width: 100%;
+  padding: 8px 10px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 700;
+  text-align: left;
+  cursor: pointer;
+}
+
+.qualityOption:hover {
+  background: rgba(255, 255, 255, 0.16);
+}
+
+.qualityOptionActive {
+  background: var(--brand-red);
+}
+
+.qualityOptionActive:hover {
+  background: var(--brand-red);
+}
+
+.timeLabel {
+  display: inline-flex;
+  gap: 4px;
+  padding: 0 6px;
+  color: #fff;
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+/*
+* Split from the unprefixed rule on purpose: a selector list is thrown away
+* whole when any selector in it is unknown, so grouping `:-webkit-full-screen`
+* with `:fullscreen` loses every fullscreen style in the browsers that only
+* understand one of them.
+*/
+.playerBox:fullscreen {
+  width: 100%;
+  max-height: none;
+  border-radius: 0;
+}
+
+.playerBox:-webkit-full-screen {
+  width: 100%;
+  max-height: none;
+  border-radius: 0;
+}
+
+/* Old TV browsers without aspect-ratio support. */
+@supports not (aspect-ratio: 16 / 9) {
+  .playerBox {
+    height: 0;
+    padding-bottom: 56.25%;
+    max-height: none;
+  }
+}
+
+/*
+* Phones keep only what a thumb needs: play, mute, the time bar, captions and
+* full screen. Everything marked `wideOnly` has a better answer on a small
+* screen — skipping videos is what the big edge buttons are for, seeking is
+* the time bar, and volume belongs to the device's own buttons. The edge
+* buttons and the centre play button shrink so they leave the picture visible.
+*/
+@media (max-width: 640px) {
+  .wideOnly {
+    display: none;
+  }
+
+  .controls {
+    padding: 0 8px 6px;
+  }
+
+  .controlsRow {
+    gap: 2px;
+  }
+
+  .sideButton {
+    width: 46px;
+    height: 46px;
+  }
+
+  .sideNavLeft {
+    left: 8px;
+  }
+
+  .sideNavRight {
+    right: 8px;
+  }
+
+  /* No room beside a 46px button on a phone for a card this size. */
+  .previewCard {
+    display: none;
+  }
+
+  .bigPlayButton {
+    width: 64px;
+    height: 64px;
+  }
+
+  .lockButton {
+    top: 8px;
+    left: 8px;
+    width: 40px;
+    height: 40px;
+  }
+}

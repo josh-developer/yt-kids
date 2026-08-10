@@ -192,7 +192,6 @@ export function KidsTubeApp({
             <WatchLoading />
           ) : route.view === "watch" && currentVideo ? (
             <WatchPage
-              isTvBrowser={isTvBrowser}
               nextVideo={nextVideo}
               previousVideo={previousEntry?.video ?? null}
               recommendationGroups={recommendationGroups}

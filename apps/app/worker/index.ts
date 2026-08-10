@@ -12,6 +12,8 @@ type ImagesBinding = {
 
 interface Env {
   ASSETS: { fetch(request: Request): Promise<Response> };
+  /** "production", "test", or "development"; set per environment in wrangler.jsonc. */
+  APP_ENV?: string;
   /**
    * Present only once Images transformations are enabled for the account.
    * Every caller degrades to the untransformed source without it.
@@ -188,7 +190,18 @@ const worker = {
       }, allowedWidths);
     }
 
-    return handler.fetch(request, env, ctx);
+    const response = await handler.fetch(request, env, ctx);
+
+    // Staging serves the same pages as production, on more than one hostname
+    // (test.kidtube.uz and the workers.dev URL). Keying off APP_ENV rather
+    // than the hostname keeps every one of them out of search results.
+    if (env.APP_ENV !== "production") {
+      const staged = new Response(response.body, response);
+      staged.headers.set("X-Robots-Tag", "noindex, nofollow");
+      return staged;
+    }
+
+    return response;
   },
 };
 

@@ -1,0 +1,53 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+
+  // Two deployed environments, one Worker each:
+  //   main -> `kidtube`      -> kidtube.uz
+  //   test -> `kidtube-test` -> test.kidtube.uz
+  // The environment is chosen at *build* time by `CLOUDFLARE_ENV`, which
+  // `@cloudflare/vite-plugin` reads before flattening this file into
+  // `dist/server/wrangler.json`. `wrangler deploy` then picks that generated
+  // file up through `.wrangler/deploy/config.json`, so the deploy command
+  // itself never passes `-e`. `CLOUDFLARE_ENV` is listed in the root
+  // turbo.json `globalEnv` for the same reason: it has to be part of the build
+  // cache key, or a `production` deploy could be handed a `test` build.
+  "name": "kidtube",
+  "main": "./worker/index.ts",
+  "compatibility_date": "2026-08-07",
+  "compatibility_flags": ["nodejs_compat"],
+
+  // Custom domains are the only entry points; no *.workers.dev copies.
+  "workers_dev": false,
+
+  // Transcodes proxied YouTube thumbnails to AVIF/WebP. Requires Images
+  // transformations enabled for the account; the worker falls back to the
+  // original JPEG when the binding is missing.
+  "images": { "binding": "IMAGES" },
+  "vars": { "APP_ENV": "development" },
+  "observability": { "enabled": true, "head_sampling_rate": 1 },
+
+  // Bindings (`vars`, `images`, ...) are NOT inherited by named environments,
+  // so each one repeats them. `main`, `compatibility_date` and
+  // `compatibility_flags` are inherited and stay above.
+  "env": {
+    "test": {
+      "name": "kidtube-test",
+      // Cloudflare also hands this env a kidtube-test.<subdomain>.workers.dev
+      // URL, which is live the moment it deploys — no waiting on DNS or a cert
+      // for test.kidtube.uz. Flip back to false once the custom domain works.
+      "workers_dev": true,
+      "routes": [{ "pattern": "test.kidtube.uz", "custom_domain": true }],
+      "images": { "binding": "IMAGES" },
+      "vars": { "APP_ENV": "test" },
+      "observability": { "enabled": true, "head_sampling_rate": 1 }
+    },
+    "production": {
+      // Without an explicit name this would deploy as `kidtube-production`.
+      "name": "kidtube",
+      "routes": [{ "pattern": "kidtube.uz", "custom_domain": true }],
+      "images": { "binding": "IMAGES" },
+      "vars": { "APP_ENV": "production" },
+      "observability": { "enabled": true, "head_sampling_rate": 1 }
+    }
+  }
+}
