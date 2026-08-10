@@ -62,7 +62,14 @@ export default defineConfig(async () => {
       },
     },
     server: {
-      allowedHosts: [".loca.lt", ".trycloudflare.com"],
+      allowedHosts: [
+        ".loca.lt",
+        ".trycloudflare.com",
+        ".ngrok-free.dev",
+        ".ngrok-free.app",
+        ".ngrok.app",
+        ".ngrok.io",
+      ],
       ...(isCodexSeatbeltSandbox
         ? { watch: { useFsEvents: false, usePolling: true } }
         : undefined),
