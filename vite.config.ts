@@ -15,6 +15,10 @@ const isCodexSeatbeltSandbox = process.env.CODEX_SANDBOX === "seatbelt";
 const localBindingConfig = {
   main: "./worker/index.ts",
   compatibility_flags: ["nodejs_compat"],
+  // Transcodes proxied YouTube thumbnails to AVIF/WebP. Requires Images
+  // transformations enabled for the account; the worker falls back to the
+  // original JPEG when the binding is missing.
+  images: { binding: "IMAGES" },
 };
 
 export default defineConfig(async () => {

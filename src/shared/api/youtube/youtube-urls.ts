@@ -19,9 +19,15 @@ export function isTrustedYouTubeMessageOrigin(origin: string) {
  */
 export type ThumbnailSize = "card" | "poster";
 
+/**
+ * Same-origin on purpose. `i.ytimg.com` caches thumbnails for two hours and
+ * lives behind its own DNS lookup and TLS handshake, which the largest paint on
+ * the home screen has to wait through. The worker re-serves the same image with
+ * a month-long lifetime, in AVIF or WebP where the browser accepts it. The
+ * route shape is mirrored by `THUMBNAIL_ROUTE` in `worker/index.ts`.
+ */
 export function thumbnailUrl(videoId: string, size: ThumbnailSize = "card") {
-  const file = size === "poster" ? "hqdefault" : "mqdefault";
-  return `https://i.ytimg.com/vi/${videoId}/${file}.jpg`;
+  return `/_thumb/${videoId}/${size}`;
 }
 
 export function watchUrl(videoId: string) {

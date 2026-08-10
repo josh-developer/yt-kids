@@ -74,16 +74,12 @@ export default async function LocaleLayout({
 
   return (
     <html lang={locale}>
-      <head>
-        {/*
-          Thumbnails are on every screen, so this connection is always used.
-          The embed's own hosts are deliberately not here: nothing on the home
-          or settings screens requests them, and an unused preconnect holds a
-          socket open for nothing. `warmYouTubeOrigins` adds them the moment a
-          player mounts, which is early enough to still be ahead of the embed.
-        */}
-        <link rel="preconnect" href="https://i.ytimg.com" />
-      </head>
+      {/*
+        No media preconnects here any more. Thumbnails are served from our own
+        origin, so they reuse the connection the document already opened, and
+        the embed's hosts are only wanted once a player mounts —
+        `warmYouTubeOrigins` adds those, still ahead of the embed itself.
+      */}
       <body
         className={`${geistSans.variable} ${nunitoBrand.variable} antialiased`}
       >

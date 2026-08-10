@@ -19,3 +19,13 @@ declare module "*.module.css" {
   const styles: Readonly<Record<string, string>>;
   export default styles;
 }
+
+declare global {
+  interface CacheStorage {
+    /**
+     * Cloudflare's shared edge cache. Not part of the DOM Cache API, and not
+     * present off Workers — every read of it is guarded at the call site.
+     */
+    readonly default: Cache;
+  }
+}
