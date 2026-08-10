@@ -21,6 +21,12 @@
         "projectId": "56ab4b49-7147-4a4c-9bdd-47e6e8cce508"
       }
     },
-    "owner": "kidtube-team"
+    "owner": "kidtube-team",
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/56ab4b49-7147-4a4c-9bdd-47e6e8cce508"
+    }
   }
 }
