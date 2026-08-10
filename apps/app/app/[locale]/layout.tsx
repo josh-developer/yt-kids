@@ -69,6 +69,17 @@ export default async function LocaleLayout({
           <PwaRegistrar />
           {children}
         </NextIntlClientProvider>
+        {/*
+          Which build am I looking at? Inline rather than a client component so
+          it prints the moment the page opens, ahead of hydration, and so the
+          "exactly two `use client` files" rule still holds. Both values are
+          `define`d constants, so this is a static string by the time it ships.
+        */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `console.info("%cKidTube%c ${__APP_ENV__} · built ${__BUILD_TIME__}","font-weight:bold","color:#888")`,
+          }}
+        />
       </body>
     </html>
   );

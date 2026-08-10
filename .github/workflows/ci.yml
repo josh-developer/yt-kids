@@ -1,0 +1,81 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main, test]
+
+concurrency:
+  # Cancel superseded PR runs, but never kill a deploy half-way.
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+env:
+  NODE_VERSION: "22.13.0"
+
+jobs:
+  verify:
+    name: Lint, typecheck, test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4 # version comes from `packageManager`
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: Restore turbo cache
+        uses: actions/cache@v4
+        with:
+          path: .turbo
+          key: turbo-${{ runner.os }}-${{ github.sha }}
+          restore-keys: turbo-${{ runner.os }}-
+
+      - run: pnpm lint
+      - run: pnpm typecheck
+
+      # `test` depends on `build` in turbo.json, so this also proves the
+      # production build compiles before anything is allowed to deploy.
+      - run: pnpm test
+
+  deploy:
+    name: Deploy ${{ github.ref_name == 'main' && 'production' || 'test' }}
+    needs: verify
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+
+    environment:
+      name: ${{ github.ref_name == 'main' && 'production' || 'test' }}
+      url: ${{ github.ref_name == 'main' && 'https://kidtube.uz' || 'https://test.kidtube.uz' }}
+
+    env:
+      # Selects the `env` block in apps/app/wrangler.jsonc at build time.
+      CLOUDFLARE_ENV: ${{ github.ref_name == 'main' && 'production' || 'test' }}
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: Build for ${{ env.CLOUDFLARE_ENV }}
+        run: pnpm build
+
+      # `@cloudflare/vite-plugin` wrote the env-resolved config to
+      # dist/server/wrangler.json and pointed .wrangler/deploy/config.json at
+      # it, so this must NOT pass `-e` as well.
+      - name: Deploy
+        run: pnpm --filter app exec wrangler deploy
