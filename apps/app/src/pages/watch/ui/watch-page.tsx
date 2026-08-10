@@ -66,8 +66,6 @@ export function WatchPage({
             seek: t("seek"),
             enterFullscreen: t("fullScreen"),
             exitFullscreen: t("exitFullScreen"),
-            showCaptions: t("showCaptions"),
-            hideCaptions: t("hideCaptions"),
             nextVideo: t("nextVideo"),
             previousVideo: t("previousVideo"),
             lockControls: t("lockControls"),
@@ -76,7 +74,6 @@ export function WatchPage({
             forward15: t("forward15"),
             repeatOn: t("repeatOneEnabled"),
             repeatOff: t("repeatOneDisabled"),
-            quality: t("quality"),
             surface: t("surface", { title: labels.title(video) }),
           }}
           startTime={startTime}

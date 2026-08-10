@@ -11,20 +11,16 @@ import {
   VolumeSlider,
   useMediaRemote,
   useMediaState,
-  useVideoQualityOptions,
   type MediaPlayerInstance,
 } from "@vidstack/react";
 import "@vidstack/react/player/styles/base.css";
 import {
-  Captions,
-  CaptionsOff,
   Lock,
   Maximize2,
   Minimize2,
   Pause,
   Play,
   Repeat1,
-  Settings,
   SkipBack,
   SkipForward,
   Unlock,
@@ -39,7 +35,6 @@ import {
 import {
   hardenYouTubeEmbed,
   preventOrphanedCommandPromises,
-  setYouTubeCaptions,
 } from "./youtube-provider-hardening";
 import styles from "./kid-video-player.module.css";
 
@@ -75,9 +70,8 @@ export function KidVideoPlayer({
   title,
   posterUrl,
   autoPlay = false,
-  startMuted = false,
+  startMuted = autoPlay,
   startTime = 0,
-  captionsEnabled = false,
   labels: labelOverrides,
   className = "",
   overlaySlot,
@@ -98,12 +92,23 @@ export function KidVideoPlayer({
   title: string;
   posterUrl?: string;
   autoPlay?: boolean;
-  /** Carried into the embed URL before load, so iOS honors it. */
+  /**
+   * Carried into the embed URL before load, so iOS honors it. Defaults to
+   * `autoPlay`, because muted is the only way a script can start this embed.
+   *
+   * Every command reaches the frame by postMessage, and user activation does
+   * not cross a document boundary: `playVideo` runs inside the
+   * youtube-nocookie document with no gesture behind it, and WebKit only
+   * allows a gesture-less start while the video is muted. An embed born with
+   * `mute=0` on iOS therefore ignores `playVideo` outright — autoplay never
+   * starts, and because the provider's play promise is answered by the
+   * embed's next state report, a refusal is silence rather than an error, so
+   * nothing reports it and every later tap of the play button is swallowed
+   * the same way. `UnmuteButton` is how sound comes back.
+   */
   startMuted?: boolean;
   /** Seconds to open at; the video resumes there once it can play. */
   startTime?: number;
-  /** Initial captions state; applied once the embed can play. */
-  captionsEnabled?: boolean;
   labels?: Partial<KidVideoPlayerLabels>;
   className?: string;
   /** Rendered above the shield and title cover, below the controls. */
@@ -129,8 +134,6 @@ export function KidVideoPlayer({
 }) {
   const labels = { ...DEFAULT_KID_VIDEO_PLAYER_LABELS, ...labelOverrides };
   const playerRef = useRef<MediaPlayerInstance>(null);
-  const [areCaptionsEnabled, setAreCaptionsEnabled] =
-    useState(captionsEnabled);
   const [isLocked, setIsLocked] = useState(false);
   // Vidstack publishes `data-fullscreen` on its controls element, not on the
   // player, so the surface tracks the state itself to style its own edges.
@@ -179,6 +182,31 @@ export function KidVideoPlayer({
     window.addEventListener("keydown", leaveOnEscape);
     return () => window.removeEventListener("keydown", leaveOnEscape);
   }, [isVirtualFullscreen, onFullscreenChange]);
+
+  // A press anywhere off the player puts the controls away. Vidstack only
+  // hides them on its own idle timer or on mouse-leave, so tapping the page
+  // around the video used to leave the bar sitting over the picture. Captured
+  // at the document so it runs before anything on the page can stop it, and
+  // keyed to `pointerdown` so the bar is gone by the time the tap completes.
+  useEffect(() => {
+    const hideOnOutsidePress = (event: PointerEvent) => {
+      const player = playerRef.current;
+      const surface = player?.el;
+      const target = event.target;
+
+      if (!player || !surface || !(target instanceof Node)) {
+        return;
+      }
+
+      if (!surface.contains(target)) {
+        player.controls.hide(0, event);
+      }
+    };
+
+    document.addEventListener("pointerdown", hideOnOutsidePress, true);
+    return () =>
+      document.removeEventListener("pointerdown", hideOnOutsidePress, true);
+  }, []);
   const [isRepeatOn, setIsRepeatOn] = useState(false);
   const [seekHint, setSeekHint] = useState<"back" | "forward" | null>(null);
   const isRepeatOnRef = useRef(false);
@@ -283,12 +311,6 @@ export function KidVideoPlayer({
     }, DOUBLE_TAP_WINDOW_MS);
   };
 
-  const toggleCaptions = () => {
-    const next = !areCaptionsEnabled;
-    setAreCaptionsEnabled(next);
-    setYouTubeCaptions(playerRef.current?.provider, next);
-  };
-
   const toggleRepeat = () => {
     setIsRepeatOn((wasOn) => {
       isRepeatOnRef.current = !wasOn;
@@ -321,10 +343,6 @@ export function KidVideoPlayer({
         preventOrphanedCommandPromises(provider);
       }}
       onCanPlay={() => {
-        // The captions module only sticks once the embed is ready.
-        if (areCaptionsEnabled) {
-          setYouTubeCaptions(playerRef.current?.provider, true);
-        }
         // Resume where this video was left off. Guarded by a ref because the
         // embed can report it can play more than once (a stall that recovers
         // re-fires it), and a second seek would yank the viewer backwards.
@@ -392,12 +410,10 @@ export function KidVideoPlayer({
       {overlaySlot ? <div className={styles.overlay}>{overlaySlot}</div> : null}
       {isLocked ? null : (
         <PlayerControlBar
-          areCaptionsEnabled={areCaptionsEnabled}
           isRepeatOn={isRepeatOn}
           labels={labels}
           controlsStartSlot={controlsStartSlot}
           controlsEndSlot={controlsEndSlot}
-          onToggleCaptions={toggleCaptions}
           onToggleRepeat={toggleRepeat}
           isVirtualFullscreen={isVirtualFullscreen}
           onToggleVirtualFullscreen={() =>
@@ -409,9 +425,7 @@ export function KidVideoPlayer({
           previousVideoPreview={previousVideoPreview}
         />
       )}
-      {isLocked ? null : (
-        <SoundToggle muteLabel={labels.mute} unmuteLabel={labels.unmute} />
-      )}
+      {isLocked ? null : <UnmuteButton label={labels.unmute} />}
       <button
         type="button"
         className={`${styles.lockButton} ${styles.tooltipStart} ${
@@ -434,12 +448,10 @@ export function KidVideoPlayer({
  * control bar alone, not the whole player tree.
  */
 function PlayerControlBar({
-  areCaptionsEnabled,
   isRepeatOn,
   labels,
   controlsStartSlot,
   controlsEndSlot,
-  onToggleCaptions,
   onToggleRepeat,
   onNextVideo,
   onPreviousVideo,
@@ -448,12 +460,10 @@ function PlayerControlBar({
   isVirtualFullscreen,
   onToggleVirtualFullscreen,
 }: {
-  areCaptionsEnabled: boolean;
   isRepeatOn: boolean;
   labels: KidVideoPlayerLabels;
   controlsStartSlot?: ReactNode;
   controlsEndSlot?: ReactNode;
-  onToggleCaptions: () => void;
   onToggleRepeat: () => void;
   onNextVideo?: () => void;
   onPreviousVideo?: () => void;
@@ -593,25 +603,6 @@ function PlayerControlBar({
         >
           <Repeat1 size={20} />
         </button>
-        <QualityMenu label={labels.quality} />
-        <button
-          type="button"
-          className={styles.controlButton}
-          aria-label={
-            areCaptionsEnabled ? labels.hideCaptions : labels.showCaptions
-          }
-          aria-pressed={areCaptionsEnabled}
-          data-tooltip={
-            areCaptionsEnabled ? labels.hideCaptions : labels.showCaptions
-          }
-          onClick={onToggleCaptions}
-        >
-          {areCaptionsEnabled ? (
-            <Captions size={20} />
-          ) : (
-            <CaptionsOff size={20} />
-          )}
-        </button>
         {controlsEndSlot}
         {/*
          * Not vidstack's FullscreenButton: it can only drive the real API,
@@ -646,94 +637,34 @@ function PlayerControlBar({
 /**
  * Sound, in the corner opposite the lock, wearing the play button's colour.
  * It sits outside the control layer because the bar spends most of its time
- * hidden — on a phone, nearly all of it — and sound should not depend on
- * bringing the bar back first.
+ * hidden — on a phone, nearly all of it — and turning sound on should not
+ * depend on bringing the bar back first.
  *
- * On a phone it stays put as a plain mute/unmute toggle. On a pointer device
- * the bar is a click away and carries its own mute button, so this one only
- * appears while the video is actually silent, where it reads as an offer to
- * turn sound on — the case iOS forces by refusing to autoplay with sound.
- * Which of those applies is left to CSS, so the state stays in one place.
+ * One direction only: it appears while the video is silent, where it reads as
+ * an offer to turn sound on — the case iOS forces by refusing to autoplay with
+ * sound — and leaves the corner entirely once sound is on. Going back to
+ * silence is the control bar's mute button's job, so this stays a single
+ * unambiguous "I want sound" target rather than a toggle a child can flip.
  */
-function SoundToggle({
-  muteLabel,
-  unmuteLabel,
-}: {
-  muteLabel: string;
-  unmuteLabel: string;
-}) {
+function UnmuteButton({ label }: { label: string }) {
   const isMuted = useMediaState("muted");
   const remote = useMediaRemote();
-  const label = isMuted ? unmuteLabel : muteLabel;
 
-  return (
-    <button
-      type="button"
-      className={`${styles.soundButton} ${
-        isMuted ? "" : styles.soundButtonAudible
-      }`.trim()}
-      aria-label={label}
-      aria-pressed={isMuted}
-      data-tooltip={label}
-      onPointerUp={(event) => event.stopPropagation()}
-      onClick={(event) => remote.toggleMuted(event.nativeEvent)}
-    >
-      {isMuted ? <VolumeX size={26} /> : <Volume2 size={26} />}
-    </button>
-  );
-}
-
-/**
- * Quality picker, rendered only when the current source actually exposes
- * qualities to choose from. YouTube embeds never do — YouTube removed manual
- * quality control from its iframe API, so there the player auto-selects and
- * this button stays hidden. It appears as soon as a source with real
- * qualities (mp4/HLS) is played.
- */
-function QualityMenu({ label }: { label: string }) {
-  const options = useVideoQualityOptions({ auto: true, sort: "descending" });
-  const [isOpen, setIsOpen] = useState(false);
-
-  if (options.length === 0) {
+  if (!isMuted) {
     return null;
   }
 
   return (
-    <div className={`${styles.qualityMenu} ${styles.wideOnly}`}>
-      <button
-        type="button"
-        className={styles.controlButton}
-        aria-label={label}
-        aria-expanded={isOpen}
-        aria-haspopup="menu"
-        data-tooltip={isOpen ? undefined : label}
-        onClick={() => setIsOpen((wasOpen) => !wasOpen)}
-      >
-        <Settings size={20} />
-      </button>
-      {isOpen ? (
-        <ul className={styles.qualityList} role="menu">
-          {options.map((option) => (
-            <li key={option.label} role="none">
-              <button
-                type="button"
-                role="menuitemradio"
-                aria-checked={option.selected}
-                className={`${styles.qualityOption} ${
-                  option.selected ? styles.qualityOptionActive : ""
-                }`.trim()}
-                onClick={() => {
-                  option.select();
-                  setIsOpen(false);
-                }}
-              >
-                {option.label}
-              </button>
-            </li>
-          ))}
-        </ul>
-      ) : null}
-    </div>
+    <button
+      type="button"
+      className={styles.soundButton}
+      aria-label={label}
+      data-tooltip={label}
+      onPointerUp={(event) => event.stopPropagation()}
+      onClick={(event) => remote.unmute(event.nativeEvent)}
+    >
+      <VolumeX size={26} />
+    </button>
   );
 }
 

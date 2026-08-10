@@ -147,7 +147,7 @@
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
-  padding: 0 var(--kvp-edge-x) var(--kvp-edge-y);
+  padding: 0 calc(var(--kvp-edge-x) - 8px) calc(var(--kvp-edge-y) - 4px);
   opacity: 0;
   /*
    * `visibility` rather than the opacity alone: a fully transparent element
@@ -423,8 +423,10 @@
 
 /*
 * Wears the play button's colour and shape, in the opposite corner from the
-* lock. It sits outside the control layer on purpose: sound should not depend
-* on bringing the hidden bar back first.
+* lock. It sits outside the control layer on purpose: turning sound on should
+* not depend on bringing the hidden bar back first. Rendered only while the
+* video is muted, so there is no "audible" variant to style — the component
+* drops it from the tree once sound is on.
 */
 .soundButton {
   position: absolute;
@@ -442,16 +444,6 @@
   cursor: pointer;
   box-shadow: 0 10px 28px rgba(0, 0, 0, 0.4);
   transition: scale var(--kvp-controls-fade) var(--kvp-controls-ease);
-}
-
-/*
-* While the video already has sound, this is only worth its corner on a
-* phone, where the bar is out of reach until you tap. A pointer device keeps
-* a mute button in the bar, so there the corner clears once sound is on and
-* the button is left to its "turn the sound on" job.
-*/
-.soundButtonAudible {
-  display: none;
 }
 
 .soundButton:hover {
@@ -628,7 +620,7 @@
 * The volume slider keeps the slim grown-up look above.
 */
 .timeSlider {
-  height: 34px;
+  height: 22px;
 }
 
 .timeSlider .sliderTrack {
@@ -672,49 +664,6 @@
 .timeSlider:hover .sliderThumb,
 .timeSlider[data-dragging] .sliderThumb {
   scale: 1.15;
-}
-
-/* Quality picker popup, opening upward from the bottom bar. */
-.qualityMenu {
-  position: relative;
-}
-
-.qualityList {
-  position: absolute;
-  right: 0;
-  bottom: calc(100% + 10px);
-  min-width: 130px;
-  margin: 0;
-  padding: 6px;
-  list-style: none;
-  border-radius: 12px;
-  background: rgba(8, 8, 8, 0.92);
-}
-
-.qualityOption {
-  display: block;
-  width: 100%;
-  padding: 8px 10px;
-  border: 0;
-  border-radius: 8px;
-  background: transparent;
-  color: #fff;
-  font-size: 13px;
-  font-weight: 700;
-  text-align: left;
-  cursor: pointer;
-}
-
-.qualityOption:hover {
-  background: rgba(255, 255, 255, 0.16);
-}
-
-.qualityOptionActive {
-  background: var(--brand-red);
-}
-
-.qualityOptionActive:hover {
-  background: var(--brand-red);
 }
 
 .timeLabel {
@@ -880,11 +829,6 @@
   .soundButton {
     width: 46px;
     height: 46px;
-  }
-
-  /* The phone keeps it in both states, as a plain mute/unmute toggle. */
-  .soundButtonAudible {
-    display: grid;
   }
 
   .seekHint {
