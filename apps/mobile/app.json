@@ -1,0 +1,20 @@
+{
+  "expo": {
+    "name": "KidTube",
+    "slug": "kidtube",
+    "version": "0.1.0",
+    "orientation": "default",
+    "scheme": "kidtube",
+    "userInterfaceStyle": "automatic",
+    "newArchEnabled": true,
+    "backgroundColor": "#fff9e8",
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "uz.kidtube.app"
+    },
+    "android": {
+      "package": "uz.kidtube.app",
+      "edgeToEdgeEnabled": true
+    }
+  }
+}
