@@ -9,9 +9,25 @@
 
 .watchTitle {
   margin: 16px 0 12px;
+  /*
+  * Two lines are reserved whether or not the title fills them. The server
+  * cannot know the title — the library is in local storage — so the loading
+  * pass renders this box empty, and a floor both passes share is what keeps the
+  * channel line from moving when the real title arrives. Most titles wrap to
+  * two lines on a phone anyway.
+  */
+  min-height: 2.3em;
   font-size: 28px;
   line-height: 1.15;
   letter-spacing: 0;
+}
+
+/** Holds `ChannelAvatar`'s 38px circle without knowing whose it is. */
+.pendingAvatar {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: var(--line);
 }
 
 .watchBar {

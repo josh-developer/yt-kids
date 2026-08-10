@@ -1008,3 +1008,33 @@
 .upNextButton:focus-visible {
   background: rgba(255, 255, 255, 0.24);
 }
+
+/*
+* Reserves the player's box before a video exists. `.playerBox` supplies every
+* metric; only the surface differs, so the space held here and the space taken
+* later cannot disagree. The scrim is dropped — there are no controls under it
+* yet — with both classes in the selector so it beats `.playerBox::after`
+* regardless of source order.
+*/
+.playerPlaceholder {
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  color: rgba(255, 255, 255, 0.88);
+  text-align: center;
+}
+
+.playerBox.playerPlaceholder::after {
+  content: none;
+}
+
+.playerPlaceholder h2 {
+  margin: 0 0 8px;
+  font-size: clamp(17px, 4vw, 24px);
+}
+
+.playerPlaceholder p {
+  margin: 0;
+  color: rgba(255, 255, 255, 0.66);
+  font-size: clamp(13px, 3.2vw, 15px);
+}
