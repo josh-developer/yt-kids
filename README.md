@@ -9,31 +9,51 @@ approved videos.
 ## Prerequisites
 
 - Node.js `>=22.13.0`
+- pnpm `>=10`
 
 ## Quick Start
 
 ```bash
-npm install
-npm run dev
-npm run build
+pnpm install
+pnpm dev
+pnpm build
 ```
+
+## Monorepo Layout
+
+The repository is a [Turborepo](https://turborepo.com) monorepo structured
+after [next-forge](https://www.next-forge.com):
+
+```text
+apps/
+  app/                        the KidTube app (vinext + Cloudflare Workers)
+packages/
+  internationalization/       next-intl routing/request config + message catalogs
+  next-config/                shared Next.js config consumed by next.config.ts
+  seo/                        createMetadata defaults and JSON-LD helper
+  typescript-config/          shared tsconfig presets (base, nextjs, react-library)
+```
+
+Root scripts fan out through turbo: `pnpm build`, `pnpm test`, `pnpm lint`,
+`pnpm typecheck`, `pnpm dev`. Run a single workspace with
+`pnpm --filter app <script>`.
 
 ## Architecture
 
-The code follows [Feature-Sliced Design](https://feature-sliced.design). Layers
+The app follows [Feature-Sliced Design](https://feature-sliced.design). Layers
 may only import downwards, and only through a slice's `index.ts`:
 
-```
-app/            Next.js routes = FSD app layer (_shell, _providers, api)
-src/pages/      one composition per view: home, watch, settings
-src/widgets/    self-contained blocks: top-bar, player, settings-panel, ...
-src/features/   user actions: video-import, library-transfer, theme-toggle, ...
-src/entities/   domain objects: video, library, watch-history
-src/shared/     config, lib, api, ui with no knowledge of the domain
+```text
+apps/app/app/            Next.js routes = FSD app layer (_shell, _providers, api)
+apps/app/src/pages/      one composition per view: home, watch, settings
+apps/app/src/widgets/    self-contained blocks: top-bar, player, settings-panel, ...
+apps/app/src/features/   user actions: video-import, library-transfer, theme-toggle, ...
+apps/app/src/entities/   domain objects: video, library, watch-history
+apps/app/src/shared/     config, lib, api, ui with no knowledge of the domain
 ```
 
 `eslint-plugin-boundaries` enforces the direction — importing `@/features/*`
-from `src/shared` fails `npm run lint`.
+from `src/shared` fails `pnpm lint`.
 
 Logic lives in plain classes; React components stay thin and call into them:
 
@@ -61,21 +81,23 @@ device. Use a backend database later if approvals need to sync across devices.
 
 ## Localization
 
-Copy lives in `messages/<locale>.json` and is rendered with
-[next-intl](https://next-intl.dev). Locales are part of the URL
-(`/en/watch/:id`, `/uz/watch/:id`); `proxy.ts` negotiates a locale for
+Copy lives in `packages/internationalization/messages/<locale>.json` and is
+rendered with [next-intl](https://next-intl.dev). Locales are part of the URL
+(`/en/watch/:id`, `/uz/watch/:id`); `apps/app/proxy.ts` negotiates a locale for
 locale-less URLs from the `NEXT_LOCALE` cookie, then `Accept-Language`, and the
 language button navigates between prefixes.
 
-Adding a locale means: add it to `i18n/routing.ts`, add
-`messages/<locale>.json`, and add its shell paths to `APP_SHELL` in
-`public/sw.js`.
+Adding a locale means: add it to
+`packages/internationalization/routing.ts`, add
+`packages/internationalization/messages/<locale>.json`, and add its shell
+paths to `APP_SHELL` in `apps/app/public/sw.js`.
 
 Two notes for contributors:
 
 - `next-intl`'s Next.js plugin only wires its request config through
-  webpack/turbopack. This app runs on vinext (Vite), so `vite.config.ts`
-  aliases `next-intl/config` to `i18n/request.ts` by hand.
+  webpack/turbopack. This app runs on vinext (Vite), so
+  `apps/app/vite.config.ts` aliases `next-intl/config` to
+  `packages/internationalization/request.ts` by hand.
 - Numbers are formatted from `Format.*` message values, not
   `Intl.NumberFormat`. The Cloudflare Workers runtime ships ICU with English
   data only, so runtime formatting would disagree between server and browser.
@@ -92,8 +114,8 @@ Two notes for contributors:
 
 ## Useful Commands
 
-- `npm run dev`: start local development
-- `npm run build`: verify the production build
-- `npm run lint`: run lint checks
-- `npm test`: build and verify rendered app output
-- `npm run typecheck`: TypeScript with no emit
+- `pnpm dev`: start local development
+- `pnpm build`: verify the production build
+- `pnpm lint`: run lint checks
+- `pnpm test`: build and verify rendered app output
+- `pnpm typecheck`: TypeScript with no emit

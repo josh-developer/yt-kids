@@ -1,0 +1,27 @@
+{
+  "name": "@repo/internationalization",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./index.ts",
+    "./routing": "./routing.ts",
+    "./navigation": "./navigation.ts",
+    "./request": "./request.ts",
+    "./proxy": "./proxy.ts",
+    "./messages/*": "./messages/*"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit --emitDeclarationOnly false"
+  },
+  "dependencies": {
+    "next-intl": "^4.13.5"
+  },
+  "devDependencies": {
+    "@repo/typescript-config": "workspace:*",
+    "@types/react": "^19.2.18",
+    "next": "^16.3.0",
+    "react": "^19.2.8",
+    "typescript": "^5.9.3"
+  }
+}

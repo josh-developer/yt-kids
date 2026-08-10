@@ -1,0 +1,26 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "display": "Next.js",
+  "extends": "./base.json",
+  "compilerOptions": {
+    "plugins": [{ "name": "next" }],
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "allowJs": true,
+    // Upstream inherits declaration emit from base.json; under pnpm's
+    // non-hoisted node_modules that makes tsc demand portable declaration
+    // types (TS2742) for code that is never emitted. Apps and JIT source
+    // packages don't produce declarations, so turn it off here.
+    "declaration": false,
+    "declarationMap": false,
+    // Upstream next-forge uses "preserve" (Next's SWC transforms JSX). The app
+    // here is built by vinext (Vite), whose transform matches "react-jsx".
+    "jsx": "react-jsx",
+    "noEmit": true,
+    "paths": {
+      "@/*": ["./*"],
+      "@repo/*": ["../../packages/*"]
+    }
+  },
+  "exclude": ["node_modules"]
+}
