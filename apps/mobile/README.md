@@ -55,6 +55,21 @@ controls against the bottom and already pads them with
 `env(safe-area-inset-bottom)`. Insetting the bottom here as well pays for the
 home indicator twice.
 
+## eas.json pins a minimum CLI, and it will reject an old one
+
+`cli.version` is `>= 21.7.0`. A globally installed `eas-cli` below that fails
+before doing anything:
+
+```
+You are on eas-cli@14.4.0 which does not satisfy the CLI version constraint
+defined in eas.json (>= 21.7.0)
+```
+
+`npm install -g eas-cli` fixes it. The floor is not decoration: this project was
+initialised, linked and configured for EAS Update entirely with 21.7.x, and
+eas-cli 14 predates SDK 57, so pointing it at this config is a good way to get
+confusing failures rather than an honest one.
+
 ## Two pinned versions, on purpose
 
 | package | pin | why |
