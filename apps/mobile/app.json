@@ -10,11 +10,13 @@
     "backgroundColor": "#fff9e8",
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "uz.kidtube.app"
+      "bundleIdentifier": "uz.kidtube.app",
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
     },
     "android": {
-      "package": "uz.kidtube.app",
-      "edgeToEdgeEnabled": true
+      "package": "uz.kidtube.app"
     },
     "extra": {
       "eas": {
