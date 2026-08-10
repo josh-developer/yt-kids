@@ -14,15 +14,13 @@ import { thumbnailUrl } from "./youtube-urls";
  */
 
 /**
- * Only what an embed really contacts. `www.youtube.com` and the font host are
- * deliberately absent: the embed is served from the nocookie domain, and a
- * preconnect that goes unused holds a socket open for nothing — which is what
- * an audit reports against you.
+ * Only what an embed really contacts. `www.youtube.com`, the font host and
+ * `i.ytimg.com` are deliberately absent: the embed is served from the nocookie
+ * domain, thumbnails now come from our own origin, and a preconnect that goes
+ * unused holds a socket open for nothing — which is what an audit reports
+ * against you.
  */
-const MEDIA_ORIGINS = [
-  "https://www.youtube-nocookie.com",
-  "https://i.ytimg.com",
-];
+const MEDIA_ORIGINS = ["https://www.youtube-nocookie.com"];
 
 const warmedVideoIds = new Set<string>();
 let hasWarmedOrigins = false;

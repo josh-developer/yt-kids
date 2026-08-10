@@ -19,9 +19,15 @@ export function isTrustedYouTubeMessageOrigin(origin: string) {
  */
 export type ThumbnailSize = "card" | "poster";
 
+/**
+ * Same-origin on purpose. `i.ytimg.com` caches thumbnails for two hours and
+ * lives behind its own DNS lookup and TLS handshake, which the largest paint on
+ * the home screen has to wait through. The worker re-serves the same image with
+ * a month-long lifetime, in AVIF or WebP where the browser accepts it. The
+ * route shape is mirrored by `THUMBNAIL_ROUTE` in `worker/index.ts`.
+ */
 export function thumbnailUrl(videoId: string, size: ThumbnailSize = "card") {
-  const file = size === "poster" ? "hqdefault" : "mqdefault";
-  return `https://i.ytimg.com/vi/${videoId}/${file}.jpg`;
+  return `/_thumb/${videoId}/${size}`;
 }
 
 export function watchUrl(videoId: string) {
@@ -34,8 +40,21 @@ export function watchUrl(videoId: string) {
  */
 export function lockedEmbedUrl(
   videoId: string,
-  shouldAutoplay = false,
-  shouldStartMuted = false,
+  {
+    shouldAutoplay = false,
+    shouldStartMuted = false,
+    startSeconds = 0,
+  }: {
+    shouldAutoplay?: boolean;
+    /**
+     * Carried in the URL rather than sent as a `mute`/`unMute` command,
+     * because on iOS Safari a command cannot lift it: see `reloadWithSound` in
+     * `use-player-engine`.
+     */
+    shouldStartMuted?: boolean;
+    /** Where to pick playback up, for an embed rebuilt mid-video. */
+    startSeconds?: number;
+  } = {},
 ) {
   const params = new URLSearchParams({
     autoplay: shouldAutoplay ? "1" : "0",
@@ -54,6 +73,10 @@ export function lockedEmbedUrl(
 
   if (shouldStartMuted) {
     params.set("mute", "1");
+  }
+
+  if (startSeconds > 0) {
+    params.set("start", String(Math.floor(startSeconds)));
   }
 
   if (typeof window !== "undefined") {
