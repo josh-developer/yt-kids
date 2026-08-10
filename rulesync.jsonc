@@ -1,0 +1,6 @@
+{
+	"$schema": "https://github.com/dyoshikawa/rulesync/releases/latest/download/config-schema.json",
+	"targets": ["claudecode", "copilot", "cursor", "antigravity-cli", "agentsmd"],
+	"features": ["rules", "skills"],
+	"delete": true,
+}
