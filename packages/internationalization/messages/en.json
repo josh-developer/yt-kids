@@ -53,8 +53,7 @@
     "recommendationsTitle": "Recommendations",
     "showRecommendations": "Show recommendations",
     "seriesTitle": "Next in this series",
-    "similarTitle": "Similar videos",
-    "moreTitle": "More videos"
+    "recommendedTitle": "Recommended"
   },
   "Player": {
     "play": "Play video",

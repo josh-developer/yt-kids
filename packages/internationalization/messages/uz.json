@@ -53,8 +53,7 @@
     "recommendationsTitle": "Tavsiyalar",
     "showRecommendations": "Tavsiyalarni ko'rsatish",
     "seriesTitle": "Shu turkumning davomi",
-    "similarTitle": "O'xshash videolar",
-    "moreTitle": "Boshqa videolar"
+    "recommendedTitle": "Tavsiya etilgan"
   },
   "Player": {
     "play": "Videoni yoqish",

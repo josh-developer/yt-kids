@@ -12,8 +12,6 @@ export type KidVideoPlayerLabels = {
   seek: string;
   enterFullscreen: string;
   exitFullscreen: string;
-  showCaptions: string;
-  hideCaptions: string;
   nextVideo: string;
   previousVideo: string;
   lockControls: string;
@@ -22,7 +20,6 @@ export type KidVideoPlayerLabels = {
   forward15: string;
   repeatOn: string;
   repeatOff: string;
-  quality: string;
   /** Accessible name for the whole player region, pre-interpolated. */
   surface: string;
 };
@@ -35,8 +32,6 @@ export const DEFAULT_KID_VIDEO_PLAYER_LABELS: KidVideoPlayerLabels = {
   seek: "Seek",
   enterFullscreen: "Full screen",
   exitFullscreen: "Exit full screen",
-  showCaptions: "Show captions",
-  hideCaptions: "Hide captions",
   nextVideo: "Next video",
   previousVideo: "Previous video",
   lockControls: "Lock controls",
@@ -45,6 +40,5 @@ export const DEFAULT_KID_VIDEO_PLAYER_LABELS: KidVideoPlayerLabels = {
   forward15: "Go forward 15 seconds",
   repeatOn: "Repeat one enabled",
   repeatOff: "Repeat one disabled",
-  quality: "Video quality",
   surface: "Video player",
 };

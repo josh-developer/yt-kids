@@ -22,6 +22,11 @@ const signatureCache = new Map<string, TitleSignature>();
 /** Keyed by the `selectedIds` array itself, which `withState` reuses. */
 const clusterCache = new WeakMap<readonly string[], Video[][]>();
 
+/** How many videos make up the "Next in this series" group. */
+const SERIES_GROUP_SIZE = 3;
+/** How many videos make up the "Recommended" group. */
+const RECOMMENDED_GROUP_SIZE = 20;
+
 /**
  * Serial episodes are offered in reading order starting from the one after the
  * current episode, so "next" on episode 4 is episode 5 rather than a random
@@ -145,10 +150,11 @@ export class VideoLibrary {
   }
 
   /**
-   * The sidebar for one video, split into the rest of its series, videos with
-   * related titles, and the remaining library shuffled. Only the last group is
-   * randomised: an episode list that reshuffled on every video would be
-   * useless for watching a serial in order.
+   * The sidebar for one video: up to three videos related to it (the rest of
+   * its series, filled out with similarly-titled videos if the series is
+   * shorter than that), then a fully shuffled batch of the library. Only the
+   * second group is randomised: an episode list that reshuffled on every
+   * video would be useless for watching a serial in order.
    */
   recommendationGroupsFor(video: Video, salt: number): RecommendationGroup[] {
     const signature = this.signatureOf(video);
@@ -175,13 +181,29 @@ export class VideoLibrary {
       }
     }
 
+    const orderedSeries = orderEpisodes(series, episodeNumberOf(video.title));
+    const nextInSeries = orderedSeries.slice(0, SERIES_GROUP_SIZE);
+    const padding = similar.slice(
+      0,
+      SERIES_GROUP_SIZE - nextInSeries.length,
+    );
+    const paddingIds = new Set(padding.map((candidate) => candidate.id));
+
+    const leftover = [
+      ...orderedSeries.slice(SERIES_GROUP_SIZE),
+      ...similar.filter((candidate) => !paddingIds.has(candidate.id)),
+      ...rest,
+    ];
+
     const groups: RecommendationGroup[] = [
+      { key: "series", videos: [...nextInSeries, ...padding] },
       {
-        key: "series",
-        videos: orderEpisodes(series, episodeNumberOf(video.title)),
+        key: "recommended",
+        videos: shuffleWithSeed(leftover, salt + video.id.length).slice(
+          0,
+          RECOMMENDED_GROUP_SIZE,
+        ),
       },
-      { key: "similar", videos: similar },
-      { key: "more", videos: shuffleWithSeed(rest, salt + video.id.length) },
     ];
 
     return groups.filter((group) => group.videos.length > 0);

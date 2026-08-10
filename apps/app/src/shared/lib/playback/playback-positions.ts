@@ -38,15 +38,24 @@ export class PlaybackPositions {
   }
 
   /**
-   * Records progress. Writes are coalesced to one per `SAVE_STEP_SECONDS` of
-   * playback — progress arrives several times a second, and storage does not
-   * need that resolution. Passing a duration lets a finished video clear its
-   * entry so it opens from the start next time.
+   * Records progress. Storage is touched at most once per `SAVE_STEP_SECONDS`
+   * of playback — progress arrives several times a second, and storage needs
+   * none of that resolution. The gate covers the clearing paths too, not just
+   * the write: they parse the stored map as well, and without it every tick of
+   * a video's opening seconds and closing seconds would do it again. Passing a
+   * duration lets a finished video drop its entry so it opens from the start
+   * next time.
    */
   save(videoId: string, seconds: number, durationSeconds = 0) {
     if (!Number.isFinite(seconds) || seconds < 0) {
       return;
     }
+
+    if (Math.abs(seconds - this.lastSavedSeconds) < SAVE_STEP_SECONDS) {
+      return;
+    }
+
+    this.lastSavedSeconds = seconds;
 
     const hasFinished =
       durationSeconds > 0 && seconds >= durationSeconds - END_MARGIN_SECONDS;
@@ -56,11 +65,6 @@ export class PlaybackPositions {
       return;
     }
 
-    if (Math.abs(seconds - this.lastSavedSeconds) < SAVE_STEP_SECONDS) {
-      return;
-    }
-
-    this.lastSavedSeconds = seconds;
     const positions = this.readAll();
     delete positions[videoId];
     positions[videoId] = seconds;

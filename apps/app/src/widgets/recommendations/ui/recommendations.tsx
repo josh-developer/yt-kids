@@ -8,8 +8,7 @@ import styles from "./recommendations.module.css";
 
 const GROUP_TITLES = {
   series: "seriesTitle",
-  similar: "similarTitle",
-  more: "moreTitle",
+  recommended: "recommendedTitle",
 } as const;
 
 /**
