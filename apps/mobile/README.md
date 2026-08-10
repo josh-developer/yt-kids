@@ -4,9 +4,22 @@ An Expo shell around [kidtube.uz](https://kidtube.uz). One `WebView`, no second
 implementation of anything — the site is the app.
 
 ```sh
-pnpm --filter mobile ios        # simulator
-pnpm --filter mobile dev        # Metro, pick a target from the prompt
+pnpm --filter mobile dev        # Metro only — runs in Expo Go, no native build
+pnpm --filter mobile ios        # expo run:ios — prebuilds and compiles natively
+pnpm --filter mobile android    # expo run:android — same, needs ANDROID_HOME
 pnpm --filter mobile typecheck
+```
+
+`dev` is the fast loop: Expo Go already bundles every native module this app uses,
+so nothing has to be compiled. `ios` and `android` are the slow, faithful ones —
+`expo prebuild` generates `ios/`/`android/` (both gitignored, since EAS
+regenerates them in the cloud) and Gradle or Xcode builds a real app.
+
+An Android build needs the SDK on the path, which is not exported by default:
+
+```sh
+export ANDROID_HOME=~/Library/Android/sdk
+export PATH="$ANDROID_HOME/platform-tools:$ANDROID_HOME/emulator:$PATH"
 ```
 
 Point it somewhere else with `EXPO_PUBLIC_SITE_URL` (Expo inlines
