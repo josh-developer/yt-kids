@@ -19,6 +19,11 @@ out/
 dist/
 .wrangler/
 
+# expo
+.expo/
+ios/
+android/
+
 # misc
 .DS_Store
 *.pem
