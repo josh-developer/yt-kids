@@ -2,12 +2,43 @@
   /* One timing for the whole control layer, mirroring the widget player. */
   --kvp-controls-fade: 200ms;
   --kvp-controls-ease: cubic-bezier(0.2, 0, 0.2, 1);
+  /* Kept in step with SEEK_HINT_MS, which unmounts the flash. */
+  --kvp-seek-hint-fade: 600ms;
+  /*
+   * How far the controls sit from the picture's edge. Every edge-anchored
+   * control reads these, so full screen only has to restate them once.
+   */
+  --kvp-edge-x: 24px;
+  --kvp-edge-y: 10px;
+  --kvp-edge-top: 16px;
+  /* Extra breathing room for the skip buttons, on top of `--kvp-edge-x`. */
+  --kvp-side-gap: 20px;
+  /*
+   * The same distances once the surface owns the whole display. Held here as
+   * their own names because several selectors have to apply them — see the
+   * full-screen block below for why one is not enough.
+   */
+  --kvp-fs-edge-x: max(
+    clamp(32px, 6vw, 120px),
+    env(safe-area-inset-left),
+    env(safe-area-inset-right)
+  );
+  --kvp-fs-edge-y: max(clamp(24px, 5vh, 68px), env(safe-area-inset-bottom));
+  --kvp-fs-edge-top: max(clamp(28px, 5vh, 76px), env(safe-area-inset-top));
+  --kvp-fs-side-gap: clamp(24px, 2.5vw, 48px);
   /* Layer order in one place: poster < shield < cover < overlay < controls. */
   --kvp-z-poster: 1;
   --kvp-z-shield: 2;
   --kvp-z-cover: 3;
   --kvp-z-overlay: 4;
   --kvp-z-controls: 5;
+  /*
+   * Block, because the library's own stylesheet makes the player
+   * `inline-flex`. An inline-level box sits on the text baseline, so the line
+   * it belongs to reserves room for descenders underneath it — a band of
+   * dead space between the picture and whatever follows.
+   */
+  display: block;
   position: relative;
   width: min(100%, 1120px);
   max-height: min(74vh, 630px);
@@ -116,15 +147,27 @@
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
-  padding: 0 12px 8px;
+  padding: 0 var(--kvp-edge-x) var(--kvp-edge-y);
   opacity: 0;
-  transition: opacity var(--kvp-controls-fade) var(--kvp-controls-ease);
+  /*
+   * `visibility` rather than the opacity alone: a fully transparent element
+   * still catches taps, so faded-out controls were swallowing them — on a
+   * phone, where they are hidden most of the time, a tap on the picture hit
+   * an invisible button instead. Visibility is inherited and nothing inside
+   * overrides it, so the whole layer goes inert together. Transitioning it
+   * keeps the controls live through the fade and inert only once it ends.
+   */
+  visibility: hidden;
+  transition:
+    opacity var(--kvp-controls-fade) var(--kvp-controls-ease),
+    visibility var(--kvp-controls-fade) var(--kvp-controls-ease);
   /* The container is a pass-through; only the rows catch the pointer. */
   pointer-events: none;
 }
 
 .controls[data-visible] {
   opacity: 1;
+  visibility: visible;
 }
 
 /* The scrim under the control rows. */
@@ -251,12 +294,18 @@
   pointer-events: none;
 }
 
+/*
+* A gap on top of the controls' own padding, not the full edge distance
+* again: these sit inside the controls, and an absolute child is placed from
+* its padding box, so repeating that value here would inset them twice. Their
+* real distance from the picture's edge is the padding plus this.
+*/
 .sideNavLeft {
-  left: 14px;
+  left: var(--kvp-side-gap);
 }
 
 .sideNavRight {
-  right: 14px;
+  right: var(--kvp-side-gap);
   flex-direction: row-reverse;
 }
 
@@ -373,14 +422,116 @@
 }
 
 /*
+* Wears the play button's colour and shape, in the opposite corner from the
+* lock. It sits outside the control layer on purpose: sound should not depend
+* on bringing the hidden bar back first.
+*/
+.soundButton {
+  position: absolute;
+  top: var(--kvp-edge-top);
+  right: var(--kvp-edge-x);
+  z-index: var(--kvp-z-controls);
+  display: grid;
+  place-items: center;
+  width: 56px;
+  height: 56px;
+  border: 0;
+  border-radius: 50%;
+  background: var(--brand-red);
+  color: #fff;
+  cursor: pointer;
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.4);
+  transition: scale var(--kvp-controls-fade) var(--kvp-controls-ease);
+}
+
+/*
+* While the video already has sound, this is only worth its corner on a
+* phone, where the bar is out of reach until you tap. A pointer device keeps
+* a mute button in the bar, so there the corner clears once sound is on and
+* the button is left to its "turn the sound on" job.
+*/
+.soundButtonAudible {
+  display: none;
+}
+
+.soundButton:hover {
+  scale: 1.07;
+}
+
+.soundButton:focus-visible {
+  outline: 3px solid var(--brand-yellow);
+  outline-offset: 3px;
+}
+
+/* Anchored to its own right edge; centred, the bubble would leave the box. */
+.soundButton[data-tooltip]::after {
+  right: 0;
+  left: auto;
+  transform: translate(0, -4px);
+}
+
+.soundButton[data-tooltip]:hover::after,
+.soundButton[data-tooltip]:focus-visible::after {
+  transform: translate(0, 0);
+}
+
+/*
+* The ±15 flash confirming a double-tap. YouTube answers a seek with a beat
+* of buffering, so without this the gesture reads as "nothing happened".
+*/
+.seekHint {
+  position: absolute;
+  top: 50%;
+  z-index: var(--kvp-z-overlay);
+  display: grid;
+  place-items: center;
+  width: 84px;
+  height: 84px;
+  transform: translateY(-50%);
+  border-radius: 50%;
+  background: rgba(8, 8, 8, 0.66);
+  color: #fff;
+  font-size: 19px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  pointer-events: none;
+  animation: seekHintFade var(--kvp-seek-hint-fade) var(--kvp-controls-ease);
+}
+
+.seekHintBack {
+  left: 12%;
+}
+
+.seekHintForward {
+  right: 12%;
+}
+
+@keyframes seekHintFade {
+  0% {
+    opacity: 0;
+    scale: 0.86;
+  }
+
+  30% {
+    opacity: 1;
+    scale: 1;
+  }
+
+  100% {
+    opacity: 0;
+    scale: 1.04;
+  }
+}
+
+/*
 * Parent lock, top-left. It rides the controls visibility while unlocked;
 * once locked it stays reachable on its own, since the control layer it
 * would normally fade with is unmounted.
 */
 .lockButton {
   position: absolute;
-  top: 12px;
-  left: 12px;
+  top: var(--kvp-edge-top);
+  left: var(--kvp-edge-x);
   z-index: var(--kvp-z-controls);
   display: grid;
   place-items: center;
@@ -577,6 +728,81 @@
 }
 
 /*
+* Full screen turns a 1120px box into the whole display, where the inset that
+* framed the controls before reads as glued to the edge. These scale with the
+* viewport, and `max()` against the safe-area insets keeps the controls clear
+* of the notch and the home indicator on a phone held sideways.
+*
+* Keyed off a class the component sets from the player's own fullscreen state:
+* vidstack publishes `data-fullscreen` on its controls element rather than on
+* the player, and `:fullscreen` covers only the native path.
+*/
+.playerBox.isFullscreen {
+  --kvp-edge-x: var(--kvp-fs-edge-x);
+  --kvp-edge-y: var(--kvp-fs-edge-y);
+  --kvp-edge-top: var(--kvp-fs-edge-top);
+  --kvp-side-gap: var(--kvp-fs-side-gap);
+  width: 100%;
+  max-height: none;
+  border-radius: 0;
+}
+
+/*
+* The fallback for browsers with no element fullscreen at all — iPhone. The
+* surface is pinned over the viewport rather than handed to the compositor,
+* so it has to drop the aspect box and outrank the app's own layers.
+*/
+.playerBox.virtualFullscreen {
+  position: fixed;
+  inset: 0;
+  z-index: 30000;
+  width: 100%;
+  height: 100%;
+  max-height: none;
+  aspect-ratio: auto;
+  border-radius: 0;
+}
+
+/*
+* The native path, for when the element itself is the fullscreen element.
+* Split from the class rule and from each other because a selector list is
+* dropped whole when any selector in it is unknown to the browser.
+*/
+.playerBox:fullscreen {
+  --kvp-edge-x: var(--kvp-fs-edge-x);
+  --kvp-edge-y: var(--kvp-fs-edge-y);
+  --kvp-edge-top: var(--kvp-fs-edge-top);
+  --kvp-side-gap: var(--kvp-fs-side-gap);
+}
+
+.playerBox:-webkit-full-screen {
+  --kvp-edge-x: var(--kvp-fs-edge-x);
+  --kvp-edge-y: var(--kvp-fs-edge-y);
+  --kvp-edge-top: var(--kvp-fs-edge-top);
+  --kvp-side-gap: var(--kvp-fs-side-gap);
+}
+
+/*
+* And the player's own signal. Vidstack stamps `data-fullscreen` on the
+* controls element, so reading it back up to the surface is the one hook that
+* holds whichever way the player got to full screen — and, unlike the
+* attribute on its own, it also reaches the lock button, which sits outside
+* the controls.
+*/
+.playerBox:has(.controls[data-fullscreen]) {
+  --kvp-edge-x: var(--kvp-fs-edge-x);
+  --kvp-edge-y: var(--kvp-fs-edge-y);
+  --kvp-edge-top: var(--kvp-fs-edge-top);
+  --kvp-side-gap: var(--kvp-fs-side-gap);
+}
+
+.controls[data-fullscreen] {
+  --kvp-edge-x: var(--kvp-fs-edge-x);
+  --kvp-edge-y: var(--kvp-fs-edge-y);
+  --kvp-side-gap: var(--kvp-fs-side-gap);
+}
+
+/*
 * Split from the unprefixed rule on purpose: a selector list is thrown away
 * whole when any selector in it is unknown, so grouping `:-webkit-full-screen`
 * with `:fullscreen` loses every fullscreen style in the browsers that only
@@ -610,13 +836,21 @@
 * the time bar, and volume belongs to the device's own buttons. The edge
 * buttons and the centre play button shrink so they leave the picture visible.
 */
-@media (max-width: 640px) {
-  .wideOnly {
-    display: none;
+/*
+* The height clause catches a phone held sideways — 844px wide clears the
+* width clause, but 390px of height has even less room for a full control bar
+* than a portrait screen does. No desktop window is that short.
+*/
+@media (max-width: 640px), (max-height: 480px) {
+  .playerBox {
+    --kvp-edge-x: 14px;
+    --kvp-edge-y: 8px;
+    --kvp-edge-top: 12px;
+    --kvp-side-gap: 10px;
   }
 
-  .controls {
-    padding: 0 8px 6px;
+  .wideOnly {
+    display: none;
   }
 
   .controlsRow {
@@ -626,14 +860,6 @@
   .sideButton {
     width: 46px;
     height: 46px;
-  }
-
-  .sideNavLeft {
-    left: 8px;
-  }
-
-  .sideNavRight {
-    right: 8px;
   }
 
   /* No room beside a 46px button on a phone for a card this size. */
@@ -647,9 +873,23 @@
   }
 
   .lockButton {
-    top: 8px;
-    left: 8px;
     width: 40px;
     height: 40px;
+  }
+
+  .soundButton {
+    width: 46px;
+    height: 46px;
+  }
+
+  /* The phone keeps it in both states, as a plain mute/unmute toggle. */
+  .soundButtonAudible {
+    display: grid;
+  }
+
+  .seekHint {
+    width: 68px;
+    height: 68px;
+    font-size: 16px;
   }
 }

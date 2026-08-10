@@ -1,6 +1,5 @@
 import {
   Controls,
-  FullscreenButton,
   MediaPlayer,
   MediaProvider,
   MuteButton,
@@ -10,6 +9,7 @@ import {
   Time,
   TimeSlider,
   VolumeSlider,
+  useMediaRemote,
   useMediaState,
   useVideoQualityOptions,
   type MediaPlayerInstance,
@@ -31,7 +31,7 @@ import {
   Volume2,
   VolumeX,
 } from "lucide-react";
-import { useRef, useState, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import {
   DEFAULT_KID_VIDEO_PLAYER_LABELS,
   type KidVideoPlayerLabels,
@@ -42,6 +42,15 @@ import {
   setYouTubeCaptions,
 } from "./youtube-provider-hardening";
 import styles from "./kid-video-player.module.css";
+
+/** One jump of the seek controls: the ±buttons, arrow keys, and double-tap. */
+const SEEK_STEP_SECONDS = 15;
+
+/** How close two taps must be to count as one double-tap. */
+const DOUBLE_TAP_WINDOW_MS = 280;
+
+/** How long the ±15 flash stays up after a double-tap. */
+const SEEK_HINT_MS = 600;
 
 /** What the hover card on a prev/next side button shows. */
 export type KidVideoPlayerPreview = {
@@ -123,9 +132,156 @@ export function KidVideoPlayer({
   const [areCaptionsEnabled, setAreCaptionsEnabled] =
     useState(captionsEnabled);
   const [isLocked, setIsLocked] = useState(false);
+  // Vidstack publishes `data-fullscreen` on its controls element, not on the
+  // player, so the surface tracks the state itself to style its own edges.
+  const [isFullscreen, setIsFullscreen] = useState(false);
+  // iPhone has no element Fullscreen API and the YouTube provider brings no
+  // fullscreen of its own, so there the button falls back to filling the
+  // viewport with CSS instead of leaving a control that does nothing.
+  const [isVirtualFullscreen, setIsVirtualFullscreen] = useState(false);
+
+  useEffect(() => {
+    if (!isVirtualFullscreen) {
+      return;
+    }
+
+    const { body, documentElement } = document;
+    const restore = {
+      body: body.style.overflow,
+      root: documentElement.style.overflow,
+    };
+    body.style.overflow = "hidden";
+    documentElement.style.overflow = "hidden";
+
+    return () => {
+      body.style.overflow = restore.body;
+      documentElement.style.overflow = restore.root;
+    };
+  }, [isVirtualFullscreen]);
+
+  const setVirtualFullscreen = (isOn: boolean) => {
+    setIsVirtualFullscreen(isOn);
+    onFullscreenChange?.(isOn);
+  };
+
+  useEffect(() => {
+    if (!isVirtualFullscreen) {
+      return;
+    }
+
+    const leaveOnEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setIsVirtualFullscreen(false);
+        onFullscreenChange?.(false);
+      }
+    };
+
+    window.addEventListener("keydown", leaveOnEscape);
+    return () => window.removeEventListener("keydown", leaveOnEscape);
+  }, [isVirtualFullscreen, onFullscreenChange]);
   const [isRepeatOn, setIsRepeatOn] = useState(false);
+  const [seekHint, setSeekHint] = useState<"back" | "forward" | null>(null);
   const isRepeatOnRef = useRef(false);
   const hasResumedRef = useRef(false);
+  const lastTapRef = useRef({ at: 0, side: "" });
+  const tapTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const hintTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(
+    () => () => {
+      // Both timers outlive a fast unmount — a tap right before navigating
+      // away would otherwise fire into a torn-down player.
+      if (tapTimerRef.current) {
+        clearTimeout(tapTimerRef.current);
+      }
+      if (hintTimerRef.current) {
+        clearTimeout(hintTimerRef.current);
+      }
+    },
+    [],
+  );
+
+  const seekBy = (offsetSeconds: number) => {
+    const player = playerRef.current;
+    if (!player) {
+      return;
+    }
+
+    const duration = player.duration;
+    const target = player.currentTime + offsetSeconds;
+    player.currentTime = Math.max(
+      0,
+      Number.isFinite(duration) && duration > 0 ? Math.min(target, duration) : target,
+    );
+
+    setSeekHint(offsetSeconds < 0 ? "back" : "forward");
+    if (hintTimerRef.current) {
+      clearTimeout(hintTimerRef.current);
+    }
+    hintTimerRef.current = setTimeout(() => setSeekHint(null), SEEK_HINT_MS);
+  };
+
+  /**
+   * One tap plays or pauses; two taps on the same half jump ±15 seconds.
+   * The single tap has to wait out the double-tap window before it acts,
+   * otherwise the first of a pair would toggle playback on the way to the
+   * seek. Only touch pays that wait — a mouse has the ±15 buttons and the
+   * arrow keys, so its click stays instant.
+   */
+  const handleSurfaceTap = (event: React.PointerEvent<HTMLDivElement>) => {
+    if (isLocked) {
+      return;
+    }
+
+    const player = playerRef.current;
+    if (!player) {
+      return;
+    }
+
+    const isTouch = event.pointerType !== "mouse";
+    const bounds = event.currentTarget.getBoundingClientRect();
+    const side =
+      event.clientX - bounds.left < bounds.width / 2 ? "back" : "forward";
+
+    const togglePlayback = () => {
+      if (isTouch && !player.controls.showing) {
+        // Touch has no hover, so the first tap is how the controls come back.
+        player.controls.show();
+        return;
+      }
+      if (player.paused) {
+        player.play().catch(() => {});
+      } else {
+        player.pause().catch(() => {});
+      }
+    };
+
+    if (!isTouch) {
+      togglePlayback();
+      return;
+    }
+
+    const now = event.timeStamp;
+    const previous = lastTapRef.current;
+    const isDoubleTap =
+      previous.side === side && now - previous.at < DOUBLE_TAP_WINDOW_MS;
+
+    if (isDoubleTap) {
+      if (tapTimerRef.current) {
+        clearTimeout(tapTimerRef.current);
+        tapTimerRef.current = null;
+      }
+      lastTapRef.current = { at: 0, side: "" };
+      seekBy(side === "back" ? -SEEK_STEP_SECONDS : SEEK_STEP_SECONDS);
+      return;
+    }
+
+    lastTapRef.current = { at: now, side };
+    tapTimerRef.current = setTimeout(() => {
+      tapTimerRef.current = null;
+      togglePlayback();
+    }, DOUBLE_TAP_WINDOW_MS);
+  };
 
   const toggleCaptions = () => {
     const next = !areCaptionsEnabled;
@@ -143,7 +299,11 @@ export function KidVideoPlayer({
   return (
     <MediaPlayer
       ref={playerRef}
-      className={`${styles.playerBox} ${className}`.trim()}
+      className={`${styles.playerBox} ${
+        isFullscreen || isVirtualFullscreen ? styles.isFullscreen : ""
+      } ${
+        isVirtualFullscreen ? styles.virtualFullscreen : ""
+      } ${className}`.trim()}
       src={`youtube/${videoId}`}
       title={title}
       aria-label={labels.surface}
@@ -195,7 +355,10 @@ export function KidVideoPlayer({
         }
       }}
       onError={() => onError?.()}
-      onFullscreenChange={(isFullscreen) => onFullscreenChange?.(isFullscreen)}
+      onFullscreenChange={(isNowFullscreen) => {
+        setIsFullscreen(isNowFullscreen);
+        onFullscreenChange?.(isNowFullscreen);
+      }}
       onContextMenu={(event) => event.preventDefault()}
     >
       <MediaProvider />
@@ -211,21 +374,20 @@ export function KidVideoPlayer({
       <div
         className={styles.shield}
         aria-hidden="true"
-        onClick={() => {
-          if (isLocked) {
-            return;
-          }
-          const player = playerRef.current;
-          if (!player) {
-            return;
-          }
-          if (player.paused) {
-            player.play().catch(() => {});
-          } else {
-            player.pause().catch(() => {});
-          }
-        }}
+        onPointerUp={handleSurfaceTap}
       />
+      {seekHint ? (
+        <div
+          className={`${styles.seekHint} ${
+            seekHint === "back" ? styles.seekHintBack : styles.seekHintForward
+          }`}
+          aria-hidden="true"
+        >
+          {seekHint === "back"
+            ? `−${SEEK_STEP_SECONDS}`
+            : `+${SEEK_STEP_SECONDS}`}
+        </div>
+      ) : null}
       <div className={styles.titleCover} aria-hidden="true" />
       {overlaySlot ? <div className={styles.overlay}>{overlaySlot}</div> : null}
       {isLocked ? null : (
@@ -237,11 +399,18 @@ export function KidVideoPlayer({
           controlsEndSlot={controlsEndSlot}
           onToggleCaptions={toggleCaptions}
           onToggleRepeat={toggleRepeat}
+          isVirtualFullscreen={isVirtualFullscreen}
+          onToggleVirtualFullscreen={() =>
+            setVirtualFullscreen(!isVirtualFullscreen)
+          }
           onNextVideo={onNextVideo}
           onPreviousVideo={onPreviousVideo}
           nextVideoPreview={nextVideoPreview}
           previousVideoPreview={previousVideoPreview}
         />
+      )}
+      {isLocked ? null : (
+        <SoundToggle muteLabel={labels.mute} unmuteLabel={labels.unmute} />
       )}
       <button
         type="button"
@@ -276,6 +445,8 @@ function PlayerControlBar({
   onPreviousVideo,
   nextVideoPreview,
   previousVideoPreview,
+  isVirtualFullscreen,
+  onToggleVirtualFullscreen,
 }: {
   areCaptionsEnabled: boolean;
   isRepeatOn: boolean;
@@ -288,10 +459,17 @@ function PlayerControlBar({
   onPreviousVideo?: () => void;
   nextVideoPreview?: KidVideoPlayerPreview;
   previousVideoPreview?: KidVideoPlayerPreview;
+  isVirtualFullscreen: boolean;
+  onToggleVirtualFullscreen: () => void;
 }) {
   const isPaused = useMediaState("paused");
   const isMuted = useMediaState("muted");
-  const isFullscreen = useMediaState("fullscreen");
+  const isNativeFullscreen = useMediaState("fullscreen");
+  const canNativeFullscreen = useMediaState("canFullscreen");
+  const remote = useMediaRemote();
+  const isFullscreen = canNativeFullscreen
+    ? isNativeFullscreen
+    : isVirtualFullscreen;
 
   return (
     <Controls.Root className={styles.controls}>
@@ -324,6 +502,13 @@ function PlayerControlBar({
         <TimeSlider.Root
           className={`${styles.slider} ${styles.timeSlider}`}
           aria-label={labels.seek}
+          /*
+           * The player forwards ArrowLeft/ArrowRight to whichever time slider
+           * it finds rather than seeking itself, so this is what sets the
+           * arrow keys' jump — a default of one second, otherwise.
+           */
+          keyStep={SEEK_STEP_SECONDS}
+          shiftKeyMultiplier={1}
         >
           <TimeSlider.Track className={styles.sliderTrack} />
           <TimeSlider.Progress className={styles.sliderBuffered} />
@@ -364,7 +549,7 @@ function PlayerControlBar({
         ) : null}
         <SeekButton
           className={`${styles.controlButton} ${styles.seekStepButton} ${styles.wideOnly}`}
-          seconds={-15}
+          seconds={-SEEK_STEP_SECONDS}
           aria-label={labels.back15}
           data-tooltip={labels.back15}
         >
@@ -372,7 +557,7 @@ function PlayerControlBar({
         </SeekButton>
         <SeekButton
           className={`${styles.controlButton} ${styles.seekStepButton} ${styles.wideOnly}`}
-          seconds={15}
+          seconds={SEEK_STEP_SECONDS}
           aria-label={labels.forward15}
           data-tooltip={labels.forward15}
         >
@@ -428,19 +613,73 @@ function PlayerControlBar({
           )}
         </button>
         {controlsEndSlot}
-        <FullscreenButton
+        {/*
+         * Not vidstack's FullscreenButton: it can only drive the real API,
+         * which iPhone does not have, so there it would render a control that
+         * silently does nothing. This picks the mechanism that exists.
+         */}
+        <button
+          type="button"
           className={`${styles.controlButton} ${styles.tooltipEnd}`}
           aria-label={
             isFullscreen ? labels.exitFullscreen : labels.enterFullscreen
           }
+          aria-pressed={isFullscreen}
           data-tooltip={
             isFullscreen ? labels.exitFullscreen : labels.enterFullscreen
           }
+          onClick={(event) => {
+            if (canNativeFullscreen) {
+              remote.toggleFullscreen("prefer-media", event.nativeEvent);
+              return;
+            }
+            onToggleVirtualFullscreen();
+          }}
         >
           {isFullscreen ? <Minimize2 size={20} /> : <Maximize2 size={20} />}
-        </FullscreenButton>
+        </button>
       </Controls.Group>
     </Controls.Root>
+  );
+}
+
+/**
+ * Sound, in the corner opposite the lock, wearing the play button's colour.
+ * It sits outside the control layer because the bar spends most of its time
+ * hidden — on a phone, nearly all of it — and sound should not depend on
+ * bringing the bar back first.
+ *
+ * On a phone it stays put as a plain mute/unmute toggle. On a pointer device
+ * the bar is a click away and carries its own mute button, so this one only
+ * appears while the video is actually silent, where it reads as an offer to
+ * turn sound on — the case iOS forces by refusing to autoplay with sound.
+ * Which of those applies is left to CSS, so the state stays in one place.
+ */
+function SoundToggle({
+  muteLabel,
+  unmuteLabel,
+}: {
+  muteLabel: string;
+  unmuteLabel: string;
+}) {
+  const isMuted = useMediaState("muted");
+  const remote = useMediaRemote();
+  const label = isMuted ? unmuteLabel : muteLabel;
+
+  return (
+    <button
+      type="button"
+      className={`${styles.soundButton} ${
+        isMuted ? "" : styles.soundButtonAudible
+      }`.trim()}
+      aria-label={label}
+      aria-pressed={isMuted}
+      data-tooltip={label}
+      onPointerUp={(event) => event.stopPropagation()}
+      onClick={(event) => remote.toggleMuted(event.nativeEvent)}
+    >
+      {isMuted ? <VolumeX size={26} /> : <Volume2 size={26} />}
+    </button>
   );
 }
 
