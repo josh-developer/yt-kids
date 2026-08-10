@@ -21,7 +21,16 @@ const INK = "#31475d";
 
 export function SiteWebView() {
   const webViewRef = useRef<WebView>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  /**
+   * Latched, not a live "is anything loading" flag.
+   *
+   * On Android `onLoadStart`/`onLoadEnd` fire for subframes as well as the page,
+   * and the player is a `youtube-nocookie` iframe that loads continuously — so a
+   * live flag flips back to true forever and leaves this opaque cover sitting on
+   * top of a working site. The cover only has a job once, before the first
+   * paint; after that the site is a client-rendered app and navigates itself.
+   */
+  const [hasLoadedOnce, setHasLoadedOnce] = useState(false);
   const [hasFailed, setHasFailed] = useState(false);
   // A ref as well as state: the back handler is registered once, and a value
   // captured in that render would go stale on the first navigation.
@@ -80,7 +89,7 @@ export function SiteWebView() {
 
   const reload = useCallback(() => {
     setHasFailed(false);
-    setIsLoading(true);
+    setHasLoadedOnce(false);
     webViewRef.current?.reload();
   }, []);
 
@@ -91,8 +100,7 @@ export function SiteWebView() {
         source={{ uri: SITE_URL }}
         style={styles.fill}
         containerStyle={styles.canvas}
-        onLoadStart={() => setIsLoading(true)}
-        onLoadEnd={() => setIsLoading(false)}
+        onLoadEnd={() => setHasLoadedOnce(true)}
         onNavigationStateChange={handleNavigationStateChange}
         onShouldStartLoadWithRequest={handleShouldStartLoad}
         onError={() => setHasFailed(true)}
@@ -114,7 +122,7 @@ export function SiteWebView() {
         webviewDebuggingEnabled={__DEV__}
       />
 
-      {isLoading && !hasFailed ? (
+      {!hasLoadedOnce && !hasFailed ? (
         <View style={[styles.overlay, styles.canvas]} pointerEvents="none">
           <ActivityIndicator size="large" color={INK} />
         </View>
