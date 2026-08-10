@@ -9,6 +9,7 @@ export const SESSION_KEYS = {
   playerMuted: "kidtube-player-muted",
   playerVolume: "kidtube-player-volume",
   playerCaptions: "kidtube-player-captions",
+  playerPositions: "kidtube-player-positions",
 } as const;
 
 /** Bumped whenever `StoredLibrary` changes shape; drives migrations on read. */
