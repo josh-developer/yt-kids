@@ -87,7 +87,8 @@
     "replay": "Qaytadan ko'rish",
     "cancelAutoplay": "Keyingisi",
     "showCaptions": "Taglavhalarni yoqish",
-    "hideCaptions": "Taglavhalarni o'chirish"
+    "hideCaptions": "Taglavhalarni o'chirish",
+    "quality": "Video sifati"
   },
   "Settings": {
     "title": "Ota-ona sozlamalari",
