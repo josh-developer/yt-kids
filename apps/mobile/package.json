@@ -6,6 +6,12 @@
   "engines": {
     "node": ">=22.13.0"
   },
+  "expo": {
+    "install": {
+      "//": "TypeScript is held at the workspace's 5.9 rather than the 6.0 the SDK asks for, so the monorepo compiles with one compiler. Nothing here needs 6: `tsc --noEmit` passes, and this app is a WebView with almost no type surface. Revisit when the rest of the repo moves.",
+      "exclude": ["typescript"]
+    }
+  },
   "scripts": {
     "dev": "expo start",
     "ios": "expo run:ios",
@@ -14,10 +20,11 @@
     "lint": "eslint ."
   },
   "dependencies": {
-    "expo": "~57.0.11",
-    "expo-constants": "~57.0.9",
+    "babel-preset-expo": "~57.0.6",
+    "expo": "~57.0.12",
+    "expo-constants": "~57.0.10",
     "expo-status-bar": "~57.0.1",
-    "expo-updates": "~57.0.12",
+    "expo-updates": "~57.0.13",
     "react": "19.2.3",
     "react-native": "0.86.2",
     "react-native-safe-area-context": "~5.7.0",

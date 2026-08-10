@@ -6,7 +6,6 @@
     "orientation": "default",
     "scheme": "kidtube",
     "userInterfaceStyle": "automatic",
-    "newArchEnabled": true,
     "backgroundColor": "#fff9e8",
     "ios": {
       "supportsTablet": true,
