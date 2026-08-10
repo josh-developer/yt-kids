@@ -23,6 +23,11 @@ const END_TOLERANCE_SECONDS = 0.25;
 /** What went wrong, in the two flavours the viewer can act on. */
 export type PlayerFailure = "blocked" | "unreachable";
 
+/** Names one iframe instance: a new video or a reload is a different embed. */
+function embedToken(videoId: string, reloadKey: number) {
+  return `${videoId}:${reloadKey}`;
+}
+
 /**
  * Playback state for one video: sends commands to the embed, folds the
  * telemetry that comes back into React state, and keeps the progress bar
@@ -67,6 +72,26 @@ export function usePlayerEngine({
   );
   const [reloadKey, setReloadKey] = useState(0);
   const [shouldAutoplay, setShouldAutoplay] = useState(true);
+  /**
+   * The viewer has asked for sound at least once this session. Until they have,
+   * every embed is built with `mute=1`: muted autoplay is the only autoplay iOS
+   * Safari allows, and an unmuted `autoplay=1` there simply never starts.
+   *
+   * Never cleared. Muting again is done with a `mute` command, which every
+   * browser honours — it is only the unmuting direction that WebKit guards — so
+   * a mute must not drag the embed back to being built muted, or the viewer
+   * would pay a reload for every tap of the button.
+   */
+  const [hasRequestedSound, setHasRequestedSound] = useState(false);
+  /**
+   * Set by the tap that asks for sound: which embed is being rebuilt unmuted,
+   * and how far in the video had already got. Tagged with the embed it belongs
+   * to so a position captured on one video cannot follow the viewer to the next.
+   */
+  const [soundResume, setSoundResume] = useState<{
+    token: string;
+    atSeconds: number;
+  } | null>(null);
 
   const durationRef = useRef(0);
   const publishedDurationRef = useRef(0);
@@ -76,10 +101,6 @@ export function usePlayerEngine({
   const hasTelemetryRef = useRef(false);
   const hasFrameLoadedRef = useRef(false);
   const captionsRef = useRef(areCaptionsEnabled);
-  // WebKit grants audio-autoplay page-wide once the viewer has unmuted via a
-  // real gesture, not just to the element that was tapped — so once this
-  // flips, later videos' boots can ask for sound instead of starting muted.
-  const hasUnmutedGestureRef = useRef(false);
   const videoRef = useRef(video);
   const callbacks = useRef({ onDurationResolved, onEnded, onPlayingChange });
 
@@ -106,6 +127,27 @@ export function usePlayerEngine({
   // soon as a player exists rather than when the src is set.
   useEffect(warmYouTubeOrigins, []);
 
+  /**
+   * The live embed, described by the two things its URL encodes about audio.
+   *
+   * Both are derived from state that only moves when a reload is intended, so
+   * the URL settles when the iframe is created and then holds still — a `src`
+   * that changes under a live iframe re-navigates it mid-playback. Keeping
+   * `startsMuted` readable for the embed's whole life is also what lets
+   * `sendPlay` and `giveSound` tell "muted because the URL said so" apart from
+   * "muted because the viewer asked".
+   */
+  const embedStartsMuted = !hasRequestedSound;
+  const embedStartSeconds =
+    soundResume?.token === embedToken(video.videoId, reloadKey)
+      ? soundResume.atSeconds
+      : 0;
+  const embedUrl = lockedEmbedUrl(video.videoId, {
+    shouldAutoplay,
+    shouldStartMuted: embedStartsMuted,
+    startSeconds: embedStartSeconds,
+  });
+
   useEffect(() => {
     durationRef.current = durationSeconds;
   }, [durationSeconds]);
@@ -120,7 +162,10 @@ export function usePlayerEngine({
   // the same one.
   useEffect(() => {
     const fallbackDuration = parseDurationText(video.duration);
-    clock.set(0);
+    // Zero for a new video or a retry; mid-video only when this reload exists
+    // to rebuild the embed with sound, where restarting would be a punishment
+    // for having asked for it.
+    clock.set(embedStartSeconds);
     durationRef.current = fallbackDuration;
     publishedDurationRef.current = fallbackDuration;
     hasStartedRef.current = false;
@@ -318,32 +363,47 @@ export function usePlayerEngine({
   }
 
   /**
-   * `allowUnmute` must only be true when this runs synchronously inside a
-   * real user gesture (a click/tap handler). WebKit's rule for iOS Safari is
-   * stricter than "playback is running": unmuting a video from script
-   * outside a user gesture doesn't just get ignored, it pauses the video
-   * outright. Autoplay (frame load, boot timer, up-next countdown) never has
-   * a gesture behind it, so those paths must stay muted and let the
-   * `UnmuteButton` overlay hand the real gesture back to the viewer.
+   * `allowUnmute` must only be true when this runs synchronously inside a real
+   * user gesture (a click/tap handler). WebKit's rule for iOS Safari is
+   * stricter than "playback is running": unmuting a video from script outside a
+   * user gesture doesn't just get ignored, it pauses the video outright.
+   * Autoplay (frame load, boot timer, up-next countdown) never has a gesture
+   * behind it.
+   *
+   * This used to send `mute()` on every call, including the ones that then
+   * immediately tried to unmute — so a boot re-muted whatever the viewer had
+   * won, up to four times per video (`schedulePlay` sends twice, and both
+   * `handleFrameLoad` and the boot timer call it). The embed's URL now carries
+   * the mute state instead, and this only speaks up when the two disagree.
    */
-  function sendPlay(allowUnmute: boolean) {
+  function sendPlay() {
     primeTelemetry();
+    // Real on every other browser; a no-op on iOS, where `volume` is read-only
+    // and loudness belongs to the hardware buttons.
     player.setVolume(volume);
-    player.mute();
     player.play();
-    if (allowUnmute && !isMuted && volume > 0) {
-      player.unMute();
-    } else if (!allowUnmute && !isMuted && volume > 0) {
-      // Reflect that playback is actually muted right now, so the overlay
-      // shows up and the viewer's own tap becomes the unmuting gesture.
-      setIsMuted(true);
+
+    if (isMuted || volume === 0) {
+      player.mute();
+      return;
     }
+
+    if (!embedStartsMuted) {
+      // Loaded with `mute=0`, so it already has sound. An `unMute` here would
+      // only hand WebKit something to reject.
+      return;
+    }
+
+    // Muted by its own URL, and no command can lift that — see
+    // `reloadWithSound`. Report the truth so the overlay appears and the
+    // viewer's tap becomes a rebuild that actually produces sound.
+    setIsMuted(true);
   }
 
   /** Autoplay is racy right after load, so the play command is sent twice. */
-  function schedulePlay(allowUnmute: boolean) {
-    sendPlay(allowUnmute);
-    timers.current.timeout("play", () => sendPlay(allowUnmute), PLAY_RETRY_MS);
+  function schedulePlay() {
+    sendPlay();
+    timers.current.timeout("play", sendPlay, PLAY_RETRY_MS);
   }
 
   /**
@@ -355,7 +415,7 @@ export function usePlayerEngine({
     startTelemetryPolling();
     player.setVolume(volume);
     if (shouldAutoplay && isPlayingRef.current) {
-      schedulePlay(hasUnmutedGestureRef.current);
+      schedulePlay();
     }
   }
 
@@ -373,7 +433,7 @@ export function usePlayerEngine({
 
     setShouldAutoplay(true);
     setIsPlaying(true);
-    schedulePlay(true);
+    schedulePlay();
   }
 
   function toggleCaptions() {
@@ -383,14 +443,56 @@ export function usePlayerEngine({
     });
   }
 
-  function toggleMute() {
-    if (isMuted) {
-      player.unMute();
-      hasUnmutedGestureRef.current = true;
-    } else {
-      player.mute();
+  /**
+   * The only unmute that survives on iOS Safari.
+   *
+   * Every audio command reaches the embed by `postMessage`, and user activation
+   * does not cross a document boundary: the command runs inside the
+   * youtube-nocookie document with no gesture behind it, so WebKit refuses to
+   * clear `muted`. Nothing reports the refusal, so the app used to believe it
+   * had sound while the video stayed silent — and raising the volume could not
+   * rescue it either, because `HTMLMediaElement.volume` is read-only on iOS.
+   *
+   * What WebKit does honour is an embed that comes up unmuted on its own. So
+   * build a new iframe with `mute=0`, from inside the tap that asked for sound —
+   * that is what keeps the navigation privileged — and resume where the video
+   * had already reached.
+   */
+  function reloadWithSound() {
+    setSoundResume({
+      token: embedToken(video.videoId, reloadKey + 1),
+      atSeconds: Math.floor(clock.get()),
+    });
+    setHasRequestedSound(true);
+    setShouldAutoplay(true);
+    setIsPlaying(true);
+    setReloadKey((key) => key + 1);
+  }
+
+  /**
+   * Lifts the mute the right way for whichever embed is on screen: a command if
+   * this one came up unmuted and has already been allowed to make noise, a
+   * rebuild if it was born muted.
+   */
+  function giveSound() {
+    setIsMuted(false);
+
+    if (embedStartsMuted) {
+      reloadWithSound();
+      return;
     }
-    setIsMuted((muted) => !muted);
+
+    player.unMute();
+  }
+
+  function toggleMute() {
+    if (!isMuted) {
+      player.mute();
+      setIsMuted(true);
+      return;
+    }
+
+    giveSound();
   }
 
   function setVolume(nextVolume: number) {
@@ -404,9 +506,7 @@ export function usePlayerEngine({
       return;
     }
 
-    player.unMute();
-    hasUnmutedGestureRef.current = true;
-    setIsMuted(false);
+    giveSound();
   }
 
   function seekTo(seconds: number) {
@@ -469,8 +569,7 @@ export function usePlayerEngine({
     hasStarted,
     areCaptionsEnabled,
     failure,
-    // Autoplay implies muted; `sendPlay` unmutes once playback is running.
-    embedUrl: lockedEmbedUrl(video.videoId, shouldAutoplay, shouldAutoplay),
+    embedUrl,
     isPlaying,
     isMuted,
     volume,
