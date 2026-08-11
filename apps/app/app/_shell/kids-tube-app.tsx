@@ -61,6 +61,7 @@ export function KidsTubeApp({
     locale: useLocale(),
     onExternalRoute: (next) => {
       if (next.view === "watch") {
+        setRecommendationSeed(randomSalt());
         setWatchStack((stack) => stack.moveTo(next.videoId));
       }
       if (next.view === "home") {
@@ -105,7 +106,6 @@ export function KidsTubeApp({
   }
 
   const currentVideo = watchRoute ? library.find(watchRoute.videoId) : null;
-  const currentVideoId = currentVideo?.id ?? null;
   const lookup = useMemo(
     () => (id: string) => library.find(id),
     [library],
@@ -123,18 +123,6 @@ export function KidsTubeApp({
     ? library.nextAfter(currentVideo, shuffleSalt)
     : null;
   const homeVideos = library.feed(homeQuery, shuffleSalt);
-
-  useEffect(() => {
-    if (!currentVideoId) {
-      return;
-    }
-
-    const frame = window.requestAnimationFrame(() =>
-      setRecommendationSeed(randomSalt()),
-    );
-
-    return () => window.cancelAnimationFrame(frame);
-  }, [currentVideoId]);
 
   useEffect(() => {
     // The in-app router moves between views with `history.pushState`, so the
@@ -162,6 +150,7 @@ export function KidsTubeApp({
 
   function openVideo(video: Video) {
     prefetchVideo(video.videoId);
+    setRecommendationSeed(randomSalt());
     setWatchStack((stack) => stack.push(video.id));
     navigate({ view: "watch", videoId: video.id });
   }
@@ -185,7 +174,9 @@ export function KidsTubeApp({
   // refreshes a real app's front page, rather than showing back the same
   // order the viewer just left.
   function goHome() {
+    setHomeQuery("");
     setShuffleSalt(randomSalt());
+    blurSearchField();
     navigate(HOME_ROUTE);
   }
 

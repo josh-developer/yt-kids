@@ -12,7 +12,7 @@ export const SESSION_KEYS = {
 } as const;
 
 /** Bumped whenever `StoredLibrary` changes shape; drives migrations on read. */
-export const LIBRARY_VERSION = 7;
+export const LIBRARY_VERSION = 9;
 
 export const MAX_WATCH_STACK_SIZE = 200;
 

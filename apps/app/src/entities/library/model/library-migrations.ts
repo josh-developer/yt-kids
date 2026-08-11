@@ -5,6 +5,10 @@ import type { VideoCatalog } from "./video-catalog";
 
 /** First catalog number shipped with library version 7. */
 const VERSION_7_FIRST_CATALOG_NUMBER = 290;
+/** First catalog number shipped with library version 8. */
+const VERSION_8_FIRST_CATALOG_NUMBER = 371;
+/** First catalog number shipped with library version 9. */
+const VERSION_9_FIRST_CATALOG_NUMBER = 422;
 
 /**
  * Brings a stored payload of any past version up to the current one and drops
@@ -46,6 +50,22 @@ function migrateSelection(
   storedSelectedIds: string[],
   customIds: Set<string>,
 ) {
+  // v8 predates the Buyuk Bobolarim catalog batch: keep choices and add it.
+  if (version === 8) {
+    return unique([
+      ...storedSelectedIds,
+      ...catalog.idsAddedFrom(VERSION_9_FIRST_CATALOG_NUMBER),
+    ]);
+  }
+
+  // v7 predates the Fiksiklar catalog batch: keep choices and add it.
+  if (version === 7) {
+    return unique([
+      ...storedSelectedIds,
+      ...catalog.idsAddedFrom(VERSION_8_FIRST_CATALOG_NUMBER),
+    ]);
+  }
+
   // v6 predates the newest catalog batch: keep the parent's choices and add it.
   if (version === 6) {
     return unique([

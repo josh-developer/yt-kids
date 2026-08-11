@@ -4,7 +4,7 @@ import type { TouchEvent, TransitionEvent } from "react";
 type SheetPhase = "closed" | "opening" | "open" | "closing";
 
 /** How far the sheet's top edge must travel before release dismisses it. */
-const DISMISS_VIEWPORT_RATIO = 0.5;
+const DISMISS_VIEWPORT_RATIO = 0.45;
 
 /**
  * Below this, a downward touchmove is a tap's natural jitter, not a drag.
@@ -12,10 +12,9 @@ const DISMISS_VIEWPORT_RATIO = 0.5;
  * the top of the sheet sits exactly where the gesture arms (scrolled to the
  * top), and a couple of pixels of finger tremor were enough to move the sheet
  * under it. Mobile browsers read that as a drag and drop the synthetic click
- * that was supposed to follow, so the tap never reached the button. The player
- * that used to be the worst of those cases is now excluded outright — see
- * `handleTouchStart` — but the title, the channel row and the first
- * recommendations still land in this band.
+ * that was supposed to follow, so the tap never reached the button. The worst
+ * of those was the unmute button — first thing a video shows, and sitting on
+ * the player, which is itself a drag handle (see `handleTouchStart`).
  */
 const DRAG_ACTIVATION_PX = 10;
 
@@ -160,19 +159,15 @@ export function useWatchSheet({
       return;
     }
 
-    // The video surface is not a handle. It has a full gesture vocabulary of
-    // its own — tap to toggle the controls, double tap to seek, swipe down to
-    // leave fullscreen — and it fills the top of the sheet, exactly where a
-    // scrolled-to-top drag begins. Sharing those touches meant every gesture
-    // aimed at the video also pulled the sheet. The attribute is set on the
-    // player's own box in `widgets/player/ui/safe-youtube-player.tsx`.
-    if (
-      event.target instanceof Element &&
-      event.target.closest("[data-player-surface]")
-    ) {
-      return;
-    }
-
+    // The video counts as a handle, deliberately. It fills the top of the
+    // sheet at `scrollTop: 0`, so excluding it left the gesture only the title
+    // and the channel row to start from — a thin band, and an awkward reach.
+    //
+    // The player's own swipe-down means something else entirely: leaving
+    // fullscreen (`use-player-gestures.ts`). The two never compete, because
+    // that one only fires while fullscreen is on and this whole handler is
+    // already switched off then — `isDismissDisabled` above is the shell's
+    // `isPlayerFullscreen`, true for both the native and the CSS backend.
     dragStartY.current = event.touches[0].clientY;
   }
 

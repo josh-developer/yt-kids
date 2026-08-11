@@ -33,7 +33,8 @@ test("server-renders the KidTube app shell in English", async () => {
   assert.match(html, /<title>KidTube<\/title>/i);
   assert.match(html, /Switch language/);
   assert.match(html, /Search approved videos/);
-  assert.match(html, /Uch/);
+  assert.match(html, /\/_thumb\/[A-Za-z0-9_-]{11}\/card/);
+  assert.match(html, /(?:views|Playlist|YouTube)/);
   assert.doesNotMatch(html, /Baby Shark Dance/);
   assert.match(html, /Parent/);
   assert.doesNotMatch(html, /Codex/);
@@ -112,6 +113,7 @@ test("keeps the feature-sliced layout intact", async () => {
   assert.match(layout, /NextIntlClientProvider/);
   assert.match(shell, /@\/pages\/home/);
   assert.match(shell, /@\/entities\/library/);
+  assert.match(shell, /function goHome\(\)[\s\S]*setHomeQuery\(""\)/);
   assert.doesNotMatch(shell, /localStorage/);
 
   // Player hardening must survive the split into hooks and sub-components.
