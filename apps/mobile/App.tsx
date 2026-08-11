@@ -1,33 +1,67 @@
-import { StatusBar } from "expo-status-bar";
-import { StyleSheet } from "react-native";
+import { CURATED_UZBEK_OLD_CARTOONS } from "@repo/catalog";
+import type { Video } from "@repo/catalog/types";
 import {
-  SafeAreaProvider,
-  SafeAreaView,
-} from "react-native-safe-area-context";
-import { SiteWebView } from "./src/site-web-view";
+  Nunito_400Regular,
+  Nunito_600SemiBold,
+  Nunito_700Bold,
+  Nunito_800ExtraBold,
+  Nunito_900Black,
+  useFonts,
+} from "@expo-google-fonts/nunito";
+import { StatusBar } from "expo-status-bar";
+import * as SplashScreen from "expo-splash-screen";
+import { useCallback, useEffect } from "react";
+import { SafeAreaProvider } from "react-native-safe-area-context";
+import { HomeScreen } from "./src/pages/home/ui/home-screen";
+import { ThemeProvider } from "./src/shared/lib/theme/use-theme";
 
 /**
- * The whole app: a status bar, a safe area, and the site.
+ * Held until the fonts are in.
  *
- * Only the top edge is inset. The site draws its own bottom-anchored player
- * controls and its own safe-area padding for them (`env(safe-area-inset-bottom)`
- * in the player styles), so insetting the bottom here as well would push
- * everything up by the home indicator twice over.
+ * Nunito at 800 is what the card titles are; rendering them in the system face
+ * first and swapping would reflow every card on the first screen. Keeping the
+ * splash up until the fonts resolve trades a few hundred milliseconds for never
+ * showing the wrong typeface.
  */
+void SplashScreen.preventAutoHideAsync();
+
 export default function App() {
+  const [fontsLoaded, fontError] = useFonts({
+    Nunito_400Regular,
+    Nunito_600SemiBold,
+    Nunito_700Bold,
+    Nunito_800ExtraBold,
+    Nunito_900Black,
+  });
+
+  useEffect(() => {
+    // A font that fails to load still has to let the app through — the fallback
+    // face is worse than Nunito, and far better than a splash screen forever.
+    if (fontsLoaded || fontError) {
+      void SplashScreen.hideAsync();
+    }
+  }, [fontError, fontsLoaded]);
+
+  const openVideo = useCallback((video: Video) => {
+    // The watch screen is the next piece of work. Deliberately inert rather than
+    // opening the site in a WebView: this app is being taken off WebView, and a
+    // temporary one here would be the hardest kind of temporary to remove.
+    console.log("open video", video.id);
+  }, []);
+
+  if (!fontsLoaded && !fontError) {
+    return null;
+  }
+
   return (
     <SafeAreaProvider>
-      <StatusBar style="auto" />
-      <SafeAreaView style={styles.shell} edges={["top"]}>
-        <SiteWebView />
-      </SafeAreaView>
+      <ThemeProvider>
+        <StatusBar style="auto" />
+        <HomeScreen
+          videos={CURATED_UZBEK_OLD_CARTOONS}
+          onOpenVideo={openVideo}
+        />
+      </ThemeProvider>
     </SafeAreaProvider>
   );
 }
-
-const styles = StyleSheet.create({
-  shell: {
-    flex: 1,
-    backgroundColor: "#fff9e8",
-  },
-});
