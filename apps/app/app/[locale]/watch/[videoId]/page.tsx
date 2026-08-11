@@ -22,5 +22,21 @@ export default async function WatchPage({ params }: WatchParams) {
   const { locale, videoId } = await params;
   setRequestLocale(locale);
 
-  return <KidsTubeApp initialRoute={{ view: "watch", videoId }} />;
+  return (
+    <>
+      <link rel="dns-prefetch" href="https://www.youtube-nocookie.com" />
+      <link
+        rel="preconnect"
+        href="https://www.youtube-nocookie.com"
+        crossOrigin="anonymous"
+      />
+      <link rel="dns-prefetch" href="https://www.youtube.com" />
+      <link
+        rel="preconnect"
+        href="https://www.youtube.com"
+        crossOrigin="anonymous"
+      />
+      <KidsTubeApp initialRoute={{ view: "watch", videoId }} />
+    </>
+  );
 }

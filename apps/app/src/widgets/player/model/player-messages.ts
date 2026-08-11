@@ -13,8 +13,10 @@ export const PLAYER_STATE = {
 export type PlayerTelemetry = {
   currentTime?: number;
   duration?: number;
+  muted?: boolean;
   playerState?: number;
   videoId?: string;
+  volume?: number;
   /** `onError` code: 2 bad id, 5 HTML5 error, 100 gone, 101/150 embed denied. */
   errorCode?: number;
 };

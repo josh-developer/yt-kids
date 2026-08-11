@@ -23,18 +23,16 @@ export const SEEK_STEP_SECONDS = 15;
 export const DEFAULT_VOLUME = 80;
 
 /**
- * Last-resort ceiling only. In practice the spinner clears well before this,
- * either because playback reports it started or via `PLAYER_STARTED_FALLBACK_MS`
- * — this just bounds how long a truly stuck embed (the play command itself
- * never went out) can hide behind it.
+ * Last-resort ceiling only. In practice the spinner clears much sooner, either
+ * because playback reports it started or via `PLAYER_STARTED_FALLBACK_MS`.
  */
 export const PLAYER_SKELETON_MS = 8000;
 
 /**
- * Some browsers never fire `load` for a cross-origin iframe (TV browsers are
- * the common case), so the embed is primed on a timer as well.
+ * Some browsers never fire `load` for a cross-origin iframe, so the embed is
+ * primed on a short timer too.
  */
-export const PLAYER_BOOT_KICK_MS = 1200;
+export const PLAYER_BOOT_KICK_MS = 450;
 
 /**
  * How long to wait, after sending the first play command, before assuming
@@ -43,7 +41,7 @@ export const PLAYER_BOOT_KICK_MS = 1200;
  * genuinely playing whenever the embed's postMessage channel is slow or
  * never opens (seen on iOS Safari), for as long as `PLAYER_SKELETON_MS`.
  */
-export const PLAYER_STARTED_FALLBACK_MS = 2500;
+export const PLAYER_STARTED_FALLBACK_MS = 900;
 
 /**
  * If the embed has not said a single word by now it is not going to: the

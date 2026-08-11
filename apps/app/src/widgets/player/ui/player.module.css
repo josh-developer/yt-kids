@@ -181,36 +181,6 @@
   pointer-events: none;
 }
 
-/*
-* Until the embed has actually reported playing, it stays tappable.
-*
-* WebKit will not always start a video from a scripted `playVideo` — and our
-* own play button can only send that same message, so on a phone where the
-* embed refuses it there is no way out from this side of the iframe: the
-* viewer sees YouTube's own play button and taps it with nothing happening.
-* Letting the tap through gives the embed the real, in-document gesture that
-* is the one thing it cannot refuse. It closes again the moment playback is
-* confirmed, so the lockdown holds for all of the time a kid is watching.
-*/
-.awaitingStart .youtubeMount {
-  pointer-events: auto;
-}
-
-/*
-* The tap is allowed through for the play button in the middle, not for the
-* title and YouTube logo along the top — those are links out of the app, and
-* they are the whole reason the iframe is normally sealed. The cover is
-* already over them; while the iframe is live it stops being see-through.
-*/
-.awaitingStart .youtubeTitleCover {
-  pointer-events: auto;
-}
-
-/* Likewise the poster, which would otherwise swallow the tap on its way. */
-.awaitingStart .playerPoster {
-  pointer-events: none;
-}
-
 .youtubeTitleCover {
   position: absolute;
   top: 0;
@@ -813,6 +783,12 @@
 :global([data-tv]) .playerBox.controlsHidden::after,
 :global([data-tv]) .playerBox:focus-within::after {
   opacity: 1;
+}
+
+@media (hover: none), (pointer: coarse) {
+  .playerPreview {
+    display: none;
+  }
 }
 
 @media (max-width: 720px) {

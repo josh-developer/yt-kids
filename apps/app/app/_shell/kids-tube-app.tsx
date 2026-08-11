@@ -12,6 +12,7 @@ import { WatchStack } from "@/entities/watch-history";
 import { useLocaleSwitch } from "@/features/locale-switch";
 import { useRecommendationsPreference } from "@/features/recommendations-toggle";
 import { useTheme } from "@/features/theme-toggle";
+import { prefetchVideo } from "@/shared/api/youtube";
 import { HomePage } from "@/pages/home";
 import { SettingsPage } from "@/pages/settings";
 import { WatchLoading, WatchPage, WatchUnavailable } from "@/pages/watch";
@@ -160,6 +161,7 @@ export function KidsTubeApp({
   }, [currentVideo, homeQuery, labels, route.view, tMetadata, tSettings, tWatch]);
 
   function openVideo(video: Video) {
+    prefetchVideo(video.videoId);
     setWatchStack((stack) => stack.push(video.id));
     navigate({ view: "watch", videoId: video.id });
   }

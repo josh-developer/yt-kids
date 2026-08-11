@@ -84,6 +84,12 @@ export function SafeYouTubePlayer({
   const secondsLeftRef = useRef(0);
 
   const controls = useControlsVisibility();
+  const interactionRef = useRef({
+    controls,
+    isLocked,
+    isPlaying: true,
+    isVisible: controls.isVisible,
+  });
   const fullscreen = usePlayerFullscreen({
     hostRef: playerBoxRef,
     onChange: onFullscreenChange,
@@ -107,6 +113,45 @@ export function SafeYouTubePlayer({
     onPlayingChange: (isPlaying) => controls.show({ autoHide: isPlaying }),
     onTimeUpdate,
   });
+
+  useEffect(() => {
+    interactionRef.current = {
+      controls,
+      isLocked,
+      isPlaying: engine.isPlaying,
+      isVisible: controls.isVisible,
+    };
+  });
+
+  useEffect(() => {
+    function handleOutsidePress(event: PointerEvent) {
+      const target = event.target;
+      const playerBox = playerBoxRef.current;
+
+      if (!playerBox || !(target instanceof Node) || playerBox.contains(target)) {
+        return;
+      }
+
+      const state = interactionRef.current;
+      if (state.isLocked) {
+        return;
+      }
+
+      if (state.isVisible) {
+        state.controls.hide();
+        return;
+      }
+
+      state.controls.show({
+        autoHide: state.isPlaying,
+        delayMs: event.pointerType === "mouse" ? undefined : TOUCH_AUTO_HIDE_MS,
+      });
+    }
+
+    document.addEventListener("pointerdown", handleOutsidePress, true);
+    return () =>
+      document.removeEventListener("pointerdown", handleOutsidePress, true);
+  }, []);
 
   /**
    * The gap between one video ending and the next starting. The next video is
@@ -308,9 +353,7 @@ export function SafeYouTubePlayer({
     <div
       className={`${styles.playerBox} ${showControls ? "" : styles.controlsHidden} ${
         fullscreen.isVirtual ? styles.virtualFullscreen : ""
-      } ${isLocked ? styles.playerLocked : ""} ${
-        engine.hasConfirmedPlaying ? "" : styles.awaitingStart
-      }`}
+      } ${isLocked ? styles.playerLocked : ""}`}
       onClick={gestures.handleFrameClick}
       onDoubleClick={gestures.handleFrameDoubleClick}
       onKeyDown={(event) => handlePlayerKeyDown(event, { isTvBrowser })}
@@ -416,7 +459,7 @@ export function SafeYouTubePlayer({
       {!isLocked && !hasFailed ? (
         <BigPlayButton
           isPlaying={engine.isPlaying}
-          isVisible={!engine.isPlaying || controls.isVisible}
+          isVisible={!engine.isPlaying && controls.isVisible}
           onClick={() => {
             revealControls();
             engine.playPause();

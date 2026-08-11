@@ -47,12 +47,11 @@ export function lockedEmbedUrl(
   }: {
     shouldAutoplay?: boolean;
     /**
-     * Carried in the URL rather than sent as a `mute`/`unMute` command,
-     * because on iOS Safari a command cannot lift it: see `reloadWithSound` in
-     * `use-player-engine`.
+     * Carried in the URL so autoplay is accepted everywhere. A later unmute is
+     * sent as a command, keeping the already-buffered iframe alive.
      */
     shouldStartMuted?: boolean;
-    /** Where to pick playback up, for an embed rebuilt mid-video. */
+    /** Where to pick playback up, for an embed retried mid-video. */
     startSeconds?: number;
   } = {},
 ) {

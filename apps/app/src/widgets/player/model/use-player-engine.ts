@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState, type RefObject } from "react";
 import { lockedEmbedUrl, warmYouTubeOrigins } from "@/shared/api/youtube";
 import {
+  DEFAULT_VOLUME,
   PLAYER_BOOT_KICK_MS,
   PLAYER_SKELETON_MS,
   PLAYER_STARTED_FALLBACK_MS,
@@ -73,7 +74,7 @@ export function usePlayerEngine({
 
   const [isPlaying, setIsPlaying] = useState(true);
   // The first frame is always born muted; it is the only autoplay that every
-  // mobile browser accepts. A tap can rebuild it with sound below.
+  // mobile browser accepts. A tap later lifts that mute with an iframe command.
   const [isMuted, setIsMuted] = useState(true);
   const [volume, setVolumeState] = useState(() => preferences.readVolume());
   // Covers the embed while it boots, instead of showing YouTube's own chrome.
@@ -91,8 +92,8 @@ export function usePlayerEngine({
    * Moving through the playlist must not change this object. A new URL means a
    * new YouTube document, and on iOS that loses the audio unlock the viewer
    * just paid for with a tap. Ordinary video changes are sent to the living
-   * document with `loadVideoById`; this source changes only for hard reloads,
-   * including the one explicit rebuild that grants sound.
+   * document with `loadVideoById`; this source changes only for hard reloads
+   * such as retrying after a blocked or unreachable embed.
    */
   const [frameSource, setFrameSource] = useState<FrameSource>(() => ({
     key: 0,
@@ -101,15 +102,8 @@ export function usePlayerEngine({
     startSeconds: cleanStartSeconds(startTime),
     shouldAutoplay: true,
   }));
-  /**
-   * The viewer has asked for sound at least once while this iframe stack has
-   * been alive. Muting again is done with a command; it must not force every
-   * future video back into a muted URL.
-   */
-  const [hasRequestedSound, setHasRequestedSound] = useState(false);
   const [playbackGeneration, setPlaybackGeneration] = useState(0);
 
-  const embedStartsMuted = frameSource.startsMuted;
   const embedUrl = lockedEmbedUrl(frameSource.videoId, {
     shouldAutoplay: frameSource.shouldAutoplay,
     shouldStartMuted: frameSource.startsMuted,
@@ -122,7 +116,7 @@ export function usePlayerEngine({
   const isPlayingRef = useRef(true);
   const isMutedRef = useRef(isMuted);
   const volumeRef = useRef(volume);
-  const embedStartsMutedRef = useRef(embedStartsMuted);
+  const ignoreMutedTelemetryUntilRef = useRef(0);
   const hasStartedRef = useRef(false);
   const hasTelemetryRef = useRef(false);
   const hasFrameLoadedRef = useRef(false);
@@ -148,7 +142,6 @@ export function usePlayerEngine({
     isPlayingRef.current = isPlaying;
     isMutedRef.current = isMuted;
     volumeRef.current = volume;
-    embedStartsMutedRef.current = embedStartsMuted;
     callbacks.current = {
       onDurationResolved,
       onEnded,
@@ -306,6 +299,15 @@ export function usePlayerEngine({
         publishTime(telemetry.currentTime);
       }
 
+      if (typeof telemetry.muted === "boolean") {
+        const isFreshUnmute =
+          telemetry.muted &&
+          performance.now() < ignoreMutedTelemetryUntilRef.current;
+        if (!isFreshUnmute) {
+          setIsMuted(telemetry.muted || volumeRef.current === 0);
+        }
+      }
+
       // The only source of a real duration: the embed reports it within a
       // second of starting, so there is nothing to ask the network for.
       if (typeof telemetry.duration === "number" && telemetry.duration > 0) {
@@ -366,17 +368,12 @@ export function usePlayerEngine({
       ) {
         if (autoStartAttemptsRef.current < AUTO_START_ATTEMPTS) {
           autoStartAttemptsRef.current += 1;
-          if (
-            isMutedRef.current ||
-            volumeRef.current === 0 ||
-            embedStartsMutedRef.current
-          ) {
+          if (isMutedRef.current || volumeRef.current === 0) {
             player.mute();
+          } else {
+            player.unMute();
           }
           player.play();
-          if (embedStartsMutedRef.current && !isMutedRef.current) {
-            setIsMuted(true);
-          }
           return;
         }
 
@@ -453,11 +450,7 @@ export function usePlayerEngine({
     );
   }
 
-  /**
-   * `unMute` is only safe when this runs inside a real user gesture. Autoplay
-   * paths therefore never send it; an iframe born with `mute=0` keeps sound by
-   * itself, while an iframe born muted must be rebuilt from the sound tap.
-   */
+  /** Sends the current play intent plus the current audio intent to YouTube. */
   function sendPlay() {
     primeTelemetry();
     // Real on every other browser; a no-op on iOS, where `volume` is read-only
@@ -470,15 +463,7 @@ export function usePlayerEngine({
       return;
     }
 
-    if (!embedStartsMutedRef.current) {
-      // Loaded with `mute=0`, so it already has sound. An `unMute` here would
-      // only hand WebKit something to reject.
-      return;
-    }
-
-    // Muted by its own URL, and no command can lift that. Report the truth so
-    // the overlay appears and the viewer's tap becomes a rebuild.
-    setIsMuted(true);
+    player.unMute();
   }
 
   /** Autoplay is racy right after load, so the play command is sent twice. */
@@ -519,12 +504,10 @@ export function usePlayerEngine({
   function loadVideoInCurrentDocument(targetVideo: Video, startSeconds: number) {
     player.setVolume(volumeRef.current);
     player.disableCaptions();
-    if (
-      isMutedRef.current ||
-      volumeRef.current === 0 ||
-      embedStartsMutedRef.current
-    ) {
+    if (isMutedRef.current || volumeRef.current === 0) {
       player.mute();
+    } else {
+      player.unMute();
     }
     player.loadVideoById(targetVideo.videoId, startSeconds);
     bootEmbed();
@@ -549,52 +532,24 @@ export function usePlayerEngine({
     schedulePlay();
   }
 
-  /**
-   * The only unmute that survives on iOS Safari.
-   *
-   * Every audio command reaches the embed by `postMessage`, and user activation
-   * does not cross a document boundary: the command runs inside the
-   * youtube-nocookie document with no gesture behind it, so WebKit refuses to
-   * clear `muted`.
-   *
-   * What WebKit does honour is an embed that comes up unmuted on its own. So
-   * build a new iframe with `mute=0`, from inside the tap that asked for sound,
-   * and resume where the video had already reached.
-   */
-  function reloadWithSound() {
-    const currentVideo = videoRef.current;
-    const atSeconds = cleanStartSeconds(clock.get());
-    setHasRequestedSound(true);
-    setIsMuted(false);
-    wantsPlaybackRef.current = true;
-    setIsPlaying(true);
-    setFrameSource((source) => ({
-      key: source.key + 1,
-      videoId: currentVideo.videoId,
-      startsMuted: false,
-      startSeconds: atSeconds,
-      shouldAutoplay: true,
-    }));
-  }
-
-  /**
-   * Lifts the mute the right way for whichever embed is on screen: a command if
-   * this one came up unmuted and has already been allowed to make noise, a
-   * rebuild if it was born muted.
-   */
+  /** Lifts mute without rebuilding the iframe that has already buffered video. */
   function giveSound() {
-    setIsMuted(false);
-
-    if (embedStartsMutedRef.current) {
-      reloadWithSound();
-      return;
+    const nextVolume =
+      volumeRef.current === 0 ? DEFAULT_VOLUME : volumeRef.current;
+    if (nextVolume !== volumeRef.current) {
+      volumeRef.current = nextVolume;
+      setVolumeState(nextVolume);
     }
 
+    setIsMuted(false);
+    ignoreMutedTelemetryUntilRef.current = performance.now() + 1200;
+    player.setVolume(nextVolume);
     player.unMute();
   }
 
   function toggleMute() {
     if (!isMuted) {
+      ignoreMutedTelemetryUntilRef.current = 0;
       player.mute();
       setIsMuted(true);
       return;
@@ -609,6 +564,7 @@ export function usePlayerEngine({
     player.setVolume(clamped);
 
     if (clamped === 0) {
+      ignoreMutedTelemetryUntilRef.current = 0;
       player.mute();
       setIsMuted(true);
       return;
@@ -657,8 +613,7 @@ export function usePlayerEngine({
   /** After a blocked or unreachable embed: throw the iframe away and retry. */
   function retry() {
     const currentVideo = videoRef.current;
-    const shouldStartMuted =
-      !hasRequestedSound || isMutedRef.current || volumeRef.current === 0;
+    const shouldStartMuted = isMutedRef.current || volumeRef.current === 0;
 
     setFrameSource((source) => ({
       key: source.key + 1,
