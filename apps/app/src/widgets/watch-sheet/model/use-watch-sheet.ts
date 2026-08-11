@@ -4,7 +4,7 @@ import type { TouchEvent, TransitionEvent } from "react";
 type SheetPhase = "closed" | "opening" | "open" | "closing";
 
 /** How far the sheet's top edge must travel before release dismisses it. */
-const DISMISS_VIEWPORT_RATIO = 0.5;
+const DISMISS_VIEWPORT_RATIO = 0.35;
 
 /**
  * Below this, a downward touchmove is a tap's natural jitter, not a drag.
