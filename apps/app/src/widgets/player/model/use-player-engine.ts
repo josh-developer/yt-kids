@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState, type RefObject } from "react";
 import { lockedEmbedUrl, warmYouTubeOrigins } from "@/shared/api/youtube";
 import {
   PLAYER_BOOT_KICK_MS,
@@ -26,28 +26,41 @@ const END_TOLERANCE_SECONDS = 0.25;
 /** What went wrong, in the two flavours the viewer can act on. */
 export type PlayerFailure = "blocked" | "unreachable";
 
-/** Names one iframe instance: a new video or a reload is a different embed. */
-function embedToken(videoId: string, reloadKey: number) {
-  return `${videoId}:${reloadKey}`;
+type FrameSource = {
+  key: number;
+  videoId: string;
+  startsMuted: boolean;
+  startSeconds: number;
+  shouldAutoplay: boolean;
+};
+
+function cleanStartSeconds(seconds: number | undefined) {
+  return Number.isFinite(seconds) && seconds && seconds > 0
+    ? Math.floor(seconds)
+    : 0;
 }
 
 /**
- * Playback state for one video: sends commands to the embed, folds the
- * telemetry that comes back into React state, and keeps the progress bar
- * moving between telemetry packets.
+ * Playback state for one living YouTube document: sends commands to the embed,
+ * folds the telemetry that comes back into React state, and keeps the progress
+ * bar moving between telemetry packets.
  */
 export function usePlayerEngine({
   iframeRef,
   video,
+  startTime = 0,
   onDurationResolved,
   onEnded,
   onPlayingChange,
+  onTimeUpdate,
 }: {
-  iframeRef: React.RefObject<HTMLIFrameElement | null>;
+  iframeRef: RefObject<HTMLIFrameElement | null>;
   video: Video;
+  startTime?: number;
   onDurationResolved: (video: Video, seconds: number) => void;
   onEnded: () => void;
   onPlayingChange: (isPlaying: boolean) => void;
+  onTimeUpdate?: (currentSeconds: number) => void;
 }) {
   const player = useMemo(() => new PlayerController(iframeRef), [iframeRef]);
   const preferences = useMemo(
@@ -59,11 +72,10 @@ export function usePlayerEngine({
   const clock = useMemo(() => new PlaybackClock(), []);
 
   const [isPlaying, setIsPlaying] = useState(true);
-  const [isMuted, setIsMuted] = useState(() => preferences.readMuted());
+  // The first frame is always born muted; it is the only autoplay that every
+  // mobile browser accepts. A tap can rebuild it with sound below.
+  const [isMuted, setIsMuted] = useState(true);
   const [volume, setVolumeState] = useState(() => preferences.readVolume());
-  const [areCaptionsEnabled, setAreCaptionsEnabled] = useState(() =>
-    preferences.readCaptions(),
-  );
   // Covers the embed while it boots, instead of showing YouTube's own chrome.
   const [isBooting, setIsBooting] = useState(true);
   // Playback has produced at least one frame, so the poster is no longer the
@@ -73,33 +85,44 @@ export function usePlayerEngine({
   const [durationSeconds, setDurationSeconds] = useState(() =>
     parseDurationText(video.duration),
   );
-  const [reloadKey, setReloadKey] = useState(0);
-  const [shouldAutoplay, setShouldAutoplay] = useState(true);
   /**
-   * The viewer has asked for sound at least once this session. Until they have,
-   * every embed is built with `mute=1`: muted autoplay is the only autoplay iOS
-   * Safari allows, and an unmuted `autoplay=1` there simply never starts.
+   * The iframe's URL is state, not a derivation from `video`.
    *
-   * Never cleared. Muting again is done with a `mute` command, which every
-   * browser honours — it is only the unmuting direction that WebKit guards — so
-   * a mute must not drag the embed back to being built muted, or the viewer
-   * would pay a reload for every tap of the button.
+   * Moving through the playlist must not change this object. A new URL means a
+   * new YouTube document, and on iOS that loses the audio unlock the viewer
+   * just paid for with a tap. Ordinary video changes are sent to the living
+   * document with `loadVideoById`; this source changes only for hard reloads,
+   * including the one explicit rebuild that grants sound.
+   */
+  const [frameSource, setFrameSource] = useState<FrameSource>(() => ({
+    key: 0,
+    videoId: video.videoId,
+    startsMuted: true,
+    startSeconds: cleanStartSeconds(startTime),
+    shouldAutoplay: true,
+  }));
+  /**
+   * The viewer has asked for sound at least once while this iframe stack has
+   * been alive. Muting again is done with a command; it must not force every
+   * future video back into a muted URL.
    */
   const [hasRequestedSound, setHasRequestedSound] = useState(false);
-  /**
-   * Set by the tap that asks for sound: which embed is being rebuilt unmuted,
-   * and how far in the video had already got. Tagged with the embed it belongs
-   * to so a position captured on one video cannot follow the viewer to the next.
-   */
-  const [soundResume, setSoundResume] = useState<{
-    token: string;
-    atSeconds: number;
-  } | null>(null);
+  const [playbackGeneration, setPlaybackGeneration] = useState(0);
+
+  const embedStartsMuted = frameSource.startsMuted;
+  const embedUrl = lockedEmbedUrl(frameSource.videoId, {
+    shouldAutoplay: frameSource.shouldAutoplay,
+    shouldStartMuted: frameSource.startsMuted,
+    startSeconds: frameSource.startSeconds,
+  });
 
   const durationRef = useRef(0);
   const publishedDurationRef = useRef(0);
   const isRestartingRef = useRef(false);
   const isPlayingRef = useRef(true);
+  const isMutedRef = useRef(isMuted);
+  const volumeRef = useRef(volume);
+  const embedStartsMutedRef = useRef(embedStartsMuted);
   const hasStartedRef = useRef(false);
   const hasTelemetryRef = useRef(false);
   const hasFrameLoadedRef = useRef(false);
@@ -109,18 +132,29 @@ export function usePlayerEngine({
   const [hasConfirmedPlaying, setHasConfirmedPlaying] = useState(false);
   const hasConfirmedPlayingRef = useRef(false);
   // "We are trying to start this video and the viewer has not taken over."
-  // Cleared by a deliberate pause so the retry below never fights the viewer.
+  // Cleared by a deliberate pause so retries never fight the viewer.
   const wantsPlaybackRef = useRef(true);
   const autoStartAttemptsRef = useRef(0);
-  const captionsRef = useRef(areCaptionsEnabled);
   const videoRef = useRef(video);
-  const callbacks = useRef({ onDurationResolved, onEnded, onPlayingChange });
+  const callbacks = useRef({
+    onDurationResolved,
+    onEnded,
+    onPlayingChange,
+    onTimeUpdate,
+  });
 
   useEffect(() => {
     videoRef.current = video;
     isPlayingRef.current = isPlaying;
-    captionsRef.current = areCaptionsEnabled;
-    callbacks.current = { onDurationResolved, onEnded, onPlayingChange };
+    isMutedRef.current = isMuted;
+    volumeRef.current = volume;
+    embedStartsMutedRef.current = embedStartsMuted;
+    callbacks.current = {
+      onDurationResolved,
+      onEnded,
+      onPlayingChange,
+      onTimeUpdate,
+    };
   });
 
   useEffect(() => {
@@ -131,34 +165,9 @@ export function usePlayerEngine({
     preferences.saveVolume(volume);
   }, [preferences, volume]);
 
-  useEffect(() => {
-    preferences.saveCaptions(areCaptionsEnabled);
-  }, [areCaptionsEnabled, preferences]);
-
   // The embed's own connections cost as much as its first frame; open them as
   // soon as a player exists rather than when the src is set.
   useEffect(warmYouTubeOrigins, []);
-
-  /**
-   * The live embed, described by the two things its URL encodes about audio.
-   *
-   * Both are derived from state that only moves when a reload is intended, so
-   * the URL settles when the iframe is created and then holds still — a `src`
-   * that changes under a live iframe re-navigates it mid-playback. Keeping
-   * `startsMuted` readable for the embed's whole life is also what lets
-   * `sendPlay` and `giveSound` tell "muted because the URL said so" apart from
-   * "muted because the viewer asked".
-   */
-  const embedStartsMuted = !hasRequestedSound;
-  const embedStartSeconds =
-    soundResume?.token === embedToken(video.videoId, reloadKey)
-      ? soundResume.atSeconds
-      : 0;
-  const embedUrl = lockedEmbedUrl(video.videoId, {
-    shouldAutoplay,
-    shouldStartMuted: embedStartsMuted,
-    startSeconds: embedStartSeconds,
-  });
 
   useEffect(() => {
     durationRef.current = durationSeconds;
@@ -170,22 +179,32 @@ export function usePlayerEngine({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isPlaying]);
 
-  // Reset everything when the watched video changes, or when a retry reloads
-  // the same one.
-  useEffect(() => {
-    const fallbackDuration = parseDurationText(video.duration);
-    // Zero for a new video or a retry; mid-video only when this reload exists
-    // to rebuild the embed with sound, where restarting would be a punishment
-    // for having asked for it.
-    clock.set(embedStartSeconds);
+  function publishTime(seconds: number) {
+    callbacks.current.onTimeUpdate?.(seconds);
+  }
+
+  function resetPlayback({
+    fallbackVideo,
+    frameHasLoaded,
+    startSeconds,
+  }: {
+    fallbackVideo: Video;
+    frameHasLoaded: boolean;
+    startSeconds: number;
+  }) {
+    const fallbackDuration = parseDurationText(fallbackVideo.duration);
+
+    clock.set(startSeconds);
+    publishTime(startSeconds);
     durationRef.current = fallbackDuration;
     publishedDurationRef.current = fallbackDuration;
     hasStartedRef.current = false;
     hasTelemetryRef.current = false;
-    hasFrameLoadedRef.current = false;
+    hasFrameLoadedRef.current = frameHasLoaded;
     hasConfirmedPlayingRef.current = false;
     wantsPlaybackRef.current = true;
     autoStartAttemptsRef.current = 0;
+    isRestartingRef.current = false;
     timers.current.clearAll();
     timers.current.timeout(
       "skeleton",
@@ -202,8 +221,7 @@ export function usePlayerEngine({
         // The embed's document loaded, so YouTube is plainly reachable; what
         // was lost is the message channel, and the video is most likely
         // playing. Accusing the network over a video the viewer can hear
-        // would be worse than saying nothing: the progress bar keeps its own
-        // time and everything except live position stays usable.
+        // would be worse than saying nothing.
         if (hasFrameLoadedRef.current) {
           return;
         }
@@ -215,26 +233,59 @@ export function usePlayerEngine({
       PLAYER_UNREACHABLE_MS,
     );
 
+    setDurationSeconds(fallbackDuration);
+    setIsPlaying(true);
+    setIsBooting(true);
+    setHasStarted(false);
+    setHasConfirmedPlaying(false);
+    setFailure(null);
+    setPlaybackGeneration((generation) => generation + 1);
+  }
+
+  /**
+   * Reset the app-facing state for a new logical video. If the iframe URL was
+   * seeded with that same video, the browser is loading it for us. Otherwise
+   * the document stays alive and receives a `loadVideoById` command.
+   */
+  useEffect(() => {
+    const isFrameUrlVideo = frameSource.videoId === video.videoId;
+    const startSeconds = isFrameUrlVideo
+      ? frameSource.startSeconds
+      : cleanStartSeconds(startTime);
+    const bag = timers.current;
+
     const frame = window.requestAnimationFrame(() => {
-      setDurationSeconds(fallbackDuration);
-      setShouldAutoplay(true);
-      setIsPlaying(true);
-      setIsBooting(true);
-      setHasStarted(false);
-      setHasConfirmedPlaying(false);
-      setFailure(null);
+      resetPlayback({
+        fallbackVideo: video,
+        frameHasLoaded: !isFrameUrlVideo,
+        startSeconds,
+      });
+
+      if (isFrameUrlVideo) {
+        timers.current.timeout("boot", bootEmbed, PLAYER_BOOT_KICK_MS);
+        return;
+      }
+
+      loadVideoInCurrentDocument(video, startSeconds);
     });
 
-    return () => window.cancelAnimationFrame(frame);
-    // Keyed by the embed, not by `video.duration`: backfilling a duration must
-    // not reset a video that is already playing.
+    return () => {
+      window.cancelAnimationFrame(frame);
+      bag.clearAll();
+    };
+    // Keyed by the embed document and the logical video. Duration backfills
+    // must not restart a video already playing.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [reloadKey, video.id]);
+  }, [frameSource.key, video.id]);
 
   useEffect(() => {
     function handleMessage(event: MessageEvent) {
       const telemetry = readPlayerTelemetry(event, iframeRef.current);
       if (!telemetry) {
+        return;
+      }
+
+      if (telemetry.videoId && telemetry.videoId !== videoRef.current.videoId) {
         return;
       }
 
@@ -252,6 +303,7 @@ export function usePlayerEngine({
 
       if (typeof telemetry.currentTime === "number") {
         clock.set(telemetry.currentTime);
+        publishTime(telemetry.currentTime);
       }
 
       // The only source of a real duration: the embed reports it within a
@@ -283,8 +335,7 @@ export function usePlayerEngine({
       // what made the poster and the big play button flash mid-playback.
       if (telemetry.playerState === PLAYER_STATE.playing) {
         if (!hasStartedRef.current) {
-          // A fresh embed starts with captions off; restore the viewer's choice.
-          player.setCaptions(captionsRef.current);
+          player.disableCaptions();
         }
 
         hasStartedRef.current = true;
@@ -304,18 +355,9 @@ export function usePlayerEngine({
         return;
       }
 
-      // Still sitting at "unstarted"/"cued" after we asked it to play. Those
-      // are not the mid-playback buffering the comment above guards against:
-      // before the first frame they mean the play command never landed.
-      //
-      // The likely cause is timing. Every play command goes out inside the
-      // first ~1.5s (frame load, boot kick, one 350ms retry), but the embed
-      // ignores commands until its own scripts are up — and on iPhone it
-      // takes far longer than that to boot. All of them are dropped into the
-      // void and nothing ever asks again, which is exactly the "loads for
-      // many seconds, then nothing" report. Now that telemetry is flowing
-      // the embed is demonstrably listening, so asking again is worth more
-      // than it was at boot. Muted, because no gesture is behind it.
+      // Still sitting at "unstarted"/"cued" after we asked it to play. Before
+      // the first frame those states mean the play command may have landed too
+      // early, so ask again now that telemetry proves the document is awake.
       if (
         !hasConfirmedPlayingRef.current &&
         wantsPlaybackRef.current &&
@@ -324,16 +366,22 @@ export function usePlayerEngine({
       ) {
         if (autoStartAttemptsRef.current < AUTO_START_ATTEMPTS) {
           autoStartAttemptsRef.current += 1;
-          player.mute();
+          if (
+            isMutedRef.current ||
+            volumeRef.current === 0 ||
+            embedStartsMutedRef.current
+          ) {
+            player.mute();
+          }
           player.play();
+          if (embedStartsMutedRef.current && !isMutedRef.current) {
+            setIsMuted(true);
+          }
           return;
         }
 
         // Out of retries: the embed is reachable and simply will not start
-        // itself, so hand it to the viewer. `isPlaying` would otherwise sit
-        // at its optimistic default forever, keeping our own play button
-        // hidden while YouTube shows its paused one — and that one is behind
-        // a `pointer-events: none` iframe, so the viewer can reach neither.
+        // itself, so hand it to the viewer.
         setIsPlaying(false);
       }
     }
@@ -343,7 +391,7 @@ export function usePlayerEngine({
   }, [clock, iframeRef, player]);
 
   // Between telemetry packets, advance the clock ourselves so the progress bar
-  // stays smooth — and detect the end even if `onStateChange` never arrives.
+  // stays smooth, and detect the end even if `onStateChange` never arrives.
   useEffect(() => {
     if (!isPlaying) {
       timers.current.clear("progress");
@@ -354,12 +402,12 @@ export function usePlayerEngine({
       "progress",
       () => {
         player.requestProgress();
-        clock.set(
-          Math.min(
-            durationRef.current || Number.MAX_SAFE_INTEGER,
-            clock.get() + PROGRESS_TICK_MS / 1000,
-          ),
+        const nextSeconds = Math.min(
+          durationRef.current || Number.MAX_SAFE_INTEGER,
+          clock.get() + PROGRESS_TICK_MS / 1000,
         );
+        clock.set(nextSeconds);
+        publishTime(nextSeconds);
 
         if (
           durationRef.current > 0 &&
@@ -373,10 +421,7 @@ export function usePlayerEngine({
 
     const bag = timers.current;
     return () => bag.clear("progress");
-    // `reloadKey` and the video id are here because switching embeds clears
-    // every timer; without them the ticker would stay dead for a video that
-    // was already playing when the switch happened.
-  }, [clock, isPlaying, player, reloadKey, video.id]);
+  }, [clock, isPlaying, playbackGeneration, player]);
 
   useEffect(() => {
     const bag = timers.current;
@@ -391,13 +436,6 @@ export function usePlayerEngine({
   /**
    * The embed ignores commands sent before its own scripts are ready, so the
    * `listening` handshake is re-sent until it answers.
-   *
-   * "Answers" means telemetry arrived. It used to mean `durationRef > 0`,
-   * which is seeded from the catalog's duration string and is therefore
-   * already true on the first tick — so the handshake was attempted about
-   * twice and then abandoned. An embed that booted slowly, which is most
-   * likely right after pressing next, never got its channel opened: playback
-   * ran with sound while the app heard nothing back from it.
    */
   function startTelemetryPolling() {
     let attempts = 0;
@@ -416,40 +454,30 @@ export function usePlayerEngine({
   }
 
   /**
-   * `allowUnmute` must only be true when this runs synchronously inside a real
-   * user gesture (a click/tap handler). WebKit's rule for iOS Safari is
-   * stricter than "playback is running": unmuting a video from script outside a
-   * user gesture doesn't just get ignored, it pauses the video outright.
-   * Autoplay (frame load, boot timer, up-next countdown) never has a gesture
-   * behind it.
-   *
-   * This used to send `mute()` on every call, including the ones that then
-   * immediately tried to unmute — so a boot re-muted whatever the viewer had
-   * won, up to four times per video (`schedulePlay` sends twice, and both
-   * `handleFrameLoad` and the boot timer call it). The embed's URL now carries
-   * the mute state instead, and this only speaks up when the two disagree.
+   * `unMute` is only safe when this runs inside a real user gesture. Autoplay
+   * paths therefore never send it; an iframe born with `mute=0` keeps sound by
+   * itself, while an iframe born muted must be rebuilt from the sound tap.
    */
   function sendPlay() {
     primeTelemetry();
     // Real on every other browser; a no-op on iOS, where `volume` is read-only
     // and loudness belongs to the hardware buttons.
-    player.setVolume(volume);
+    player.setVolume(volumeRef.current);
     player.play();
 
-    if (isMuted || volume === 0) {
+    if (isMutedRef.current || volumeRef.current === 0) {
       player.mute();
       return;
     }
 
-    if (!embedStartsMuted) {
+    if (!embedStartsMutedRef.current) {
       // Loaded with `mute=0`, so it already has sound. An `unMute` here would
       // only hand WebKit something to reject.
       return;
     }
 
-    // Muted by its own URL, and no command can lift that — see
-    // `reloadWithSound`. Report the truth so the overlay appears and the
-    // viewer's tap becomes a rebuild that actually produces sound.
+    // Muted by its own URL, and no command can lift that. Report the truth so
+    // the overlay appears and the viewer's tap becomes a rebuild.
     setIsMuted(true);
   }
 
@@ -466,18 +494,15 @@ export function usePlayerEngine({
   function bootEmbed() {
     isRestartingRef.current = false;
     startTelemetryPolling();
-    player.setVolume(volume);
-    if (shouldAutoplay && isPlayingRef.current) {
+    player.setVolume(volumeRef.current);
+    player.disableCaptions();
+    if (wantsPlaybackRef.current && isPlayingRef.current) {
       schedulePlay();
     }
 
-    // Telemetry can lag well past this or never arrive at all — seen on iOS
-    // Safari, where cross-origin iframe -> parent messaging is throttled
-    // harder than on desktop. The play command above already went out, so
-    // stop hiding real, playing video behind the spinner and poster on its
-    // account — both covers share this fallback, or the spinner (it sits on
-    // top of the poster) would keep the poster's own fallback invisible
-    // until the much longer `PLAYER_SKELETON_MS` ceiling.
+    // Telemetry can lag well past this or never arrive at all, especially on
+    // iOS Safari. The play command above already went out, so stop hiding real
+    // video behind the spinner and poster on its account.
     timers.current.timeout(
       "started-fallback",
       () => {
@@ -489,6 +514,20 @@ export function usePlayerEngine({
       },
       PLAYER_STARTED_FALLBACK_MS,
     );
+  }
+
+  function loadVideoInCurrentDocument(targetVideo: Video, startSeconds: number) {
+    player.setVolume(volumeRef.current);
+    player.disableCaptions();
+    if (
+      isMutedRef.current ||
+      volumeRef.current === 0 ||
+      embedStartsMutedRef.current
+    ) {
+      player.mute();
+    }
+    player.loadVideoById(targetVideo.videoId, startSeconds);
+    bootEmbed();
   }
 
   function handleFrameLoad() {
@@ -506,16 +545,8 @@ export function usePlayerEngine({
 
     wantsPlaybackRef.current = true;
     autoStartAttemptsRef.current = 0;
-    setShouldAutoplay(true);
     setIsPlaying(true);
     schedulePlay();
-  }
-
-  function toggleCaptions() {
-    setAreCaptionsEnabled((areEnabled) => {
-      player.setCaptions(!areEnabled);
-      return !areEnabled;
-    });
   }
 
   /**
@@ -524,24 +555,26 @@ export function usePlayerEngine({
    * Every audio command reaches the embed by `postMessage`, and user activation
    * does not cross a document boundary: the command runs inside the
    * youtube-nocookie document with no gesture behind it, so WebKit refuses to
-   * clear `muted`. Nothing reports the refusal, so the app used to believe it
-   * had sound while the video stayed silent — and raising the volume could not
-   * rescue it either, because `HTMLMediaElement.volume` is read-only on iOS.
+   * clear `muted`.
    *
    * What WebKit does honour is an embed that comes up unmuted on its own. So
-   * build a new iframe with `mute=0`, from inside the tap that asked for sound —
-   * that is what keeps the navigation privileged — and resume where the video
-   * had already reached.
+   * build a new iframe with `mute=0`, from inside the tap that asked for sound,
+   * and resume where the video had already reached.
    */
   function reloadWithSound() {
-    setSoundResume({
-      token: embedToken(video.videoId, reloadKey + 1),
-      atSeconds: Math.floor(clock.get()),
-    });
+    const currentVideo = videoRef.current;
+    const atSeconds = cleanStartSeconds(clock.get());
     setHasRequestedSound(true);
-    setShouldAutoplay(true);
+    setIsMuted(false);
+    wantsPlaybackRef.current = true;
     setIsPlaying(true);
-    setReloadKey((key) => key + 1);
+    setFrameSource((source) => ({
+      key: source.key + 1,
+      videoId: currentVideo.videoId,
+      startsMuted: false,
+      startSeconds: atSeconds,
+      shouldAutoplay: true,
+    }));
   }
 
   /**
@@ -552,7 +585,7 @@ export function usePlayerEngine({
   function giveSound() {
     setIsMuted(false);
 
-    if (embedStartsMuted) {
+    if (embedStartsMutedRef.current) {
       reloadWithSound();
       return;
     }
@@ -589,6 +622,7 @@ export function usePlayerEngine({
       durationRef.current > 0 ? durationRef.current : Number.MAX_SAFE_INTEGER;
     const target = clamp(seconds, 0, upperBound);
     clock.set(target);
+    publishTime(target);
     player.seekTo(target);
   }
 
@@ -604,46 +638,43 @@ export function usePlayerEngine({
     seekTo(durationRef.current * clamp(ratio, 0, 1));
   }
 
-  /** Repeat-one: reloading the iframe is the only reliable replay. */
+  /** Repeat-one without losing the living document that owns the sound grant. */
   function restart() {
     if (isRestartingRef.current) {
       return;
     }
 
+    const currentVideo = videoRef.current;
     isRestartingRef.current = true;
-    clock.set(0);
-    setShouldAutoplay(true);
-    setIsPlaying(true);
-    setReloadKey((key) => key + 1);
+    resetPlayback({
+      fallbackVideo: currentVideo,
+      frameHasLoaded: true,
+      startSeconds: 0,
+    });
+    loadVideoInCurrentDocument(currentVideo, 0);
   }
 
   /** After a blocked or unreachable embed: throw the iframe away and retry. */
   function retry() {
-    clock.set(0);
-    setFailure(null);
-    setShouldAutoplay(true);
-    setIsPlaying(true);
-    setIsBooting(true);
-    setReloadKey((key) => key + 1);
+    const currentVideo = videoRef.current;
+    const shouldStartMuted =
+      !hasRequestedSound || isMutedRef.current || volumeRef.current === 0;
+
+    setFrameSource((source) => ({
+      key: source.key + 1,
+      videoId: currentVideo.videoId,
+      startsMuted: shouldStartMuted,
+      startSeconds: 0,
+      shouldAutoplay: true,
+    }));
   }
 
-  // A cross-origin iframe does not always fire `load` — TV browsers in
-  // particular — so the embed is primed on a timer too, not only from `onLoad`.
-  useEffect(() => {
-    const bag = timers.current;
-    bag.timeout("boot", bootEmbed, PLAYER_BOOT_KICK_MS);
-    return () => bag.clear("boot");
-    // `bootEmbed` is re-created every render; the embed identity is what matters.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [reloadKey, video.videoId]);
-
   return {
-    reloadKey,
+    reloadKey: frameSource.key,
     clock,
     isBooting,
     hasStarted,
     hasConfirmedPlaying,
-    areCaptionsEnabled,
     failure,
     embedUrl,
     isPlaying,
@@ -657,7 +688,6 @@ export function usePlayerEngine({
     seekBy,
     seekToRatio,
     setVolume,
-    toggleCaptions,
     toggleMute,
   };
 }

@@ -494,7 +494,7 @@
   color: #0f0f0f;
 }
 
-/* Any control that can be left switched on: repeat, captions. */
+/* Any control that can be left switched on. */
 .playerControlButton.active {
   background: #1a73e8;
   color: white;

@@ -236,6 +236,7 @@ export function KidsTubeApp({
           <WatchLoading />
         ) : currentVideo ? (
           <WatchPage
+            isTvBrowser={isTvBrowser}
             nextVideo={nextVideo}
             previousVideo={previousEntry?.video ?? null}
             recommendationGroups={recommendationGroups}

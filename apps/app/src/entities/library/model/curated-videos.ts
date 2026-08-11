@@ -265,16 +265,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     source: "catalog"
   },
   {
-    id: "uzbek-old-027",
-    videoId: "77CwmxHeq0E",
-    title: "ayozbobo.дедмороз",
-    channel: "Tarjima Soyuzmultfilm",
-    duration: "9:07",
-    viewCount: 317,
-    accent: "#1a73e8",
-    source: "catalog"
-  },
-  {
     id: "uzbek-old-028",
     videoId: "VbpiNdsuMNk",
     title: "Azamat va tanbalar (multfilm) | Азамат ва танбалар (мультфильм)",

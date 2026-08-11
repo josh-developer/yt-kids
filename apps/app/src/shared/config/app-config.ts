@@ -7,9 +7,7 @@ export const STORAGE_KEYS = {
 /** Player preferences follow the tab, not the device. */
 export const SESSION_KEYS = {
   playerMuted: "kidtube-player-muted",
-  playerSound: "kidtube-player-sound",
   playerVolume: "kidtube-player-volume",
-  playerCaptions: "kidtube-player-captions",
   playerPositions: "kidtube-player-positions",
 } as const;
 

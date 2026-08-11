@@ -40,20 +40,24 @@ export function SafeYouTubePlayer({
   isTvBrowser,
   nextVideo,
   previousVideo,
+  startTime = 0,
   video,
   onDurationResolved,
   onFullscreenChange,
   onNextVideo,
   onPreviousVideo,
+  onTimeUpdate,
 }: {
   isTvBrowser: boolean;
   nextVideo: Video | null;
   previousVideo: Video | null;
+  startTime?: number;
   video: Video;
   onDurationResolved: (video: Video, seconds: number) => void;
   onFullscreenChange?: (isFullscreen: boolean) => void;
   onNextVideo: () => void;
   onPreviousVideo: () => void;
+  onTimeUpdate?: (currentSeconds: number) => void;
 }) {
   const t = useTranslations("Player");
   const labels = useVideoLabels();
@@ -87,6 +91,7 @@ export function SafeYouTubePlayer({
 
   const engine = usePlayerEngine({
     iframeRef,
+    startTime,
     video,
     onDurationResolved,
     onEnded: () => {
@@ -100,6 +105,7 @@ export function SafeYouTubePlayer({
       }
     },
     onPlayingChange: (isPlaying) => controls.show({ autoHide: isPlaying }),
+    onTimeUpdate,
   });
 
   /**
@@ -322,7 +328,7 @@ export function SafeYouTubePlayer({
       ref={playerBoxRef}
     >
       <iframe
-        key={`${video.id}-${engine.reloadKey}`}
+        key={engine.reloadKey}
         aria-hidden="true"
         allow="autoplay; encrypted-media; fullscreen; picture-in-picture"
         allowFullScreen
@@ -444,14 +450,9 @@ export function SafeYouTubePlayer({
               revealControls();
               engine.playPause();
             }}
-            areCaptionsEnabled={engine.areCaptionsEnabled}
             onPrevious={onPreviousVideo}
             onPreview={requestPreview}
             onSeekBy={seekBy}
-            onToggleCaptions={() => {
-              revealControls();
-              engine.toggleCaptions();
-            }}
             onToggleFullscreen={() => {
               revealControls();
               void fullscreen.toggle();
