@@ -39,7 +39,9 @@
    * dead space between the picture and whatever follows.
    */
   display: block;
-  position: relative;
+  position: sticky;
+  top: 0;
+  z-index: 10;
   width: min(100%, 1120px);
   max-height: min(74vh, 630px);
   aspect-ratio: 16 / 9;
@@ -775,6 +777,23 @@
     height: 0;
     padding-bottom: 56.25%;
     max-height: none;
+  }
+}
+
+/*
+* Below this the watch page collapses to one column (see `.watchLayout` in
+* watch-page.module.css) and the player and the recommendations column are no
+* longer siblings sized to match — so `position: sticky` runs out of room to
+* stick the moment the title and channel row scroll by. Pinning it outright
+* keeps it in view for the whole page instead. `.videoSpacer` there reserves
+* the space this leaves behind in the flow.
+*/
+@media (max-width: 1080px) {
+  .playerBox {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 500;
   }
 }
 

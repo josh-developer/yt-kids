@@ -272,16 +272,22 @@ export function KidVideoPlayer({
       event.clientX - bounds.left < bounds.width / 2 ? "back" : "forward";
 
     const togglePlayback = () => {
+      // A paused video always starts, whether the bar is up or not. Spending
+      // the tap on revealing the controls instead would leave a child looking
+      // at a still picture and a play button they have to find and hit a
+      // second time — and vidstack shows the bar on `play` by itself, so the
+      // controls arrive with the picture rather than instead of it.
+      if (player.paused) {
+        player.play().catch(() => {});
+        return;
+      }
       if (isTouch && !player.controls.showing) {
-        // Touch has no hover, so the first tap is how the controls come back.
+        // Touch has no hover, so a tap on a running video is the only way the
+        // bar comes back; pausing would cost the picture to get it.
         player.controls.show();
         return;
       }
-      if (player.paused) {
-        player.play().catch(() => {});
-      } else {
-        player.pause().catch(() => {});
-      }
+      player.pause().catch(() => {});
     };
 
     if (!isTouch) {

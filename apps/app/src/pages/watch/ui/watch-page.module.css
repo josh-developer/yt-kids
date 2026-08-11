@@ -2,9 +2,24 @@
   display: grid;
   grid-template-columns: minmax(0, 1120px) minmax(300px, 360px);
   gap: 24px;
-  align-items: start;
+  /*
+  * Deliberately not `align-items: start`: the video column must stay as
+  * tall as the recommendations column, or the sticky player inside it runs
+  * out of room to stick partway down the page, well before the
+  * recommendations below it are done scrolling.
+  */
   max-width: 1510px;
   margin: 0 auto;
+}
+
+/*
+* Reserves the player's footprint in the flow once the player itself goes
+* `position: fixed` below 1080px — see `.playerBox` in
+* `kid-video-player.module.css`, which this mirrors exactly. Without it the
+* title and channel row would jump up to fill the gap the player left behind.
+*/
+.videoSpacer {
+  display: none;
 }
 
 .watchTitle {
@@ -60,6 +75,13 @@
 @media (max-width: 1080px) {
   .watchLayout {
     grid-template-columns: 1fr;
+  }
+
+  .videoSpacer {
+    display: block;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    max-height: min(74vh, 630px);
   }
 }
 

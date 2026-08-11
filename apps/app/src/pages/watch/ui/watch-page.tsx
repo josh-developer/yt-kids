@@ -53,6 +53,7 @@ export function WatchPage({
   return (
     <div className={styles.watchLayout}>
       <article>
+        <div className={styles.videoSpacer} aria-hidden="true" />
         <KidVideoPlayer
           videoId={video.videoId}
           title={labels.title(video)}
