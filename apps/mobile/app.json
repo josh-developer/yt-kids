@@ -7,6 +7,7 @@
     "scheme": "kidtube",
     "userInterfaceStyle": "automatic",
     "backgroundColor": "#fff9e8",
+    "icon": "./assets/icon.png",
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "uz.kidtube.app",
@@ -16,6 +17,10 @@
     },
     "android": {
       "package": "uz.kidtube.app",
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#fff9e8"
+      },
       "blockedPermissions": [
         "android.permission.SYSTEM_ALERT_WINDOW",
         "android.permission.READ_EXTERNAL_STORAGE",
