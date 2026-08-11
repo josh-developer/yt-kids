@@ -128,6 +128,13 @@
   display: grid;
   place-items: center;
   width: 100vw;
+  /*
+  * Undoes the full-bleed margin the narrow layout gives the player to cancel
+  * the page's padding. Harmless in flow, but this box is positioned against
+  * the viewport, so the negative margin drags it off the left edge and leaves
+  * a strip of page showing down the right.
+  */
+  margin-inline: 0;
   /* `dvh` first fails on older TV and mobile browsers; `vh` is the floor. */
   height: 100vh;
   height: 100dvh;
