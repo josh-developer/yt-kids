@@ -55,6 +55,41 @@ controls against the bottom and already pads them with
 `env(safe-area-inset-bottom)`. Insetting the bottom here as well pays for the
 home indicator twice.
 
+## APK or AAB — pick the profile, not the artifact
+
+`android.buildType` decides which Gradle task runs, and `distribution: internal`
+does **not** imply an APK, which is easy to get wrong: an internal build left on
+the default produces an `.aab` that cannot be installed.
+
+| profile | buildType | for |
+| --- | --- | --- |
+| `production` | `app-bundle` → `.aab` | Play Store. Bumps `versionCode` remotely. |
+| `production-apk` | `apk` → `.apk` | the same release build, installable. Does not bump. |
+| `preview` | `apk` → `.apk` | throwaway internal builds on the `preview` channel |
+| `development` | (forced by `developmentClient`) | dev client |
+
+```sh
+eas build --platform android --profile production-apk   # installable release
+adb install <downloaded>.apk
+```
+
+`production-apk` extends `production`, so it keeps the same channel, environment
+and signing key, and differs only in the two ways it must: it emits an APK, and
+`autoIncrement` is off so a sideload build does not consume a Play `versionCode`.
+
+To convert an `.aab` you already have instead of rebuilding, `bundletool` is the
+only route — Play normally does this step for you:
+
+```sh
+brew install bundletool
+bundletool build-apks --bundle=app.aab --output=app.apks --mode=universal \
+  --ks=<keystore> --ks-key-alias=<alias>
+unzip -p app.apks universal.apk > app.apk
+```
+
+That needs the signing keystore EAS is holding (`eas credentials`), so rebuilding
+with `production-apk` is usually less work than getting the key out.
+
 ## eas.json pins a minimum CLI, and it will reject an old one
 
 `cli.version` is `>= 21.7.0`. A globally installed `eas-cli` below that fails
