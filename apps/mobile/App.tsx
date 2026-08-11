@@ -1,4 +1,5 @@
-import { CURATED_UZBEK_OLD_CARTOONS } from "@repo/catalog";
+// First, and before anything that formats a message: it patches `Intl` in place.
+import "./src/shared/lib/i18n/intl-polyfill";
 import type { Video } from "@repo/catalog/types";
 import {
   Nunito_400Regular,
@@ -10,41 +11,63 @@ import {
 } from "@expo-google-fonts/nunito";
 import { StatusBar } from "expo-status-bar";
 import * as SplashScreen from "expo-splash-screen";
-import { useCallback, useEffect } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { SafeAreaProvider } from "react-native-safe-area-context";
+import { useLibrary } from "./src/entities/library";
 import { HomeScreen } from "./src/pages/home/ui/home-screen";
-import { LocaleProvider, useLocale } from "./src/shared/lib/i18n/use-translations";
+import { SettingsScreen } from "./src/pages/settings/ui/settings-screen";
+import { WatchSheet } from "./src/pages/watch/ui/watch-sheet";
+import {
+  LocaleProvider,
+  useLocale,
+} from "./src/shared/lib/i18n/use-translations";
 import { ThemeProvider, useTheme } from "./src/shared/lib/theme/use-theme";
 
 /**
- * Held until the fonts, the stored theme and the stored locale are all in.
+ * Held until the fonts, the stored theme, the stored locale and the library are in.
  *
- * Each would otherwise show the wrong thing first and correct itself: the system
- * face before Nunito reflows every card title, light before a stored dark, English
- * before a stored Uzbek. A few hundred milliseconds of splash buys a first frame
- * that is simply right.
+ * Each would otherwise show the wrong thing first and correct itself: the system face
+ * before Nunito reflows every card title, light before a stored dark, English before a
+ * stored Uzbek, the whole catalog before a parent's hidden videos are read back.
  */
 void SplashScreen.preventAutoHideAsync();
 
 export default function App() {
   return (
-    <SafeAreaProvider>
-      <ThemeProvider>
-        <LocaleProvider>
-          <Shell />
-        </LocaleProvider>
-      </ThemeProvider>
-    </SafeAreaProvider>
+    // Gesture Handler needs to own the root view for the watch sheet's drag to reach
+    // the native side.
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <SafeAreaProvider>
+        <ThemeProvider>
+          <LocaleProvider>
+            <Shell />
+          </LocaleProvider>
+        </ThemeProvider>
+      </SafeAreaProvider>
+    </GestureHandlerRootView>
   );
 }
 
+/** Which screen is showing. The watch sheet is not one: it sits over whatever is. */
+type Screen = "home" | "settings";
+
 /**
- * Inside the providers, so it can wait on what they load. `StatusBar` reads the
- * theme, which is why it is here rather than in `App`.
+ * Inside the providers, so it can wait on what they load.
+ *
+ * Navigation is two pieces of state rather than a router. There are two screens and a
+ * sheet, all of which have to be mounted at once for the sheet to slide over the
+ * screen behind it — a router would add a dependency and a stack to fight for exactly
+ * that. It is worth revisiting when there is a third screen or a deep link.
  */
 function Shell() {
   const theme = useTheme();
   const locale = useLocale();
+  const library = useLibrary();
+  const [screen, setScreen] = useState<Screen>("home");
+  const [watching, setWatching] = useState<Video | null>(null);
+  const [query, setQuery] = useState("");
+
   const [fontsLoaded, fontError] = useFonts({
     Nunito_400Regular,
     Nunito_600SemiBold,
@@ -53,9 +76,13 @@ function Shell() {
     Nunito_900Black,
   });
 
-  // A font that fails to load still has to let the app through: the fallback face
-  // is worse than Nunito and far better than a splash screen forever.
-  const isReady = (fontsLoaded || fontError !== null) && theme.isReady && locale.isReady;
+  // A font that fails to load still has to let the app through: the fallback face is
+  // worse than Nunito and far better than a splash screen forever.
+  const isReady =
+    (fontsLoaded || fontError !== null) &&
+    theme.isReady &&
+    locale.isReady &&
+    library.isReady;
 
   useEffect(() => {
     if (isReady) {
@@ -63,17 +90,10 @@ function Shell() {
     }
   }, [isReady]);
 
-  const openVideo = useCallback((video: Video) => {
-    // The watch screen is the next piece of work. Deliberately inert rather than
-    // opening the site in a WebView: this app is being taken off WebView, and a
-    // temporary one here would be the hardest kind of temporary to remove.
-    console.log("open video", video.id);
-  }, []);
+  const visibleVideos = useMemo(() => library.feed(query), [library, query]);
 
-  const openSettings = useCallback(() => {
-    // Same: the parent settings screen is its own screen, not a link out.
-    console.log("open settings");
-  }, []);
+  const openVideo = useCallback((video: Video) => setWatching(video), []);
+  const closeVideo = useCallback(() => setWatching(null), []);
 
   if (!isReady) {
     return null;
@@ -81,14 +101,24 @@ function Shell() {
 
   return (
     <>
-      {/* Follows the palette rather than the OS, so a viewer who chose light in a
-          dark system still gets dark status-bar glyphs. */}
-      <StatusBar style={theme.name === "dark" ? "light" : "dark"} />
-      <HomeScreen
-        videos={CURATED_UZBEK_OLD_CARTOONS}
-        onOpenVideo={openVideo}
-        onSettings={openSettings}
-      />
+      {/* Follows the palette rather than the OS, so a viewer who chose light in a dark
+          system still gets dark status-bar glyphs. The sheet's player is always dark
+          behind the status bar, so it asks for light glyphs regardless. */}
+      <StatusBar style={watching || theme.name === "dark" ? "light" : "dark"} />
+
+      {screen === "home" ? (
+        <HomeScreen
+          videos={visibleVideos}
+          query={query}
+          onQueryChange={setQuery}
+          onOpenVideo={openVideo}
+          onSettings={() => setScreen("settings")}
+        />
+      ) : (
+        <SettingsScreen library={library} onBack={() => setScreen("home")} />
+      )}
+
+      {watching ? <WatchSheet video={watching} onClose={closeVideo} /> : null}
     </>
   );
 }

@@ -9,25 +9,38 @@ The web app is organised by [Feature-Sliced Design][fsd] and enforces it with
 both codebases without relearning where things live:
 
 ```
-App.tsx                 providers, font/preference gate, the screen
+App.tsx                 providers, Intl polyfill, font/preference gate, navigation
 src/
-  pages/home/           a screen, composed of widgets
+  pages/
+    home/               the feed
+    settings/           the parent screen: approve or hide videos
+    watch/              the player, as a sheet over whichever screen is up
   widgets/
     top-bar/            wordmark, actions, search; hides on scroll
     video-grid/         the list, and the scroll reveal
+    player/             the control chrome over the video
   features/
     theme-toggle/       light/dark button
     locale-switch/      en/uz button
-  entities/video/       card, thumbnail, avatar — one video, everywhere
+    video-search/       the search field, its button and its clear
+  entities/
+    video/              card, thumbnail, avatar — one video, everywhere
+    library/            which videos are approved, and persisting that
   shared/
     api/                thumbnail URLs
     config/             design tokens, storage keys, site URL
-    lib/format/         data → localized display strings
+    lib/format/         data → localized display strings, query matching
     lib/i18n/           catalogs, ICU, active locale
-    lib/storage/        the two persisted preferences
+    lib/storage/        the persisted preferences
     lib/theme/          active palette
     ui/                 icon button
 ```
+
+Navigation is two pieces of state in `App.tsx`, not a router: `screen` is home or
+settings, and `watching` is the video the sheet is showing, which is separate
+because the sheet has to slide over whichever screen is behind it. A router would
+add a stack to fight for exactly that. Revisit at the third screen, or the first
+deep link.
 
 `features/` exists for the same reason it does on the web: a toggle is a user
 action with its own state, not a piece of a widget's layout, and the header should
@@ -169,16 +182,59 @@ animation on the JS thread, precisely where it must not be.
 value passed to a child as a prop must not be mutated there — which the React
 Compiler's `immutability` rule enforces, correctly.
 
+## The watch sheet
+
+A sheet, not a screen: it mounts over whatever is behind it, animates up from the
+bottom, and the way back is to drag it down — the gesture YouTube trained everyone
+on. There is no header, because a header above a 16:9 surface spends the one
+budget a phone has.
+
+The drag runs entirely on the UI thread through Gesture Handler and Reanimated, so
+it tracks the finger rather than trailing it. Release is a decision between
+distance and velocity — a quarter of the screen, or a flick fast enough to mean it.
+Distance alone makes a quick flick feel ignored; velocity alone dismisses the slow
+careful drag of someone who changed their mind. Upward drags are clamped to zero:
+the sheet is already home, and leaving it unclamped would fight the content scroll
+that goes under the player later.
+
+`widgets/player/player-chrome.tsx` is the web's `player-controls` and
+`player-progress` as a picture — the pill bar, the transport buttons, the ±15
+steps, the 10px progress track and the time pill, at the web's sizes and colours.
+Nothing in it is wired to playback: the props are display state and the handlers
+are optional. Playback is the next piece of work, and keeping the visual layer
+honest first means the native player has a target to hit rather than a design to
+invent.
+
+The web blurs behind the bar and the pill. Dropped here for the same reason as on
+the header: a backdrop blur over a video is a full-screen GPU pass per frame, and
+at these opacities the flat colour is indistinguishable.
+
+## The library, and what "approved" is stored as
+
+`entities/library` holds the parent's curation. The stored value is the set of
+**hidden** ids, never the approved ones — so an empty store means "nothing
+hidden", a fresh install shows the whole catalog, and a release that adds videos
+to `@repo/catalog` makes them visible with no migration. The web made the
+opposite choice and needs the migration; this is the one deliberate divergence.
+
+The settings screen is a screen rather than the web's panel-inside-the-shell,
+because a phone has no room for a panel beside anything.
+
 ## Not here yet
 
-- **The watch screen.** Tapping a card is inert. Deliberately not a WebView
-  stopgap: this app is being taken off WebView, and that is the hardest kind of
-  temporary to remove.
-- **Search.** The field is presentational. Wiring it needs the query filtering in
-  the web app's `video-library.ts`, which is worth porting rather than reinventing.
-- **Parent settings.** The `+` button is wired but inert; the screen is its own job.
-- **The library.** The web keeps a parent-curated selection in `localStorage`; this
-  screen shows the whole catalog. Needs a storage decision first.
+- **Playback.** The player is a picture. Cross-device playback is native work of
+  its own — deliberately not a WebView stopgap, since this app is being taken off
+  WebView and that is the hardest kind of temporary to remove.
+- **The rest of parent settings.** The web's panel also adds a video by URL,
+  exports and imports the library as a transfer code, approves or hides
+  everything at once, and resets to defaults. Each needs library model that is
+  not ported yet.
+- **Recommendations.** The web's watch page lists what to play next, seeded per
+  session in `video-library.ts`. The sheet shows one video and nothing under it.
 - **The doodle layer.** The web lays two fixed SVG layers over the gradient. A
   full-screen decorative layer under a scrolling list is a performance decision
   worth measuring, not assuming.
+- **`expo-system-ui` and a configured splash.** `app.json` sets
+  `backgroundColor`, which iOS ignores without that package, so a cold start
+  flashes white before the first paint. Both are native config, so both want a
+  rebuild rather than a hot reload.

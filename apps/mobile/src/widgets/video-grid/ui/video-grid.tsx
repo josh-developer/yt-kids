@@ -37,7 +37,7 @@ export function VideoGrid({
   onScroll,
   topInset,
 }: {
-  videos: Video[];
+  videos: readonly Video[];
   onOpenVideo: (video: Video) => void;
   /**
    * Read-only here. The screen owns it and writes to it, because the floating

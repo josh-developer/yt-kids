@@ -1,15 +1,16 @@
-import { Plus, Search } from "lucide-react-native";
-import { StyleSheet, Text, View } from "react-native";
+import { Plus } from "lucide-react-native";
+import { Keyboard, StyleSheet, View } from "react-native";
 import Animated from "react-native-reanimated";
 import type { SharedValue } from "react-native-reanimated";
 import { BrandMark } from "./brand-mark";
 import { useAutoHideStyle } from "../model/use-auto-hide";
 import { LocaleSwitchButton } from "../../../features/locale-switch/ui/locale-switch-button";
+import { VideoSearchField } from "../../../features/video-search/ui/video-search-field";
 import { ThemeToggleButton } from "../../../features/theme-toggle/ui/theme-toggle-button";
 import { IconButton, useIconColor } from "../../../shared/ui/icon-button";
 import { useTheme } from "../../../shared/lib/theme/use-theme";
 import { useTranslations } from "../../../shared/lib/i18n/use-translations";
-import { size, space, type } from "../../../shared/config/theme";
+import { size, space } from "../../../shared/config/theme";
 
 /** Brand row plus the search field below it, matching `.topbar`'s 64px plus the field. */
 const SEARCH_HEIGHT = 44;
@@ -30,11 +31,15 @@ export const TOP_BAR_HEIGHT =
 export function TopBar({
   scrollY,
   topInset,
+  query,
+  onQueryChange,
   onSettings,
 }: {
   scrollY: SharedValue<number>;
   /** The status bar, so the sheet extends under it rather than starting below it. */
   topInset: number;
+  query: string;
+  onQueryChange: (value: string) => void;
   onSettings: () => void;
 }) {
   const { colors } = useTheme();
@@ -69,19 +74,12 @@ export function TopBar({
         </View>
       </View>
 
-      {/* Presentational until the query filtering is ported from the web's
-          `video-library.ts`; the layout would misrepresent the screen without it. */}
-      <View
-        style={[
-          styles.search,
-          { backgroundColor: colors.surface, borderColor: colors.line },
-        ]}
-      >
-        <Search size={18} color={colors.textSoft} />
-        <Text style={[styles.searchLabel, { color: colors.textSoft }]}>
-          {t("searchApprovedVideos")}
-        </Text>
-      </View>
+      <VideoSearchField
+        query={query}
+        onQueryChange={onQueryChange}
+        // Filtering happens as it is typed, so submitting only dismisses the keyboard.
+        onSubmit={() => Keyboard.dismiss()}
+      />
     </Animated.View>
   );
 }
@@ -111,14 +109,4 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
   },
   actions: { flexDirection: "row", alignItems: "center", gap: 10 },
-  search: {
-    height: SEARCH_HEIGHT,
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 8,
-    paddingHorizontal: 16,
-    borderRadius: 999,
-    borderWidth: 1,
-  },
-  searchLabel: type.muted,
 });

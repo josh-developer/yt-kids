@@ -9,4 +9,10 @@
 export const STORAGE_KEYS = {
   theme: "kidtube-theme-v1",
   locale: "kidtube-locale-v1",
+  /**
+   * The *hidden* ids, not the approved ones. An empty store then means "nothing
+   * hidden", so a fresh install shows the whole catalog and a catalog that grows in a
+   * later release needs no migration to make its new videos visible.
+   */
+  hiddenVideos: "kidtube-hidden-videos-v1",
 } as const;

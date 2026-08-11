@@ -70,10 +70,16 @@ export const VideoCard = memo(function VideoCard({
             >
               {labels.title(video)}
             </Text>
-            <Text style={[styles.muted, { color: colors.textSoft }]} numberOfLines={1}>
+            <Text
+              style={[styles.muted, { color: colors.textSoft }]}
+              numberOfLines={1}
+            >
               {labels.channel(video)}
             </Text>
-            <Text style={[styles.muted, { color: colors.textSoft }]} numberOfLines={1}>
+            <Text
+              style={[styles.muted, { color: colors.textSoft }]}
+              numberOfLines={1}
+            >
               {labels.views(video)}
             </Text>
           </View>

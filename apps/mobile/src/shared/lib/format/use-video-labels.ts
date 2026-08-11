@@ -76,7 +76,8 @@ export function useVideoLabels() {
       channel: (video: Video) => video.channel || t("parentAdded"),
       views,
       /** First letter of the channel, as `ChannelAvatar` uses on the web. */
-      initial: (video: Video) => (video.channel || t("parentAdded")).slice(0, 1),
+      initial: (video: Video) =>
+        (video.channel || t("parentAdded")).slice(0, 1),
     }),
     [t, views],
   );

@@ -163,11 +163,41 @@ function formatWith(
   values: Record<string, string | number>,
 ) {
   const id = `${locale}.${namespace}.${key}`;
-  let formatter = formatters.get(id);
-  if (!formatter) {
-    formatter = new IntlMessageFormat(pattern, locale);
-    formatters.set(id, formatter);
-  }
 
-  return String(formatter.format(values));
+  // A pattern that cannot be formatted must not take the screen down with it. ICU
+  // leans on `Intl` — plurals need `Intl.PluralRules`, which Hermes lacks and
+  // `intl-polyfill.ts` supplies — and the failure mode is a throw during render. The
+  // polyfill is the fix; this is the floor under it, so a gap costs a clumsy string
+  // rather than a red box in a child's app.
+  try {
+    let formatter = formatters.get(id);
+    if (!formatter) {
+      formatter = new IntlMessageFormat(pattern, locale);
+      formatters.set(id, formatter);
+    }
+
+    return String(formatter.format(values));
+  } catch (error) {
+    if (__DEV__) {
+      console.warn(`Could not format message ${id}`, error);
+    }
+
+    return interpolateSimply(pattern, values);
+  }
+}
+
+/**
+ * Last resort: substitute the plain `{name}` placeholders and leave the rest.
+ *
+ * Not an ICU implementation and not meant to be one. A plural whose formatter threw
+ * comes out with its branches still in it, which is ugly and legible — the point is
+ * only that something renders.
+ */
+function interpolateSimply(
+  pattern: string,
+  values: Record<string, string | number>,
+) {
+  return pattern.replace(/\{(\w+)\}/g, (whole, name: string) =>
+    name in values ? String(values[name]) : whole,
+  );
 }

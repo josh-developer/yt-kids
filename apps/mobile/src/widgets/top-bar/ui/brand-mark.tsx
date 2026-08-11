@@ -34,7 +34,10 @@ export function BrandMark() {
 
       <View style={styles.wordmark} accessibilityLabel="KidTube">
         {BRAND_LETTERS.map((letter) => (
-          <Text key={letter.text} style={[styles.letter, { color: letter.color }]}>
+          <Text
+            key={letter.text}
+            style={[styles.letter, { color: letter.color }]}
+          >
             {letter.text}
           </Text>
         ))}

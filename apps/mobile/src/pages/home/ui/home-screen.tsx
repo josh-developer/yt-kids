@@ -26,10 +26,14 @@ import { useTheme } from "../../../shared/lib/theme/use-theme";
  */
 export function HomeScreen({
   videos,
+  query,
+  onQueryChange,
   onOpenVideo,
   onSettings,
 }: {
-  videos: Video[];
+  videos: readonly Video[];
+  query: string;
+  onQueryChange: (value: string) => void;
   onOpenVideo: (video: Video) => void;
   onSettings: () => void;
 }) {
@@ -59,11 +63,25 @@ export function HomeScreen({
         topInset={TOP_BAR_HEIGHT + insets.top}
       />
 
+      {/* The status bar keeps a strip of the background under it once the header has
+          hidden itself, so the clock and the battery stay legible over a thumbnail
+          that would otherwise scroll behind them. `kidBgTop` is the gradient's first
+          stop, so the strip is invisible while the header is up. */}
+      <View
+        style={[
+          styles.statusStrip,
+          { height: insets.top, backgroundColor: colors.kidBgTop },
+        ]}
+        pointerEvents="none"
+      />
+
       {/* After the list in the tree so it stacks above it, which also means the
           list's own elevation cannot paint over the header on Android. */}
       <TopBar
         scrollY={scrollY}
         topInset={insets.top}
+        query={query}
+        onQueryChange={onQueryChange}
         onSettings={onSettings}
       />
     </View>
@@ -72,4 +90,5 @@ export function HomeScreen({
 
 const styles = StyleSheet.create({
   screen: { flex: 1 },
+  statusStrip: { position: "absolute", top: 0, left: 0, right: 0 },
 });

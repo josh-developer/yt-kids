@@ -132,6 +132,54 @@ The workspace root uses `react@^19.2.8` for the web app. That is fine and not
 worth reconciling — pnpm gives each package its own copy, and this one has to
 match Expo Go rather than the web build.
 
+## Hermes has no `Intl.PluralRules`
+
+`src/shared/lib/i18n/intl-polyfill.ts` is imported first in `App.tsx`, before
+anything that formats a message. It is not optional: `Settings.approvedCount` in
+`@repo/messages` is an ICU plural, `intl-messageformat` needs `Intl.PluralRules`
+to pick a branch, and Hermes ships without it — so the settings screen came up as
+a red box with
+
+```
+Intl.PluralRules is not available in this environment.
+```
+
+The three `@formatjs` polyfills are each behind their own `shouldPolyfill()`, so a
+runtime that has the real implementation loads none of them. `useTranslations`
+also catches a formatting throw and falls back to plain `{name}` substitution,
+which is the floor under the polyfill rather than a substitute for it.
+
+A third locale needs its plural data added there as well as its catalog added to
+`@repo/messages`.
+
+## One patched dependency: expo-modules-jsi
+
+`patches/expo-modules-jsi@57.0.4.patch`, wired up through `patchedDependencies` in
+`pnpm-workspace.yaml`, changes exactly one expression:
+
+```
+- guard milliseconds.isFinite, abs(milliseconds) <= maxJavaScriptDateMilliseconds
++ guard milliseconds.isFinite, milliseconds.magnitude <= maxJavaScriptDateMilliseconds
+```
+
+Without it, no iOS build gets past `ExpoModulesJSI`:
+
+```
+JavaScriptCodable+Date.swift:53:50: type of expression is ambiguous without a
+type annotation
+```
+
+The module builds with C++ interoperability, which imports the C `abs` overloads
+alongside Swift's, and Swift 6.2.3 (Xcode 26.2) cannot choose between them for a
+`Double`. The same expression compiles standalone, so it is the interop that does
+it. `.magnitude` has one meaning and no overloads. 57.0.4 is the newest published
+version, so there is nothing to upgrade to yet.
+
+Delete the patch when a release fixes it upstream — pnpm fails loudly if the
+version it names is no longer installed, which is the reminder. After patching,
+`pod install` has to run again: the pnpm store path changes, and the Pods project
+holds the old one.
+
 ## Adding a workspace package needs Metro restarted
 
 Metro resolves `@repo/*` through pnpm's symlinks and caches that resolution. Adding a
