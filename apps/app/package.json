@@ -9,11 +9,12 @@
     "dev": "WRANGLER_LOG_PATH=.wrangler/wrangler.log vinext dev",
     "build": "WRANGLER_LOG_PATH=.wrangler/wrangler.log vinext build",
     "start": "WRANGLER_LOG_PATH=.wrangler/wrangler.log vinext start",
-    "test": "node --test tests/rendered-html.test.mjs",
+    "test": "node --test tests/*.test.mjs",
     "typecheck": "tsc --noEmit",
     "lint": "eslint . --ignore-pattern dist --ignore-pattern .next"
   },
   "dependencies": {
+    "@repo/catalog": "workspace:*",
     "@repo/internationalization": "workspace:*",
     "@repo/next-config": "workspace:*",
     "@repo/seo": "workspace:*",

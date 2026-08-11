@@ -1,5 +1,5 @@
+import { CURATED_UZBEK_OLD_CARTOONS } from "@repo/catalog";
 import type { Video } from "@/entities/video";
-import { CURATED_UZBEK_OLD_CARTOONS } from "./curated-videos";
 
 /**
  * The read-only, shipped-with-the-app video list.

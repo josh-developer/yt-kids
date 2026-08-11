@@ -1,8 +1,10 @@
 {
   "extends": "@repo/typescript-config/nextjs.json",
   "compilerOptions": {
-    "baseUrl": ".",
     "incremental": true,
+    // Declared here rather than inherited: with no `baseUrl` — deprecated in
+    // TypeScript 6, gone in 7 — relative `paths` resolve against the config
+    // that declares them, and `./src` only means this app's source from here.
     "paths": {
       "@/*": ["./src/*"],
       "@repo/*": ["../../packages/*"]

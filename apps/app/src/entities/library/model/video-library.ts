@@ -60,6 +60,16 @@ function orderEpisodes(videos: Video[], currentEpisode: number | null) {
   ];
 }
 
+function recommendationSalt(video: Video, salt: number) {
+  let seed = salt || 17;
+
+  for (let index = 0; index < video.id.length; index += 1) {
+    seed = (seed * 31 + video.id.charCodeAt(index)) % 233280;
+  }
+
+  return seed;
+}
+
 /**
  * The parent-approved library, as a value.
  *
@@ -152,9 +162,10 @@ export class VideoLibrary {
   /**
    * The sidebar for one video: up to three videos related to it (the rest of
    * its series, filled out with similarly-titled videos if the series is
-   * shorter than that), then a fully shuffled batch of the library. Only the
-   * second group is randomised: an episode list that reshuffled on every
-   * video would be useless for watching a serial in order.
+   * shorter than that), then a fully shuffled batch of the library. A video
+   * with no series leads the list with the next approved videos in order, so
+   * opening a recommendation advances the visible list instead of only
+   * swapping the selected card with the previous video.
    */
   recommendationGroupsFor(video: Video, salt: number): RecommendationGroup[] {
     const signature = this.signatureOf(video);
@@ -182,6 +193,25 @@ export class VideoLibrary {
     }
 
     const orderedSeries = orderEpisodes(series, episodeNumberOf(video.title));
+
+    if (orderedSeries.length === 0) {
+      const nextInOrder = this.nextApprovedVideos(video, SERIES_GROUP_SIZE);
+      const nextInOrderIds = new Set(
+        nextInOrder.map((candidate) => candidate.id),
+      );
+      const shuffled = shuffleWithSeed(
+        [...similar, ...rest].filter(
+          (candidate) => !nextInOrderIds.has(candidate.id),
+        ),
+        recommendationSalt(video, salt),
+      ).slice(0, RECOMMENDED_GROUP_SIZE - nextInOrder.length);
+      const recommendations = [...nextInOrder, ...shuffled];
+
+      return recommendations.length > 0
+        ? [{ key: "recommended", videos: recommendations }]
+        : [];
+    }
+
     const nextInSeries = orderedSeries.slice(0, SERIES_GROUP_SIZE);
     const padding = similar.slice(
       0,
@@ -199,7 +229,7 @@ export class VideoLibrary {
       { key: "series", videos: [...nextInSeries, ...padding] },
       {
         key: "recommended",
-        videos: shuffleWithSeed(leftover, salt + video.id.length).slice(
+        videos: shuffleWithSeed(leftover, recommendationSalt(video, salt)).slice(
           0,
           RECOMMENDED_GROUP_SIZE,
         ),
@@ -207,6 +237,33 @@ export class VideoLibrary {
     ];
 
     return groups.filter((group) => group.videos.length > 0);
+  }
+
+  private nextApprovedVideos(video: Video, count: number) {
+    if (this.approvedVideos.length < 2) {
+      return [];
+    }
+
+    const currentIndex = this.approvedVideos.findIndex(
+      (candidate) => candidate.id === video.id,
+    );
+    const startIndex = currentIndex >= 0 ? currentIndex + 1 : 0;
+    const next: Video[] = [];
+
+    for (
+      let offset = 0;
+      offset < this.approvedVideos.length && next.length < count;
+      offset += 1
+    ) {
+      const candidate =
+        this.approvedVideos[(startIndex + offset) % this.approvedVideos.length];
+
+      if (candidate.id !== video.id) {
+        next.push(candidate);
+      }
+    }
+
+    return next;
   }
 
   /** The same recommendations as one flat list, series first. */

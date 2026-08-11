@@ -1,8 +1,11 @@
-import type { Video } from "@/entities/video";
+import type { CuratedVideo } from "./types";
 
-/** Curated catalog data. Shape is enforced by the `Video` entity type. */
-export type CuratedVideo = Video & { source: "catalog" };
-
+/**
+ * The read-only video list shipped with every client.
+ *
+ * Data only — no logic, and nothing platform-specific — so the web app and a
+ * native app consume the identical list instead of drifting apart.
+ */
 export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
   {
     id: "uzbek-old-001",
@@ -4182,6 +4185,176 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     duration: "5:54",
     sourceLabel: "playlist",
     accent: "#8e24aa",
+    source: "catalog"
+  },
+  {
+    id: "uzbek-old-422",
+    videoId: "hewn-tQA2Cw",
+    title: "Buyuk bobolarim bolaligi |  #cartoon #forkids #uzbekkino #astir",
+    channel: "Astir animation studio",
+    duration: "33:59",
+    sourceLabel: "playlist",
+    accent: "#0b8043",
+    source: "catalog"
+  },
+  {
+    id: "uzbek-old-423",
+    videoId: "heaeiPVcI4M",
+    title: "BUYUK BOBOLARIM BOLALIGI |  #cartoon #forkids #uzbekkino #astir",
+    channel: "Astir animation studio",
+    duration: "34:21",
+    sourceLabel: "playlist",
+    accent: "#1a73e8",
+    source: "catalog"
+  },
+  {
+    id: "uzbek-old-424",
+    videoId: "wOxEx-SIVNM",
+    title: "Bobur | Ibn Sino |  #cartoon #forkids #uzbekkino #astir",
+    channel: "Astir animation studio",
+    duration: "16:46",
+    sourceLabel: "playlist",
+    accent: "#f9ab00",
+    source: "catalog"
+  },
+  {
+    id: "uzbek-old-425",
+    videoId: "6vQF8gbl2xY",
+    title: "ALISHER NAVOIY  & KAMOLIDDIN  BEHZOD  |   #cartoon #forkids #uzbekkino #astir",
+    channel: "Astir animation studio",
+    duration: "19:07",
+    sourceLabel: "playlist",
+    accent: "#8e24aa",
+    source: "catalog"
+  },
+  {
+    id: "uzbek-old-426",
+    videoId: "BwJVVpoufe0",
+    title: "MIRZO ULUG'BEK   &  AL XORAZMIY  |  Buyuk bobolarim bolalgi |  #forkids #uzbekkino #astir",
+    channel: "Astir animation studio",
+    duration: "19:39",
+    sourceLabel: "playlist",
+    accent: "#00897b",
+    source: "catalog"
+  },
+  {
+    id: "uzbek-old-427",
+    videoId: "phK-YZvewhA",
+    title: "MAHMUD QOSHG'ARIY   &  YUSUF XOS HOJIB  |  Buyuk bobolarim bolalgi |  #forkids #uzbekkino #astir",
+    channel: "Astir animation studio",
+    duration: "21:27",
+    sourceLabel: "playlist",
+    accent: "#e8710a",
+    source: "catalog"
+  },
+  {
+    id: "uzbek-old-428",
+    videoId: "38ILlhFxrz4",
+    title: "AL- FARG'ONIY   &  AL - BERUNIY  |  Buyuk bobolarim bolalgi | #cartoon #forkids #uzbekkino #astir",
+    channel: "Astir animation studio",
+    duration: "15:58",
+    sourceLabel: "playlist",
+    accent: "#5f6368",
+    source: "catalog"
+  },
+  {
+    id: "uzbek-old-429",
+    videoId: "D7-htJ-VqWY",
+    title: "Zahiriddin Muhammad Bobur | Buyuk bobolarim Bolaligi | O'zbek animatsion filmi",
+    channel: "Astir animation studio",
+    duration: "8:56",
+    sourceLabel: "playlist",
+    accent: "#d93025",
+    source: "catalog"
+  },
+  {
+    id: "uzbek-old-430",
+    videoId: "UXGUxCXsx0E",
+    title: "Alisher Navoiy  | Buyuk bobolarim Bolaligi | O'zbek animatsion filmi",
+    channel: "Astir animation studio",
+    duration: "10:59",
+    sourceLabel: "playlist",
+    accent: "#0b8043",
+    source: "catalog"
+  },
+  {
+    id: "uzbek-old-431",
+    videoId: "GkEVG1bpJhw",
+    title: "Kamoliddin Behzod | Buyuk bobolarim Bolaligi | O'zbek animatsion filmi",
+    channel: "Astir animation studio",
+    duration: "9:41",
+    sourceLabel: "playlist",
+    accent: "#1a73e8",
+    source: "catalog"
+  },
+  {
+    id: "uzbek-old-432",
+    videoId: "ssR3IK41Bog",
+    title: "Mirzo Ulugʻbek | Buyuk bobolarim Bolaligi | O'zbek animatsion filmi",
+    channel: "Astir animation studio",
+    duration: "9:56",
+    sourceLabel: "playlist",
+    accent: "#f9ab00",
+    source: "catalog"
+  },
+  {
+    id: "uzbek-old-433",
+    videoId: "1igXilLZi7I",
+    title: "Yusuf Xos Hojib | Buyuk bobolarim Bolaligi | O'zbek animatsion filmi",
+    channel: "Astir animation studio",
+    duration: "11:42",
+    sourceLabel: "playlist",
+    accent: "#8e24aa",
+    source: "catalog"
+  },
+  {
+    id: "uzbek-old-434",
+    videoId: "iyrDMwCO8RI",
+    title: "Mahmud Qoshg‘ariy | Buyuk bobolarim Bolaligi | O'zbek animatsion filmi",
+    channel: "Astir animation studio",
+    duration: "11:05",
+    sourceLabel: "playlist",
+    accent: "#00897b",
+    source: "catalog"
+  },
+  {
+    id: "uzbek-old-435",
+    videoId: "iI2Iz3vJJTY",
+    title: "Abu Ali ibn Sino | Buyuk bobolarim Bolaligi | O'zbek animatsion filmi|",
+    channel: "Astir animation studio",
+    duration: "9:20",
+    sourceLabel: "playlist",
+    accent: "#e8710a",
+    source: "catalog"
+  },
+  {
+    id: "uzbek-old-436",
+    videoId: "_BhGM8F5-Yk",
+    title: "Abu Rayhon Beruniy | Buyuk bobolarim Bolaligi | O'zbek animatsion filmi|",
+    channel: "Astir animation studio",
+    duration: "9:19",
+    sourceLabel: "playlist",
+    accent: "#5f6368",
+    source: "catalog"
+  },
+  {
+    id: "uzbek-old-437",
+    videoId: "ebdPRBWZ2XU",
+    title: "AHMAD AL-FARG'ONIY | Buyuk Bobolarim Bolaligi |  O'zbek animatsion filmi  #buyukbobolarbolaligi",
+    channel: "Astir animation studio",
+    duration: "8:13",
+    sourceLabel: "playlist",
+    accent: "#d93025",
+    source: "catalog"
+  },
+  {
+    id: "uzbek-old-438",
+    videoId: "_HTf6s8IW8I",
+    title: "AL- XORAZMIY | Buyuk bobolarim bolalgi | O'zbek animatsion filmi |",
+    channel: "Astir animation studio",
+    duration: "11:13",
+    sourceLabel: "playlist",
+    accent: "#0b8043",
     source: "catalog"
   }
 ];
