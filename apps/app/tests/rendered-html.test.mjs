@@ -33,7 +33,8 @@ test("server-renders the KidTube app shell in English", async () => {
   assert.match(html, /<title>KidTube<\/title>/i);
   assert.match(html, /Switch language/);
   assert.match(html, /Search approved videos/);
-  assert.match(html, /Uch/);
+  assert.match(html, /\/_thumb\/[A-Za-z0-9_-]{11}\/card/);
+  assert.match(html, /(?:views|Playlist|YouTube)/);
   assert.doesNotMatch(html, /Baby Shark Dance/);
   assert.match(html, /Parent/);
   assert.doesNotMatch(html, /Codex/);
