@@ -14,13 +14,16 @@ import { thumbnailUrl } from "./youtube-urls";
  */
 
 /**
- * Only what an embed really contacts. `www.youtube.com`, the font host and
- * `i.ytimg.com` are deliberately absent: the embed is served from the nocookie
- * domain, thumbnails now come from our own origin, and a preconnect that goes
- * unused holds a socket open for nothing — which is what an audit reports
- * against you.
+ * The first embed document pulls its shell from `youtube-nocookie`, then reaches
+ * these companion origins for YouTube's player runtime. Warming them on the tap
+ * that opens a video gives mobile Safari a head start before the iframe mounts.
  */
-const MEDIA_ORIGINS = ["https://www.youtube-nocookie.com"];
+const MEDIA_ORIGINS = [
+  "https://www.youtube-nocookie.com",
+  "https://www.youtube.com",
+  "https://www.gstatic.com",
+  "https://apis.google.com",
+];
 
 const warmedVideoIds = new Set<string>();
 let hasWarmedOrigins = false;

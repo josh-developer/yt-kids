@@ -11,7 +11,16 @@
   inset: 0;
   z-index: 6000;
   overflow-y: auto;
-  overscroll-behavior: contain;
+  /*
+  * `none`, not `contain`: `contain` stops the scroll chaining to the page
+  * behind but leaves this container's own rubber-band intact. The swipe-down
+  * arms at `scrollTop: 0`, so every drag also overscrolls — the contents bounce
+  * down by that amount on top of the `translateY` in `use-watch-sheet.ts`,
+  * while this background, painted with the box, only moves by the transform.
+  * The player outran the sheet by exactly the bounce, and the gap it opened up
+  * was this `--surface` showing through.
+  */
+  overscroll-behavior: none;
   background: var(--surface);
 }
 
@@ -58,7 +67,13 @@
   }
 
   .open {
-    transform: translateY(0);
+    /*
+    * A zero-value transform still creates a containing block for fixed children
+    * on Safari. The fullscreen player is one of those children, so the settled
+    * sheet must have no transform at all or landscape Safari can expose a strip
+    * of the recommendations above the video.
+    */
+    transform: none;
   }
 
   .closing {
@@ -69,6 +84,17 @@
   .sheet[data-dragging] {
     transition: none;
   }
+}
+
+/*
+* Native fullscreen covers this by itself. CSS fullscreen still lives inside the
+* sheet, so the sheet must become a full-viewport, non-scrolling host even on
+* iPad landscape breakpoints that normally leave room for the top bar.
+*/
+:global([data-player-fullscreen]) .sheet {
+  top: 0;
+  overflow: hidden;
+  transform: none;
 }
 
 /*

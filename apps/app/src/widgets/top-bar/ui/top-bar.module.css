@@ -127,8 +127,8 @@
   }
 
   /*
-  * Below this the watch sheet covers the screen edge to edge, with the video
-  * pinned to its top (see `.playerBox` in `kid-video-player.module.css`) —
+  * Below this the watch sheet covers the screen edge to edge, with the player
+  * pinned to its top —
   * there is no room left for the bar, and dismissing the sheet is a swipe
   * instead. Above this breakpoint the sheet leaves the bar's own height clear
   * (see `.sheet` in `watch-sheet.module.css`) precisely so the bar can stay

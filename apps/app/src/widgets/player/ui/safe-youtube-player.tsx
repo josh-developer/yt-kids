@@ -40,20 +40,24 @@ export function SafeYouTubePlayer({
   isTvBrowser,
   nextVideo,
   previousVideo,
+  startTime = 0,
   video,
   onDurationResolved,
   onFullscreenChange,
   onNextVideo,
   onPreviousVideo,
+  onTimeUpdate,
 }: {
   isTvBrowser: boolean;
   nextVideo: Video | null;
   previousVideo: Video | null;
+  startTime?: number;
   video: Video;
   onDurationResolved: (video: Video, seconds: number) => void;
   onFullscreenChange?: (isFullscreen: boolean) => void;
   onNextVideo: () => void;
   onPreviousVideo: () => void;
+  onTimeUpdate?: (currentSeconds: number) => void;
 }) {
   const t = useTranslations("Player");
   const labels = useVideoLabels();
@@ -80,6 +84,12 @@ export function SafeYouTubePlayer({
   const secondsLeftRef = useRef(0);
 
   const controls = useControlsVisibility();
+  const interactionRef = useRef({
+    controls,
+    isLocked,
+    isPlaying: true,
+    isVisible: controls.isVisible,
+  });
   const fullscreen = usePlayerFullscreen({
     hostRef: playerBoxRef,
     onChange: onFullscreenChange,
@@ -87,6 +97,7 @@ export function SafeYouTubePlayer({
 
   const engine = usePlayerEngine({
     iframeRef,
+    startTime,
     video,
     onDurationResolved,
     onEnded: () => {
@@ -100,7 +111,47 @@ export function SafeYouTubePlayer({
       }
     },
     onPlayingChange: (isPlaying) => controls.show({ autoHide: isPlaying }),
+    onTimeUpdate,
   });
+
+  useEffect(() => {
+    interactionRef.current = {
+      controls,
+      isLocked,
+      isPlaying: engine.isPlaying,
+      isVisible: controls.isVisible,
+    };
+  });
+
+  useEffect(() => {
+    function handleOutsidePress(event: PointerEvent) {
+      const target = event.target;
+      const playerBox = playerBoxRef.current;
+
+      if (!playerBox || !(target instanceof Node) || playerBox.contains(target)) {
+        return;
+      }
+
+      const state = interactionRef.current;
+      if (state.isLocked) {
+        return;
+      }
+
+      if (state.isVisible) {
+        state.controls.hide();
+        return;
+      }
+
+      state.controls.show({
+        autoHide: state.isPlaying,
+        delayMs: event.pointerType === "mouse" ? undefined : TOUCH_AUTO_HIDE_MS,
+      });
+    }
+
+    document.addEventListener("pointerdown", handleOutsidePress, true);
+    return () =>
+      document.removeEventListener("pointerdown", handleOutsidePress, true);
+  }, []);
 
   /**
    * The gap between one video ending and the next starting. The next video is
@@ -302,9 +353,11 @@ export function SafeYouTubePlayer({
     <div
       className={`${styles.playerBox} ${showControls ? "" : styles.controlsHidden} ${
         fullscreen.isVirtual ? styles.virtualFullscreen : ""
-      } ${isLocked ? styles.playerLocked : ""} ${
-        engine.hasConfirmedPlaying ? "" : styles.awaitingStart
-      }`}
+      } ${isLocked ? styles.playerLocked : ""}`}
+      // Marks everything the video surface owns as off-limits to the watch
+      // sheet's swipe-down — see `use-watch-sheet.ts`. The gestures below are
+      // this box's own, and a downward drag here already means something else.
+      data-player-surface=""
       onClick={gestures.handleFrameClick}
       onDoubleClick={gestures.handleFrameDoubleClick}
       onKeyDown={(event) => handlePlayerKeyDown(event, { isTvBrowser })}
@@ -322,7 +375,7 @@ export function SafeYouTubePlayer({
       ref={playerBoxRef}
     >
       <iframe
-        key={`${video.id}-${engine.reloadKey}`}
+        key={engine.reloadKey}
         aria-hidden="true"
         allow="autoplay; encrypted-media; fullscreen; picture-in-picture"
         allowFullScreen
@@ -410,7 +463,7 @@ export function SafeYouTubePlayer({
       {!isLocked && !hasFailed ? (
         <BigPlayButton
           isPlaying={engine.isPlaying}
-          isVisible={!engine.isPlaying || controls.isVisible}
+          isVisible={controls.isVisible}
           onClick={() => {
             revealControls();
             engine.playPause();
@@ -444,14 +497,9 @@ export function SafeYouTubePlayer({
               revealControls();
               engine.playPause();
             }}
-            areCaptionsEnabled={engine.areCaptionsEnabled}
             onPrevious={onPreviousVideo}
             onPreview={requestPreview}
             onSeekBy={seekBy}
-            onToggleCaptions={() => {
-              revealControls();
-              engine.toggleCaptions();
-            }}
             onToggleFullscreen={() => {
               revealControls();
               void fullscreen.toggle();

@@ -12,6 +12,7 @@ import { WatchStack } from "@/entities/watch-history";
 import { useLocaleSwitch } from "@/features/locale-switch";
 import { useRecommendationsPreference } from "@/features/recommendations-toggle";
 import { useTheme } from "@/features/theme-toggle";
+import { prefetchVideo } from "@/shared/api/youtube";
 import { HomePage } from "@/pages/home";
 import { SettingsPage } from "@/pages/settings";
 import { WatchLoading, WatchPage, WatchUnavailable } from "@/pages/watch";
@@ -160,6 +161,7 @@ export function KidsTubeApp({
   }, [currentVideo, homeQuery, labels, route.view, tMetadata, tSettings, tWatch]);
 
   function openVideo(video: Video) {
+    prefetchVideo(video.videoId);
     setWatchStack((stack) => stack.push(video.id));
     navigate({ view: "watch", videoId: video.id });
   }
@@ -195,6 +197,7 @@ export function KidsTubeApp({
       // `[data-tv]`; none of them has to know which class this file uses.
       data-theme={theme}
       data-view={route.view}
+      data-player-fullscreen={isPlayerFullscreen ? "" : undefined}
       data-tv={isTvBrowser ? "" : undefined}
     >
       <TopBar
@@ -229,6 +232,7 @@ export function KidsTubeApp({
       </div>
 
       <WatchSheet
+        isDismissDisabled={isPlayerFullscreen}
         isActive={route.view === "watch"}
         onDismiss={() => navigate(HOME_ROUTE)}
       >
@@ -236,6 +240,7 @@ export function KidsTubeApp({
           <WatchLoading />
         ) : currentVideo ? (
           <WatchPage
+            isTvBrowser={isTvBrowser}
             nextVideo={nextVideo}
             previousVideo={previousEntry?.video ?? null}
             recommendationGroups={recommendationGroups}

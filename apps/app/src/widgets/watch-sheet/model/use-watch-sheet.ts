@@ -3,17 +3,19 @@ import type { TouchEvent, TransitionEvent } from "react";
 
 type SheetPhase = "closed" | "opening" | "open" | "closing";
 
-/** How far down a finger has to travel before letting go dismisses the sheet. */
-const DISMISS_DISTANCE_PX = 120;
+/** How far the sheet's top edge must travel before release dismisses it. */
+const DISMISS_VIEWPORT_RATIO = 0.5;
 
 /**
  * Below this, a downward touchmove is a tap's natural jitter, not a drag.
- * Applying a live transform for it anyway was the bug: a tap on a button near
- * the top of the sheet — the unmute button, first thing a video shows — sits
- * exactly where the gesture arms (scrolled to the top), and a couple of
- * pixels of finger tremor were enough to move the sheet under it. Mobile
- * browsers read that as a drag and drop the synthetic click that was
- * supposed to follow, so the tap never reached the button.
+ * Applying a live transform for it anyway was the bug: a tap on anything near
+ * the top of the sheet sits exactly where the gesture arms (scrolled to the
+ * top), and a couple of pixels of finger tremor were enough to move the sheet
+ * under it. Mobile browsers read that as a drag and drop the synthetic click
+ * that was supposed to follow, so the tap never reached the button. The player
+ * that used to be the worst of those cases is now excluded outright — see
+ * `handleTouchStart` — but the title, the channel row and the first
+ * recommendations still land in this band.
  */
 const DRAG_ACTIVATION_PX = 10;
 
@@ -52,9 +54,11 @@ function settle(phase: SheetPhase): SheetPhase {
  */
 export function useWatchSheet({
   isActive,
+  isDismissDisabled = false,
   onDismiss,
 }: {
   isActive: boolean;
+  isDismissDisabled?: boolean;
   onDismiss: () => void;
 }) {
   const [phase, setPhase] = useState<SheetPhase>(isActive ? "open" : "closed");
@@ -65,6 +69,7 @@ export function useWatchSheet({
   const wasActive = useRef(isActive);
   const sheetRef = useRef<HTMLDivElement>(null);
   const dragStartY = useRef<number | null>(null);
+  const dragOffsetRef = useRef(0);
   const [dragOffset, setDragOffset] = useState(0);
 
   useEffect(() => {
@@ -128,6 +133,17 @@ export function useWatchSheet({
     setPhase((current) => (current === "closing" ? "closed" : current));
   }
 
+  function updateDragOffset(offset: number) {
+    dragOffsetRef.current = offset;
+    setDragOffset(offset);
+  }
+
+  function dismissThresholdPx() {
+    const viewportHeight =
+      sheetRef.current?.ownerDocument.defaultView?.innerHeight ?? window.innerHeight;
+    return viewportHeight * DISMISS_VIEWPORT_RATIO;
+  }
+
   function handleTouchStart(event: TouchEvent<HTMLDivElement>) {
     // The sheet is also its own scroll container. Only arm the dismiss
     // gesture when it is scrolled to the top — otherwise this touch is
@@ -135,7 +151,25 @@ export function useWatchSheet({
     // only where the sheet slides at all: a touchscreen wide enough to get
     // the desktop layout keeps its top bar, and dragging a sheet that cannot
     // animate back would leave it stuck open.
-    if (!slides || phase !== "open" || (sheetRef.current?.scrollTop ?? 0) > 0) {
+    if (
+      isDismissDisabled ||
+      !slides ||
+      phase !== "open" ||
+      (sheetRef.current?.scrollTop ?? 0) > 0
+    ) {
+      return;
+    }
+
+    // The video surface is not a handle. It has a full gesture vocabulary of
+    // its own — tap to toggle the controls, double tap to seek, swipe down to
+    // leave fullscreen — and it fills the top of the sheet, exactly where a
+    // scrolled-to-top drag begins. Sharing those touches meant every gesture
+    // aimed at the video also pulled the sheet. The attribute is set on the
+    // player's own box in `widgets/player/ui/safe-youtube-player.tsx`.
+    if (
+      event.target instanceof Element &&
+      event.target.closest("[data-player-surface]")
+    ) {
       return;
     }
 
@@ -143,6 +177,14 @@ export function useWatchSheet({
   }
 
   function handleTouchMove(event: TouchEvent<HTMLDivElement>) {
+    if (isDismissDisabled) {
+      dragStartY.current = null;
+      if (dragOffset !== 0) {
+        updateDragOffset(0);
+      }
+      return;
+    }
+
     if (dragStartY.current === null) {
       return;
     }
@@ -154,34 +196,40 @@ export function useWatchSheet({
       // re-render — and no transform a mobile browser would read as a drag —
       // stands between this touch and the click that is supposed to follow.
       if (dragOffset !== 0) {
-        setDragOffset(0);
+        updateDragOffset(0);
       }
       return;
     }
 
-    setDragOffset(delta - DRAG_ACTIVATION_PX);
+    updateDragOffset(delta - DRAG_ACTIVATION_PX);
   }
 
   function releaseDrag() {
+    if (isDismissDisabled) {
+      dragStartY.current = null;
+      updateDragOffset(0);
+      return;
+    }
+
     if (dragStartY.current === null) {
       return;
     }
 
     dragStartY.current = null;
 
-    if (dragOffset > DISMISS_DISTANCE_PX) {
+    if (dragOffsetRef.current >= dismissThresholdPx()) {
       setPhase("closing");
       onDismiss();
     }
 
-    setDragOffset(0);
+    updateDragOffset(0);
   }
 
   return {
     ref: sheetRef,
     isMounted: phase !== "closed",
     phase,
-    isDragging: dragOffset > 0 && phase === "open",
+    isDragging: !isDismissDisabled && dragOffset > 0 && phase === "open",
     dragOffset,
     handlers: {
       onTouchStart: handleTouchStart,
