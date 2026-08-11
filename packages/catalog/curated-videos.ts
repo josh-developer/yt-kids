@@ -1,8 +1,11 @@
-import type { Video } from "@/entities/video";
+import type { CuratedVideo } from "./types";
 
-/** Curated catalog data. Shape is enforced by the `Video` entity type. */
-export type CuratedVideo = Video & { source: "catalog" };
-
+/**
+ * The read-only video list shipped with every client.
+ *
+ * Data only — no logic, and nothing platform-specific — so the web app and a
+ * native app consume the identical list instead of drifting apart.
+ */
 export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
   {
     id: "uzbek-old-001",

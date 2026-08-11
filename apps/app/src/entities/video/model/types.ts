@@ -1,17 +1,7 @@
-export type VideoSource = "catalog" | "custom";
-
-export type Video = {
-  id: string;
-  videoId: string;
-  title: string;
-  channel: string;
-  duration: string;
-  /** Raw view count. Formatted per locale at render time. */
-  viewCount?: number;
-  /** Shown instead of a view count when the source has no public count. */
-  sourceLabel?: "playlist" | "youtube";
-  /** Legacy pre-i18n display string, kept for libraries stored before v8. */
-  views?: string;
-  accent: string;
-  source: VideoSource;
-};
+/**
+ * Re-exported, not redefined. The shipped catalog in `@repo/catalog` is typed by
+ * these, and a package cannot depend on the app that consumes it, so the types
+ * live there and the entity stays the app's way in — every `@/entities/video`
+ * import is unaffected and there is still exactly one definition.
+ */
+export type { Video, VideoSource } from "@repo/catalog/types";
