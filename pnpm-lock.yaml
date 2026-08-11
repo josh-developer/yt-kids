@@ -148,6 +148,9 @@ importers:
       eslint-config-expo:
         specifier: ^57.0.1
         version: 57.0.1(eslint@9.39.5(jiti@2.7.0))(typescript@5.9.3)
+      sharp:
+        specifier: ^0.35.3
+        version: 0.35.3(@types/node@26.2.0)
       typescript:
         specifier: ^5.9.3
         version: 5.9.3
@@ -11556,7 +11559,6 @@ snapshots:
       '@img/sharp-win32-ia32': 0.35.3
       '@img/sharp-win32-x64': 0.35.3
       '@types/node': 26.2.0
-    optional: true
 
   shebang-command@2.0.0:
     dependencies:
