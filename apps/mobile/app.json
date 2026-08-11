@@ -1,0 +1,44 @@
+{
+  "expo": {
+    "name": "KidTube",
+    "slug": "kidtube",
+    "version": "0.1.0",
+    "orientation": "default",
+    "scheme": "kidtube",
+    "userInterfaceStyle": "automatic",
+    "backgroundColor": "#fff9e8",
+    "icon": "./assets/icon.png",
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "uz.kidtube.app",
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
+    },
+    "android": {
+      "package": "uz.kidtube.app",
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#fff9e8"
+      },
+      "blockedPermissions": [
+        "android.permission.SYSTEM_ALERT_WINDOW",
+        "android.permission.READ_EXTERNAL_STORAGE",
+        "android.permission.WRITE_EXTERNAL_STORAGE",
+        "android.permission.VIBRATE"
+      ]
+    },
+    "extra": {
+      "eas": {
+        "projectId": "56ab4b49-7147-4a4c-9bdd-47e6e8cce508"
+      }
+    },
+    "owner": "kidtube-team",
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/56ab4b49-7147-4a4c-9bdd-47e6e8cce508"
+    }
+  }
+}

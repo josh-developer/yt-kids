@@ -1,19 +1,13 @@
 {
   "$schema": "https://json.schemastore.org/tsconfig",
-  "display": "Next.js",
+  "display": "Library",
   "extends": "./base.json",
   "compilerOptions": {
-    "plugins": [{ "name": "next" }],
     "module": "ESNext",
     "moduleResolution": "Bundler",
-    "allowJs": true,
     "declaration": false,
     "declarationMap": false,
-    "jsx": "react-jsx",
-    "noEmit": true,
-    "paths": {
-      "@repo/*": ["../../packages/*"]
-    }
+    "noEmit": true
   },
   "exclude": ["node_modules"]
 }
