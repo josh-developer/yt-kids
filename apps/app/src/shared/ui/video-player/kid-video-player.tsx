@@ -34,8 +34,6 @@ import {
 } from "./kid-video-player-labels";
 import {
   hardenYouTubeEmbed,
-  keepEmbedDocumentAlive,
-  letTheEmbedStartItself,
   preventOrphanedCommandPromises,
   tracePlayer,
 } from "./youtube-provider-hardening";
@@ -281,14 +279,6 @@ export function KidVideoPlayer({
    * picture worth showing.
    */
   const [pictureEmbedKey, setPictureEmbedKey] = useState<string | null>(null);
-  /**
-   * One document per sound decision, not one per video. Remounting is what
-   * asks for a new embed document, and a new document is a new audio unlock —
-   * so a video change must not do it. Videos are swapped inside the surviving
-   * document instead; see `keepEmbedDocumentAlive`.
-   */
-  const documentKey = `sound:${embedGeneration}`;
-  // The poster and the resume still belong to a video, not to a document.
   const embedKey = `${videoId}:${embedGeneration}`;
   const hasPicture = pictureEmbedKey === embedKey;
   // A rebuilt embed has a place of its own to get back to, which outranks the
@@ -585,7 +575,7 @@ export function KidVideoPlayer({
       } ${
         isVirtualFullscreen ? styles.virtualFullscreen : ""
       } ${className}`.trim()}
-      key={documentKey}
+      key={embedKey}
       src={`youtube/${videoId}`}
       title={title}
       aria-label={labels.surface}
@@ -601,8 +591,6 @@ export function KidVideoPlayer({
       onProviderChange={(provider) => {
         hardenYouTubeEmbed(provider);
         preventOrphanedCommandPromises(provider);
-        letTheEmbedStartItself(provider, autoPlay);
-        keepEmbedDocumentAlive(provider);
       }}
       onCanPlay={() => {
         tracePlayer(`can-play:resume=${effectiveStartTime}:muted=${isMuted}`);
@@ -638,10 +626,6 @@ export function KidVideoPlayer({
         // A step forward small enough to be playback rather than a jump. A
         // seek lands anywhere, including backwards, and a paused embed repeats
         // the same second — neither is a picture.
-        // A video swapped into a living document reports no `can-play`, so
-        // this is where its resume gets picked up. Progress means the embed is
-        // already playing, which is the condition the seek needs anyway.
-        resumeWhereLeftOff(false);
         const previous = lastTimeRef.current;
         lastTimeRef.current = currentTime;
         const step = currentTime - previous;
