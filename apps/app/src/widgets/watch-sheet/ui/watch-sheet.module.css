@@ -1,0 +1,91 @@
+/*
+* Above the top bar's own z-index (5000): below 1080px the moment the sheet
+* is dismissed the route — and with it `data-view` — flips back to "home"
+* immediately, which un-hides the sticky top bar underneath while the sheet
+* is still sliding away. Sitting above it keeps that reveal from popping
+* through. Above 1080px this stops mattering for that reason (the bar stays
+* up the whole time regardless — see below) but costs nothing to keep.
+*/
+.sheet {
+  position: fixed;
+  inset: 0;
+  z-index: 6000;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  background: var(--surface);
+}
+
+/*
+* There is no swipe-down gesture on a desktop-sized screen to dismiss the
+* sheet with, so the top bar — and its way back home — has to stay on
+* screen instead of being covered like it is below 1080px (see
+* `top-bar.module.css`). Leaving its height clear here, rather than hiding
+* it, is what keeps it reachable.
+*/
+@media (min-width: 1081px) {
+  .sheet {
+    top: 64px;
+  }
+}
+
+@media (min-width: 1280px) {
+  :global([data-tv]) .sheet {
+    top: 82px;
+  }
+}
+
+/*
+* The slide itself, kept to the width that has the swipe-down to go with it.
+* On a desktop-sized screen the sheet just is the watch page, arriving and
+* leaving with the route — there is no gesture for the motion to answer to,
+* and a mouse gets its way back from the top bar this layout leaves clear
+* above the sheet.
+*
+* `use-watch-sheet.ts` reads the same breakpoint and skips its opening and
+* closing phases above it. That pairing is load-bearing in one direction:
+* the closing phase ends on this transition's `transitionend`, so a sheet put
+* into it at a width where these rules do not apply would never finish
+* closing, and would sit over the app for good.
+*/
+@media (max-width: 1080px) {
+  .sheet {
+    transform: translateY(100%);
+    transition: transform 320ms cubic-bezier(0.2, 0, 0.2, 1);
+  }
+
+  .opening {
+    transition: none;
+  }
+
+  .open {
+    transform: translateY(0);
+  }
+
+  .closing {
+    transform: translateY(100%);
+  }
+
+  /* A drag in progress is driven by touch position, not the timed transition. */
+  .sheet[data-dragging] {
+    transition: none;
+  }
+}
+
+/*
+* Mirrors `.content`'s padding in kids-tube-app.module.css: the sheet itself
+* must stay unpadded so the pinned player inside it — `position: fixed; left:
+* 0` on `.playerBox` below 1080px — reads its "flush with the screen" offsets
+* against the sheet's own edges, not against a padded box. Everything else in
+* the sheet (the title, the recommendations) still wants that margin, so it
+* lives on this inner wrapper instead.
+*/
+.sheetContent {
+  min-width: 0;
+  padding: 12px 26px 44px;
+}
+
+@media (max-width: 1080px) {
+  .sheetContent {
+    padding: 0 14px 32px;
+  }
+}

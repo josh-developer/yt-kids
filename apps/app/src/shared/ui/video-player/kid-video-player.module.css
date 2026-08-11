@@ -46,9 +46,7 @@
   max-height: min(74vh, 630px);
   aspect-ratio: 16 / 9;
   overflow: hidden;
-  border-radius: 8px;
   background: #080808;
-  box-shadow: 0 18px 42px rgba(49, 71, 93, 0.2);
   touch-action: manipulation;
   user-select: none;
   -webkit-tap-highlight-color: transparent;
@@ -93,6 +91,16 @@
 
 .poster[data-visible] {
   opacity: 1;
+}
+
+/*
+* Beats `[data-visible]` on both specificity and order. The player keeps that
+* attribute up whenever vidstack's YouTube provider loses track of the fact
+* that the embed started — see `hasPicture` in the component — so the poster
+* needs a way out that does not depend on the provider agreeing.
+*/
+.poster.posterGone[data-visible] {
+  opacity: 0;
 }
 
 .poster :global(img) {
@@ -373,6 +381,7 @@
   font-weight: 800;
   line-height: 1.3;
   display: -webkit-box;
+  line-clamp: 2;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
@@ -781,19 +790,23 @@
 }
 
 /*
-* Below this the watch page collapses to one column (see `.watchLayout` in
-* watch-page.module.css) and the player and the recommendations column are no
-* longer siblings sized to match — so `position: sticky` runs out of room to
-* stick the moment the title and channel row scroll by. Pinning it outright
-* keeps it in view for the whole page instead. `.videoSpacer` there reserves
-* the space this leaves behind in the flow.
+* Below this the watch page collapses to one column, where the sheet's side
+* padding would inset the picture — the one thing the picture should never be.
+* It stays `sticky` rather than going `fixed`: the watch page dissolves the
+* column wrapper at this width so the whole page, recommendations included, is
+* what the player sticks against (see `.videoColumn` in
+* watch-page.module.css). A fixed player would instead have to be paid for
+* twice — once on screen, once as reserved space in the flow — and the two
+* never line up, because the fixed one also covers the top bar above it.
+*
+* Skipped in either full-screen mode, where the surface sizes itself to the
+* display and this bleed would push it off centre.
 */
 @media (max-width: 1080px) {
-  .playerBox {
-    position: fixed;
-    top: 0;
-    left: 0;
+  .playerBox:not(.isFullscreen):not(.virtualFullscreen) {
     z-index: 500;
+    width: 100vw;
+    margin-left: calc(50% - 50vw);
   }
 }
 

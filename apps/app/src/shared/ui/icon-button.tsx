@@ -8,6 +8,7 @@ import primitives from "./primitives.module.css";
 export function IconButton({
   label,
   tooltip = label,
+  tooltipAlign,
   children,
   className = "",
   isActive = false,
@@ -19,6 +20,9 @@ export function IconButton({
 }: {
   label: string;
   tooltip?: string;
+  /** "end" keeps the bubble from running past the viewport's edge for a
+   * button that sits at it — see `[data-tooltip-align="end"]` in globals.css. */
+  tooltipAlign?: "end";
   children: ReactNode;
   className?: string;
   isActive?: boolean;
@@ -39,6 +43,7 @@ export function IconButton({
       aria-expanded={isExpanded}
       aria-pressed={isPressed}
       data-tooltip={tooltip}
+      data-tooltip-align={tooltipAlign}
       onClick={onClick}
       onDoubleClick={onDoubleClick}
     >

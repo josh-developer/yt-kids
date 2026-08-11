@@ -1,4 +1,4 @@
-import { useWindowVirtualizer } from "@tanstack/react-virtual";
+import { useVirtualizer } from "@tanstack/react-virtual";
 import { Fragment, useEffect, useRef, useState } from "react";
 import type { ReactNode } from "react";
 import styles from "./virtual-grid.module.css";
@@ -7,6 +7,24 @@ const ESTIMATED_ROW_HEIGHT = 340;
 const OVERSCAN_ROWS = 4;
 /** Rendered before the browser measures, so the first paint is not blank. */
 const INITIAL_ITEMS = 12;
+
+/**
+ * The grid itself does not always live in a page that scrolls the window —
+ * the watch page's sheet scrolls internally instead, so its own recommendation
+ * grid needs to virtualise against that, not against `window`. `[data-scroll-root]`
+ * (set on the sheet — see `watch-sheet.module.css`) is how a container opts
+ * into being that target; anything else, including the home page, falls back
+ * to `document.scrollingElement`, which tracks the window the same way.
+ *
+ * Deliberately not "walk up to the nearest `overflow-y: auto` ancestor":
+ * `overflow-x: clip` on `.appShell` makes its *computed* `overflow-y` resolve
+ * to `auto` too, per the CSS overflow spec, even though nothing ever actually
+ * scrolls there — that would have quietly pointed the home page grid at a
+ * container that never fires a scroll event.
+ */
+function findScrollElement(node: HTMLElement | null): Element {
+  return node?.closest("[data-scroll-root]") ?? document.scrollingElement ?? document.documentElement;
+}
 
 /**
  * Renders a CSS grid of items but mounts only the rows near the viewport, so a
@@ -32,6 +50,7 @@ export function VirtualGrid<Item>({
 }) {
   const gridRef = useRef<HTMLDivElement>(null);
   const [columnCount, setColumnCount] = useState(1);
+  const [scrollElement, setScrollElement] = useState<Element | null>(null);
   const [scrollMargin, setScrollMargin] = useState(0);
   const [rowGap, setRowGap] = useState(0);
   const [isMeasured, setIsMeasured] = useState(false);
@@ -43,18 +62,25 @@ export function VirtualGrid<Item>({
     }
 
     const measure = () => {
+      const container = findScrollElement(grid);
       const style = window.getComputedStyle(grid);
       const columns = style.gridTemplateColumns
         .split(" ")
         .filter(Boolean).length;
       setColumnCount(Math.max(1, columns));
-      setScrollMargin(grid.offsetTop);
+      setScrollElement(container);
+      setScrollMargin(
+        grid.getBoundingClientRect().top -
+          container.getBoundingClientRect().top +
+          container.scrollTop,
+      );
       setRowGap(Number.parseFloat(style.rowGap) || 0);
     };
 
-    // `getComputedStyle` and `offsetTop` both force the browser to settle
-    // layout. A resize fires them in bursts and the observer fires again for
-    // every row the virtualiser mounts, so measuring is held to one a frame.
+    // `getComputedStyle` and the bounding rects both force the browser to
+    // settle layout. A resize fires them in bursts and the observer fires
+    // again for every row the virtualiser mounts, so measuring is held to
+    // one a frame.
     let pendingFrame = 0;
     const scheduleMeasure = () => {
       if (pendingFrame) {
@@ -81,11 +107,12 @@ export function VirtualGrid<Item>({
     };
   }, []);
 
-  const virtualizer = useWindowVirtualizer({
+  const virtualizer = useVirtualizer({
     count: Math.ceil(items.length / columnCount),
     estimateSize: () => ESTIMATED_ROW_HEIGHT,
     overscan: OVERSCAN_ROWS,
     scrollMargin,
+    getScrollElement: () => scrollElement,
   });
 
   // The server has no layout to measure, so it renders a plain first screen

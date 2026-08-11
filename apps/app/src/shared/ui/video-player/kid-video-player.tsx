@@ -2,7 +2,6 @@ import {
   Controls,
   MediaPlayer,
   MediaProvider,
-  MuteButton,
   PlayButton,
   Poster,
   SeekButton,
@@ -27,7 +26,8 @@ import {
   Volume2,
   VolumeX,
 } from "lucide-react";
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { SoundPreference } from "@/shared/lib/playback/sound-preference";
 import {
   DEFAULT_KID_VIDEO_PLAYER_LABELS,
   type KidVideoPlayerLabels,
@@ -35,6 +35,7 @@ import {
 import {
   hardenYouTubeEmbed,
   preventOrphanedCommandPromises,
+  tracePlayer,
 } from "./youtube-provider-hardening";
 import styles from "./kid-video-player.module.css";
 
@@ -46,6 +47,14 @@ const DOUBLE_TAP_WINDOW_MS = 280;
 
 /** How long the ±15 flash stays up after a double-tap. */
 const SEEK_HINT_MS = 600;
+
+/**
+ * How long an embed built with sound gets to start before that counts as the
+ * browser refusing. Long enough to cover the handshake and a slow first
+ * segment, short enough that the muted rebuild is not a visible wait — and
+ * paid at most once per tab, since the outcome is remembered.
+ */
+const SOUND_PROBE_MS = 1200;
 
 /** What the hover card on a prev/next side button shows. */
 export type KidVideoPlayerPreview = {
@@ -70,7 +79,7 @@ export function KidVideoPlayer({
   title,
   posterUrl,
   autoPlay = false,
-  startMuted = autoPlay,
+  startMuted,
   startTime = 0,
   labels: labelOverrides,
   className = "",
@@ -93,18 +102,14 @@ export function KidVideoPlayer({
   posterUrl?: string;
   autoPlay?: boolean;
   /**
-   * Carried into the embed URL before load, so iOS honors it. Defaults to
-   * `autoPlay`, because muted is the only way a script can start this embed.
+   * Forces how the embed is built, overriding what this tab has learned about
+   * whether the browser hands out sound unprompted. Left alone, videos open
+   * with sound wherever that is allowed — see `SoundPreference`.
    *
-   * Every command reaches the frame by postMessage, and user activation does
-   * not cross a document boundary: `playVideo` runs inside the
-   * youtube-nocookie document with no gesture behind it, and WebKit only
-   * allows a gesture-less start while the video is muted. An embed born with
-   * `mute=0` on iOS therefore ignores `playVideo` outright — autoplay never
-   * starts, and because the provider's play promise is answered by the
-   * embed's next state report, a refusal is silence rather than an error, so
-   * nothing reports it and every later tap of the play button is swallowed
-   * the same way. `UnmuteButton` is how sound comes back.
+   * Carried into the embed URL before load, because that is the only place it
+   * counts. Every command reaches the frame by postMessage, and user
+   * activation does not cross a document boundary, so `unMute` sent afterwards
+   * is something WebKit drops without a word.
    */
   startMuted?: boolean;
   /** Seconds to open at; the video resumes there once it can play. */
@@ -211,9 +216,91 @@ export function KidVideoPlayer({
   const [seekHint, setSeekHint] = useState<"back" | "forward" | null>(null);
   const isRepeatOnRef = useRef(false);
   const hasResumedRef = useRef(false);
+  /**
+   * The video whose picture has been seen moving, which is what actually takes
+   * the poster down. Held as an id rather than a flag so the next video starts
+   * behind its own poster without anything having to reset this.
+   *
+   * Vidstack ties its own poster to the player's `started` state, and for the
+   * YouTube provider `started` is set from exactly one place: a `playing`
+   * notification. The provider withholds that notification whenever it decides
+   * the embed began playing without being asked — its `#invalidPlay` guard,
+   * which returns before the `switch` that would notify. That guard fires when
+   * the embed reports playing while the provider still reads `paused` and has
+   * no `playVideo` command outstanding, which is reachable here because the
+   * resume seek goes out first: vidstack notifies `can-play`, we set
+   * `currentTime` from that handler, and only several awaits later does its
+   * autoplay issue `playVideo`. YouTube's `seekTo` starts a *cued* video, so
+   * the embed can be playing before anything asked it to. The result is a
+   * video playing underneath a poster that never lifts.
+   *
+   * Time reports reach the player down a separate path that the guard does not
+   * gate, so progress keeps arriving even while the state machine is stuck.
+   * One step forward of ordinary playback — not a seek — is therefore the
+   * signal that there is a picture worth showing.
+   */
+  const soundPreference = useMemo(() => new SoundPreference(), []);
+  /**
+   * Bumped to build a fresh embed. The `mute` param is read once, when the
+   * provider sets the iframe's `src` (vidstack `peek`s `buildParams`, so
+   * changing `muted` afterwards never re-navigates the frame), which makes a
+   * remount the only way to change how a video's audio starts.
+   */
+  const [embedGeneration, setEmbedGeneration] = useState(0);
+  const [isMuted, setIsMuted] = useState(
+    () => startMuted ?? soundPreference.shouldStartMuted(),
+  );
+  // How the embed on screen was built, which decides whether sound can be
+  // asked for with a command or has to be paid for with a rebuild.
+  const bornMutedRef = useRef(isMuted);
+  const probeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  /**
+   * Where a rebuild has to pick the video back up, so changing the audio does
+   * not cost the viewer their place. Tagged with the embed it was captured
+   * for, so a position taken from one video can never follow them to the next.
+   */
+  const [soundResume, setSoundResume] = useState<{
+    embedKey: string;
+    atSeconds: number;
+  } | null>(null);
+  /**
+   * The embed whose picture has been seen moving, which is what actually takes
+   * the poster down. Held as an id rather than a flag so the next video — or
+   * the next rebuild of this one — starts behind its own poster without
+   * anything having to reset it.
+   *
+   * Vidstack ties its own poster to the player's `started` state, and for the
+   * YouTube provider `started` is set from exactly one place: a `playing`
+   * notification. The provider withholds that notification whenever it decides
+   * the embed began playing without being asked — its `#invalidPlay` guard,
+   * which returns before the `switch` that would notify. Time reports reach
+   * the player down a separate path that the guard does not gate, so progress
+   * keeps arriving even while the state machine is stuck. One step forward of
+   * ordinary playback — not a seek — is therefore the signal that there is a
+   * picture worth showing.
+   */
+  const [pictureEmbedKey, setPictureEmbedKey] = useState<string | null>(null);
+  const embedKey = `${videoId}:${embedGeneration}`;
+  const hasPicture = pictureEmbedKey === embedKey;
+  // A rebuilt embed has a place of its own to get back to, which outranks the
+  // resume point the video was opened with.
+  const effectiveStartTime =
+    soundResume?.embedKey === embedKey ? soundResume.atSeconds : startTime;
+  const lastTimeRef = useRef(-1);
   const lastTapRef = useRef({ at: 0, side: "" });
+  const wereControlsUpRef = useRef(false);
   const tapTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const hintTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // A new embed — the next video, or this one rebuilt for sound — has to start
+  // from a clean slate, including the resume guard, which would otherwise let
+  // only the first video of a session resume. The poster needs no reset:
+  // `hasPicture` names the embed it belongs to, so a new key is already a
+  // poster that has not been lifted yet.
+  useEffect(() => {
+    hasResumedRef.current = false;
+    lastTimeRef.current = -1;
+  }, [embedKey]);
 
   useEffect(
     () => () => {
@@ -225,9 +312,140 @@ export function KidVideoPlayer({
       if (hintTimerRef.current) {
         clearTimeout(hintTimerRef.current);
       }
+      if (probeTimerRef.current) {
+        clearTimeout(probeTimerRef.current);
+      }
     },
     [],
   );
+
+  /**
+   * Builds this video's embed again from scratch, muted or not, and picks the
+   * playback back up where it stood. The `src` a live iframe already has is
+   * fixed — `mute` is baked into it — so a change of heart about audio costs a
+   * new frame, which is what the remount key buys.
+   */
+  const rebuildEmbed = (shouldBeMuted: boolean) => {
+    const reachedSeconds = playerRef.current?.currentTime ?? 0;
+    setSoundResume({
+      embedKey: `${videoId}:${embedGeneration + 1}`,
+      atSeconds:
+        Number.isFinite(reachedSeconds) && reachedSeconds > 0
+          ? reachedSeconds
+          : effectiveStartTime,
+    });
+    bornMutedRef.current = shouldBeMuted;
+    setIsMuted(shouldBeMuted);
+    setEmbedGeneration((generation) => generation + 1);
+  };
+
+  const stopProbe = () => {
+    if (probeTimerRef.current) {
+      clearTimeout(probeTimerRef.current);
+      probeTimerRef.current = null;
+    }
+  };
+
+  /**
+   * Settles the question an unmuted embed asks just by existing: will this
+   * browser let a video it was not asked for make noise?
+   *
+   * The answer never arrives as an answer. A browser that allows it lets the
+   * embed start, and vidstack reports `play` within a few hundred milliseconds;
+   * one that does not simply drops `playVideo` on the floor and leaves the
+   * frame sitting at its first frame, saying nothing. So silence past the
+   * deadline is the refusal, and the video is rebuilt muted — which does start
+   * everywhere — with the sound button offering the one unmute that survives.
+   *
+   * Only the first video of a tab pays this wait; the outcome is remembered.
+   */
+  const startSoundProbe = () => {
+    // Silence only means refusal when something asked the video to play.
+    // Without autoplay it means nobody has pressed play yet.
+    if (!autoPlay || bornMutedRef.current || probeTimerRef.current) {
+      return;
+    }
+
+    probeTimerRef.current = setTimeout(() => {
+      probeTimerRef.current = null;
+      tracePlayer("sound-probe:refused");
+      soundPreference.save("refused");
+      rebuildEmbed(true);
+    }, SOUND_PROBE_MS);
+  };
+
+  const settleProbeAsGranted = () => {
+    if (bornMutedRef.current) {
+      return;
+    }
+    const wasWaiting = probeTimerRef.current !== null;
+    stopProbe();
+    if (wasWaiting) {
+      tracePlayer("sound-probe:granted");
+      soundPreference.save("granted");
+    }
+  };
+
+  /**
+   * The viewer asking for sound. A command is enough when the frame was born
+   * unmuted and has already been allowed to make noise; when it was born muted
+   * only a new frame will do, and building it from inside their tap is what
+   * keeps the navigation privileged enough for WebKit to allow it.
+   */
+  const requestSound = () => {
+    soundPreference.save("granted");
+    stopProbe();
+
+    if (bornMutedRef.current) {
+      rebuildEmbed(false);
+      return;
+    }
+
+    setIsMuted(false);
+  };
+
+  /** The viewer muting on purpose, which outranks opening with sound. */
+  const silence = () => {
+    soundPreference.save("silenced");
+    stopProbe();
+    setIsMuted(true);
+  };
+
+  /**
+   * Puts the viewer back where they left this video, but never ahead of a play
+   * request.
+   *
+   * The order matters more than the timing. YouTube's `seekTo` starts a *cued*
+   * video, and vidstack's YouTube provider reads an embed that starts playing
+   * with no `playVideo` of its own outstanding as YouTube having gone rogue:
+   * it silently force-mutes, pauses the video a beat later, and skips the
+   * `playing` notification that would have told the player it had started —
+   * which is what used to leave the poster sitting over a playing video. The
+   * seek used to go out from `can-play`, and vidstack's autoplay only sends
+   * `playVideo` several awaits after that, so the resume was landing squarely
+   * inside that window. With a play request already in flight the same seek is
+   * unremarkable.
+   *
+   * Guarded by a ref because both callers can fire more than once — a stall
+   * that recovers re-fires `can-play`, and every unpause fires `play` — and a
+   * second seek would yank the viewer backwards.
+   *
+   * @param shouldRequestPlay Whether to put a play request in flight first.
+   * Only the `can-play` caller needs it: arriving by `play` means one is
+   * already outstanding. A video with nothing to resume asks for nothing
+   * either, so autoplay stays entirely vidstack's business as before.
+   */
+  const resumeWhereLeftOff = (shouldRequestPlay: boolean) => {
+    const player = playerRef.current;
+    if (!player || effectiveStartTime <= 0 || hasResumedRef.current) {
+      return;
+    }
+    hasResumedRef.current = true;
+    if (shouldRequestPlay) {
+      player.play().catch(() => {});
+    }
+    player.currentTime = effectiveStartTime;
+  };
 
   const seekBy = (offsetSeconds: number) => {
     const player = playerRef.current;
@@ -247,6 +465,20 @@ export function KidVideoPlayer({
       clearTimeout(hintTimerRef.current);
     }
     hintTimerRef.current = setTimeout(() => setSeekHint(null), SEEK_HINT_MS);
+  };
+
+  /**
+   * Whether the control bar was already up when the finger went down — which
+   * is not a thing the tap handler can ask afterwards. While the video plays,
+   * vidstack's own controls manager reveals the bar on the `touchend` of every
+   * tap, from a listener on the player element; that element sits inside the
+   * React root, so its listener runs before this component's handler up there,
+   * let alone before the single tap's deferred action 280ms later. By then
+   * `controls.showing` reads `true` for a bar that this very tap raised, and a
+   * tap meant to bring the controls back paused the video instead.
+   */
+  const rememberControlsState = () => {
+    wereControlsUpRef.current = playerRef.current?.controls.showing ?? false;
   };
 
   /**
@@ -281,9 +513,11 @@ export function KidVideoPlayer({
         player.play().catch(() => {});
         return;
       }
-      if (isTouch && !player.controls.showing) {
+      if (isTouch && !wereControlsUpRef.current) {
         // Touch has no hover, so a tap on a running video is the only way the
-        // bar comes back; pausing would cost the picture to get it.
+        // bar comes back; pausing would cost the picture to get it. Showing it
+        // again here is not redundant — vidstack raised it on `touchend` with
+        // its idle countdown already running, and this restarts that.
         player.controls.show();
         return;
       }
@@ -332,6 +566,7 @@ export function KidVideoPlayer({
       } ${
         isVirtualFullscreen ? styles.virtualFullscreen : ""
       } ${className}`.trim()}
+      key={embedKey}
       src={`youtube/${videoId}`}
       title={title}
       aria-label={labels.surface}
@@ -340,7 +575,7 @@ export function KidVideoPlayer({
       viewType="video"
       streamType="on-demand"
       autoPlay={autoPlay}
-      muted={startMuted}
+      muted={isMuted}
       playsInline
       load="eager"
       keyDisabled={isLocked}
@@ -349,16 +584,22 @@ export function KidVideoPlayer({
         preventOrphanedCommandPromises(provider);
       }}
       onCanPlay={() => {
-        // Resume where this video was left off. Guarded by a ref because the
-        // embed can report it can play more than once (a stall that recovers
-        // re-fires it), and a second seek would yank the viewer backwards.
-        const player = playerRef.current;
-        if (player && startTime > 0 && !hasResumedRef.current) {
-          hasResumedRef.current = true;
-          player.currentTime = startTime;
+        tracePlayer(`can-play:resume=${effectiveStartTime}:muted=${isMuted}`);
+        startSoundProbe();
+        // Without autoplay there is no play request to hide the seek behind
+        // and no reason to make one, so the resume waits for the viewer's own
+        // press — `onPlay` picks it up there.
+        if (autoPlay) {
+          resumeWhereLeftOff(true);
         }
       }}
-      onPlay={() => onPlayingChange?.(true)}
+      onPlay={() => {
+        // The embed accepted the play request, so whatever audio it was built
+        // with is audio this browser allows.
+        settleProbeAsGranted();
+        resumeWhereLeftOff(false);
+        onPlayingChange?.(true);
+      }}
       onPause={() => onPlayingChange?.(false)}
       onEnded={() => {
         if (isRepeatOnRef.current) {
@@ -372,7 +613,20 @@ export function KidVideoPlayer({
         onPlayingChange?.(false);
         onEnded?.();
       }}
-      onTimeUpdate={({ currentTime }) => onTimeUpdate?.(currentTime)}
+      onTimeUpdate={({ currentTime }) => {
+        // A step forward small enough to be playback rather than a jump. A
+        // seek lands anywhere, including backwards, and a paused embed repeats
+        // the same second — neither is a picture.
+        const previous = lastTimeRef.current;
+        lastTimeRef.current = currentTime;
+        const step = currentTime - previous;
+        if (previous >= 0 && step > 0 && step < 2 && !hasPicture) {
+          tracePlayer(`picture-at:${currentTime.toFixed(2)}`);
+          settleProbeAsGranted();
+          setPictureEmbedKey(embedKey);
+        }
+        onTimeUpdate?.(currentTime);
+      }}
       onDurationChange={(seconds) => {
         if (Number.isFinite(seconds) && seconds > 0) {
           onDurationChange?.(seconds);
@@ -386,7 +640,11 @@ export function KidVideoPlayer({
       onContextMenu={(event) => event.preventDefault()}
     >
       <MediaProvider />
-      <Poster className={styles.poster} src={posterUrl} alt="" />
+      <Poster
+        className={`${styles.poster} ${hasPicture ? styles.posterGone : ""}`.trim()}
+        src={posterUrl}
+        alt=""
+      />
       {/*
        * Covers the embed so no click ever reaches YouTube's own surface, and
        * doubles as the tap target: anywhere on the picture starts or stops
@@ -398,6 +656,7 @@ export function KidVideoPlayer({
       <div
         className={styles.shield}
         aria-hidden="true"
+        onPointerDown={rememberControlsState}
         onPointerUp={handleSurfaceTap}
       />
       {seekHint ? (
@@ -418,6 +677,8 @@ export function KidVideoPlayer({
         <PlayerControlBar
           isRepeatOn={isRepeatOn}
           labels={labels}
+          onRequestSound={requestSound}
+          onSilence={silence}
           controlsStartSlot={controlsStartSlot}
           controlsEndSlot={controlsEndSlot}
           onToggleRepeat={toggleRepeat}
@@ -431,7 +692,9 @@ export function KidVideoPlayer({
           previousVideoPreview={previousVideoPreview}
         />
       )}
-      {isLocked ? null : <UnmuteButton label={labels.unmute} />}
+      {isLocked ? null : (
+        <UnmuteButton label={labels.unmute} onRequestSound={requestSound} />
+      )}
       <button
         type="button"
         className={`${styles.lockButton} ${styles.tooltipStart} ${
@@ -461,6 +724,8 @@ function PlayerControlBar({
   onToggleRepeat,
   onNextVideo,
   onPreviousVideo,
+  onRequestSound,
+  onSilence,
   nextVideoPreview,
   previousVideoPreview,
   isVirtualFullscreen,
@@ -468,6 +733,9 @@ function PlayerControlBar({
 }: {
   isRepeatOn: boolean;
   labels: KidVideoPlayerLabels;
+  /** Asks for sound the way this embed allows — see `requestSound`. */
+  onRequestSound: () => void;
+  onSilence: () => void;
   controlsStartSlot?: ReactNode;
   controlsEndSlot?: ReactNode;
   onToggleRepeat: () => void;
@@ -579,13 +847,21 @@ function PlayerControlBar({
         >
           +15
         </SeekButton>
-        <MuteButton
+        {/*
+         * Not vidstack's MuteButton: its unmute is a `unMute` postMessage,
+         * which WebKit drops on the floor when the frame was built muted. This
+         * routes through the player's own handler, which knows when sound
+         * costs a rebuild instead.
+         */}
+        <button
+          type="button"
           className={styles.controlButton}
           aria-label={isMuted ? labels.unmute : labels.mute}
           data-tooltip={isMuted ? labels.unmute : labels.mute}
+          onClick={() => (isMuted ? onRequestSound() : onSilence())}
         >
           {isMuted ? <VolumeX size={20} /> : <Volume2 size={20} />}
-        </MuteButton>
+        </button>
         <VolumeSlider.Root
           className={`${styles.slider} ${styles.volumeSlider} ${styles.wideOnly}`}
         >
@@ -652,9 +928,14 @@ function PlayerControlBar({
  * silence is the control bar's mute button's job, so this stays a single
  * unambiguous "I want sound" target rather than a toggle a child can flip.
  */
-function UnmuteButton({ label }: { label: string }) {
+function UnmuteButton({
+  label,
+  onRequestSound,
+}: {
+  label: string;
+  onRequestSound: () => void;
+}) {
   const isMuted = useMediaState("muted");
-  const remote = useMediaRemote();
 
   if (!isMuted) {
     return null;
@@ -667,7 +948,7 @@ function UnmuteButton({ label }: { label: string }) {
       aria-label={label}
       data-tooltip={label}
       onPointerUp={(event) => event.stopPropagation()}
-      onClick={(event) => remote.unmute(event.nativeEvent)}
+      onClick={onRequestSound}
     >
       <VolumeX size={26} />
     </button>
