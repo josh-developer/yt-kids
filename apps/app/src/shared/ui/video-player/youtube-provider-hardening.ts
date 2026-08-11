@@ -1,6 +1,26 @@
 import { isYouTubeProvider } from "@vidstack/react";
 
 /**
+ * Debug tap on the embed conversation. Everything the player says to the
+ * YouTube frame, and anything the component wants to mark alongside it, lands
+ * here in order with a timestamp — which is how the poster bug was pinned to
+ * `seekTo` going out ahead of `playVideo`.
+ *
+ * Read it from the console as `document.documentElement.dataset.trace`, or
+ * watch the `[player]` lines go by. The DOM copy exists because it survives
+ * being read from an extension or another JS world, where page globals do not.
+ */
+export function tracePlayer(entry: string) {
+  if (process.env.NODE_ENV === "production") {
+    return;
+  }
+  const stamp = `${entry}@${Math.round(performance.now())}`;
+  console.log("[player]", stamp);
+  document.documentElement.dataset.trace =
+    `${document.documentElement.dataset.trace ?? ""}|${stamp}`;
+}
+
+/**
  * Locks down the embed iframe the moment Vidstack creates its YouTube
  * provider, before any `src` is assigned. Vidstack's own params already ship
  * `controls=0`, `disablekb=1`, `rel=0`, `iv_load_policy=3` on the
@@ -49,6 +69,15 @@ export function preventOrphanedCommandPromises(provider: unknown) {
   if (!isYouTubeProvider(provider)) {
     return;
   }
+
+  // Every command the player sends, ours and vidstack's own, goes past the
+  // trace on its way out — the order they leave in is what most embed puzzles
+  // turn out to be about.
+  const rawPostMessage = provider.postMessage.bind(provider);
+  provider.postMessage = (message) => {
+    tracePlayer(`out:${JSON.stringify(message)}`);
+    return rawPostMessage(message);
+  };
 
   const command = (func: string, args?: Array<boolean | number>) => {
     provider.postMessage({ event: "command", func, args });

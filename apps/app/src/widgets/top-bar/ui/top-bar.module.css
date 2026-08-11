@@ -126,8 +126,18 @@
     grid-template-columns: 1fr auto;
   }
 
-  :global([data-view="watch"]) .topSearchSlot {
-    display: none;
+  /*
+  * Below this the watch sheet covers the screen edge to edge, with the video
+  * pinned to its top (see `.playerBox` in `kid-video-player.module.css`) —
+  * there is no room left for the bar, and dismissing the sheet is a swipe
+  * instead. Above this breakpoint the sheet leaves the bar's own height clear
+  * (see `.sheet` in `watch-sheet.module.css`) precisely so the bar can stay
+  * put: a mouse has no swipe gesture to fall back on.
+  */
+  :global([data-view="watch"]) .topbar {
+    position: static;
+    transform: none;
+    transition: none;
   }
 
   .topSearchSlot {

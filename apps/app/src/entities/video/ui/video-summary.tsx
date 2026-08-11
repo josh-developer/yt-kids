@@ -8,7 +8,7 @@ export function VideoSummary({ video }: { video: Video }) {
   const labels = useVideoLabels();
 
   return (
-    <span>
+    <span className={styles.videoSummary}>
       <span className={styles.videoTitle}>{labels.title(video)}</span>
       <span className={`${primitives.muted} ${styles.videoSubline}`}>{labels.channel(video)}</span>
       <span className={`${primitives.muted} ${styles.videoSubline}`}>{labels.views(video)}</span>

@@ -52,7 +52,7 @@ export function WatchPage({
 
   return (
     <div className={styles.watchLayout}>
-      <article>
+      <article className={styles.videoColumn}>
         <KidVideoPlayer
           videoId={video.videoId}
           title={labels.title(video)}
