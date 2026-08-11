@@ -91,12 +91,20 @@ test("series recommendations keep episode order before shuffled videos", async (
     removedIds: [],
   });
 
-  const groups = library.recommendationGroupsFor(videos[1], 123);
+  const secondEpisodeGroups = library.recommendationGroupsFor(videos[1], 123);
 
-  assert.equal(groups[0].key, "series");
-  assert.deepEqual(ids(groups[0]).slice(0, 3), [
+  assert.equal(secondEpisodeGroups[0].key, "series");
+  assert.deepEqual(ids(secondEpisodeGroups[0]).slice(0, 3), [
     "uzbek-old-3",
     "uzbek-old-4",
     "uzbek-old-1",
+  ]);
+
+  const thirdEpisodeGroups = library.recommendationGroupsFor(videos[2], 123);
+  assert.equal(thirdEpisodeGroups[0].key, "series");
+  assert.deepEqual(ids(thirdEpisodeGroups[0]).slice(0, 3), [
+    "uzbek-old-4",
+    "uzbek-old-1",
+    "uzbek-old-2",
   ]);
 });

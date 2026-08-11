@@ -81,11 +81,12 @@ test("redirects locale-less URLs to a negotiated locale", async () => {
 });
 
 test("keeps the feature-sliced layout intact", async () => {
-  const [shell, layout, page, player, urls, css, packageJson] =
+  const [shell, layout, page, watchPage, player, urls, css, packageJson] =
     await Promise.all([
       readFile(new URL("../app/_shell/kids-tube-app.tsx", import.meta.url), "utf8"),
       readFile(new URL("../app/[locale]/layout.tsx", import.meta.url), "utf8"),
       readFile(new URL("../app/[locale]/page.tsx", import.meta.url), "utf8"),
+      readFile(new URL("../src/pages/watch/ui/watch-page.tsx", import.meta.url), "utf8"),
       readFile(
         new URL(
           "../src/widgets/player/ui/safe-youtube-player.tsx",
@@ -114,6 +115,8 @@ test("keeps the feature-sliced layout intact", async () => {
   assert.match(shell, /@\/pages\/home/);
   assert.match(shell, /@\/entities\/library/);
   assert.match(shell, /function goHome\(\)[\s\S]*setHomeQuery\(""\)/);
+  assert.match(shell, /function openPreviousVideo\(\)[\s\S]*refreshRecommendations\(\)/);
+  assert.match(watchPage, /<Recommendations[\s\S]*key=\{recommendationKey\}/);
   assert.doesNotMatch(shell, /localStorage/);
 
   // Player hardening must survive the split into hooks and sub-components.

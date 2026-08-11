@@ -61,7 +61,7 @@ export function KidsTubeApp({
     locale: useLocale(),
     onExternalRoute: (next) => {
       if (next.view === "watch") {
-        setRecommendationSeed(randomSalt());
+        refreshRecommendations();
         setWatchStack((stack) => stack.moveTo(next.videoId));
       }
       if (next.view === "home") {
@@ -116,6 +116,9 @@ export function KidsTubeApp({
   const recommendationGroups = currentVideo
     ? library.recommendationGroupsFor(currentVideo, recommendationSeed)
     : [];
+  const recommendationKey = currentVideo
+    ? `${currentVideo.id}:${recommendationSeed}`
+    : "none";
   // The next button walks one stable ring over the whole library — seeded once
   // per session, not re-picked per video — so it plays every approved video
   // before coming back to any of them.
@@ -148,9 +151,14 @@ export function KidsTubeApp({
       : tMetadata("home");
   }, [currentVideo, homeQuery, labels, route.view, tMetadata, tSettings, tWatch]);
 
+  function refreshRecommendations() {
+    // A counter avoids same-millisecond taps getting the same `Date.now()` salt.
+    setRecommendationSeed((seed) => (seed + 7919) % 233280);
+  }
+
   function openVideo(video: Video) {
     prefetchVideo(video.videoId);
-    setRecommendationSeed(randomSalt());
+    refreshRecommendations();
     setWatchStack((stack) => stack.push(video.id));
     navigate({ view: "watch", videoId: video.id });
   }
@@ -161,6 +169,7 @@ export function KidsTubeApp({
     }
 
     setWatchStack((stack) => stack.moveToIndex(previousEntry.index));
+    refreshRecommendations();
     navigate({ view: "watch", videoId: previousEntry.video.id });
   }
 
@@ -235,6 +244,7 @@ export function KidsTubeApp({
             nextVideo={nextVideo}
             previousVideo={previousEntry?.video ?? null}
             recommendationGroups={recommendationGroups}
+            recommendationKey={recommendationKey}
             showRecommendations={recommendationsPreference.isEnabled}
             video={currentVideo}
             onDurationResolved={(video, seconds) =>
