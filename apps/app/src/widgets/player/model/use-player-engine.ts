@@ -22,6 +22,8 @@ const TELEMETRY_ATTEMPTS = 12;
 const PLAY_RETRY_MS = 350;
 /** How many times a still-unstarted embed is asked to play once it answers. */
 const AUTO_START_ATTEMPTS = 4;
+/** A first iframe can ignore `playVideo`; `loadVideoById` is the stronger nudge. */
+const LOAD_KICK_ATTEMPTS = 1;
 const END_TOLERANCE_SECONDS = 0.25;
 
 /** What went wrong, in the two flavours the viewer can act on. */
@@ -129,6 +131,7 @@ export function usePlayerEngine({
   // Cleared by a deliberate pause so retries never fight the viewer.
   const wantsPlaybackRef = useRef(true);
   const autoStartAttemptsRef = useRef(0);
+  const loadKickAttemptsRef = useRef(0);
   const videoRef = useRef(video);
   const callbacks = useRef({
     onDurationResolved,
@@ -210,6 +213,7 @@ export function usePlayerEngine({
     hasConfirmedPlayingRef.current = false;
     wantsPlaybackRef.current = true;
     autoStartAttemptsRef.current = 0;
+    loadKickAttemptsRef.current = 0;
     isRestartingRef.current = false;
     timers.current.clearAll();
     timers.current.timeout(
@@ -367,7 +371,7 @@ export function usePlayerEngine({
 
       if (telemetry.playerState === PLAYER_STATE.paused) {
         if (!hasConfirmedPlayingRef.current) {
-          revealManualPlay();
+          kickStartPlayback();
           return;
         }
 
@@ -386,12 +390,9 @@ export function usePlayerEngine({
       ) {
         if (autoStartAttemptsRef.current < AUTO_START_ATTEMPTS) {
           autoStartAttemptsRef.current += 1;
-          if (isMutedRef.current || volumeRef.current === 0) {
-            player.mute();
-          } else {
-            player.unMute();
-          }
-          player.play();
+          sendPlay({
+            includeLoadKick: loadKickAttemptsRef.current < LOAD_KICK_ATTEMPTS,
+          });
           return;
         }
 
@@ -403,6 +404,8 @@ export function usePlayerEngine({
 
     window.addEventListener("message", handleMessage);
     return () => window.removeEventListener("message", handleMessage);
+    // The listener reads live refs; helper identities would only resubscribe it.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [clock, iframeRef, player]);
 
   // Between telemetry packets, advance the clock ourselves so the progress bar
@@ -469,25 +472,40 @@ export function usePlayerEngine({
   }
 
   /** Sends the current play intent plus the current audio intent to YouTube. */
-  function sendPlay() {
+  function sendPlay({ includeLoadKick = false } = {}) {
     primeTelemetry();
     // Real on every other browser; a no-op on iOS, where `volume` is read-only
     // and loudness belongs to the hardware buttons.
     player.setVolume(volumeRef.current);
-    player.play();
 
     if (isMutedRef.current || volumeRef.current === 0) {
       player.mute();
+    } else {
+      player.unMute();
+    }
+
+    if (includeLoadKick && loadKickAttemptsRef.current < LOAD_KICK_ATTEMPTS) {
+      loadKickAttemptsRef.current += 1;
+      player.loadVideoById(videoRef.current.videoId, clock.get());
       return;
     }
 
-    player.unMute();
+    player.play();
   }
 
   /** Autoplay is racy right after load, so the play command is sent twice. */
   function schedulePlay() {
     sendPlay();
     timers.current.timeout("play", sendPlay, PLAY_RETRY_MS);
+  }
+
+  function kickStartPlayback() {
+    sendPlay({ includeLoadKick: true });
+    timers.current.timeout(
+      "play",
+      () => sendPlay({ includeLoadKick: true }),
+      PLAY_RETRY_MS,
+    );
   }
 
   /**
@@ -528,6 +546,7 @@ export function usePlayerEngine({
     } else {
       player.unMute();
     }
+    loadKickAttemptsRef.current = LOAD_KICK_ATTEMPTS;
     player.loadVideoById(targetVideo.videoId, startSeconds);
     bootEmbed();
   }
@@ -548,7 +567,12 @@ export function usePlayerEngine({
     wantsPlaybackRef.current = true;
     autoStartAttemptsRef.current = 0;
     setIsPlaying(true);
-    schedulePlay();
+    if (hasConfirmedPlayingRef.current) {
+      schedulePlay();
+      return;
+    }
+
+    kickStartPlayback();
   }
 
   /** Lifts mute without rebuilding the iframe that has already buffered video. */
