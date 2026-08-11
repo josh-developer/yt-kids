@@ -3673,5 +3673,515 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     sourceLabel: "playlist",
     accent: "#0b8043",
     source: "catalog"
+  },
+  {
+    id: "uzbek-old-371",
+    videoId: "PErS2m9d7KM",
+    title: "«Fiksiklar» Фиксики, 2-fasl 1-qism",
+    channel: "Fiksiklar",
+    duration: "6:09",
+    sourceLabel: "playlist",
+    accent: "#1a73e8",
+    source: "catalog"
+  },
+  {
+    id: "uzbek-old-372",
+    videoId: "KTA8zXFWz8Y",
+    title: "«Fiksiklar» Фиксики, 2-fasl 2-qism",
+    channel: "Fiksiklar",
+    duration: "6:00",
+    sourceLabel: "playlist",
+    accent: "#f9ab00",
+    source: "catalog"
+  },
+  {
+    id: "uzbek-old-373",
+    videoId: "_c_NVsNrWo0",
+    title: "«Fiksiklar» Фиксики, bolalar uchun, 2-fasl 3-qism",
+    channel: "Fiksiklar",
+    duration: "6:02",
+    sourceLabel: "playlist",
+    accent: "#8e24aa",
+    source: "catalog"
+  },
+  {
+    id: "uzbek-old-374",
+    videoId: "CbJXBspndnw",
+    title: "«Fiksiklar» Фиксики, 2-fasl 4-qism",
+    channel: "Fiksiklar",
+    duration: "5:59",
+    sourceLabel: "playlist",
+    accent: "#00897b",
+    source: "catalog"
+  },
+  {
+    id: "uzbek-old-375",
+    videoId: "vRZwgmplPFQ",
+    title: "«Fiksiklar» Фиксики, 2-fasl 5-qism",
+    channel: "Fiksiklar",
+    duration: "6:01",
+    sourceLabel: "playlist",
+    accent: "#e8710a",
+    source: "catalog"
+  },
+  {
+    id: "uzbek-old-376",
+    videoId: "jAufVJdB5z4",
+    title: "«Fiksiklar» Фиксики, 2-fasl 6-qism",
+    channel: "Fiksiklar",
+    duration: "5:58",
+    sourceLabel: "playlist",
+    accent: "#5f6368",
+    source: "catalog"
+  },
+  {
+    id: "uzbek-old-377",
+    videoId: "iMaLDHxQkK8",
+    title: "«Fiksiklar» Фиксики, 2-fasl 7-qism",
+    channel: "Fiksiklar",
+    duration: "6:05",
+    sourceLabel: "playlist",
+    accent: "#d93025",
+    source: "catalog"
+  },
+  {
+    id: "uzbek-old-378",
+    videoId: "Zxo_lVAovKw",
+    title: "«Fiksiklar» Фиксики, 2-fasl 8-qism",
+    channel: "Fiksiklar",
+    duration: "6:03",
+    sourceLabel: "playlist",
+    accent: "#0b8043",
+    source: "catalog"
+  },
+  {
+    id: "uzbek-old-379",
+    videoId: "8qGq1PfWsmA",
+    title: "«Fiksiklar» Фиксики 2-fasl 9-qism",
+    channel: "Fiksiklar",
+    duration: "6:04",
+    sourceLabel: "playlist",
+    accent: "#1a73e8",
+    source: "catalog"
+  },
+  {
+    id: "uzbek-old-380",
+    videoId: "LICHrwDoSpQ",
+    title: "«Fiksiklar» Фиксики 2-fasl 10-qism",
+    channel: "Fiksiklar",
+    duration: "6:00",
+    sourceLabel: "playlist",
+    accent: "#f9ab00",
+    source: "catalog"
+  },
+  {
+    id: "uzbek-old-381",
+    videoId: "H83Yt9M6zoQ",
+    title: "«Fiksiklar» Фиксики 2-fasl 11-qism",
+    channel: "Fiksiklar",
+    duration: "6:05",
+    sourceLabel: "playlist",
+    accent: "#8e24aa",
+    source: "catalog"
+  },
+  {
+    id: "uzbek-old-382",
+    videoId: "RjDkIH3MYX8",
+    title: "«Fiksiklar» Фиксики 2-fasl 12-qism",
+    channel: "Fiksiklar",
+    duration: "6:01",
+    sourceLabel: "playlist",
+    accent: "#00897b",
+    source: "catalog"
+  },
+  {
+    id: "uzbek-old-383",
+    videoId: "SYHLEc-kHjk",
+    title: "«Fiksiklar» Фиксики 2-fasl 13-qism...",
+    channel: "Fiksiklar",
+    duration: "6:04",
+    sourceLabel: "playlist",
+    accent: "#e8710a",
+    source: "catalog"
+  },
+  {
+    id: "uzbek-old-384",
+    videoId: "2zX_qzvHlC0",
+    title: "«Fiksiklar» Фиксики 2-fasl 14-qism......",
+    channel: "Fiksiklar",
+    duration: "6:00",
+    sourceLabel: "playlist",
+    accent: "#5f6368",
+    source: "catalog"
+  },
+  {
+    id: "uzbek-old-385",
+    videoId: "TdMZvbp5qKo",
+    title: "«Fiksiklar» Фиксики 2-fasl 15-qism",
+    channel: "Fiksiklar",
+    duration: "6:02",
+    sourceLabel: "playlist",
+    accent: "#d93025",
+    source: "catalog"
+  },
+  {
+    id: "uzbek-old-386",
+    videoId: "KElkkyiyFUY",
+    title: "«Fiksiklar» Фиксики 2-fasl 16-qism",
+    channel: "Fiksiklar",
+    duration: "5:59",
+    sourceLabel: "playlist",
+    accent: "#0b8043",
+    source: "catalog"
+  },
+  {
+    id: "uzbek-old-387",
+    videoId: "Ht3lnCJsiYc",
+    title: "«Fiksiklar» Фиксики 2-fasl 17-qism...",
+    channel: "Fiksiklar",
+    duration: "6:00",
+    sourceLabel: "playlist",
+    accent: "#1a73e8",
+    source: "catalog"
+  },
+  {
+    id: "uzbek-old-388",
+    videoId: "-DU1NhGcHKE",
+    title: "«Fiksiklar» Фиксики 2-fasl 18-qism ...",
+    channel: "Fiksiklar",
+    duration: "5:58",
+    sourceLabel: "playlist",
+    accent: "#f9ab00",
+    source: "catalog"
+  },
+  {
+    id: "uzbek-old-389",
+    videoId: "Z7vU3NwUT6Y",
+    title: "«Fiksiklar» Фиксики 2-fasl 19-qism",
+    channel: "Fiksiklar",
+    duration: "5:59",
+    sourceLabel: "playlist",
+    accent: "#8e24aa",
+    source: "catalog"
+  },
+  {
+    id: "uzbek-old-390",
+    videoId: "31DfnxFy_W8",
+    title: "«Fiksiklar» Фиксики 2-fasl 20-qism",
+    channel: "Fiksiklar",
+    duration: "5:59",
+    sourceLabel: "playlist",
+    accent: "#00897b",
+    source: "catalog"
+  },
+  {
+    id: "uzbek-old-391",
+    videoId: "SdaMTS0dtac",
+    title: "«Fiksiklar» Фиксики, 2-fasl 21-qism.....",
+    channel: "Fiksiklar",
+    duration: "6:02",
+    sourceLabel: "playlist",
+    accent: "#e8710a",
+    source: "catalog"
+  },
+  {
+    id: "uzbek-old-392",
+    videoId: "_H-3ZJhjhN0",
+    title: "«Fiksiklar» Фиксики 2-fasl 22-qism.....",
+    channel: "Fiksiklar",
+    duration: "6:00",
+    sourceLabel: "playlist",
+    accent: "#5f6368",
+    source: "catalog"
+  },
+  {
+    id: "uzbek-old-393",
+    videoId: "wiKo7v4d270",
+    title: "«Fiksiklar» Фиксики 2-fasl 23-qism...",
+    channel: "Fiksiklar",
+    duration: "6:01",
+    sourceLabel: "playlist",
+    accent: "#d93025",
+    source: "catalog"
+  },
+  {
+    id: "uzbek-old-394",
+    videoId: "MeDye2jrhNc",
+    title: "«Fiksiklar» Фиксики 2-fasl 24-qism...",
+    channel: "Fiksiklar",
+    duration: "6:01",
+    sourceLabel: "playlist",
+    accent: "#0b8043",
+    source: "catalog"
+  },
+  {
+    id: "uzbek-old-395",
+    videoId: "MapnVPKN9qU",
+    title: "«Fiksiklar» Фиксики 2-fasl 25-qism...",
+    channel: "Fiksiklar",
+    duration: "6:00",
+    sourceLabel: "playlist",
+    accent: "#1a73e8",
+    source: "catalog"
+  },
+  {
+    id: "uzbek-old-396",
+    videoId: "LxfVcEK3j60",
+    title: "«Fiksiklar» Фиксики 2-fasl 26-qism...",
+    channel: "Fiksiklar",
+    duration: "6:03",
+    sourceLabel: "playlist",
+    accent: "#f9ab00",
+    source: "catalog"
+  },
+  {
+    id: "uzbek-old-397",
+    videoId: "F5gDudO73ls",
+    title: "«Fiksiklar» Фиксики 2-fasl 27-qism...",
+    channel: "Fiksiklar",
+    duration: "6:00",
+    sourceLabel: "playlist",
+    accent: "#8e24aa",
+    source: "catalog"
+  },
+  {
+    id: "uzbek-old-398",
+    videoId: "Pt3U8eDZpGo",
+    title: "«Fiksiklar» Фиксики 2-fasl 28-qism...",
+    channel: "Fiksiklar",
+    duration: "6:01",
+    sourceLabel: "playlist",
+    accent: "#00897b",
+    source: "catalog"
+  },
+  {
+    id: "uzbek-old-399",
+    videoId: "kJC62go3VHM",
+    title: "«Fiksiklar» Фиксики 2-fasl 29-qism",
+    channel: "Fiksiklar",
+    duration: "5:58",
+    sourceLabel: "playlist",
+    accent: "#e8710a",
+    source: "catalog"
+  },
+  {
+    id: "uzbek-old-400",
+    videoId: "czhVl9HWNko",
+    title: "«Fiksiklar» Фиксики 2-fasl 30-qism",
+    channel: "Fiksiklar",
+    duration: "6:02",
+    sourceLabel: "playlist",
+    accent: "#5f6368",
+    source: "catalog"
+  },
+  {
+    id: "uzbek-old-401",
+    videoId: "SkYwG_BXRmw",
+    title: "Fiksiklar Barcha qismlar uzbek tilida multfilm",
+    channel: "MBolajon",
+    duration: "56:52",
+    sourceLabel: "playlist",
+    accent: "#d93025",
+    source: "catalog"
+  },
+  {
+    id: "uzbek-old-402",
+    videoId: "0uVXSF3XOCk",
+    title: "Fiksiklar Barcha qismlar uzbek tilida multfilm",
+    channel: "MBolajon",
+    duration: "25:48",
+    sourceLabel: "playlist",
+    accent: "#0b8043",
+    source: "catalog"
+  },
+  {
+    id: "uzbek-old-403",
+    videoId: "bzuxqunmjQE",
+    title: "Fiksiklar uzbek tilida barcha qismlar Aqlvoy",
+    channel: "MBolajon",
+    duration: "32:00",
+    sourceLabel: "playlist",
+    accent: "#1a73e8",
+    source: "catalog"
+  },
+  {
+    id: "uzbek-old-404",
+    videoId: "RaFrhE_p__o",
+    title: "Fiksiklar uzbek tilida barcha qismlar Aqlvoy",
+    channel: "MBolajon",
+    duration: "28:28",
+    sourceLabel: "playlist",
+    accent: "#f9ab00",
+    source: "catalog"
+  },
+  {
+    id: "uzbek-old-405",
+    videoId: "0-BIsUYRgDE",
+    title: "Fiksiklar uzbek tilida barcha qismlar Aqlvoy (ФИКСИКИ НА УЗБЕКСКОМ)/Фиксики смотреть - ПЕРЕЗАЛИВ",
+    channel: "Пробую Гайды Из Интернета",
+    duration: "32:00",
+    sourceLabel: "playlist",
+    accent: "#8e24aa",
+    source: "catalog"
+  },
+  {
+    id: "uzbek-old-406",
+    videoId: "eq_G_4po8mo",
+    title: "Fiksiklar Barcha qismlar uzbek tilida  - ФИКСИКИ ВСЕ серии смотреть (ПЕРЕЗАЛИВ) ЧАСТЬ 2",
+    channel: "Пробую Гайды Из Интернета",
+    duration: "25:48",
+    sourceLabel: "playlist",
+    accent: "#00897b",
+    source: "catalog"
+  },
+  {
+    id: "uzbek-old-407",
+    videoId: "HcLyqpb1h34",
+    title: "Baraban",
+    channel: "Fiksiklar multfilm uzbek tilida Aqlvoy",
+    duration: "5:58",
+    sourceLabel: "playlist",
+    accent: "#e8710a",
+    source: "catalog"
+  },
+  {
+    id: "uzbek-old-408",
+    videoId: "lFP8TFvqqiA",
+    title: "Grammofon",
+    channel: "Fiksiklar multfilm uzbek tilida Aqlvoy",
+    duration: "5:46",
+    sourceLabel: "playlist",
+    accent: "#5f6368",
+    source: "catalog"
+  },
+  {
+    id: "uzbek-old-409",
+    videoId: "NiuS2TRczNA",
+    title: "FIKSIKLAR | MURVATCHALAR yangi qismlari Oʻzbek tilida",
+    channel: "SHOX Music",
+    duration: "0:46",
+    sourceLabel: "playlist",
+    accent: "#d93025",
+    source: "catalog"
+  },
+  {
+    id: "uzbek-old-410",
+    videoId: "4zSTb2mYtb8",
+    title: "Fiksiklar Barcha qismlar uzbek tilida  - ФИКСИКИ ВСЕ серии смотреть (ПЕРЕЗАЛИВ)",
+    channel: "Пробую Гайды Из Интернета",
+    duration: "56:53",
+    sourceLabel: "playlist",
+    accent: "#0b8043",
+    source: "catalog"
+  },
+  {
+    id: "uzbek-old-411",
+    videoId: "RouMQ6IE_lE",
+    title: "FIKSIKLAR O'ZBEK TILIDA   BARCHA QISMLAR   MURVATCHALAR   MULTFILM #cartoon #baby #movie",
+    channel: "FascinaZone",
+    duration: "25:48",
+    sourceLabel: "playlist",
+    accent: "#1a73e8",
+    source: "catalog"
+  },
+  {
+    id: "uzbek-old-412",
+    videoId: "mJF3zezQToU",
+    title: "Fiksiklar Barcha qismlar o'zbek tilida multfilm",
+    channel: "FascinaZone",
+    duration: "1:00:01",
+    sourceLabel: "playlist",
+    accent: "#f9ab00",
+    source: "catalog"
+  },
+  {
+    id: "uzbek-old-413",
+    videoId: "C4zDFKAu3x4",
+    title: "Fiksiklar.:. BUDILNIK",
+    channel: "Multififilmlar",
+    duration: "2:53",
+    sourceLabel: "playlist",
+    accent: "#8e24aa",
+    source: "catalog"
+  },
+  {
+    id: "uzbek-old-414",
+    videoId: "JLTqsMoK-no",
+    title: "Fiksiklar ......UZUK",
+    channel: "Multififilmlar",
+    duration: "2:45",
+    sourceLabel: "playlist",
+    accent: "#00897b",
+    source: "catalog"
+  },
+  {
+    id: "uzbek-old-415",
+    videoId: "p7FduzvHVEo",
+    title: "Fiksiklar,,, Changyutkich",
+    channel: "Multififilmlar",
+    duration: "4:23",
+    sourceLabel: "playlist",
+    accent: "#e8710a",
+    source: "catalog"
+  },
+  {
+    id: "uzbek-old-416",
+    videoId: "HK9GPpc4B2c",
+    title: "Фиксики - Заставка на узбекском (все версии)",
+    channel: "Vik_rblx",
+    duration: "4:15",
+    sourceLabel: "playlist",
+    accent: "#5f6368",
+    source: "catalog"
+  },
+  {
+    id: "uzbek-old-417",
+    videoId: "_M7hRbIigrA",
+    title: "Fiksiklar Detektor",
+    channel: "O'zbekcha Multfilmlar",
+    duration: "5:53",
+    sourceLabel: "playlist",
+    accent: "#d93025",
+    source: "catalog"
+  },
+  {
+    id: "uzbek-old-418",
+    videoId: "fyG5o1-x_uM",
+    title: "Fiksiklar uzbek tilida 4 qism budilnik",
+    channel: "UzbekmultfilmHD",
+    duration: "5:58",
+    sourceLabel: "playlist",
+    accent: "#0b8043",
+    source: "catalog"
+  },
+  {
+    id: "uzbek-old-419",
+    videoId: "wzQ4C0mqRfc",
+    title: "Fiksiklar 3 qism Ruchka uzbek tilida",
+    channel: "UzbekmultfilmHD",
+    duration: "5:21",
+    sourceLabel: "playlist",
+    accent: "#1a73e8",
+    source: "catalog"
+  },
+  {
+    id: "uzbek-old-420",
+    videoId: "IrMw8b-yOgo",
+    title: "Fiksiklar 2 qism uzbek tilida  Aqlvoy dublajida",
+    channel: "UzbekmultfilmHD",
+    duration: "5:51",
+    sourceLabel: "playlist",
+    accent: "#f9ab00",
+    source: "catalog"
+  },
+  {
+    id: "uzbek-old-421",
+    videoId: "7A5ljuiq2k0",
+    title: "Fiksiklar 1qism uzbek tilida aqlvoy dublajida",
+    channel: "UzbekmultfilmHD",
+    duration: "5:54",
+    sourceLabel: "playlist",
+    accent: "#8e24aa",
+    source: "catalog"
   }
 ];
