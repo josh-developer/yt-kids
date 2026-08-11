@@ -52,9 +52,8 @@
     "openSettings": "Open settings",
     "recommendationsTitle": "Recommendations",
     "showRecommendations": "Show recommendations",
-    "seriesTitle": "Next in this series",
-    "similarTitle": "Similar videos",
-    "moreTitle": "More videos"
+    "seriesTitle": "In this series",
+    "recommendedTitle": "Recommended"
   },
   "Player": {
     "play": "Play video",
@@ -86,8 +85,7 @@
     "upNext": "Up next",
     "replay": "Watch again",
     "cancelAutoplay": "Next",
-    "showCaptions": "Show captions",
-    "hideCaptions": "Hide captions"
+    "quality": "Video quality"
   },
   "Settings": {
     "title": "Parent settings",

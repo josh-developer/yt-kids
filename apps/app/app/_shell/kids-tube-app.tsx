@@ -12,11 +12,15 @@ import { WatchStack } from "@/entities/watch-history";
 import { useLocaleSwitch } from "@/features/locale-switch";
 import { useRecommendationsPreference } from "@/features/recommendations-toggle";
 import { useTheme } from "@/features/theme-toggle";
+import { prefetchVideo } from "@/shared/api/youtube";
 import { HomePage } from "@/pages/home";
 import { SettingsPage } from "@/pages/settings";
 import { WatchLoading, WatchPage, WatchUnavailable } from "@/pages/watch";
 import { TopBar, useTopbarAutoHide } from "@/widgets/top-bar";
+import { WatchSheet } from "@/widgets/watch-sheet";
 import styles from "./kids-tube-app.module.css";
+
+type WatchRoute = Extract<AppRoute, { view: "watch" }>;
 
 function randomSalt() {
   return Date.now() % 233280;
@@ -80,8 +84,27 @@ export function KidsTubeApp({
     return () => window.cancelAnimationFrame(frame);
   }, []);
 
-  const currentVideo =
-    route.view === "watch" ? library.find(route.videoId) : null;
+  // The watch sheet keeps showing its last video while it slides shut, which
+  // by then the route has already left "watch" — so these two are read off
+  // the last route that had that shape, not off `route` directly. Setting
+  // state directly in the render body (guarded so it only fires the render
+  // `route` actually changes shape) keeps this a same-render derivation
+  // instead of a one-frame-stale one from an effect.
+  const [watchRoute, setWatchRoute] = useState<WatchRoute | null>(
+    initialRoute.view === "watch" ? initialRoute : null,
+  );
+  if (route.view === "watch" && route !== watchRoute) {
+    setWatchRoute(route);
+  }
+
+  const [backgroundView, setBackgroundView] = useState<"home" | "settings">(
+    initialRoute.view === "settings" ? "settings" : "home",
+  );
+  if (route.view !== "watch" && route.view !== backgroundView) {
+    setBackgroundView(route.view);
+  }
+
+  const currentVideo = watchRoute ? library.find(watchRoute.videoId) : null;
   const currentVideoId = currentVideo?.id ?? null;
   const lookup = useMemo(
     () => (id: string) => library.find(id),
@@ -138,6 +161,7 @@ export function KidsTubeApp({
   }, [currentVideo, homeQuery, labels, route.view, tMetadata, tSettings, tWatch]);
 
   function openVideo(video: Video) {
+    prefetchVideo(video.videoId);
     setWatchStack((stack) => stack.push(video.id));
     navigate({ view: "watch", videoId: video.id });
   }
@@ -157,6 +181,14 @@ export function KidsTubeApp({
     }
   }
 
+  // Rerolls the feed's shuffle on the way home, the way tapping a logo
+  // refreshes a real app's front page, rather than showing back the same
+  // order the viewer just left.
+  function goHome() {
+    setShuffleSalt(randomSalt());
+    navigate(HOME_ROUTE);
+  }
+
   return (
     <main
       className={styles.appShell}
@@ -165,6 +197,7 @@ export function KidsTubeApp({
       // `[data-tv]`; none of them has to know which class this file uses.
       data-theme={theme}
       data-view={route.view}
+      data-player-fullscreen={isPlayerFullscreen ? "" : undefined}
       data-tv={isTvBrowser ? "" : undefined}
     >
       <TopBar
@@ -173,7 +206,7 @@ export function KidsTubeApp({
         nextLocale={nextLocale}
         theme={theme}
         view={route.view}
-        onHome={() => navigate(HOME_ROUTE)}
+        onHome={goHome}
         onHomeQueryChange={setHomeQuery}
         onLocaleSwitch={switchLocale}
         onSearchSubmit={() => {
@@ -186,34 +219,8 @@ export function KidsTubeApp({
 
       <div className={styles.pageFrame}>
         <section className={styles.content}>
-          {route.view === "settings" ? (
+          {backgroundView === "settings" ? (
             <SettingsPage libraryController={libraryController} />
-          ) : route.view === "watch" && !isLoaded ? (
-            <WatchLoading />
-          ) : route.view === "watch" && currentVideo ? (
-            <WatchPage
-              isTvBrowser={isTvBrowser}
-              nextVideo={nextVideo}
-              previousVideo={previousEntry?.video ?? null}
-              recommendationGroups={recommendationGroups}
-              showRecommendations={recommendationsPreference.isEnabled}
-              video={currentVideo}
-              onDurationResolved={(video, seconds) =>
-                libraryController.update((current) =>
-                  current.withDuration(video, formatTimestamp(seconds)),
-                )
-              }
-              onFullscreenChange={setIsPlayerFullscreen}
-              onNextVideo={openNextVideo}
-              onOpenVideo={openVideo}
-              onPreviousVideo={openPreviousVideo}
-              onToggleRecommendations={recommendationsPreference.toggle}
-            />
-          ) : route.view === "watch" ? (
-            <WatchUnavailable
-              onHome={() => navigate(HOME_ROUTE)}
-              onSettings={() => navigate({ view: "settings" })}
-            />
           ) : (
             <HomePage
               videos={homeVideos}
@@ -223,6 +230,40 @@ export function KidsTubeApp({
           )}
         </section>
       </div>
+
+      <WatchSheet
+        isDismissDisabled={isPlayerFullscreen}
+        isActive={route.view === "watch"}
+        onDismiss={() => navigate(HOME_ROUTE)}
+      >
+        {!watchRoute ? null : !isLoaded ? (
+          <WatchLoading />
+        ) : currentVideo ? (
+          <WatchPage
+            isTvBrowser={isTvBrowser}
+            nextVideo={nextVideo}
+            previousVideo={previousEntry?.video ?? null}
+            recommendationGroups={recommendationGroups}
+            showRecommendations={recommendationsPreference.isEnabled}
+            video={currentVideo}
+            onDurationResolved={(video, seconds) =>
+              libraryController.update((current) =>
+                current.withDuration(video, formatTimestamp(seconds)),
+              )
+            }
+            onFullscreenChange={setIsPlayerFullscreen}
+            onNextVideo={openNextVideo}
+            onOpenVideo={openVideo}
+            onPreviousVideo={openPreviousVideo}
+            onToggleRecommendations={recommendationsPreference.toggle}
+          />
+        ) : (
+          <WatchUnavailable
+            onHome={() => navigate(HOME_ROUTE)}
+            onSettings={() => navigate({ view: "settings" })}
+          />
+        )}
+      </WatchSheet>
     </main>
   );
 }

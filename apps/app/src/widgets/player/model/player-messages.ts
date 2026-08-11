@@ -13,14 +13,24 @@ export const PLAYER_STATE = {
 export type PlayerTelemetry = {
   currentTime?: number;
   duration?: number;
+  muted?: boolean;
   playerState?: number;
+  videoId?: string;
+  volume?: number;
   /** `onError` code: 2 bad id, 5 HTML5 error, 100 gone, 101/150 embed denied. */
   errorCode?: number;
 };
 
+type PlayerTelemetryPayload = PlayerTelemetry & {
+  videoData?: {
+    video_id?: string;
+    videoId?: string;
+  };
+};
+
 type DeliveryPayload = {
   event?: string;
-  info?: number | PlayerTelemetry;
+  info?: number | PlayerTelemetryPayload;
 };
 
 const TELEMETRY_EVENTS = ["infoDelivery", "initialDelivery", "onStateChange"];
@@ -66,5 +76,11 @@ export function readPlayerTelemetry(
     return { playerState: info };
   }
 
-  return info ?? {};
+  if (!info) {
+    return {};
+  }
+
+  const { videoData, ...telemetry } = info;
+  const videoId = videoData?.video_id ?? videoData?.videoId;
+  return videoId ? { ...telemetry, videoId } : telemetry;
 }

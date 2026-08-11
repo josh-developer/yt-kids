@@ -65,7 +65,7 @@
 .recommendationCard:has(button:hover),
 .recommendationCard:has(button:focus-visible) {
   position: relative;
-  z-index: 900;
+  z-index: 200;
 }
 
 :global([data-tv]) .recommendationCard:focus-visible {

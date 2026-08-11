@@ -2,13 +2,19 @@
   display: grid;
   grid-template-columns: minmax(0, 1120px) minmax(300px, 360px);
   gap: 24px;
-  align-items: start;
+  /*
+  * Deliberately not `align-items: start`: the video column must stay as
+  * tall as the recommendations column, or the sticky player inside it runs
+  * out of room to stick partway down the page, well before the
+  * recommendations below it are done scrolling.
+  */
   max-width: 1510px;
   margin: 0 auto;
 }
 
 .watchTitle {
-  margin: 16px 0 12px;
+  /* Sits right under the picture's edge — 4px, not a full text margin. */
+  margin: 8px 0 6px 0;
   /*
   * Two lines are reserved whether or not the title fills them. The server
   * cannot know the title — the library is in local storage — so the loading
@@ -17,7 +23,7 @@
   * two lines on a phone anyway.
   */
   min-height: 2.3em;
-  font-size: 28px;
+  font-size: 18px;
   line-height: 1.15;
   letter-spacing: 0;
 }
@@ -57,9 +63,32 @@
   }
 }
 
+/*
+* One column, and a plain block rather than a one-track grid: a sticky element
+* may only travel inside its own containing block, and a grid item's is the
+* single track it sits in — so the box that holds the player has to be the one
+* that runs the whole length of the page, recommendations and all.
+*/
 @media (max-width: 1080px) {
   .watchLayout {
-    grid-template-columns: 1fr;
+    display: block;
+  }
+
+  /*
+  * Dissolved, so the player's containing block becomes `.watchLayout` above
+  * rather than this wrapper, which here is only as tall as the title and the
+  * channel row. Sticking against that, the picture scrolled away as soon as
+  * those two had passed — the reason the player used to go `position: fixed`
+  * at this width, which in turn needed its footprint reserved in the flow a
+  * second time, below a top bar the fixed picture was already covering.
+  */
+  .videoColumn {
+    display: contents;
+  }
+
+  /* Stands in for the grid `gap` that block layout above drops. */
+  .watchBar {
+    margin-bottom: 24px;
   }
 }
 

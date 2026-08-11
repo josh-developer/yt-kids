@@ -1,10 +1,10 @@
 import type { Video } from "@/entities/video";
 
 /**
- * How a watch-page sidebar is split: the rest of the same serial first, then
- * videos with related titles, then everything else.
+ * How a watch-page sidebar is split: up to three videos related to the one
+ * playing, then a fully shuffled batch of everything else.
  */
-export type RecommendationGroupKey = "series" | "similar" | "more";
+export type RecommendationGroupKey = "series" | "recommended";
 
 export type RecommendationGroup = {
   key: RecommendationGroupKey;

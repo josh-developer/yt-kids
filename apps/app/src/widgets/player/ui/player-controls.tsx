@@ -1,6 +1,4 @@
 import {
-  Captions,
-  CaptionsOff,
   Maximize2,
   Minimize2,
   Pause,
@@ -13,6 +11,7 @@ import {
   VolumeX,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
+import type { MouseEvent } from "react";
 
 import { SEEK_STEP_SECONDS } from "@/shared/config/app-config";
 import { bindPreview, type PreviewRequest } from "./player-overlays";
@@ -23,7 +22,6 @@ const VOLUME_STEP = 10;
 export function PlayerControls({
   hasNext,
   hasPrevious,
-  areCaptionsEnabled,
   isFullscreen,
   isMuted,
   isPlaying,
@@ -33,7 +31,6 @@ export function PlayerControls({
   onPlayPause,
   onPrevious,
   onPreview,
-  onToggleCaptions,
   onToggleFullscreen,
   onToggleMute,
   onSeekBy,
@@ -42,7 +39,6 @@ export function PlayerControls({
 }: {
   hasNext: boolean;
   hasPrevious: boolean;
-  areCaptionsEnabled: boolean;
   isFullscreen: boolean;
   isMuted: boolean;
   isPlaying: boolean;
@@ -53,7 +49,6 @@ export function PlayerControls({
   onPrevious: () => void;
   onPreview: (request: PreviewRequest) => void;
   onSeekBy: (seconds: number) => void;
-  onToggleCaptions: () => void;
   onToggleFullscreen: () => void;
   onToggleMute: () => void;
   onToggleRepeat: () => void;
@@ -61,9 +56,17 @@ export function PlayerControls({
 }) {
   const t = useTranslations("Player");
   const isSilent = isMuted || volume === 0;
+  function stopSurfaceToggle(event: MouseEvent<HTMLDivElement>) {
+    event.stopPropagation();
+  }
 
   return (
-    <div className={styles.safePlayerControls} aria-label={t("controls")}>
+    <div
+      className={styles.safePlayerControls}
+      onClick={stopSurfaceToggle}
+      onDoubleClick={stopSurfaceToggle}
+      aria-label={t("controls")}
+    >
       <div className={styles.footerTransportControls}>
         {/* Narrow layouts reach these through the on-video side buttons. */}
         <div className={styles.wideScreenVideoNav}>
@@ -76,18 +79,6 @@ export function PlayerControls({
             {...bindPreview("previous", onPreview)}
           >
             <SkipBack size={16} fill="currentColor" />
-          </button>
-          <button
-            className={`${styles.playerControlButton} ${styles.primary}`}
-            onClick={onPlayPause}
-            type="button"
-            aria-label={isPlaying ? t("pause") : t("play")}
-          >
-            {isPlaying ? (
-              <Pause size={16} fill="currentColor" />
-            ) : (
-              <Play size={16} fill="currentColor" />
-            )}
           </button>
           <button
             className={styles.playerControlButton}
@@ -119,6 +110,18 @@ export function PlayerControls({
         </button>
         <span className={styles.controlDivider} />
       </div>
+      <button
+        className={`${styles.playerControlButton} ${styles.primary}`}
+        onClick={onPlayPause}
+        type="button"
+        aria-label={isPlaying ? t("pause") : t("play")}
+      >
+        {isPlaying ? (
+          <Pause size={16} fill="currentColor" />
+        ) : (
+          <Play size={16} fill="currentColor" />
+        )}
+      </button>
       <button
         className={styles.playerControlButton}
         onClick={onToggleMute}
@@ -167,17 +170,6 @@ export function PlayerControls({
         aria-pressed={isRepeatOne}
       >
         <Repeat1 size={18} />
-      </button>
-      <button
-        className={`${styles.playerControlButton} ${
-          areCaptionsEnabled ? styles.active : ""
-        }`}
-        onClick={onToggleCaptions}
-        type="button"
-        aria-label={areCaptionsEnabled ? t("hideCaptions") : t("showCaptions")}
-        aria-pressed={areCaptionsEnabled}
-      >
-        {areCaptionsEnabled ? <Captions size={16} /> : <CaptionsOff size={16} />}
       </button>
       <button
         className={`${styles.playerControlButton} ${styles.fullscreenButton}`}

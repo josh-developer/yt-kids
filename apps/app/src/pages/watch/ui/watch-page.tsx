@@ -1,11 +1,13 @@
+import { useMemo, useRef } from "react";
 import type { RecommendationGroup } from "@/entities/library";
 import {
   ChannelAvatar,
   useVideoLabels,
   type Video,
 } from "@/entities/video";
-import { SafeYouTubePlayer } from "@/widgets/player";
 import { Recommendations } from "@/widgets/recommendations";
+import { SafeYouTubePlayer } from "@/widgets/player";
+import { PlaybackPositions } from "@/shared/lib/playback/playback-positions";
 import primitives from "@/shared/ui/primitives.module.css";
 import styles from "./watch-page.module.css";
 
@@ -37,16 +39,32 @@ export function WatchPage({
   onToggleRecommendations: () => void;
 }) {
   const labels = useVideoLabels();
+  const positions = useMemo(() => new PlaybackPositions(), []);
+  const durationRef = useRef(0);
+
+  // Read once per video: reading it on every render would keep moving the
+  // resume point as the video plays.
+  const startTime = useMemo(
+    () => positions.read(video.videoId),
+    [positions, video.videoId],
+  );
 
   return (
     <div className={styles.watchLayout}>
-      <article>
+      <article className={styles.videoColumn}>
         <SafeYouTubePlayer
           isTvBrowser={isTvBrowser}
           nextVideo={nextVideo}
           previousVideo={previousVideo}
           video={video}
-          onDurationResolved={onDurationResolved}
+          startTime={startTime}
+          onTimeUpdate={(seconds) =>
+            positions.save(video.videoId, seconds, durationRef.current)
+          }
+          onDurationResolved={(resolvedVideo, seconds) => {
+            durationRef.current = seconds;
+            onDurationResolved(resolvedVideo, seconds);
+          }}
           onFullscreenChange={onFullscreenChange}
           onNextVideo={onNextVideo}
           onPreviousVideo={onPreviousVideo}

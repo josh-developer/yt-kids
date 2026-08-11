@@ -72,7 +72,7 @@ html {
 }
 
 body {
-  background: var(--background);
+  background: var(--surface);
   color: var(--foreground);
   font-family:
     "Avenir Next Rounded", "Nunito", "Trebuchet MS", Arial, Helvetica,
@@ -138,6 +138,23 @@ button {
 [data-tooltip]:not([data-tooltip-mode="manual"]):focus-visible::after {
   opacity: 1;
   transform: translate(-50%, 0);
+}
+
+/*
+* A control that sits at the edge of its container — the last icon in a row
+* pinned to the right, say — has no room for a tooltip centred on it, which
+* runs straight past that edge. Anchoring the bubble to the button's own
+* right edge instead keeps it opening inward.
+*/
+[data-tooltip][data-tooltip-align="end"]:not([data-tooltip-mode="manual"])::after {
+  left: auto;
+  right: 0;
+  transform: translate(0, -4px);
+}
+
+[data-tooltip][data-tooltip-align="end"]:not([data-tooltip-mode="manual"]):hover::after,
+[data-tooltip][data-tooltip-align="end"]:not([data-tooltip-mode="manual"]):focus-visible::after {
+  transform: translate(0, 0);
 }
 
 /* Lifts the hovered control so its tooltip is not clipped by a sibling. */

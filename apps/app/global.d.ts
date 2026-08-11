@@ -3,6 +3,10 @@
 // an import live in `augmentations.d.ts`; the next-intl `AppConfig`
 // augmentation (typed locales + messages) lives in `@repo/internationalization`.
 
+/** Injected by `define` in vite.config.ts. */
+declare const __BUILD_TIME__: string;
+declare const __APP_ENV__: string;
+
 declare module "*.module.css" {
   const styles: Readonly<Record<string, string>>;
   export default styles;

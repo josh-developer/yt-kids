@@ -52,9 +52,8 @@
     "openSettings": "Sozlamalarni ochish",
     "recommendationsTitle": "Tavsiyalar",
     "showRecommendations": "Tavsiyalarni ko'rsatish",
-    "seriesTitle": "Shu turkumning davomi",
-    "similarTitle": "O'xshash videolar",
-    "moreTitle": "Boshqa videolar"
+    "seriesTitle": "Shu turkumdan",
+    "recommendedTitle": "Tavsiya etilgan"
   },
   "Player": {
     "play": "Videoni yoqish",
@@ -86,8 +85,7 @@
     "upNext": "Keyingisi",
     "replay": "Qaytadan ko'rish",
     "cancelAutoplay": "Keyingisi",
-    "showCaptions": "Taglavhalarni yoqish",
-    "hideCaptions": "Taglavhalarni o'chirish"
+    "quality": "Video sifati"
   },
   "Settings": {
     "title": "Ota-ona sozlamalari",
