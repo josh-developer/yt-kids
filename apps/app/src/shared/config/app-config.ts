@@ -35,13 +35,11 @@ export const PLAYER_SKELETON_MS = 8000;
 export const PLAYER_BOOT_KICK_MS = 450;
 
 /**
- * How long to wait, after sending the first play command, before assuming
- * playback started even without telemetry confirming it — clearing both the
- * spinner and the poster. Otherwise they'd keep covering a video that is
- * genuinely playing whenever the embed's postMessage channel is slow or
- * never opens (seen on iOS Safari), for as long as `PLAYER_SKELETON_MS`.
+ * How long to wait, after sending the first play command, before giving up on
+ * silent autoplay confirmation and showing the app-owned play button. Positive
+ * paused/error telemetry can still clear the loader earlier.
  */
-export const PLAYER_STARTED_FALLBACK_MS = 900;
+export const PLAYER_STARTED_FALLBACK_MS = 2500;
 
 /**
  * If the embed has not said a single word by now it is not going to: the

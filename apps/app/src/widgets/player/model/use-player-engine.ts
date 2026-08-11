@@ -176,6 +176,19 @@ export function usePlayerEngine({
     callbacks.current.onTimeUpdate?.(seconds);
   }
 
+  function revealManualPlay() {
+    timers.current.clear("skeleton");
+    timers.current.clear("started-fallback");
+    setIsBooting(false);
+
+    if (!hasStartedRef.current) {
+      hasStartedRef.current = true;
+      setHasStarted(true);
+    }
+
+    setIsPlaying(false);
+  }
+
   function resetPlayback({
     fallbackVideo,
     frameHasLoaded,
@@ -353,6 +366,11 @@ export function usePlayerEngine({
       }
 
       if (telemetry.playerState === PLAYER_STATE.paused) {
+        if (!hasConfirmedPlayingRef.current) {
+          revealManualPlay();
+          return;
+        }
+
         setIsPlaying(false);
         return;
       }
@@ -379,7 +397,7 @@ export function usePlayerEngine({
 
         // Out of retries: the embed is reachable and simply will not start
         // itself, so hand it to the viewer.
-        setIsPlaying(false);
+        revealManualPlay();
       }
     }
 
@@ -485,17 +503,18 @@ export function usePlayerEngine({
       schedulePlay();
     }
 
-    // Telemetry can lag well past this or never arrive at all, especially on
-    // iOS Safari. The play command above already went out, so stop hiding real
-    // video behind the spinner and poster on its account.
+    // Telemetry can lag or fail to report `playing`, especially on iOS Safari.
+    // If playback is not confirmed quickly, make the app-owned play button the
+    // escape hatch instead of leaving a sealed, paused YouTube surface on screen.
     timers.current.timeout(
       "started-fallback",
       () => {
-        setIsBooting(false);
-        if (!hasStartedRef.current) {
-          hasStartedRef.current = true;
-          setHasStarted(true);
+        if (hasConfirmedPlayingRef.current) {
+          setIsBooting(false);
+          return;
         }
+
+        revealManualPlay();
       },
       PLAYER_STARTED_FALLBACK_MS,
     );
