@@ -9,7 +9,9 @@
   "expo": {
     "install": {
       "//": "TypeScript is held at the workspace's 5.9 rather than the 6.0 the SDK asks for, so the monorepo compiles with one compiler. Nothing here needs 6: `tsc --noEmit` passes, and this app is a WebView with almost no type surface. Revisit when the rest of the repo moves.",
-      "exclude": ["typescript"]
+      "exclude": [
+        "typescript"
+      ]
     }
   },
   "scripts": {
@@ -17,7 +19,8 @@
     "ios": "expo run:ios",
     "android": "expo run:android",
     "typecheck": "tsc --noEmit",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "icons": "node scripts/generate-icons.mjs"
   },
   "dependencies": {
     "babel-preset-expo": "~57.0.6",
@@ -36,6 +39,7 @@
     "@types/react": "^19.2.18",
     "eslint": "^9.39.5",
     "eslint-config-expo": "^57.0.1",
+    "sharp": "^0.35.3",
     "typescript": "^5.9.3"
   }
 }
