@@ -10,13 +10,27 @@
     },
     "preview": {
       "distribution": "internal",
-      "channel": "preview"
+      "channel": "preview",
+      "android": {
+        "buildType": "apk"
+      }
     },
     "production": {
       "channel": "production",
       "autoIncrement": true,
       "env": {
         "NODE_ENV": "production"
+      },
+      "android": {
+        "buildType": "app-bundle"
+      }
+    },
+    "production-apk": {
+      "extends": "production",
+      "distribution": "internal",
+      "autoIncrement": false,
+      "android": {
+        "buildType": "apk"
       }
     }
   },
