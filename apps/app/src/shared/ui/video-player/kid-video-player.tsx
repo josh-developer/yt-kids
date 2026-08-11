@@ -34,6 +34,8 @@ import {
 } from "./kid-video-player-labels";
 import {
   hardenYouTubeEmbed,
+  keepEmbedDocumentAlive,
+  letTheEmbedStartItself,
   preventOrphanedCommandPromises,
   tracePlayer,
 } from "./youtube-provider-hardening";
@@ -51,8 +53,7 @@ const SEEK_HINT_MS = 600;
 /**
  * How long an embed built with sound gets to start before that counts as the
  * browser refusing. Long enough to cover the handshake and a slow first
- * segment, short enough that the muted rebuild is not a visible wait — and
- * paid at most once per tab, since the outcome is remembered.
+ * segment, short enough that falling back to muted is not a visible wait.
  */
 const SOUND_PROBE_MS = 1200;
 
@@ -280,6 +281,14 @@ export function KidVideoPlayer({
    * picture worth showing.
    */
   const [pictureEmbedKey, setPictureEmbedKey] = useState<string | null>(null);
+  /**
+   * One document per sound decision, not one per video. Remounting is what
+   * asks for a new embed document, and a new document is a new audio unlock —
+   * so a video change must not do it. Videos are swapped inside the surviving
+   * document instead; see `keepEmbedDocumentAlive`.
+   */
+  const documentKey = `sound:${embedGeneration}`;
+  // The poster and the resume still belong to a video, not to a document.
   const embedKey = `${videoId}:${embedGeneration}`;
   const hasPicture = pictureEmbedKey === embedKey;
   // A rebuilt embed has a place of its own to get back to, which outranks the
@@ -347,17 +356,20 @@ export function KidVideoPlayer({
   };
 
   /**
-   * Settles the question an unmuted embed asks just by existing: will this
-   * browser let a video it was not asked for make noise?
+   * The net under an embed built with sound.
    *
-   * The answer never arrives as an answer. A browser that allows it lets the
-   * embed start, and vidstack reports `play` within a few hundred milliseconds;
-   * one that does not simply drops `playVideo` on the floor and leaves the
-   * frame sitting at its first frame, saying nothing. So silence past the
-   * deadline is the refusal, and the video is rebuilt muted — which does start
-   * everywhere — with the sound button offering the one unmute that survives.
+   * Only a tab that has already been granted sound builds one, so this is not
+   * asking whether sound is allowed — it is catching the case where the answer
+   * changed. A refusal never announces itself: the frame drops `playVideo` and
+   * sits at its first frame saying nothing, and because user activation does
+   * not cross into it, every later press of play is refused the same way. Left
+   * alone that is not a silent video but a dead one.
    *
-   * Only the first video of a tab pays this wait; the outcome is remembered.
+   * So silence past the deadline is read as a refusal, the video is rebuilt
+   * muted — which starts everywhere — and the tab goes back to opening muted.
+   * Vidstack reports `play` as soon as the embed so much as starts buffering,
+   * so a slow connection settles this long before the deadline; only a frame
+   * that says nothing at all trips it.
    */
   const startSoundProbe = () => {
     // Silence only means refusal when something asked the video to play.
@@ -507,9 +519,16 @@ export function KidVideoPlayer({
       // A paused video always starts, whether the bar is up or not. Spending
       // the tap on revealing the controls instead would leave a child looking
       // at a still picture and a play button they have to find and hit a
-      // second time — and vidstack shows the bar on `play` by itself, so the
-      // controls arrive with the picture rather than instead of it.
+      // second time.
+      //
+      // The bar is raised as well, not instead. Vidstack raises it on `play`,
+      // which is enough right up until the embed does not send one: a request
+      // it refuses or cannot serve is answered with silence, and a tap that
+      // neither starts the video nor brings up a control leaves the viewer
+      // with a still picture and nothing to press. Playback hides the bar
+      // again on its own, so this costs nothing when the video does start.
       if (player.paused) {
+        player.controls.show();
         player.play().catch(() => {});
         return;
       }
@@ -566,7 +585,7 @@ export function KidVideoPlayer({
       } ${
         isVirtualFullscreen ? styles.virtualFullscreen : ""
       } ${className}`.trim()}
-      key={embedKey}
+      key={documentKey}
       src={`youtube/${videoId}`}
       title={title}
       aria-label={labels.surface}
@@ -582,6 +601,8 @@ export function KidVideoPlayer({
       onProviderChange={(provider) => {
         hardenYouTubeEmbed(provider);
         preventOrphanedCommandPromises(provider);
+        letTheEmbedStartItself(provider, autoPlay);
+        keepEmbedDocumentAlive(provider);
       }}
       onCanPlay={() => {
         tracePlayer(`can-play:resume=${effectiveStartTime}:muted=${isMuted}`);
@@ -617,6 +638,10 @@ export function KidVideoPlayer({
         // A step forward small enough to be playback rather than a jump. A
         // seek lands anywhere, including backwards, and a paused embed repeats
         // the same second — neither is a picture.
+        // A video swapped into a living document reports no `can-play`, so
+        // this is where its resume gets picked up. Progress means the embed is
+        // already playing, which is the condition the seek needs anyway.
+        resumeWhereLeftOff(false);
         const previous = lastTimeRef.current;
         lastTimeRef.current = currentTime;
         const step = currentTime - previous;

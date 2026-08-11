@@ -7,11 +7,10 @@ import {
 /**
  * What happened last time this tab tried to open a video with sound.
  *
- * - `granted` — an embed built with `mute=0` did start, or the viewer asked for
- *   sound and got it. Keep building them that way.
- * - `refused` — an embed built with `mute=0` never started. The browser will
- *   not hand out sound unprompted here, so stop asking and open muted with the
- *   sound button instead.
+ * - `granted` — the viewer asked for sound and got it. Keep building embeds
+ *   with `mute=0`; the gesture that bought it covers the ones that follow.
+ * - `refused` — an embed built with `mute=0` never started, so the gesture did
+ *   not carry as far as it seemed to. Back to muted.
  * - `silenced` — the viewer muted on purpose.
  */
 export type SoundOutcome = "granted" | "refused" | "silenced";
@@ -61,12 +60,23 @@ export class SoundPreference {
   }
 
   /**
-   * Whether the next embed has to be built muted. Only a refusal and a
-   * deliberate mute say so; everything else, including having tried nothing
-   * yet, is worth opening with sound.
+   * Whether the next embed has to be built muted. Everything except a recorded
+   * `granted` is, including having tried nothing yet.
+   *
+   * Opening the first video of a tab with sound and seeing what happens is a
+   * bet that cannot be made, because losing it does not cost sound — it costs
+   * the video. An iPhone refuses an embed built with `mute=0` by ignoring
+   * `playVideo`, and it keeps ignoring it: every later press of play is
+   * another postMessage with no gesture behind it, so the frame stays dead for
+   * good rather than merely silent. iPad grants the same embed, because
+   * iPadOS Safari follows the desktop autoplay rules — which is exactly why
+   * this cannot be settled by trying it.
+   *
+   * So the first video plays muted, with the sound button offering the trade,
+   * and one tap buys sound for the rest of the tab: that rebuild happens
+   * inside the viewer's gesture, which is the one thing every browser honours.
    */
   shouldStartMuted() {
-    const outcome = this.read();
-    return outcome === "refused" || outcome === "silenced";
+    return this.read() !== "granted";
   }
 }

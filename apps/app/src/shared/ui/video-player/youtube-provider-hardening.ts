@@ -116,6 +116,93 @@ export function preventOrphanedCommandPromises(provider: unknown) {
 }
 
 /**
+ * Lets the embed start itself, rather than waiting to be told to.
+ *
+ * Vidstack builds every YouTube URL with `autoplay=0` and then sends
+ * `playVideo` once the frame is ready. On a desktop browser the two are
+ * equivalent; on iOS they are not. A command arrives by postMessage with no
+ * user activation behind it, so WebKit refuses it — and keeps refusing it,
+ * which is why pressing play by hand did not help either. What WebKit does
+ * honour is a document that was created during a tap and starts on its own,
+ * and that is `autoplay=1` in the URL.
+ *
+ * `buildParams` is protected, hence the cast. It runs once per document, while
+ * the provider is still being set up, so this has to be in place by
+ * `provider-change` — which is where the rest of the embed hardening happens.
+ */
+export function letTheEmbedStartItself(
+  provider: unknown,
+  shouldAutoplay: boolean,
+) {
+  if (!isYouTubeProvider(provider) || !shouldAutoplay) {
+    return;
+  }
+
+  const embed = provider as unknown as {
+    buildParams: () => Record<string, unknown>;
+  };
+  const buildParams = embed.buildParams.bind(embed);
+  embed.buildParams = () => ({ ...buildParams(), autoplay: 1 });
+}
+
+/**
+ * Keeps one embed document alive for the whole session, changing videos with a
+ * command instead of a new URL.
+ *
+ * This is what makes sound survive past the first video. WebKit grants audible
+ * playback to a *document*, and a tap on our page does not carry into a
+ * cross-origin child — so a freshly navigated iframe has never been tapped, no
+ * matter what the viewer did a moment earlier. Vidstack re-navigates the frame
+ * on every source change (`loadSource` moves its `videoId` signal, an effect
+ * rebuilds the URL, and the iframe loads a new document), which is why an iPad
+ * asked for a tap on every single video: each one was a new document asking
+ * for permission from scratch.
+ *
+ * So only the first source is allowed to navigate. Every one after it becomes
+ * `loadVideoById`, which swaps the video inside the document that is already
+ * playing — and already allowed to make noise. That also starts the new video
+ * on its own, which is the other half of what the viewer asked for.
+ *
+ * The provider stays coherent because everything it knows about the media
+ * comes from the embed's own reports: duration, title, progress and player
+ * state all arrive by message and describe whatever video is loaded now. The
+ * one thing it will not do is re-navigate, which is the point.
+ *
+ * A rebuild is still the only way to change how audio *starts*, since `mute`
+ * is fixed in the URL — that is a deliberate new document, and remounting the
+ * player is what asks for one.
+ */
+export function keepEmbedDocumentAlive(provider: unknown) {
+  if (!isYouTubeProvider(provider)) {
+    return;
+  }
+
+  const loadSource = provider.loadSource.bind(provider);
+
+  provider.loadSource = async (source) => {
+    // Whether there is a document to swap into, asked of the iframe itself
+    // rather than counted — nothing here depends on knowing whether
+    // `provider-change` reaches us before or after the first source does.
+    if (!provider.iframe.getAttribute("src")) {
+      return loadSource(source);
+    }
+
+    // `youtube/<id>`, the shape the player builds its `src` prop in.
+    const videoId = String(source.src ?? "").replace(/^youtube\//, "");
+    if (!videoId) {
+      return;
+    }
+
+    tracePlayer(`swap:${videoId}`);
+    provider.postMessage({
+      event: "command",
+      func: "loadVideoById",
+      args: [videoId],
+    });
+  };
+}
+
+/**
  * Vidstack's YouTube provider exposes no caption tracks, so captions are
  * toggled the same way the hand-built player does: the embed's loadable
  * captions module. The embed has answered to two module names across player
