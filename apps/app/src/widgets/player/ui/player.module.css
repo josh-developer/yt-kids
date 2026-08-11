@@ -885,8 +885,11 @@
 
 @media (max-width: 1080px) {
   .playerBox {
-    width: min(100%, 980px);
+    width: calc(100% + 28px);
+    max-width: none;
     max-height: min(70vh, 552px);
+    margin-inline: -14px;
+    border-radius: 0;
   }
 }
 

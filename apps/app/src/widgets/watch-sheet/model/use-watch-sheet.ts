@@ -3,8 +3,8 @@ import type { TouchEvent, TransitionEvent } from "react";
 
 type SheetPhase = "closed" | "opening" | "open" | "closing";
 
-/** How far down a finger has to travel before letting go dismisses the sheet. */
-const DISMISS_DISTANCE_PX = 120;
+/** How far the sheet's top edge must travel before release dismisses it. */
+const DISMISS_VIEWPORT_RATIO = 0.5;
 
 /**
  * Below this, a downward touchmove is a tap's natural jitter, not a drag.
@@ -69,6 +69,7 @@ export function useWatchSheet({
   const wasActive = useRef(isActive);
   const sheetRef = useRef<HTMLDivElement>(null);
   const dragStartY = useRef<number | null>(null);
+  const dragOffsetRef = useRef(0);
   const [dragOffset, setDragOffset] = useState(0);
 
   useEffect(() => {
@@ -132,6 +133,17 @@ export function useWatchSheet({
     setPhase((current) => (current === "closing" ? "closed" : current));
   }
 
+  function updateDragOffset(offset: number) {
+    dragOffsetRef.current = offset;
+    setDragOffset(offset);
+  }
+
+  function dismissThresholdPx() {
+    const viewportHeight =
+      sheetRef.current?.ownerDocument.defaultView?.innerHeight ?? window.innerHeight;
+    return viewportHeight * DISMISS_VIEWPORT_RATIO;
+  }
+
   function handleTouchStart(event: TouchEvent<HTMLDivElement>) {
     // The sheet is also its own scroll container. Only arm the dismiss
     // gesture when it is scrolled to the top — otherwise this touch is
@@ -168,7 +180,7 @@ export function useWatchSheet({
     if (isDismissDisabled) {
       dragStartY.current = null;
       if (dragOffset !== 0) {
-        setDragOffset(0);
+        updateDragOffset(0);
       }
       return;
     }
@@ -184,18 +196,18 @@ export function useWatchSheet({
       // re-render — and no transform a mobile browser would read as a drag —
       // stands between this touch and the click that is supposed to follow.
       if (dragOffset !== 0) {
-        setDragOffset(0);
+        updateDragOffset(0);
       }
       return;
     }
 
-    setDragOffset(delta - DRAG_ACTIVATION_PX);
+    updateDragOffset(delta - DRAG_ACTIVATION_PX);
   }
 
   function releaseDrag() {
     if (isDismissDisabled) {
       dragStartY.current = null;
-      setDragOffset(0);
+      updateDragOffset(0);
       return;
     }
 
@@ -205,12 +217,12 @@ export function useWatchSheet({
 
     dragStartY.current = null;
 
-    if (dragOffset > DISMISS_DISTANCE_PX) {
+    if (dragOffsetRef.current >= dismissThresholdPx()) {
       setPhase("closing");
       onDismiss();
     }
 
-    setDragOffset(0);
+    updateDragOffset(0);
   }
 
   return {

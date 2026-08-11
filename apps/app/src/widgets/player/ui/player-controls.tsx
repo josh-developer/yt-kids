@@ -11,6 +11,7 @@ import {
   VolumeX,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
+import type { MouseEvent } from "react";
 
 import { SEEK_STEP_SECONDS } from "@/shared/config/app-config";
 import { bindPreview, type PreviewRequest } from "./player-overlays";
@@ -55,9 +56,17 @@ export function PlayerControls({
 }) {
   const t = useTranslations("Player");
   const isSilent = isMuted || volume === 0;
+  function stopSurfaceToggle(event: MouseEvent<HTMLDivElement>) {
+    event.stopPropagation();
+  }
 
   return (
-    <div className={styles.safePlayerControls} aria-label={t("controls")}>
+    <div
+      className={styles.safePlayerControls}
+      onClick={stopSurfaceToggle}
+      onDoubleClick={stopSurfaceToggle}
+      aria-label={t("controls")}
+    >
       <div className={styles.footerTransportControls}>
         {/* Narrow layouts reach these through the on-video side buttons. */}
         <div className={styles.wideScreenVideoNav}>
@@ -70,18 +79,6 @@ export function PlayerControls({
             {...bindPreview("previous", onPreview)}
           >
             <SkipBack size={16} fill="currentColor" />
-          </button>
-          <button
-            className={`${styles.playerControlButton} ${styles.primary}`}
-            onClick={onPlayPause}
-            type="button"
-            aria-label={isPlaying ? t("pause") : t("play")}
-          >
-            {isPlaying ? (
-              <Pause size={16} fill="currentColor" />
-            ) : (
-              <Play size={16} fill="currentColor" />
-            )}
           </button>
           <button
             className={styles.playerControlButton}
@@ -113,6 +110,18 @@ export function PlayerControls({
         </button>
         <span className={styles.controlDivider} />
       </div>
+      <button
+        className={`${styles.playerControlButton} ${styles.primary}`}
+        onClick={onPlayPause}
+        type="button"
+        aria-label={isPlaying ? t("pause") : t("play")}
+      >
+        {isPlaying ? (
+          <Pause size={16} fill="currentColor" />
+        ) : (
+          <Play size={16} fill="currentColor" />
+        )}
+      </button>
       <button
         className={styles.playerControlButton}
         onClick={onToggleMute}

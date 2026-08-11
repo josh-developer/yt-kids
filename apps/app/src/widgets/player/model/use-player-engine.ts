@@ -179,7 +179,7 @@ export function usePlayerEngine({
     callbacks.current.onTimeUpdate?.(seconds);
   }
 
-  function revealManualPlay() {
+  function showPlaybackSurface() {
     timers.current.clear("skeleton");
     timers.current.clear("started-fallback");
     setIsBooting(false);
@@ -188,8 +188,28 @@ export function usePlayerEngine({
       hasStartedRef.current = true;
       setHasStarted(true);
     }
+  }
+
+  function revealManualPlay() {
+    showPlaybackSurface();
 
     setIsPlaying(false);
+  }
+
+  function tryAutoplayKick() {
+    showPlaybackSurface();
+    setIsPlaying(true);
+
+    if (autoStartAttemptsRef.current >= AUTO_START_ATTEMPTS) {
+      return false;
+    }
+
+    autoStartAttemptsRef.current += 1;
+    sendPlay({
+      includeLoadKick: loadKickAttemptsRef.current < LOAD_KICK_ATTEMPTS,
+    });
+    scheduleStartedFallback();
+    return true;
   }
 
   function resetPlayback({
@@ -371,7 +391,11 @@ export function usePlayerEngine({
 
       if (telemetry.playerState === PLAYER_STATE.paused) {
         if (!hasConfirmedPlayingRef.current) {
-          kickStartPlayback();
+          if (wantsPlaybackRef.current && tryAutoplayKick()) {
+            return;
+          }
+
+          revealManualPlay();
           return;
         }
 
@@ -388,11 +412,7 @@ export function usePlayerEngine({
         (telemetry.playerState === PLAYER_STATE.unstarted ||
           telemetry.playerState === PLAYER_STATE.cued)
       ) {
-        if (autoStartAttemptsRef.current < AUTO_START_ATTEMPTS) {
-          autoStartAttemptsRef.current += 1;
-          sendPlay({
-            includeLoadKick: loadKickAttemptsRef.current < LOAD_KICK_ATTEMPTS,
-          });
+        if (tryAutoplayKick()) {
           return;
         }
 
@@ -506,6 +526,28 @@ export function usePlayerEngine({
       () => sendPlay({ includeLoadKick: true }),
       PLAY_RETRY_MS,
     );
+    scheduleStartedFallback();
+  }
+
+  function handleStartedFallback() {
+    if (hasConfirmedPlayingRef.current) {
+      setIsBooting(false);
+      return;
+    }
+
+    if (wantsPlaybackRef.current && tryAutoplayKick()) {
+      return;
+    }
+
+    revealManualPlay();
+  }
+
+  function scheduleStartedFallback() {
+    timers.current.timeout(
+      "started-fallback",
+      handleStartedFallback,
+      PLAYER_STARTED_FALLBACK_MS,
+    );
   }
 
   /**
@@ -522,20 +564,9 @@ export function usePlayerEngine({
     }
 
     // Telemetry can lag or fail to report `playing`, especially on iOS Safari.
-    // If playback is not confirmed quickly, make the app-owned play button the
-    // escape hatch instead of leaving a sealed, paused YouTube surface on screen.
-    timers.current.timeout(
-      "started-fallback",
-      () => {
-        if (hasConfirmedPlayingRef.current) {
-          setIsBooting(false);
-          return;
-        }
-
-        revealManualPlay();
-      },
-      PLAYER_STARTED_FALLBACK_MS,
-    );
+    // If playback is not confirmed quickly, show the video surface and try the
+    // stronger `loadVideoById` path before falling back to manual play.
+    scheduleStartedFallback();
   }
 
   function loadVideoInCurrentDocument(targetVideo: Video, startSeconds: number) {

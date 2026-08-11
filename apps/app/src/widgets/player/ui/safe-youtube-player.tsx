@@ -463,7 +463,7 @@ export function SafeYouTubePlayer({
       {!isLocked && !hasFailed ? (
         <BigPlayButton
           isPlaying={engine.isPlaying}
-          isVisible={!engine.isPlaying && controls.isVisible}
+          isVisible={controls.isVisible}
           onClick={() => {
             revealControls();
             engine.playPause();

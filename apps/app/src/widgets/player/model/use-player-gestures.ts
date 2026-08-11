@@ -56,7 +56,7 @@ export function usePlayerGestures({
 
   function isControl(target: EventTarget | null) {
     return (
-      target instanceof HTMLElement &&
+      target instanceof Element &&
       Boolean(target.closest("button, input, textarea"))
     );
   }
