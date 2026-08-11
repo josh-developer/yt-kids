@@ -110,13 +110,23 @@ confusing failures rather than an honest one.
 | package | pin | why |
 | --- | --- | --- |
 | `react` | `19.2.3` exact | what Expo Go for SDK 57 bundles; a mismatch is a red screen |
-| `react-native-webview` | `~13.16.1` | what Expo Go bundles, and `14.0.1`'s types are broken |
+| `react-native-webview` | `13.16.1` exact | the only release whose types compile |
 
-`react-native-webview@14.0.1` declares `class WebView<P = undefined> extends
-Component<WebViewProps & P>`. `WebViewProps & undefined` is `never`, so every
-prop fails to typecheck. `13.16.1` defaults the parameter to `{}` and resolves
-correctly. A caret range here would float to 14 and break the build, which is
-why the range is a tilde.
+`react-native-webview` declares `class WebView<P = undefined> extends
+Component<WebViewProps & P>` from **13.16.2** onwards. `WebViewProps & undefined`
+is `never`, so every prop fails to typecheck. Only 13.16.1 defaults that
+parameter to `{}`:
+
+| version | generic default | compiles |
+| --- | --- | --- |
+| 13.16.1 | `P = {}` | yes |
+| 13.16.2 | `P = undefined` | no |
+| 14.0.1 | `P = undefined` | no |
+
+So the pin is exact, not a tilde and certainly not a caret. A tilde was tried and
+did not hold: `~13.16.1` admitted 13.16.2, and the break resurfaced the next time
+the lockfile was regenerated during a merge. Do not loosen it without checking
+that declaration.
 
 The workspace root uses `react@^19.2.8` for the web app. That is fine and not
 worth reconciling — pnpm gives each package its own copy, and this one has to
