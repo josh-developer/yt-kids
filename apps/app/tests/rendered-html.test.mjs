@@ -113,6 +113,7 @@ test("keeps the feature-sliced layout intact", async () => {
   assert.match(layout, /NextIntlClientProvider/);
   assert.match(shell, /@\/pages\/home/);
   assert.match(shell, /@\/entities\/library/);
+  assert.match(shell, /function goHome\(\)[\s\S]*setHomeQuery\(""\)/);
   assert.doesNotMatch(shell, /localStorage/);
 
   // Player hardening must survive the split into hooks and sub-components.
