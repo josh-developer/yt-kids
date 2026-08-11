@@ -11,15 +11,18 @@ import styles from "./watch-sheet.module.css";
  */
 export function WatchSheet({
   isActive,
+  isDismissDisabled = false,
   onDismiss,
   children,
 }: {
   isActive: boolean;
+  isDismissDisabled?: boolean;
   onDismiss: () => void;
   children: ReactNode;
 }) {
   const { ref, isMounted, phase, isDragging, dragOffset, handlers } = useWatchSheet({
     isActive,
+    isDismissDisabled,
     onDismiss,
   });
 

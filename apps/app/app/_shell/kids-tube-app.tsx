@@ -197,6 +197,7 @@ export function KidsTubeApp({
       // `[data-tv]`; none of them has to know which class this file uses.
       data-theme={theme}
       data-view={route.view}
+      data-player-fullscreen={isPlayerFullscreen ? "" : undefined}
       data-tv={isTvBrowser ? "" : undefined}
     >
       <TopBar
@@ -231,6 +232,7 @@ export function KidsTubeApp({
       </div>
 
       <WatchSheet
+        isDismissDisabled={isPlayerFullscreen}
         isActive={route.view === "watch"}
         onDismiss={() => navigate(HOME_ROUTE)}
       >

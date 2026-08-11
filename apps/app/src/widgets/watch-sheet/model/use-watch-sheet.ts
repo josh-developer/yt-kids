@@ -52,9 +52,11 @@ function settle(phase: SheetPhase): SheetPhase {
  */
 export function useWatchSheet({
   isActive,
+  isDismissDisabled = false,
   onDismiss,
 }: {
   isActive: boolean;
+  isDismissDisabled?: boolean;
   onDismiss: () => void;
 }) {
   const [phase, setPhase] = useState<SheetPhase>(isActive ? "open" : "closed");
@@ -135,7 +137,12 @@ export function useWatchSheet({
     // only where the sheet slides at all: a touchscreen wide enough to get
     // the desktop layout keeps its top bar, and dragging a sheet that cannot
     // animate back would leave it stuck open.
-    if (!slides || phase !== "open" || (sheetRef.current?.scrollTop ?? 0) > 0) {
+    if (
+      isDismissDisabled ||
+      !slides ||
+      phase !== "open" ||
+      (sheetRef.current?.scrollTop ?? 0) > 0
+    ) {
       return;
     }
 
@@ -143,6 +150,14 @@ export function useWatchSheet({
   }
 
   function handleTouchMove(event: TouchEvent<HTMLDivElement>) {
+    if (isDismissDisabled) {
+      dragStartY.current = null;
+      if (dragOffset !== 0) {
+        setDragOffset(0);
+      }
+      return;
+    }
+
     if (dragStartY.current === null) {
       return;
     }
@@ -163,6 +178,12 @@ export function useWatchSheet({
   }
 
   function releaseDrag() {
+    if (isDismissDisabled) {
+      dragStartY.current = null;
+      setDragOffset(0);
+      return;
+    }
+
     if (dragStartY.current === null) {
       return;
     }
@@ -181,7 +202,7 @@ export function useWatchSheet({
     ref: sheetRef,
     isMounted: phase !== "closed",
     phase,
-    isDragging: dragOffset > 0 && phase === "open",
+    isDragging: !isDismissDisabled && dragOffset > 0 && phase === "open",
     dragOffset,
     handlers: {
       onTouchStart: handleTouchStart,
