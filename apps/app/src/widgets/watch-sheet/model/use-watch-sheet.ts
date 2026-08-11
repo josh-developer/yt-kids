@@ -8,12 +8,14 @@ const DISMISS_DISTANCE_PX = 120;
 
 /**
  * Below this, a downward touchmove is a tap's natural jitter, not a drag.
- * Applying a live transform for it anyway was the bug: a tap on a button near
- * the top of the sheet — the unmute button, first thing a video shows — sits
- * exactly where the gesture arms (scrolled to the top), and a couple of
- * pixels of finger tremor were enough to move the sheet under it. Mobile
- * browsers read that as a drag and drop the synthetic click that was
- * supposed to follow, so the tap never reached the button.
+ * Applying a live transform for it anyway was the bug: a tap on anything near
+ * the top of the sheet sits exactly where the gesture arms (scrolled to the
+ * top), and a couple of pixels of finger tremor were enough to move the sheet
+ * under it. Mobile browsers read that as a drag and drop the synthetic click
+ * that was supposed to follow, so the tap never reached the button. The player
+ * that used to be the worst of those cases is now excluded outright — see
+ * `handleTouchStart` — but the title, the channel row and the first
+ * recommendations still land in this band.
  */
 const DRAG_ACTIVATION_PX = 10;
 
@@ -142,6 +144,19 @@ export function useWatchSheet({
       !slides ||
       phase !== "open" ||
       (sheetRef.current?.scrollTop ?? 0) > 0
+    ) {
+      return;
+    }
+
+    // The video surface is not a handle. It has a full gesture vocabulary of
+    // its own — tap to toggle the controls, double tap to seek, swipe down to
+    // leave fullscreen — and it fills the top of the sheet, exactly where a
+    // scrolled-to-top drag begins. Sharing those touches meant every gesture
+    // aimed at the video also pulled the sheet. The attribute is set on the
+    // player's own box in `widgets/player/ui/safe-youtube-player.tsx`.
+    if (
+      event.target instanceof Element &&
+      event.target.closest("[data-player-surface]")
     ) {
       return;
     }

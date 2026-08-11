@@ -354,6 +354,10 @@ export function SafeYouTubePlayer({
       className={`${styles.playerBox} ${showControls ? "" : styles.controlsHidden} ${
         fullscreen.isVirtual ? styles.virtualFullscreen : ""
       } ${isLocked ? styles.playerLocked : ""}`}
+      // Marks everything the video surface owns as off-limits to the watch
+      // sheet's swipe-down — see `use-watch-sheet.ts`. The gestures below are
+      // this box's own, and a downward drag here already means something else.
+      data-player-surface=""
       onClick={gestures.handleFrameClick}
       onDoubleClick={gestures.handleFrameDoubleClick}
       onKeyDown={(event) => handlePlayerKeyDown(event, { isTvBrowser })}

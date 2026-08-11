@@ -11,7 +11,16 @@
   inset: 0;
   z-index: 6000;
   overflow-y: auto;
-  overscroll-behavior: contain;
+  /*
+  * `none`, not `contain`: `contain` stops the scroll chaining to the page
+  * behind but leaves this container's own rubber-band intact. The swipe-down
+  * arms at `scrollTop: 0`, so every drag also overscrolls — the contents bounce
+  * down by that amount on top of the `translateY` in `use-watch-sheet.ts`,
+  * while this background, painted with the box, only moves by the transform.
+  * The player outran the sheet by exactly the bounce, and the gap it opened up
+  * was this `--surface` showing through.
+  */
+  overscroll-behavior: none;
   background: var(--surface);
 }
 
