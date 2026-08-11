@@ -13,19 +13,38 @@ import * as SplashScreen from "expo-splash-screen";
 import { useCallback, useEffect } from "react";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { HomeScreen } from "./src/pages/home/ui/home-screen";
-import { ThemeProvider } from "./src/shared/lib/theme/use-theme";
+import { LocaleProvider, useLocale } from "./src/shared/lib/i18n/use-translations";
+import { ThemeProvider, useTheme } from "./src/shared/lib/theme/use-theme";
 
 /**
- * Held until the fonts are in.
+ * Held until the fonts, the stored theme and the stored locale are all in.
  *
- * Nunito at 800 is what the card titles are; rendering them in the system face
- * first and swapping would reflow every card on the first screen. Keeping the
- * splash up until the fonts resolve trades a few hundred milliseconds for never
- * showing the wrong typeface.
+ * Each would otherwise show the wrong thing first and correct itself: the system
+ * face before Nunito reflows every card title, light before a stored dark, English
+ * before a stored Uzbek. A few hundred milliseconds of splash buys a first frame
+ * that is simply right.
  */
 void SplashScreen.preventAutoHideAsync();
 
 export default function App() {
+  return (
+    <SafeAreaProvider>
+      <ThemeProvider>
+        <LocaleProvider>
+          <Shell />
+        </LocaleProvider>
+      </ThemeProvider>
+    </SafeAreaProvider>
+  );
+}
+
+/**
+ * Inside the providers, so it can wait on what they load. `StatusBar` reads the
+ * theme, which is why it is here rather than in `App`.
+ */
+function Shell() {
+  const theme = useTheme();
+  const locale = useLocale();
   const [fontsLoaded, fontError] = useFonts({
     Nunito_400Regular,
     Nunito_600SemiBold,
@@ -34,13 +53,15 @@ export default function App() {
     Nunito_900Black,
   });
 
+  // A font that fails to load still has to let the app through: the fallback face
+  // is worse than Nunito and far better than a splash screen forever.
+  const isReady = (fontsLoaded || fontError !== null) && theme.isReady && locale.isReady;
+
   useEffect(() => {
-    // A font that fails to load still has to let the app through — the fallback
-    // face is worse than Nunito, and far better than a splash screen forever.
-    if (fontsLoaded || fontError) {
+    if (isReady) {
       void SplashScreen.hideAsync();
     }
-  }, [fontError, fontsLoaded]);
+  }, [isReady]);
 
   const openVideo = useCallback((video: Video) => {
     // The watch screen is the next piece of work. Deliberately inert rather than
@@ -49,19 +70,25 @@ export default function App() {
     console.log("open video", video.id);
   }, []);
 
-  if (!fontsLoaded && !fontError) {
+  const openSettings = useCallback(() => {
+    // Same: the parent settings screen is its own screen, not a link out.
+    console.log("open settings");
+  }, []);
+
+  if (!isReady) {
     return null;
   }
 
   return (
-    <SafeAreaProvider>
-      <ThemeProvider>
-        <StatusBar style="auto" />
-        <HomeScreen
-          videos={CURATED_UZBEK_OLD_CARTOONS}
-          onOpenVideo={openVideo}
-        />
-      </ThemeProvider>
-    </SafeAreaProvider>
+    <>
+      {/* Follows the palette rather than the OS, so a viewer who chose light in a
+          dark system still gets dark status-bar glyphs. */}
+      <StatusBar style={theme.name === "dark" ? "light" : "dark"} />
+      <HomeScreen
+        videos={CURATED_UZBEK_OLD_CARTOONS}
+        onOpenVideo={openVideo}
+        onSettings={openSettings}
+      />
+    </>
   );
 }

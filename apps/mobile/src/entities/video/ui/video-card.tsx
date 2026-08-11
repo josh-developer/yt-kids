@@ -9,11 +9,7 @@ import Animated, {
 import { ChannelAvatar } from "./channel-avatar";
 import { VideoThumbnail } from "./video-thumbnail";
 import { useTheme } from "../../../shared/lib/theme/use-theme";
-import {
-  videoChannel,
-  videoTitle,
-  videoViews,
-} from "../../../shared/lib/format/video-labels";
+import { useVideoLabels } from "../../../shared/lib/format/use-video-labels";
 import { radius, size, space, type } from "../../../shared/config/theme";
 
 /**
@@ -37,6 +33,7 @@ export const VideoCard = memo(function VideoCard({
   onOpen: (video: Video) => void;
 }) {
   const { colors } = useTheme();
+  const labels = useVideoLabels();
   const pressed = useSharedValue(0);
 
   const animated = useAnimatedStyle(() => ({
@@ -58,7 +55,7 @@ export const VideoCard = memo(function VideoCard({
           { backgroundColor: colors.card, shadowColor: colors.shadow },
         ]}
         accessibilityRole="button"
-        accessibilityLabel={`${videoTitle(video)}. ${videoChannel(video)}`}
+        accessibilityLabel={`${labels.title(video)}. ${labels.channel(video)}`}
       >
         <VideoThumbnail video={video} priority={priority} />
 
@@ -71,13 +68,13 @@ export const VideoCard = memo(function VideoCard({
               style={[styles.title, { color: colors.text }]}
               numberOfLines={2}
             >
-              {videoTitle(video)}
+              {labels.title(video)}
             </Text>
             <Text style={[styles.muted, { color: colors.textSoft }]} numberOfLines={1}>
-              {videoChannel(video)}
+              {labels.channel(video)}
             </Text>
             <Text style={[styles.muted, { color: colors.textSoft }]} numberOfLines={1}>
-              {videoViews(video)}
+              {labels.views(video)}
             </Text>
           </View>
         </View>

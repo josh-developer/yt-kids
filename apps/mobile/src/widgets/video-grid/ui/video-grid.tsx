@@ -7,11 +7,10 @@ import {
   type ListRenderItemInfo,
 } from "react-native";
 import Animated, {
-  useAnimatedScrollHandler,
-  useSharedValue,
+  type SharedValue,
+  type useAnimatedScrollHandler,
 } from "react-native-reanimated";
 import { CardReveal } from "./card-reveal";
-import { TOP_BAR_HEIGHT } from "../../top-bar/ui/top-bar";
 import { CARD_METRICS, VideoCard } from "../../../entities/video";
 import { useGridColumns } from "../../../shared/lib/layout/use-grid-columns";
 import { space } from "../../../shared/config/theme";
@@ -34,19 +33,24 @@ const EAGER_CARDS = 3;
 export function VideoGrid({
   videos,
   onOpenVideo,
-  header,
+  scrollY,
+  onScroll,
+  topInset,
 }: {
   videos: Video[];
   onOpenVideo: (video: Video) => void;
-  header?: React.ReactElement;
+  /**
+   * Read-only here. The screen owns it and writes to it, because the floating
+   * header reads it too — and because a shared value passed in as a prop must not
+   * be mutated by the child, which the React Compiler rightly enforces.
+   */
+  scrollY: SharedValue<number>;
+  onScroll: ReturnType<typeof useAnimatedScrollHandler>;
+  /** Height of the header the list scrolls underneath. */
+  topInset: number;
 }) {
   const { width, height } = useWindowDimensions();
   const { columns, gap } = useGridColumns();
-  const scrollY = useSharedValue(0);
-
-  const onScroll = useAnimatedScrollHandler((event) => {
-    scrollY.value = event.contentOffset.y;
-  });
 
   // Rows are a fixed height, so this is computed once per layout rather than
   // measured per row. Cards share the row's width minus the gaps between them.
@@ -68,7 +72,7 @@ export function VideoGrid({
         index={Math.floor(index / columns)}
         scrollY={scrollY}
         cardHeight={rowHeight}
-        headerHeight={header ? TOP_BAR_HEIGHT : 0}
+        headerHeight={topInset}
         viewportHeight={height}
       >
         <VideoCard
@@ -79,7 +83,7 @@ export function VideoGrid({
       </CardReveal>
       </View>
     ),
-    [columns, header, height, onOpenVideo, rowHeight, scrollY],
+    [columns, height, onOpenVideo, rowHeight, scrollY, topInset],
   );
 
   const getItemLayout = useCallback(
@@ -104,8 +108,8 @@ export function VideoGrid({
       // The animation reads the shared value on the UI thread; this only feeds
       // the windowing, so per-frame JS events would buy nothing.
       scrollEventThrottle={16}
-      ListHeaderComponent={header}
-      contentContainerStyle={styles.content}
+      // The header floats above, so the first card starts below it.
+      contentContainerStyle={[styles.content, { paddingTop: topInset }]}
       columnWrapperStyle={columns > 1 ? { gap } : undefined}
       ItemSeparatorComponent={columns > 1 ? undefined : () => <Row gap={gap} />}
       showsVerticalScrollIndicator={false}

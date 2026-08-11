@@ -132,6 +132,20 @@ The workspace root uses `react@^19.2.8` for the web app. That is fine and not
 worth reconciling — pnpm gives each package its own copy, and this one has to
 match Expo Go rather than the web build.
 
+## Adding a workspace package needs Metro restarted
+
+Metro resolves `@repo/*` through pnpm's symlinks and caches that resolution. Adding a
+new workspace dependency while it is running gives you a one-module incremental
+refresh against a resolver that has never seen the package — which surfaces as the app
+sitting on its splash screen forever, with nothing in the log, because the import
+resolved to nothing.
+
+```sh
+pkill -f "expo start" && pnpm --filter mobile dev -- --clear
+```
+
+Not a problem with the config below; just the order things have to happen in.
+
 ## metro.config.js earns its keep
 
 Metro's defaults are wrong in a pnpm workspace twice over: it watches only the

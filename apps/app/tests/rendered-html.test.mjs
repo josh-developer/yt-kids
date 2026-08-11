@@ -144,8 +144,8 @@ test("keeps the feature-sliced layout intact", async () => {
 
 test("keeps every message key in sync across locales", async () => {
   const [en, uz] = await Promise.all([
-    readFile(new URL("../../../packages/internationalization/messages/en.json", import.meta.url), "utf8"),
-    readFile(new URL("../../../packages/internationalization/messages/uz.json", import.meta.url), "utf8"),
+    readFile(new URL("../../../packages/messages/en.json", import.meta.url), "utf8"),
+    readFile(new URL("../../../packages/messages/uz.json", import.meta.url), "utf8"),
   ]);
 
   function flatten(value, prefix = "") {

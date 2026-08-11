@@ -9,19 +9,29 @@ The web app is organised by [Feature-Sliced Design][fsd] and enforces it with
 both codebases without relearning where things live:
 
 ```
-App.tsx                 fonts, providers, the screen
+App.tsx                 providers, font/preference gate, the screen
 src/
   pages/home/           a screen, composed of widgets
   widgets/
-    top-bar/            wordmark + search affordance
+    top-bar/            wordmark, actions, search; hides on scroll
     video-grid/         the list, and the scroll reveal
+  features/
+    theme-toggle/       light/dark button
+    locale-switch/      en/uz button
   entities/video/       card, thumbnail, avatar — one video, everywhere
   shared/
     api/                thumbnail URLs
-    config/             design tokens, site URL
-    lib/format/         data → display strings
+    config/             design tokens, storage keys, site URL
+    lib/format/         data → localized display strings
+    lib/i18n/           catalogs, ICU, active locale
+    lib/storage/        the two persisted preferences
     lib/theme/          active palette
+    ui/                 icon button
 ```
+
+`features/` exists for the same reason it does on the web: a toggle is a user
+action with its own state, not a piece of a widget's layout, and the header should
+not know how a theme is stored.
 
 The rule is the web's: a layer may import from layers below it and from itself,
 never from above. `entities/video` knows nothing about the grid that renders it.
@@ -102,6 +112,63 @@ reachable from here. Left transitive, the plugin is silently skipped and every
 animation fails at runtime with nothing to point at. Same class of failure as
 `babel-preset-expo` itself, which is documented in the README.
 
+## Theme and locale
+
+Both are persisted preferences that follow the device until someone chooses
+otherwise, and both gate the first frame.
+
+**Theme.** The web's rule is "stored choice wins; otherwise the device preference
+decides", and that is the rule here — with one addition. A phone can change its
+appearance while the app is open, so until a deliberate toggle the palette follows
+`useColorScheme()` live rather than being sampled at launch. After a toggle it stops
+following, because a viewer who picked light did not mean "light until sunset".
+
+**Locale.** `en` and `uz`, from the same `@repo/internationalization` catalogs the
+website serves — imported, not copied, so a string corrected on the web is corrected
+here. Only the JSON is taken; `next-intl` is tied to Next's request lifecycle.
+
+Formatting goes through `intl-messageformat`, which is the engine `next-intl` uses
+underneath. That is deliberate rather than convenient: `LocaleSwitcher.name` is
+`{locale, select, en {English} uz {O'zbekcha} other {{locale}}}`, and hand-rolling a
+subset of ICU to read it is exactly how two platforms drift apart. Formatters are
+cached per locale and message id, because constructing one parses the pattern and a
+card renders a view count on every scroll frame.
+
+View counts are bucketed in `lib/format/use-video-labels.ts` and separators come
+from the catalog's `Format` namespace, not from `Intl`. Both copy the web, and the
+web has a reason: the Workers runtime ships ICU with English locale data only, so it
+accepts `uz` and then formats it like `en`. Matching the arithmetic is what keeps the
+two byte-identical rather than merely close.
+
+Switching locale is local state here. On the web it is a real navigation — the
+server owns the messages, `<html lang>` and the cookie — but the catalogs are in
+this bundle, so there is nothing to fetch and nothing to route.
+
+**Both are read before the first paint**, alongside the fonts. Each would otherwise
+show the wrong thing and correct itself: the system face before Nunito reflows every
+title, light before a stored dark, English before a stored Uzbek.
+
+## The header hides itself
+
+`widgets/top-bar/model/use-auto-hide.ts`, a port of the web's `useTopbarAutoHide`
+with its thresholds intact — 24px of top zone, and an 8px deadband that stops a
+jittery finger flickering the bar.
+
+It floats above the list rather than scrolling with it, which is what lets it move
+under its own animation; the web does the same with `position: sticky` and a
+`translateY(-100%)`. The list is padded by the bar's height instead of carrying it as
+a header.
+
+The whole decision runs on the UI thread. `useAnimatedReaction` rather than a derived
+value, because it needs the *previous* offset to get a direction from — a derived
+value only ever sees the current one and the delta would be zero every frame. Doing
+it with React state would mean a `setState` per scroll frame, which puts a header
+animation on the JS thread, precisely where it must not be.
+
+`scrollY` is owned by the screen, not the list: two things read it, and a shared
+value passed to a child as a prop must not be mutated there — which the React
+Compiler's `immutability` rule enforces, correctly.
+
 ## Not here yet
 
 - **The watch screen.** Tapping a card is inert. Deliberately not a WebView
@@ -109,10 +176,9 @@ animation fails at runtime with nothing to point at. Same class of failure as
   temporary to remove.
 - **Search.** The field is presentational. Wiring it needs the query filtering in
   the web app's `video-library.ts`, which is worth porting rather than reinventing.
+- **Parent settings.** The `+` button is wired but inert; the screen is its own job.
 - **The library.** The web keeps a parent-curated selection in `localStorage`; this
   screen shows the whole catalog. Needs a storage decision first.
-- **i18n.** Strings in `lib/format/video-labels.ts` are the Uzbek ones, in one
-  place, ready to become catalog lookups. The web resolves them through `next-intl`.
 - **The doodle layer.** The web lays two fixed SVG layers over the gradient. A
   full-screen decorative layer under a scrolling list is a performance decision
   worth measuring, not assuming.

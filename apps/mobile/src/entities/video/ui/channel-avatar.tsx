@@ -1,6 +1,6 @@
 import type { Video } from "@repo/catalog/types";
 import { StyleSheet, Text, View } from "react-native";
-import { channelInitial } from "../../../shared/lib/format/video-labels";
+import { useVideoLabels } from "../../../shared/lib/format/use-video-labels";
 import { radius, size, type } from "../../../shared/config/theme";
 
 /**
@@ -8,9 +8,11 @@ import { radius, size, type } from "../../../shared/config/theme";
  * carried by the catalog data, so both clients colour the same channel the same.
  */
 export function ChannelAvatar({ video }: { video: Video }) {
+  const labels = useVideoLabels();
+
   return (
     <View style={[styles.avatar, { backgroundColor: video.accent }]}>
-      <Text style={styles.initial}>{channelInitial(video)}</Text>
+      <Text style={styles.initial}>{labels.initial(video)}</Text>
     </View>
   );
 }

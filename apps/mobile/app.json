@@ -43,7 +43,8 @@
     "plugins": [
       "expo-image",
       "expo-font",
-      "expo-splash-screen"
+      "expo-splash-screen",
+      "expo-localization"
     ]
   }
 }
