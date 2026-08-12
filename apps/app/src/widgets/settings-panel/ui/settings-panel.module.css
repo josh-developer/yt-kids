@@ -51,16 +51,6 @@
   z-index: 1;
 }
 
-.bulkActionWrap:last-child .bulkConfirmPopover {
-  right: 0;
-  left: auto;
-}
-
-.bulkActionWrap:last-child .bulkConfirmPopover::before {
-  right: 24px;
-  left: auto;
-}
-
 .settingsHeadingActions,
 .settingsRowActions {
   display: flex;
@@ -72,17 +62,6 @@
   position: relative;
   z-index: 2;
   display: inline-flex;
-}
-
-.settingsResetWrap .bulkConfirmPopover {
-  right: 0;
-  left: auto;
-  z-index: 30000;
-}
-
-.settingsResetWrap .bulkConfirmPopover::before {
-  right: 24px;
-  left: auto;
 }
 
 .settingsTabs {

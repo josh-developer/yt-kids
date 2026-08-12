@@ -97,6 +97,7 @@
     "resetAllVideos": "Reset all videos",
     "resetAllVideosConfirm": "Reset to the default video list? Parent-added videos and hidden choices will be cleared.",
     "cancel": "Cancel",
+    "yes": "Yes",
     "close": "Close",
     "searchVideos": "Search videos",
     "approvedVideos": "Approved videos",
