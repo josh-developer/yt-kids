@@ -13,6 +13,7 @@ import { useTranslations } from "next-intl";
 import type { MouseEvent, PointerEvent } from "react";
 import { thumbnailUrl } from "@/shared/api/youtube";
 import { SEEK_STEP_SECONDS } from "@/shared/config/app-config";
+import { Tooltip } from "@/shared/ui/tooltip";
 import { useVideoLabels, type Video } from "@/entities/video";
 import type { PlayerFailure } from "../model/use-player-engine";
 import type { SeekDirection } from "../model/use-player-gestures";
@@ -329,24 +330,28 @@ export function SideNavButtons({
 
   return (
     <div className={styles.sidePlayerButtons} aria-label={t("controls")}>
-      <button
-        className={`${styles.sidePlayerButton} ${hasPrevious ? "" : styles.isDisabled}`}
-        type="button"
-        aria-disabled={!hasPrevious}
-        aria-label={t("previousVideo")}
-        {...bind("previous")}
-      >
-        <SkipBack size={24} fill="currentColor" />
-      </button>
-      <button
-        className={`${styles.sidePlayerButton} ${hasNext ? "" : styles.isDisabled}`}
-        type="button"
-        aria-disabled={!hasNext}
-        aria-label={t("nextVideo")}
-        {...bind("next")}
-      >
-        <SkipForward size={24} fill="currentColor" />
-      </button>
+      <Tooltip label={t("previousVideo")} isDisabled={!hasPrevious}>
+        <button
+          className={`${styles.sidePlayerButton} ${hasPrevious ? "" : styles.isDisabled}`}
+          type="button"
+          aria-disabled={!hasPrevious}
+          aria-label={t("previousVideo")}
+          {...bind("previous")}
+        >
+          <SkipBack size={24} fill="currentColor" />
+        </button>
+      </Tooltip>
+      <Tooltip label={t("nextVideo")} isDisabled={!hasNext}>
+        <button
+          className={`${styles.sidePlayerButton} ${hasNext ? "" : styles.isDisabled}`}
+          type="button"
+          aria-disabled={!hasNext}
+          aria-label={t("nextVideo")}
+          {...bind("next")}
+        >
+          <SkipForward size={24} fill="currentColor" />
+        </button>
+      </Tooltip>
     </div>
   );
 }
@@ -382,24 +387,26 @@ export function BigPlayButton({
   const t = useTranslations("Player");
 
   return (
-    <button
-      className={`${styles.bigPlayButton} ${isVisible ? "" : styles.hidden}`}
-      onClick={(event) => {
-        event.stopPropagation();
-        onClick();
-      }}
-      onDoubleClick={(event) => event.stopPropagation()}
-      type="button"
-      // Faded out rather than unmounted, so it must leave the tab order too.
-      tabIndex={isVisible ? undefined : -1}
-      aria-hidden={isVisible ? undefined : true}
-      aria-label={isPlaying ? t("pause") : t("play")}
-    >
-      {isPlaying ? (
-        <Pause size={30} fill="currentColor" />
-      ) : (
-        <Play size={30} fill="currentColor" />
-      )}
-    </button>
+    <Tooltip label={isPlaying ? t("pause") : t("play")} isDisabled={!isVisible}>
+      <button
+        className={`${styles.bigPlayButton} ${isVisible ? "" : styles.hidden}`}
+        onClick={(event) => {
+          event.stopPropagation();
+          onClick();
+        }}
+        onDoubleClick={(event) => event.stopPropagation()}
+        type="button"
+        // Faded out rather than unmounted, so it must leave the tab order too.
+        tabIndex={isVisible ? undefined : -1}
+        aria-hidden={isVisible ? undefined : true}
+        aria-label={isPlaying ? t("pause") : t("play")}
+      >
+        {isPlaying ? (
+          <Pause size={30} fill="currentColor" />
+        ) : (
+          <Play size={30} fill="currentColor" />
+        )}
+      </button>
+    </Tooltip>
   );
 }

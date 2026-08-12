@@ -3,6 +3,7 @@ import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { ConfirmPopover } from "@/shared/ui/confirm-popover";
 import primitives from "@/shared/ui/primitives.module.css";
+import { Tooltip } from "@/shared/ui/tooltip";
 import styles from "./settings-panel.module.css";
 
 type BulkAction = "approve" | "hide";
@@ -45,20 +46,21 @@ export function BulkActions({
     <div className={styles.settingsBulkActions} aria-label={t("approveAllVideos")}>
       {actions.map((action) => (
         <div className={styles.bulkActionWrap} key={action.key}>
-          <button
-            className={`${primitives.compactButton} ${action.className}`}
-            type="button"
-            onClick={() =>
-              setOpenAction((current) =>
-                current === action.key ? null : action.key,
-              )
-            }
-            aria-expanded={openAction === action.key}
-            data-tooltip={action.tooltip}
-          >
-            {action.icon}
-            {action.label}
-          </button>
+          <Tooltip label={action.tooltip}>
+            <button
+              className={`${primitives.compactButton} ${action.className}`}
+              type="button"
+              onClick={() =>
+                setOpenAction((current) =>
+                  current === action.key ? null : action.key,
+                )
+              }
+              aria-expanded={openAction === action.key}
+            >
+              {action.icon}
+              {action.label}
+            </button>
+          </Tooltip>
           {openAction === action.key ? (
             <ConfirmPopover
               tone={action.tone}

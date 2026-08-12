@@ -2,7 +2,7 @@ import { Check, Copy, Upload } from "lucide-react";
 import { useTranslations } from "next-intl";
 import type { ExportState } from "../model/use-library-transfer";
 import primitives from "@/shared/ui/primitives.module.css";
-import styles from "./export-library-button.module.css";
+import { Tooltip } from "@/shared/ui/tooltip";
 
 export function ExportLibraryButton({
   state,
@@ -12,7 +12,7 @@ export function ExportLibraryButton({
   onExport: () => void;
 }) {
   const t = useTranslations("Settings");
-  const tooltip =
+  const statusLabel =
     state === "copied"
       ? t("exportCopied")
       : state === "copying"
@@ -20,28 +20,28 @@ export function ExportLibraryButton({
         : state === "failed"
           ? t("copyFailed")
           : "";
+  const isStatusVisible = state !== "idle";
 
   return (
-    <button
-      className={`${primitives.iconButton} ${styles.tooltipButton} ${state === "idle" ? "" : styles.showTooltip}`}
-      type="button"
-      onClick={onExport}
-      aria-label={t("exportParentSettings")}
-      data-tooltip={t("exportParentSettings")}
-      // This button renders its own tooltip element, so it opts out of the
-      // attribute-driven one in globals.css.
-      data-tooltip-mode="manual"
+    <Tooltip
+      label={statusLabel || t("exportParentSettings")}
+      isOpen={isStatusVisible ? true : undefined}
+      role={isStatusVisible ? "status" : "tooltip"}
     >
-      {state === "copied" ? (
-        <Check size={19} />
-      ) : state === "copying" ? (
-        <Copy size={19} />
-      ) : (
-        <Upload size={19} />
-      )}
-      <span className={styles.buttonTooltip} role="status">
-        {tooltip}
-      </span>
-    </button>
+      <button
+        className={primitives.iconButton}
+        type="button"
+        onClick={onExport}
+        aria-label={t("exportParentSettings")}
+      >
+        {state === "copied" ? (
+          <Check size={19} />
+        ) : state === "copying" ? (
+          <Copy size={19} />
+        ) : (
+          <Upload size={19} />
+        )}
+      </button>
+    </Tooltip>
   );
 }

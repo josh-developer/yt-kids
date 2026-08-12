@@ -110,7 +110,7 @@
   overflow-wrap: break-word;
 }
 
-/* Lifts the hovered card above its neighbours, tooltips and all. */
+/* Lifts the hovered card above its neighbours. */
 .videoCard:hover,
 .videoCard:focus-visible,
 .videoCard:has(button:hover),

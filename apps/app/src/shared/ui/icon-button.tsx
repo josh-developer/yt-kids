@@ -1,14 +1,10 @@
 import type { MouseEvent, ReactNode } from "react";
 import primitives from "./primitives.module.css";
+import { Tooltip } from "./tooltip";
 
-/**
- * Every icon button in the app pairs an `aria-label` with the identical
- * `data-tooltip`. Doing that in one place keeps the two from drifting apart.
- */
 export function IconButton({
   label,
   tooltip = label,
-  tooltipAlign,
   children,
   className = "",
   isActive = false,
@@ -19,10 +15,7 @@ export function IconButton({
   onDoubleClick,
 }: {
   label: string;
-  tooltip?: string;
-  /** "end" keeps the bubble from running past the viewport's edge for a
-   * button that sits at it — see `[data-tooltip-align="end"]` in globals.css. */
-  tooltipAlign?: "end";
+  tooltip?: string | null;
   children: ReactNode;
   className?: string;
   isActive?: boolean;
@@ -32,7 +25,7 @@ export function IconButton({
   onClick?: (event: MouseEvent<HTMLButtonElement>) => void;
   onDoubleClick?: (event: MouseEvent<HTMLButtonElement>) => void;
 }) {
-  return (
+  const button = (
     <button
       className={`${primitives.iconButton} ${
         isActive ? primitives.active : ""
@@ -42,12 +35,12 @@ export function IconButton({
       aria-label={label}
       aria-expanded={isExpanded}
       aria-pressed={isPressed}
-      data-tooltip={tooltip}
-      data-tooltip-align={tooltipAlign}
       onClick={onClick}
       onDoubleClick={onDoubleClick}
     >
       {children}
     </button>
   );
+
+  return tooltip ? <Tooltip label={tooltip}>{button}</Tooltip> : button;
 }

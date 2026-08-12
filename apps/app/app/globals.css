@@ -3,9 +3,8 @@
 /*
  * The only stylesheet that is not scoped to a slice.
  *
- * It holds three things and nothing else: the design tokens, the element
- * defaults every page inherits, and the tooltip, which is driven by the
- * `data-tooltip` attribute rather than by any one component. Everything that
+ * It holds two things and nothing else: the design tokens and the element
+ * defaults every page inherits. Everything that
  * belongs to a screen, a widget or an entity lives in a `*.module.css` beside
  * the component that renders it.
  *
@@ -103,62 +102,4 @@ input {
 
 button {
   cursor: pointer;
-}
-
-/*
- * Any element carrying `data-tooltip` gets one — no list of the classes that
- * might. A control that renders its own tooltip element opts out with
- * `data-tooltip-mode="manual"`.
- */
-[data-tooltip]:not([data-tooltip-mode="manual"])::after {
-  content: attr(data-tooltip);
-  position: absolute;
-  top: calc(100% + 8px);
-  left: 50%;
-  z-index: 10000;
-  min-width: max-content;
-  max-width: 180px;
-  padding: 6px 9px;
-  border-radius: 6px;
-  background: rgba(20, 20, 20, 0.92);
-  color: white;
-  font-size: 12px;
-  font-weight: 800;
-  line-height: 1.2;
-  opacity: 0;
-  pointer-events: none;
-  transform: translate(-50%, -4px);
-  transition:
-    opacity 140ms ease,
-    transform 140ms ease;
-  white-space: nowrap;
-}
-
-[data-tooltip]:not([data-tooltip-mode="manual"]):hover::after,
-[data-tooltip]:not([data-tooltip-mode="manual"]):focus-visible::after {
-  opacity: 1;
-  transform: translate(-50%, 0);
-}
-
-/*
-* A control that sits at the edge of its container — the last icon in a row
-* pinned to the right, say — has no room for a tooltip centred on it, which
-* runs straight past that edge. Anchoring the bubble to the button's own
-* right edge instead keeps it opening inward.
-*/
-[data-tooltip][data-tooltip-align="end"]:not([data-tooltip-mode="manual"])::after {
-  left: auto;
-  right: 0;
-  transform: translate(0, -4px);
-}
-
-[data-tooltip][data-tooltip-align="end"]:not([data-tooltip-mode="manual"]):hover::after,
-[data-tooltip][data-tooltip-align="end"]:not([data-tooltip-mode="manual"]):focus-visible::after {
-  transform: translate(0, 0);
-}
-
-/* Lifts the hovered control so its tooltip is not clipped by a sibling. */
-[data-tooltip]:hover,
-[data-tooltip]:focus-visible {
-  z-index: 1000;
 }

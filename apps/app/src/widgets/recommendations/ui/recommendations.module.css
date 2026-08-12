@@ -59,7 +59,7 @@
   }
 }
 
-/* Lifts the hovered card above its neighbours, tooltips and all. */
+/* Lifts the hovered card above its neighbours. */
 .recommendationCard:hover,
 .recommendationCard:focus-visible,
 .recommendationCard:has(button:hover),

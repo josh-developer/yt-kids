@@ -14,6 +14,7 @@
     "lint": "eslint . --ignore-pattern dist --ignore-pattern .next"
   },
   "dependencies": {
+    "@floating-ui/react": "^0.27.20",
     "@repo/catalog": "workspace:*",
     "@repo/internationalization": "workspace:*",
     "@repo/next-config": "workspace:*",

@@ -59,7 +59,6 @@ export function SettingsHeader({
           <IconButton
             className={primitives.dangerIconButton}
             label={t("resetAllVideos")}
-            tooltipAlign="end"
             isExpanded={isResetConfirmOpen}
             onClick={() => setIsResetConfirmOpen((open) => !open)}
           >

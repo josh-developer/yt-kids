@@ -1,0 +1,19 @@
+.tooltip {
+  z-index: 10000;
+  max-width: min(220px, calc(100vw - 16px));
+  padding: 7px 10px;
+  border-radius: 6px;
+  background: rgba(20, 20, 20, 0.94);
+  color: #ffffff;
+  font-size: 12px;
+  font-weight: 800;
+  line-height: 1.25;
+  pointer-events: none;
+  text-align: center;
+  white-space: normal;
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.2);
+}
+
+.arrow {
+  fill: rgba(20, 20, 20, 0.94);
+}
