@@ -2,7 +2,6 @@ import { Plus } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { PlayerPlaceholder } from "@/widgets/player";
 import primitives from "@/shared/ui/primitives.module.css";
-import { Tooltip } from "@/shared/ui/tooltip";
 import styles from "./watch-page.module.css";
 
 /**
@@ -57,25 +56,23 @@ export function WatchUnavailable({
         <h2>{t("unavailableTitle")}</h2>
         <p className={primitives.muted}>{t("unavailableBody")}</p>
         <div className={primitives.emptyActions}>
-          <Tooltip label={t("goHome")}>
-            <button
-              className={primitives.primaryButton}
-              type="button"
-              onClick={onHome}
-            >
-              {t("home")}
-            </button>
-          </Tooltip>
-          <Tooltip label={t("openSettings")}>
-            <button
-              className={primitives.pillButton}
-              type="button"
-              onClick={onSettings}
-            >
-              <Plus size={18} />
-              {t("parentSettings")}
-            </button>
-          </Tooltip>
+          <button
+            className={primitives.primaryButton}
+            type="button"
+            onClick={onHome}
+            data-tooltip={t("goHome")}
+          >
+            {t("home")}
+          </button>
+          <button
+            className={primitives.pillButton}
+            type="button"
+            onClick={onSettings}
+            data-tooltip={t("openSettings")}
+          >
+            <Plus size={18} />
+            {t("parentSettings")}
+          </button>
         </div>
       </div>
     </div>

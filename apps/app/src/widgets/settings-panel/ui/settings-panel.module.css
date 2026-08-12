@@ -250,7 +250,7 @@
   }
 }
 
-/* Lifts the hovered card above its neighbours. */
+/* Lifts the hovered card above its neighbours, tooltips and all. */
 .resultCard:hover,
 .resultCard:focus-visible,
 .resultCard:has(button:hover),

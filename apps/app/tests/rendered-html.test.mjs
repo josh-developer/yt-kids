@@ -129,14 +129,13 @@ test("keeps the feature-sliced layout intact", async () => {
   // The embed stays untouchable, wherever its stylesheet lives.
   assert.match(playerCss, /\.youtubeMount[\s\S]*?pointer-events:\s*none/);
 
-  // globals.css is tokens and element defaults — nothing else.
+  // globals.css is tokens, element defaults and the tooltip — nothing else.
   // Component rules belong to a `*.module.css` beside the component.
   assert.match(css, /--brand-red/);
-  assert.doesNotMatch(css, /\[data-tooltip\]/);
+  assert.match(css, /\[data-tooltip\]/);
   assert.doesNotMatch(css, /\.(player|video|topbar|settings|recommendation)/);
 
   assert.match(packageJson, /"name": "app"/);
-  assert.match(packageJson, /"@floating-ui\/react":/);
   assert.match(packageJson, /"lucide-react":/);
   assert.match(packageJson, /"next-intl":/);
   assert.doesNotMatch(layout, /codex-preview|_sites-preview|themeColor/);

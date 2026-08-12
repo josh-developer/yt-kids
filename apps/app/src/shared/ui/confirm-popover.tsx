@@ -1,5 +1,4 @@
 import styles from "./confirm-popover.module.css";
-import { Tooltip } from "./tooltip";
 export type ConfirmTone = "approve" | "danger";
 
 export function ConfirmPopover({
@@ -21,24 +20,22 @@ export function ConfirmPopover({
     <div className={styles.bulkConfirmPopover} role="dialog" aria-label={message}>
       <p>{message}</p>
       <div className={styles.bulkConfirmActions}>
-        <Tooltip label={cancelLabel}>
-          <button
-            className={styles.confirmPopoverButton}
-            type="button"
-            onClick={onCancel}
-          >
-            {cancelLabel}
-          </button>
-        </Tooltip>
-        <Tooltip label={confirmLabel}>
-          <button
-            className={`${styles.confirmPopoverButton} ${tone === "danger" ? styles.dangerConfirm : styles.approveConfirm}`}
-            type="button"
-            onClick={onConfirm}
-          >
-            {confirmLabel}
-          </button>
-        </Tooltip>
+        <button
+          className={styles.confirmPopoverButton}
+          type="button"
+          onClick={onCancel}
+          data-tooltip={cancelLabel}
+        >
+          {cancelLabel}
+        </button>
+        <button
+          className={`${styles.confirmPopoverButton} ${tone === "danger" ? styles.dangerConfirm : styles.approveConfirm}`}
+          type="button"
+          onClick={onConfirm}
+          data-tooltip={confirmLabel}
+        >
+          {confirmLabel}
+        </button>
       </div>
     </div>
   );

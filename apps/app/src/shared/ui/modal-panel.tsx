@@ -2,7 +2,6 @@ import { X } from "lucide-react";
 import type { ReactNode } from "react";
 import { IconButton } from "./icon-button";
 import primitives from "./primitives.module.css";
-import { Tooltip } from "./tooltip";
 import styles from "./modal-panel.module.css";
 
 /**
@@ -53,12 +52,14 @@ export function ModalPanel({
         {children}
         <div className={styles.modalActions}>
           <span className={styles.statusLine}>{status}</span>
-          <Tooltip label={submitLabel}>
-            <button className={primitives.primaryButton} type="submit">
-              {submitIcon}
-              {submitLabel}
-            </button>
-          </Tooltip>
+          <button
+            className={primitives.primaryButton}
+            type="submit"
+            data-tooltip={submitLabel}
+          >
+            {submitIcon}
+            {submitLabel}
+          </button>
         </div>
       </form>
     </div>

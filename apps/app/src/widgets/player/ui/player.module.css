@@ -749,6 +749,23 @@
   background: var(--brand-yellow);
 }
 
+.safePlayerControls .playerControlButton[data-tooltip]::after,
+.playerProgress[data-tooltip]::after,
+.bigPlayButton[data-tooltip]::after {
+  top: auto;
+  bottom: calc(100% + 8px);
+  transform: translate(-50%, 4px);
+}
+
+.safePlayerControls .playerControlButton[data-tooltip]:hover::after,
+.safePlayerControls .playerControlButton[data-tooltip]:focus-visible::after,
+.playerProgress[data-tooltip]:hover::after,
+.playerProgress[data-tooltip]:focus-visible::after,
+.bigPlayButton[data-tooltip]:hover::after,
+.bigPlayButton[data-tooltip]:focus-visible::after {
+  transform: translate(-50%, 0);
+}
+
 :global([data-tv]) button:focus-visible,
 :global([data-tv]) input:focus-visible,
 :global([data-tv]) textarea:focus-visible,

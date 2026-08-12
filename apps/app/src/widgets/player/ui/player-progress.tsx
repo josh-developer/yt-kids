@@ -2,7 +2,6 @@ import { useTranslations } from "next-intl";
 import { useRef, useSyncExternalStore } from "react";
 import type { PointerEvent } from "react";
 import { formatTimestamp } from "@/shared/lib/time";
-import { Tooltip } from "@/shared/ui/tooltip";
 import type { PlaybackClock } from "../model/playback-clock";
 import styles from "./player.module.css";
 
@@ -72,27 +71,25 @@ export function PlayerProgress({
 
   return (
     <div className={styles.playerProgressWrap}>
-      <Tooltip label={t("seek")} isDisabled={!hasDuration}>
-        <button
-          className={styles.playerProgress}
-          disabled={!hasDuration}
-          onPointerCancel={handlePointerEnd}
-          onPointerDown={handlePointerDown}
-          onPointerMove={handlePointerMove}
-          onPointerUp={handlePointerEnd}
-          type="button"
-          aria-label={t("seek")}
-        >
-          <span
-            className={styles.playerProgressFill}
-            style={{
-              width: hasDuration
-                ? `${Math.min(100, (currentTime / durationSeconds) * 100)}%`
-                : "0%",
-            }}
-          />
-        </button>
-      </Tooltip>
+      <button
+        className={styles.playerProgress}
+        disabled={!hasDuration}
+        onPointerCancel={handlePointerEnd}
+        onPointerDown={handlePointerDown}
+        onPointerMove={handlePointerMove}
+        onPointerUp={handlePointerEnd}
+        type="button"
+        aria-label={t("seek")}
+      >
+        <span
+          className={styles.playerProgressFill}
+          style={{
+            width: hasDuration
+              ? `${Math.min(100, (currentTime / durationSeconds) * 100)}%`
+              : "0%",
+          }}
+        />
+      </button>
       <span className={styles.playerTime}>
         {formatTimestamp(currentTime)} /{" "}
         {hasDuration ? formatTimestamp(durationSeconds) : "--:--"}
