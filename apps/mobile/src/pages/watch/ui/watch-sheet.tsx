@@ -49,7 +49,7 @@ const DISMISS_VELOCITY = 1.1;
  */
 const FLICK_DISTANCE = 40;
 /** How far a finger travels before the sheet follows it rather than the list scrolling. */
-const DRAG_SLOP = 12;
+const DRAG_SLOP = 10;
 const DURATION = 260;
 
 /**
@@ -102,6 +102,11 @@ export function WatchSheet({
    * responder is rebuilt about as often as a finger reaches the top.
    */
   const [isListAtTop, setIsListAtTop] = useState(true);
+  /**
+   * Where the video ends on the screen, so a drag that starts on it can be told apart from
+   * one that starts in the list below.
+   */
+  const [playerBottom, setPlayerBottom] = useState(0);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [areRecommendationsVisible, setAreRecommendationsVisible] =
     useState(true);
@@ -198,14 +203,21 @@ export function WatchSheet({
          * asking after the fact — `onMoveShouldSetPanResponder` — never wins and a drag
          * that starts over the list does nothing.
          *
-         * Safe to claim first because of the conditions: downward, past the slop, more
-         * vertical than horizontal, and only while the list has nothing left to scroll up.
-         * Every other gesture is left alone.
+         * The `y0` clause is what makes the gesture reliable. Gating the whole sheet on
+         * "the list is scrolled to the top" meant that after scrolling the recommendations,
+         * dragging the *video* down did nothing — the finger was nowhere near the list, but
+         * the list's offset still vetoed it. A drag that starts on the player is always the
+         * dismiss; only a drag that starts in the list has to wait for the list to run out
+         * of scroll.
          */
-        onMoveShouldSetPanResponderCapture: (_event, gesture) =>
-          isListAtTop &&
-          gesture.dy > DRAG_SLOP &&
-          Math.abs(gesture.dx) < Math.abs(gesture.dy),
+        onMoveShouldSetPanResponderCapture: (event, gesture) => {
+          const startedOnPlayer = gesture.y0 <= playerBottom;
+          return (
+            (startedOnPlayer || isListAtTop) &&
+            gesture.dy > DRAG_SLOP &&
+            Math.abs(gesture.dx) < Math.abs(gesture.dy)
+          );
+        },
         /**
          * Once claimed, kept. Both of these matter and neither is optional: the list asks
          * for the responder back the moment it sees a move, and on Android the native
@@ -237,7 +249,7 @@ export function WatchSheet({
           translateY.value = withTiming(0, { duration: DURATION });
         },
       }),
-    [height, isListAtTop, onClose, translateY],
+    [height, isListAtTop, onClose, playerBottom, translateY],
   );
   /* eslint-enable react-hooks/immutability */
 
@@ -260,6 +272,7 @@ export function WatchSheet({
 
       <PlayerView
         ref={player}
+        onStageLayout={(bottom) => setPlayerBottom(bottom)}
         video={video}
         hasPrevious={previousVideo !== null}
         hasNext={nextVideo !== null}

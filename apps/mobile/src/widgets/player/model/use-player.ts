@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
+import { AppState } from "react-native";
 import type WebView from "react-native-webview";
 import {
   parsePlayerMessage,
@@ -55,6 +56,8 @@ export function usePlayer({ videoId }: { videoId: string }) {
   /** Set only if an unmuted start was refused; see `SOUND_GRACE_MS`. */
   const [startsMuted, setStartsMuted] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
+  /** True once there has been a frame; the poster behind the video is dropped then. */
+  const [hasStarted, setHasStarted] = useState(false);
   /**
    * The web's control lock: with it on, the surface stops answering taps so a child
    * cannot pause or seek by touching the picture. The lock button itself keeps working,
@@ -78,6 +81,7 @@ export function usePlayer({ videoId }: { videoId: string }) {
     (autoHide: boolean) => {
       clearHideTimer();
       setAreControlsVisible(true);
+      send(playerCommands.watchTime(true));
       if (autoHide) {
         hideTimer.current = setTimeout(
           () => setAreControlsVisible(false),
@@ -85,13 +89,15 @@ export function usePlayer({ videoId }: { videoId: string }) {
         );
       }
     },
-    [clearHideTimer],
+    [clearHideTimer, send],
   );
 
   const hideControls = useCallback(() => {
     clearHideTimer();
     setAreControlsVisible(false);
-  }, [clearHideTimer]);
+    // Nothing is drawing the position now, so the page stops reporting it.
+    send(playerCommands.watchTime(false));
+  }, [clearHideTimer, send]);
 
   const isPlaying = status === "playing";
 
@@ -99,8 +105,11 @@ export function usePlayer({ videoId }: { videoId: string }) {
     setAreControlsVisible((visible) => {
       clearHideTimer();
       if (visible) {
+        send(playerCommands.watchTime(false));
         return false;
       }
+
+      send(playerCommands.watchTime(true));
 
       if (isPlaying) {
         hideTimer.current = setTimeout(
@@ -111,7 +120,7 @@ export function usePlayer({ videoId }: { videoId: string }) {
 
       return true;
     });
-  }, [clearHideTimer, isPlaying]);
+  }, [clearHideTimer, isPlaying, send]);
 
   const togglePlayback = useCallback(() => {
     if (isPlaying) {
@@ -188,6 +197,7 @@ export function usePlayer({ videoId }: { videoId: string }) {
     setErrorCode(null);
     setStatus("loading");
     setAreControlsVisible(true);
+    setHasStarted(false);
   }
 
   /**
@@ -199,6 +209,22 @@ export function usePlayer({ videoId }: { videoId: string }) {
   useEffect(() => {
     send(playerCommands.load(videoId));
   }, [send, videoId]);
+
+  /**
+   * A video left playing behind a locked screen or another app is a decoder running for
+   * nobody — the battery and the heat are real, and a child who comes back to silence
+   * they did not ask for is the smaller problem. Paused on the way out; the viewer
+   * presses play on the way back, as they would on the web after a tab switch.
+   */
+  useEffect(() => {
+    const subscription = AppState.addEventListener("change", (state) => {
+      if (state !== "active") {
+        send(playerCommands.pause());
+      }
+    });
+
+    return () => subscription.remove();
+  }, [send]);
 
   useEffect(() => {
     return () => {
@@ -262,6 +288,7 @@ export function usePlayer({ videoId }: { videoId: string }) {
         }
 
         setStatus("playing");
+        setHasStarted(true);
         showControls(true);
         return;
       }
@@ -293,6 +320,7 @@ export function usePlayer({ videoId }: { videoId: string }) {
     isRepeatOne,
     isMuted,
     isLocked,
+    hasStarted,
     hasEnded: status === "ended",
     areControlsVisible,
     handleMessage,

@@ -58,6 +58,13 @@ export const playerCommands = {
     command(`window.kidtube.load(${JSON.stringify(videoId)})`),
   setLoop: (isLooping: boolean) =>
     command(`window.kidtube.setLoop(${isLooping ? "true" : "false"})`),
+  /**
+   * The page's clock, which only the visible controls have any use for. Left running
+   * while they are hidden it costs four bridge messages and four React renders a second
+   * for a progress bar nobody can see — which a mid-range phone pays for in heat.
+   */
+  watchTime: (isWatching: boolean) =>
+    command(`window.kidtube.watchTime(${isWatching ? "true" : "false"})`),
   mute: () => command("window.kidtube.mute()"),
   /**
    * Also undoes the muted start below — the player's own volume stays at 100, and the
@@ -158,17 +165,21 @@ export function buildPlayerHtml({
       var player = null;
       var isLooping = false;
       var clock = null;
+      /* Whether anything is watching the clock. The app turns this off with the controls. */
+      var isWatched = true;
+
+      var sendTime = function () {
+        if (!player || !player.getCurrentTime) { return; }
+        send({
+          type: "time",
+          position: player.getCurrentTime() || 0,
+          duration: player.getDuration() || 0
+        });
+      };
 
       var startClock = function () {
-        if (clock) { return; }
-        clock = setInterval(function () {
-          if (!player || !player.getCurrentTime) { return; }
-          send({
-            type: "time",
-            position: player.getCurrentTime() || 0,
-            duration: player.getDuration() || 0
-          });
-        }, 250);
+        if (clock || !isWatched) { return; }
+        clock = setInterval(sendTime, 250);
       };
 
       var stopClock = function () {
@@ -197,6 +208,14 @@ export function buildPlayerHtml({
           player.playVideo();
         },
         setLoop: function (value) { isLooping = value; },
+        watchTime: function (value) {
+          isWatched = value;
+          if (!value) { stopClock(); return; }
+          sendTime();
+          if (player && player.getPlayerState && player.getPlayerState() === ${STATE.playing}) {
+            startClock();
+          }
+        },
         mute: function () { if (player) { player.mute(); } },
         unmute: function () {
           if (!player) { return; }

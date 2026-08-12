@@ -65,6 +65,8 @@ export const PlayerView = forwardRef<
     onToggleFullscreen: () => void;
     onPrevious: () => void;
     onNext: () => void;
+    /** Where the video ends on screen, which the sheet's dismiss gesture needs. */
+    onStageLayout?: (bottom: number) => void;
   }
 >(function PlayerView(
   {
@@ -76,6 +78,7 @@ export const PlayerView = forwardRef<
     onToggleFullscreen,
     onPrevious,
     onNext,
+    onStageLayout,
   },
   ref,
 ) {
@@ -157,7 +160,11 @@ export const PlayerView = forwardRef<
          leaves the 16:9 ratio in place — which is what held full screen to 731dp of a
          914dp landscape screen, the video filling its height and nothing else. */
       style={[isFullscreen ? styles.stageBare : styles.stage, fullscreenStyle]}
-      onLayout={(event) => setStageWidth(event.nativeEvent.layout.width)}
+      onLayout={(event) => {
+        const { width, height, y } = event.nativeEvent.layout;
+        setStageWidth(width);
+        onStageLayout?.(y + height);
+      }}
     >
       {/* Behind the video: the poster the card was showing, so the first frame is
             never a black rectangle. */}
@@ -193,8 +200,13 @@ export const PlayerView = forwardRef<
           scrollEnabled={false}
           bounces={false}
           overScrollMode="never"
-          // Hardware layers keep video composition off the main thread on Android.
-          androidLayerType="hardware"
+          /**
+           * `"none"`, not `"hardware"`. A hardware layer puts the whole WebView into an
+           * offscreen buffer that is copied every frame, on top of the surface the video
+           * decoder is already writing to — work a mid-range phone pays for in heat with
+           * nothing to show for it, since this page is one video and no scrolling.
+           */
+          androidLayerType="none"
           onMessage={(event) => player.handleMessage(event.nativeEvent.data)}
           onShouldStartLoadWithRequest={(request) =>
             isAllowedUrl(request.url) || request.navigationType === "other"
@@ -213,19 +225,23 @@ export const PlayerView = forwardRef<
       />
 
       {/* `.youtubeTitleCover`: the gradient that hides the embed's own title bar, which
-          links out of the app. It is also what covers the branding YouTube flashes over
-          the picture after a programmatic play or seek. */}
-      <LinearGradient
-        colors={["rgba(0,0,0,0.92)", "rgba(0,0,0,0.72)", "rgba(0,0,0,0)"]}
-        locations={[0, 0.44, 1]}
-        style={[
-          styles.titleCover,
-          // `clamp(46px, 8vw, 68px)`: the embed's title bar grows with the width, and a
-          // fixed 46px left it showing in landscape.
-          { height: Math.min(68, Math.max(46, stageWidth * 0.08)) },
-        ]}
-        pointerEvents="none"
-      />
+          links out of the app, and the branding YouTube flashes after a programmatic play
+          or seek. Mounted with the controls, because those are the only moments the embed
+          shows it — and a permanent gradient over a playing video is one more layer to
+          blend on every frame. */}
+      {player.areControlsVisible ? (
+        <LinearGradient
+          colors={["rgba(0,0,0,0.92)", "rgba(0,0,0,0.72)", "rgba(0,0,0,0)"]}
+          locations={[0, 0.44, 1]}
+          style={[
+            styles.titleCover,
+            // `clamp(46px, 8vw, 68px)`: the embed's title bar grows with the width, and a
+            // fixed 46px left it showing in landscape.
+            { height: Math.min(68, Math.max(46, stageWidth * 0.08)) },
+          ]}
+          pointerEvents="none"
+        />
+      ) : null}
 
       {/* The lock. Visible whether or not the controls are, because it is the way back
           out of a locked player. */}
