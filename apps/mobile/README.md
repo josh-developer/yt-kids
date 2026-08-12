@@ -47,6 +47,36 @@ working around WebKit's rule that only muted autoplay may start without a gestur
 In an app we own that rule is simply lifted, which is why video here starts with
 sound.
 
+## Why the APK is 31 MB and not 97
+
+A universal APK carries a copy of every native library for four architectures. In this
+app that is most of the download:
+
+| slice                                   | size    |
+| --------------------------------------- | ------- |
+| `lib/x86_64`                            | 22.8 MB |
+| `lib/x86`                               | 22.6 MB |
+| `lib/arm64-v8a`                         | 21.3 MB |
+| `lib/armeabi-v7a`                       | 14.7 MB |
+| dex, unminified                         | 11.2 MB |
+| assets (the JS bundle is 4.25 MB of it) | 4.3 MB  |
+
+The two x86 slices exist for emulators; `armeabi-v7a` is for 32-bit phones, which no
+current device is. Building for `arm64-v8a` alone drops 60 MB, and R8 takes the dex
+from 11.2 MB to 3.6 MB:
+
+```sh
+cd android && ./gradlew :app:assembleRelease -PreactNativeArchitectures=arm64-v8a
+```
+
+`reactNativeArchitectures` is the knob that works. `expo-build-properties` accepts an
+`android.abiFilters`, and it does _not_ reach this — a build with it set still packed
+all four. The minification comes from that plugin, though:
+`enableProguardInReleaseBuilds` and `enableShrinkResourcesInReleaseBuilds`.
+
+The `production-apk` profile passes the same flag through `gradleCommand`, so a cloud
+build matches. A 32-bit device would need `armeabi-v7a` added back in both places.
+
 ## APK or AAB — pick the profile, not the artifact
 
 `android.buildType` decides which Gradle task runs, and `distribution: internal`
