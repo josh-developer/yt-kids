@@ -16,6 +16,7 @@ export function WatchPage({
   nextVideo,
   previousVideo,
   recommendationGroups,
+  recommendationKey,
   showRecommendations,
   video,
   onDurationResolved,
@@ -29,6 +30,7 @@ export function WatchPage({
   nextVideo: Video | null;
   previousVideo: Video | null;
   recommendationGroups: RecommendationGroup[];
+  recommendationKey: string;
   showRecommendations: boolean;
   video: Video;
   onDurationResolved: (video: Video, seconds: number) => void;
@@ -82,6 +84,7 @@ export function WatchPage({
       </article>
 
       <Recommendations
+        key={recommendationKey}
         groups={recommendationGroups}
         isEnabled={showRecommendations}
         onOpenVideo={onOpenVideo}
