@@ -1,7 +1,8 @@
 # mobile
 
-An Expo shell around [kidtube.uz](https://kidtube.uz). One `WebView`, no second
-implementation of anything — the site is the app.
+The native client for [kidtube.uz](https://kidtube.uz). Its screens are React
+Native — see `ARCHITECTURE.md` — and the one WebView left is the video itself, which
+is the only supported way to play a YouTube embed.
 
 ```sh
 pnpm --filter mobile dev        # Metro only — runs in Expo Go, no native build
@@ -31,29 +32,20 @@ EXPO_PUBLIC_SITE_URL=http://192.168.1.20:5173 pnpm --filter mobile ios
 
 ## Decisions worth knowing before changing things
 
-**Top-level navigation is fenced to the site's own host.** `isAllowedSiteUrl`
-derives the fence from `SITE_URL`, so an override moves it rather than locking
-itself out. Everything else is refused outright, not handed to the system
-browser — the web app works hard to make the player a closed room (no YouTube
-chrome, no related grid, no clickable title), and one tap into Safari would undo
-all of it.
+**Navigation out of the player is refused.** `PlayerView`'s
+`onShouldStartLoadWithRequest` allows the page's own document and the YouTube embed
+hosts, nothing else. The web app works hard to make the player a closed room — no
+YouTube chrome, no related grid, no clickable title — and one tap into Safari would
+undo all of it.
 
-Subframe requests are exempt, and must stay exempt. On iOS
-`onShouldStartLoadWithRequest` fires for iframes too, and the player *is* a
-cross-origin `youtube-nocookie` iframe, so running the host check on subframes
-blocks playback. Android only reports main-frame navigations there.
+Subframe requests are exempt, and must stay exempt. On iOS the callback fires for
+iframes too, and the player _is_ a cross-origin YouTube iframe, so running the host
+check on subframes blocks playback.
 
 **`mediaPlaybackRequiresUserAction={false}`.** The web build spends real effort
-working around WebKit's rule that only muted autoplay may start without a
-gesture — carrying the mute state in the embed URL, rebuilding the iframe inside
-the tap that asks for sound. In a shell we own, that rule is simply lifted, so
-video here can start with sound on its own. If the web workaround is ever
-revisited, this app does not need it.
-
-**Only the top safe-area edge is inset.** The site positions its own player
-controls against the bottom and already pads them with
-`env(safe-area-inset-bottom)`. Insetting the bottom here as well pays for the
-home indicator twice.
+working around WebKit's rule that only muted autoplay may start without a gesture.
+In an app we own that rule is simply lifted, which is why video here starts with
+sound.
 
 ## APK or AAB — pick the profile, not the artifact
 
@@ -61,12 +53,12 @@ home indicator twice.
 does **not** imply an APK, which is easy to get wrong: an internal build left on
 the default produces an `.aab` that cannot be installed.
 
-| profile | buildType | for |
-| --- | --- | --- |
-| `production` | `app-bundle` → `.aab` | Play Store. Bumps `versionCode` remotely. |
-| `production-apk` | `apk` → `.apk` | the same release build, installable. Does not bump. |
-| `preview` | `apk` → `.apk` | throwaway internal builds on the `preview` channel |
-| `development` | (forced by `developmentClient`) | dev client |
+| profile          | buildType                       | for                                                 |
+| ---------------- | ------------------------------- | --------------------------------------------------- |
+| `production`     | `app-bundle` → `.aab`           | Play Store. Bumps `versionCode` remotely.           |
+| `production-apk` | `apk` → `.apk`                  | the same release build, installable. Does not bump. |
+| `preview`        | `apk` → `.apk`                  | throwaway internal builds on the `preview` channel  |
+| `development`    | (forced by `developmentClient`) | dev client                                          |
 
 ```sh
 eas build --platform android --profile production-apk   # installable release
@@ -107,10 +99,13 @@ confusing failures rather than an honest one.
 
 ## Two pinned versions, on purpose
 
-| package | pin | why |
-| --- | --- | --- |
-| `react` | `19.2.3` exact | what Expo Go for SDK 57 bundles; a mismatch is a red screen |
-| `react-native-webview` | `13.16.1` exact | the only release whose types compile |
+| package                | pin             | why                                                         |
+| ---------------------- | --------------- | ----------------------------------------------------------- |
+| `react`                | `19.2.3` exact  | what Expo Go for SDK 57 bundles; a mismatch is a red screen |
+| `react-native-webview` | `13.16.1` exact | the only release whose types compile                        |
+
+`react-native-webview` is back, and load-bearing: the player is YouTube's iframe API
+in a WebView, which is the only supported way to play these videos.
 
 `react-native-webview` declares `class WebView<P = undefined> extends
 Component<WebViewProps & P>` from **13.16.2** onwards. `WebViewProps & undefined`
@@ -118,10 +113,10 @@ is `never`, so every prop fails to typecheck. Only 13.16.1 defaults that
 parameter to `{}`:
 
 | version | generic default | compiles |
-| --- | --- | --- |
-| 13.16.1 | `P = {}` | yes |
-| 13.16.2 | `P = undefined` | no |
-| 14.0.1 | `P = undefined` | no |
+| ------- | --------------- | -------- |
+| 13.16.1 | `P = {}`        | yes      |
+| 13.16.2 | `P = undefined` | no       |
+| 14.0.1  | `P = undefined` | no       |
 
 So the pin is exact, not a tilde and certainly not a caret. A tilde was tried and
 did not hold: `~13.16.1` admitted 13.16.2, and the break resurfaced the next time
@@ -131,6 +126,84 @@ that declaration.
 The workspace root uses `react@^19.2.8` for the web app. That is fine and not
 worth reconciling — pnpm gives each package its own copy, and this one has to
 match Expo Go rather than the web build.
+
+## Hermes has no `Intl.PluralRules`
+
+`src/shared/lib/i18n/intl-polyfill.ts` is imported first in `App.tsx`, before
+anything that formats a message. It is not optional: `Settings.approvedCount` in
+`@repo/messages` is an ICU plural, `intl-messageformat` needs `Intl.PluralRules`
+to pick a branch, and Hermes ships without it — so the settings screen came up as
+a red box with
+
+```
+Intl.PluralRules is not available in this environment.
+```
+
+The three `@formatjs` polyfills are each behind their own `shouldPolyfill()`, so a
+runtime that has the real implementation loads none of them. `useTranslations`
+also catches a formatting throw and falls back to plain `{name}` substitution,
+which is the floor under the polyfill rather than a substitute for it.
+
+A third locale needs its plural data added there as well as its catalog added to
+`@repo/messages`.
+
+## One patched dependency: expo-modules-jsi
+
+`patches/expo-modules-jsi@57.0.4.patch`, wired up through `patchedDependencies` in
+`pnpm-workspace.yaml`, changes exactly one expression:
+
+```
+- guard milliseconds.isFinite, abs(milliseconds) <= maxJavaScriptDateMilliseconds
++ guard milliseconds.isFinite, milliseconds.magnitude <= maxJavaScriptDateMilliseconds
+```
+
+Without it, no iOS build gets past `ExpoModulesJSI`:
+
+```
+JavaScriptCodable+Date.swift:53:50: type of expression is ambiguous without a
+type annotation
+```
+
+The module builds with C++ interoperability, which imports the C `abs` overloads
+alongside Swift's, and Swift 6.2.3 (Xcode 26.2) cannot choose between them for a
+`Double`. The same expression compiles standalone, so it is the interop that does
+it. `.magnitude` has one meaning and no overloads. 57.0.4 is the newest published
+version, so there is nothing to upgrade to yet.
+
+Delete the patch when a release fixes it upstream — pnpm fails loudly if the
+version it names is no longer installed, which is the reminder. After patching,
+`pod install` has to run again: the pnpm store path changes, and the Pods project
+holds the old one.
+
+## One local native module: system-volume
+
+`modules/system-volume` is an Expo local module, Swift and Kotlin, and it exists for
+iOS: WKWebView ignores an HTML5 `volume` assignment, so the player's volume slider
+has nothing to move except the device's own volume. It also puts the iOS audio
+session into `.playback`, without which the ringer switch silences every video.
+
+Native code is not reloaded by Metro. After changing it:
+
+```sh
+npx expo prebuild --platform android && npx expo run:android
+npx expo prebuild --platform ios && npx expo run:ios
+```
+
+A missing rebuild shows up as `Cannot find native module 'SystemVolume'`.
+
+## Adding a workspace package needs Metro restarted
+
+Metro resolves `@repo/*` through pnpm's symlinks and caches that resolution. Adding a
+new workspace dependency while it is running gives you a one-module incremental
+refresh against a resolver that has never seen the package — which surfaces as the app
+sitting on its splash screen forever, with nothing in the log, because the import
+resolved to nothing.
+
+```sh
+pkill -f "expo start" && pnpm --filter mobile dev -- --clear
+```
+
+Not a problem with the config below; just the order things have to happen in.
 
 ## metro.config.js earns its keep
 
