@@ -118,7 +118,16 @@ function Shell() {
         <SettingsScreen library={library} onBack={() => setScreen("home")} />
       )}
 
-      {watching ? <WatchSheet video={watching} onClose={closeVideo} /> : null}
+      {/* Kept mounted across a change of video: `watching` moving to a recommendation
+          swaps what the player is playing, not the player. */}
+      {watching ? (
+        <WatchSheet
+          video={watching}
+          approvedVideos={library.approvedVideos}
+          onSelectVideo={openVideo}
+          onClose={closeVideo}
+        />
+      ) : null}
     </>
   );
 }

@@ -86,8 +86,7 @@ screen.
 
 **Thumbnails go through the site's proxy**, `\`${SITE_URL}/_thumb/<id>/card\``, not
 `i.ytimg.com`. Verified against production: a request advertising AVIF returns
-`image/avif` at 11.6KB where the JPEG is ~24KB, with
-`cache-control: public, max-age=2592000`. A third of the bytes and a month of
+`image/avif`at 11.6KB where the JPEG is ~24KB, with`cache-control: public, max-age=2592000`. A third of the bytes and a month of
 cache, per card.
 
 **`expo-image` with `cachePolicy="memory-disk"`.** Disk matters more than memory
@@ -173,7 +172,7 @@ under its own animation; the web does the same with `position: sticky` and a
 a header.
 
 The whole decision runs on the UI thread. `useAnimatedReaction` rather than a derived
-value, because it needs the *previous* offset to get a direction from — a derived
+value, because it needs the _previous_ offset to get a direction from — a derived
 value only ever sees the current one and the delta would be zero every frame. Doing
 it with React state would mean a `setState` per scroll frame, which puts a header
 animation on the JS thread, precisely where it must not be.
@@ -185,29 +184,110 @@ Compiler's `immutability` rule enforces, correctly.
 ## The watch sheet
 
 A sheet, not a screen: it mounts over whatever is behind it, animates up from the
-bottom, and the way back is to drag it down — the gesture YouTube trained everyone
-on. There is no header, because a header above a 16:9 surface spends the one
-budget a phone has.
+bottom, and the way back is to drag it down. No header, no grabber and no black
+band above the video — the picture starts at the top of the screen with the status
+bar over it, which is what a phone player looks like.
 
-The drag runs entirely on the UI thread through Gesture Handler and Reanimated, so
-it tracks the finger rather than trailing it. Release is a decision between
-distance and velocity — a quarter of the screen, or a flick fast enough to mean it.
-Distance alone makes a quick flick feel ignored; velocity alone dismisses the slow
-careful drag of someone who changed their mind. Upward drags are clamped to zero:
-the sheet is already home, and leaving it unclamped would fight the content scroll
-that goes under the player later.
+The drag works from anywhere: the video, the title, the channel row, or the
+recommendations while they are scrolled to the top. That last clause is what makes
+one gesture serve two purposes — the sheet claims a touch only when the list below
+has nothing left to scroll up, so a drag dismisses and a drag inside a scrolled
+list scrolls.
 
-`widgets/player/player-chrome.tsx` is the web's `player-controls` and
-`player-progress` as a picture — the pill bar, the transport buttons, the ±15
-steps, the 10px progress track and the time pill, at the web's sizes and colours.
-Nothing in it is wired to playback: the props are display state and the handlers
-are optional. Playback is the next piece of work, and keeping the visual layer
-honest first means the native player has a target to hit rather than a design to
-invent.
+Release is a decision between distance and velocity: a quarter of the screen, or a
+flick that also travelled 40px. Velocity alone dismissed on a plain tap, because a
+touch that goes down and up in a few milliseconds reports a velocity in the
+thousands.
 
-The web blurs behind the bar and the pill. Dropped here for the same reason as on
-the header: a backdrop blur over a video is a full-screen GPU pass per frame, and
-at these opacities the flat colour is indistinguishable.
+## Why the player uses React Native's responder system, not Gesture Handler
+
+The video is a WebView, and a WebView takes touches in native code before Gesture
+Handler's per-view recognisers see them. Measured, not assumed: a `Gesture.Tap()`
+attached to a transparent view directly over the WebView never fired, while an
+`onTouchEnd` on the same view did — because the responder system dispatches from
+the root view rather than per view.
+
+So everything that has to work over the video is built on the responder system:
+
+- `model/use-player-taps.ts` — one tap toggles the controls, two on a side seek
+  ±15s. A settle window (320ms) holds the toggle back until a second tap cannot be
+  coming, which is the web's `CLICK_SETTLE_MS` trick with a longer fuse: 220ms was
+  short enough that a real thumb's double tap toggled the controls twice on its way
+  to the seek.
+- The sheet's dismiss drag is a `PanResponder`, claimed in the **capture** phase.
+  A `ScrollView` that already holds the responder refuses to give it back, so
+  asking afterwards never wins; and once claimed the sheet refuses termination and
+  blocks the native responder, or Android keeps scrolling underneath the drag.
+
+Inside the page, a transparent `#shield` div covers the iframe. The WebView still
+receives the touch, and the shield is what stops the embed acting on it — without
+it, taps meant for the app's controls brought up YouTube's own title bar, its
+watch-on-YouTube link, and seeks from its progress bar.
+
+## The player
+
+`widgets/player` owns the video and everything over it. One component, `PlayerView`,
+holds the WebView, its ref, the commands and the chrome, because a ref that crosses
+a component boundary is a ref read during someone else's render — which the React
+Compiler flags, correctly.
+
+- `model/player-bridge.ts` builds the page and the command envelopes. The page
+  loads YouTube's iframe API, exposes `window.kidtube` for the app to call through
+  `injectJavaScript`, and reports state, position and errors back through
+  `ReactNativeWebView.postMessage`. Its own 250ms clock sends the time, so the app
+  never asks.
+- `model/use-player.ts` is what the app believes about playback: status, position,
+  duration, the controls' visibility and their auto-hide.
+- `ui/player-transport.tsx` is the web's `BigPlayButton` and `SideNavButtons`: play
+  in the middle of the picture on its red-to-orange gradient, previous and next at
+  the edges. `ui/player-chrome.tsx` is the progress bar and the strip — play, mute,
+  the volume stepper and meter, repeat, full screen. That is exactly what the web
+  shows under 720px, where `.footerTransportControls` is `display: none` because
+  those controls have moved onto the picture and the ±15 steps are the double tap.
+  Both files carry the CSS values they came from.
+- The lock button is the web's `.playerLockButton` and behaves the same way: a
+  locked player stops answering taps on the picture, and the lock is the one control
+  that stays visible so there is a way back out.
+- `ui/player-view.tsx` also draws the web's `.youtubeTitleCover` — the gradient over
+  the top of the embed that hides YouTube's own title bar. That bar links out of the
+  app, and it is what flashes over the picture after a programmatic play or seek.
+- `ui/up-next-card.tsx` is the web's `UpNextOverlay`: the next video, a four-second
+  ring, and buttons to watch again or go now. It covers the surface when a video
+  ends, which is also the only way to be rid of the embed's own replay button.
+
+### The embed has to be told where it is
+
+`origin` and the WebView's `baseUrl` are both the site's own URL, and that is not
+cosmetic: an injected page has no origin to report, and YouTube answers a request
+without one by refusing to play — error 150 or 152, "this video is unavailable",
+however embeddable the video is. The site's origin is the honest answer and the one
+already serving these embeds in production.
+
+### Sound on iOS, and volume on both
+
+Two separate things used to leave iOS silent. A browser will not autoplay with
+sound, which is why the web starts muted; a WKWebView configured with
+`mediaPlaybackRequiresUserAction={false}` will, so the player starts unmuted and
+`startsMuted` exists only as a fallback that is undone the moment playback starts.
+And the default audio session is silenced by the ringer switch whatever the player
+does, which `modules/system-volume`'s `configureForPlayback` fixes by asking for
+`.playback`.
+
+That local native module is also the volume slider. WKWebView ignores an HTML5
+`volume` assignment — the property is read-only on iOS — so the only volume there
+is is the device's, set through `MPVolumeView`'s embedded slider. Android could
+have had a player-local volume through the iframe API; it uses `AudioManager` on
+the same 0-to-1 contract instead, so the slider means one thing on both platforms
+and the hardware keys agree with it.
+
+### Full screen
+
+The button sits after repeat, as on the web. Full screen is landscape: the sheet
+locks the orientation while it is on and releases it on the way out, the list
+underneath is unmounted, the status bar hides, and the stage drops its 16:9 ratio
+to take the window. The lock is only ever applied _entering_ full screen — locking
+portrait on mount cost an activity restart on Android, which looked like the video
+refusing to open.
 
 ## The library, and what "approved" is stored as
 
@@ -222,15 +302,18 @@ because a phone has no room for a panel beside anything.
 
 ## Not here yet
 
-- **Playback.** The player is a picture. Cross-device playback is native work of
-  its own — deliberately not a WebView stopgap, since this app is being taken off
-  WebView and that is the hardest kind of temporary to remove.
+- **A native video surface.** Playback is the YouTube iframe in a WebView, which is
+  the only supported way to play these videos; scraping stream URLs would break
+  both the terms and, sooner, itself. The cost is the embed's transient title bar
+  after a programmatic play or seek, which no parameter turns off.
 - **The rest of parent settings.** The web's panel also adds a video by URL,
   exports and imports the library as a transfer code, approves or hides
   everything at once, and resets to defaults. Each needs library model that is
   not ported yet.
-- **Recommendations.** The web's watch page lists what to play next, seeded per
-  session in `video-library.ts`. The sheet shows one video and nothing under it.
+- **Series-aware recommendations.** `entities/library/recommendations.ts` ports the
+  branch of the web's `recommendationGroupsFor` that runs when a video has no
+  series: the next few in order, then a deterministic shuffle. The web also groups
+  by title similarity, which needs a signature comparison that is not ported.
 - **The doodle layer.** The web lays two fixed SVG layers over the gradient. A
   full-screen decorative layer under a scrolling list is a performance decision
   worth measuring, not assuming.

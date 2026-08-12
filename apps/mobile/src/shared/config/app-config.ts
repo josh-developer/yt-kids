@@ -15,4 +15,6 @@ export const STORAGE_KEYS = {
    * later release needs no migration to make its new videos visible.
    */
   hiddenVideos: "kidtube-hidden-videos-v1",
+  /** Whether the watch sheet shows its recommendation list. */
+  recommendations: "kidtube-recommendations-v1",
 } as const;

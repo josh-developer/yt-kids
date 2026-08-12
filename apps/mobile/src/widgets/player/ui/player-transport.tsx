@@ -1,0 +1,171 @@
+import { LinearGradient } from "expo-linear-gradient";
+import { Pause, Play, SkipBack, SkipForward } from "lucide-react-native";
+import type { ReactNode } from "react";
+import { Pressable, StyleSheet, View } from "react-native";
+import { useTranslations } from "../../../shared/lib/i18n/use-translations";
+import type { Player } from "../model/use-player";
+
+/**
+ * The controls that sit on the picture: play in the middle, previous and next at the
+ * edges.
+ *
+ * The web's `BigPlayButton` and `SideNavButtons`, at the sizes a phone gets from their
+ * `clamp()`s — 54px for the primary, 42px for the sides — with the same colours: the
+ * primary is `linear-gradient(135deg, --brand-red, #ff7147)` on a 34px-blur shadow, and
+ * the sides are `rgba(12,12,12,0.62)` at 92% opacity.
+ *
+ * The row is `box-none` between the buttons, so a tap in the gap still reaches the
+ * surface and toggles the controls, exactly as clicking beside them does on the web.
+ */
+export function PlayerTransport({
+  player,
+  insets,
+  hasPrevious,
+  hasNext,
+  onPrevious,
+  onNext,
+}: {
+  player: Player;
+  /** Safe-area padding to keep clear of; zero unless the video owns the whole screen. */
+  insets: { left: number; right: number };
+  hasPrevious: boolean;
+  hasNext: boolean;
+  onPrevious: () => void;
+  onNext: () => void;
+}) {
+  const t = useTranslations("Player");
+
+  return (
+    <View
+      style={[
+        styles.layer,
+        { paddingLeft: 10 + insets.left, paddingRight: 10 + insets.right },
+      ]}
+      pointerEvents="box-none"
+    >
+      <SideButton
+        label={t("previousVideo")}
+        isDisabled={!hasPrevious}
+        onPress={onPrevious}
+      >
+        <SkipBack size={24} color="#ffffff" fill="#ffffff" />
+      </SideButton>
+
+      {/* `.bigPlayButton`: the one control that is not a flat surface. */}
+      <Pressable
+        onPress={player.togglePlayback}
+        style={({ pressed }) => [
+          styles.primaryShadow,
+          pressed && styles.pressed,
+        ]}
+        accessibilityRole="button"
+        accessibilityLabel={player.isPlaying ? t("pause") : t("play")}
+      >
+        <LinearGradient
+          colors={["#ff3157", "#ff7147"]}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+          style={styles.primary}
+        >
+          {player.isPlaying ? (
+            <Pause size={30} color="#ffffff" fill="#ffffff" />
+          ) : (
+            <Play size={30} color="#ffffff" fill="#ffffff" />
+          )}
+        </LinearGradient>
+      </Pressable>
+
+      <SideButton label={t("nextVideo")} isDisabled={!hasNext} onPress={onNext}>
+        <SkipForward size={24} color="#ffffff" fill="#ffffff" />
+      </SideButton>
+    </View>
+  );
+}
+
+function SideButton({
+  label,
+  children,
+  isDisabled,
+  onPress,
+}: {
+  label: string;
+  children: ReactNode;
+  isDisabled: boolean;
+  onPress: () => void;
+}) {
+  return (
+    <Pressable
+      onPress={onPress}
+      disabled={isDisabled}
+      style={({ pressed }) => [
+        styles.side,
+        isDisabled && styles.disabled,
+        pressed && styles.pressed,
+      ]}
+      accessibilityRole="button"
+      accessibilityLabel={label}
+      accessibilityState={{ disabled: isDisabled }}
+    >
+      {children}
+    </Pressable>
+  );
+}
+
+const SIDE_SIZE = 42;
+const PRIMARY_SIZE = 54;
+
+const styles = StyleSheet.create({
+  /**
+   * `.sidePlayerButtons`: the full surface, buttons pushed to its edges.
+   *
+   * Below the control strip, not above it. The web can afford the big play button's
+   * `z-index: 6` because it is a small centred button; here the layer covers the whole
+   * picture, and on Android a higher elevation takes the touch even through
+   * `pointerEvents="box-none"` — which swallowed every tap on the strip underneath.
+   */
+  layer: {
+    position: "absolute",
+    top: 0,
+    right: 0,
+    bottom: 0,
+    left: 0,
+    zIndex: 4,
+    elevation: 4,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+  },
+  side: {
+    width: SIDE_SIZE,
+    height: SIDE_SIZE,
+    borderRadius: 999,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "rgba(12, 12, 12, 0.62)",
+    opacity: 0.92,
+    // `box-shadow: 0 10px 28px rgba(0, 0, 0, 0.28)`.
+    shadowColor: "rgba(0, 0, 0, 0.28)",
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 1,
+    shadowRadius: 14,
+    elevation: 6,
+  },
+  /** The shadow lives on the pressable; the gradient cannot carry it and clip too. */
+  primaryShadow: {
+    borderRadius: 999,
+    shadowColor: "rgba(0, 0, 0, 0.36)",
+    shadowOffset: { width: 0, height: 12 },
+    shadowOpacity: 1,
+    shadowRadius: 17,
+    elevation: 8,
+  },
+  primary: {
+    width: PRIMARY_SIZE,
+    height: PRIMARY_SIZE,
+    borderRadius: 999,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  disabled: { opacity: 0.42 },
+  pressed: { opacity: 0.82 },
+});

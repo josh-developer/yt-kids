@@ -9,6 +9,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { TOP_BAR_HEIGHT, TopBar } from "../../../widgets/top-bar/ui/top-bar";
 import { VideoGrid } from "../../../widgets/video-grid/ui/video-grid";
 import { useTheme } from "../../../shared/lib/theme/use-theme";
+import { space } from "../../../shared/config/theme";
 
 /**
  * The home screen: the app's background wash, the floating header, and the list.
@@ -60,7 +61,10 @@ export function HomeScreen({
         onOpenVideo={onOpenVideo}
         scrollY={scrollY}
         onScroll={onScroll}
-        topInset={TOP_BAR_HEIGHT + insets.top}
+        // The header's own height leaves the first card flush against its bottom
+        // edge, touching the search field. One grid gap of clearance is the same
+        // space the cards keep from each other.
+        topInset={TOP_BAR_HEIGHT + insets.top + space.gridGap}
       />
 
       {/* The status bar keeps a strip of the background under it once the header has
