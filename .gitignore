@@ -21,8 +21,18 @@ dist/
 
 # expo
 .expo/
-ios/
-android/
+# Anchored, and it has to stay that way: a bare `ios/` or `android/` matches a directory
+# of that name at *any* depth, which silently excluded
+# `apps/mobile/modules/system-volume/{ios,android}` — a local Expo module's native source.
+# The cloud build then had the module's config but none of its code, and the app died on
+# launch with `Cannot find native module 'SystemVolume'`.
+/apps/mobile/ios/
+/apps/mobile/android/
+# A local module's own build output, which its native source sits next to.
+/apps/mobile/modules/*/android/build/
+/apps/mobile/modules/*/android/.gradle/
+/apps/mobile/modules/*/android/.cxx/
+/apps/mobile/modules/*/ios/build/
 
 # misc
 .DS_Store
