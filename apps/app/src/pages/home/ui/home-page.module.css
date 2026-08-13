@@ -1,0 +1,17 @@
+.privacyFooter {
+  padding: 28px 0 12px;
+  text-align: center;
+}
+
+.privacyFooter a {
+  font-size: 13px;
+  color: inherit;
+  opacity: 0.55;
+  text-decoration: none;
+}
+
+.privacyFooter a:hover,
+.privacyFooter a:focus-visible {
+  opacity: 1;
+  text-decoration: underline;
+}
