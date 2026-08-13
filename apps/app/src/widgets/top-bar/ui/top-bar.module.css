@@ -47,7 +47,7 @@
   filter:
     drop-shadow(0 8px 0 rgba(154, 78, 71, 0.13))
     drop-shadow(0 14px 18px rgba(255, 125, 105, 0.18));
-  transform: translateY(-4px) rotate(-2deg);
+  transform: translateY(-1.5px) rotate(-3deg);
 }
 
 .brandName {
