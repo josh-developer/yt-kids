@@ -140,6 +140,8 @@ export const radius = {
   /** `.avatar { border-radius: 50% }` at 38px. */
   avatar: 19,
   brandMark: 8,
+  /** The corner a sheet turns as it meets the screen's edge. */
+  sheet: 20,
 } as const;
 
 export const size = {

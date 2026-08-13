@@ -17,4 +17,6 @@ export const STORAGE_KEYS = {
   hiddenVideos: "kidtube-hidden-videos-v1",
   /** Whether the watch sheet shows its recommendation list. */
   recommendations: "kidtube-recommendations-v1",
+  /** Videos a parent added by URL, which are not in `@repo/catalog`. */
+  customVideos: "kidtube-custom-videos-v1",
 } as const;

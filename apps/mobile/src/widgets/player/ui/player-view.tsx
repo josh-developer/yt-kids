@@ -105,6 +105,28 @@ export const PlayerView = forwardRef<
   );
 
   /**
+   * How tall the video gets when it is not full screen.
+   *
+   * The web is a strict 16:9 box and so was this, which looked right and played small:
+   * almost everything in this catalog is a 4:3 cartoon, and the embed letterboxes a 4:3
+   * video inside a 16:9 box — so the picture was three quarters of the width it could
+   * have been, with black down both sides. A 4:3 box gives that content the whole width.
+   *
+   * Capped at 42% of the window so it cannot eat a short screen, and never shorter than
+   * 16:9. A true 16:9 video gets thin bars above and below instead, which is the same
+   * trade the other way round and the rarer case here. Nothing is ever cropped: the embed
+   * fits the picture inside whatever box it is given.
+   */
+  const stageHeight = useMemo(
+    () =>
+      Math.max(
+        (window.width * 9) / 16,
+        Math.min((window.width * 3) / 4, window.height * 0.42),
+      ),
+    [window.height, window.width],
+  );
+
+  /**
    * The controls keep out of the notch, the corners and the home indicator, in both
    * orientations. On the web this is `env(safe-area-inset-*)` inside
    * `.safePlayerControls`, which is what the "safe" in that class name is about.
@@ -159,7 +181,10 @@ export const PlayerView = forwardRef<
          when it merges styles, so an `aspectRatio: undefined` in the full-screen style
          leaves the 16:9 ratio in place — which is what held full screen to 731dp of a
          914dp landscape screen, the video filling its height and nothing else. */
-      style={[isFullscreen ? styles.stageBare : styles.stage, fullscreenStyle]}
+      style={[
+        styles.stageBare,
+        isFullscreen ? fullscreenStyle : { height: stageHeight },
+      ]}
       onLayout={(event) => {
         const { width, height, y } = event.nativeEvent.layout;
         setStageWidth(width);
@@ -192,6 +217,14 @@ export const PlayerView = forwardRef<
           containerStyle={styles.web}
           javaScriptEnabled
           domStorageEnabled
+          /**
+           * Off, and named rather than left to the default. YouTube's page asks for the
+           * device's location, and an Android WebView answers that by putting a system
+           * permission dialog on the screen — which reads, correctly, as a children's
+           * video app asking where you are. The two location permissions are blocked in
+           * `app.json` as well, so nothing can quietly add them back.
+           */
+          geolocationEnabled={false}
           allowsInlineMediaPlayback
           mediaPlaybackRequiresUserAction={false}
           allowsAirPlayForMediaPlayback
@@ -327,15 +360,11 @@ function isAllowedUrl(url: string) {
 }
 
 const styles = StyleSheet.create({
-  /** `.playerBox`: 16:9 on `#080808`, full-bleed rather than 1120px-capped. */
-  stage: {
-    width: "100%",
-    aspectRatio: 16 / 9,
-    backgroundColor: "#080808",
-    overflow: "hidden",
-  },
-  /** The same surface without the ratio, for full screen. */
-  stageBare: { backgroundColor: "#080808", overflow: "hidden" },
+  /**
+   * `.playerBox`, full-bleed rather than 1120px-capped, and sized by height rather than
+   * by an aspect ratio — see `stageHeight`.
+   */
+  stageBare: { width: "100%", backgroundColor: "#080808", overflow: "hidden" },
   /** `.youtubeTitleCover`; the height comes from the stage's width. */
   titleCover: {
     position: "absolute",

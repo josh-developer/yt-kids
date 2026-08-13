@@ -1,4 +1,3 @@
-import { LinearGradient } from "expo-linear-gradient";
 import {
   Maximize2,
   Minimize2,
@@ -10,10 +9,8 @@ import {
   VolumeX,
 } from "lucide-react-native";
 import type { ReactNode } from "react";
-import { useMemo, useState } from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
-import { Gesture, GestureDetector } from "react-native-gesture-handler";
-import { scheduleOnRN } from "react-native-worklets";
+import { PlayerProgress } from "./player-progress";
 import { useTranslations } from "../../../shared/lib/i18n/use-translations";
 import { useSystemVolume } from "../../../shared/lib/audio/use-system-volume";
 import type { Player } from "../model/use-player";
@@ -54,71 +51,20 @@ export function PlayerChrome({
 }) {
   const t = useTranslations("Player");
   const volume = useSystemVolume();
-  const [trackWidth, setTrackWidth] = useState(0);
 
-  const progress =
-    player.duration > 0
-      ? Math.min(1, Math.max(0, player.position / player.duration))
-      : 0;
   const volumePercent = Math.round(volume.volume * 100);
   const isSilent = player.isMuted || volumePercent === 0;
 
-  // Rebuilt when the width changes, since the seek fraction divides by it.
-  const scrub = useMemo(
-    () =>
-      Gesture.Pan()
-        .minDistance(0)
-        .onBegin((event) => {
-          if (trackWidth > 0) {
-            scheduleOnRN(player.seekToFraction, event.x / trackWidth);
-          }
-        })
-        .onEnd((event) => {
-          if (trackWidth > 0) {
-            scheduleOnRN(player.seekToFraction, event.x / trackWidth);
-          }
-        }),
-    [player.seekToFraction, trackWidth],
-  );
-
   return (
     <>
-      {/* `.playerProgressWrap`: the bar and the time, inset 12px, clear of the strip. */}
-      <View
-        style={[
-          styles.progressWrap,
-          {
-            bottom: 54 + insets.bottom,
-            left: 12 + insets.left,
-            right: 12 + insets.right,
-          },
-        ]}
-        pointerEvents="box-none"
-      >
-        <GestureDetector gesture={scrub}>
-          <View
-            style={styles.progressTouch}
-            onLayout={(event) => setTrackWidth(event.nativeEvent.layout.width)}
-            accessibilityRole="adjustable"
-            accessibilityLabel={t("seek")}
-          >
-            <View style={styles.progressTrack}>
-              <LinearGradient
-                colors={["#ff3157", "#ffd84d"]}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 0 }}
-                style={[styles.progressFill, { width: `${progress * 100}%` }]}
-              />
-            </View>
-          </View>
-        </GestureDetector>
-
-        <View style={styles.timePill}>
-          <Text style={styles.timeText}>
-            {formatTime(player.position)} / {formatTime(player.duration)}
-          </Text>
-        </View>
-      </View>
+      <PlayerProgress
+        position={player.position}
+        duration={player.duration}
+        insetBottom={insets.bottom}
+        insetLeft={insets.left}
+        insetRight={insets.right}
+        onSeekToFraction={player.seekToFraction}
+      />
 
       <View
         style={[
@@ -241,54 +187,8 @@ function ControlButton({
   );
 }
 
-/** `formatTime` from the web's `shared/lib/time`: `h:mm:ss` only when there are hours. */
-function formatTime(seconds: number) {
-  if (!Number.isFinite(seconds) || seconds < 0) {
-    return "0:00";
-  }
-
-  const whole = Math.floor(seconds);
-  const hours = Math.floor(whole / 3600);
-  const minutes = Math.floor((whole % 3600) / 60);
-  const rest = whole % 60;
-  const padded = String(rest).padStart(2, "0");
-
-  return hours > 0
-    ? `${hours}:${String(minutes).padStart(2, "0")}:${padded}`
-    : `${minutes}:${padded}`;
-}
-
 const styles = StyleSheet.create({
-  progressWrap: {
-    position: "absolute",
-    zIndex: 5,
-    elevation: 5,
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 10,
-  },
   /** A 24px band around the 10px bar, so a thumb can find it. */
-  progressTouch: { flex: 1, height: 24, justifyContent: "center" },
-  progressTrack: {
-    height: 10,
-    borderRadius: 999,
-    overflow: "hidden",
-    backgroundColor: "rgba(255, 255, 255, 0.24)",
-  },
-  progressFill: { height: "100%", borderRadius: 999 },
-  timePill: {
-    minWidth: 78,
-    paddingHorizontal: 7,
-    paddingVertical: 3,
-    borderRadius: 999,
-    backgroundColor: "rgba(12, 12, 12, 0.72)",
-  },
-  timeText: {
-    color: "#ffffff",
-    fontSize: 11,
-    fontFamily: fonts.extrabold,
-    textAlign: "center",
-  },
   // `.safePlayerControls`, phone branch.
   bar: {
     position: "absolute",

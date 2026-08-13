@@ -124,7 +124,16 @@
     "removeVideoCompletely": "{title} videosini butunlay o'chirish",
     "exportCopied": "Eksport kodi nusxalandi",
     "copying": "Nusxalanmoqda...",
-    "copyFailed": "Nusxalab bo'lmadi"
+    "copyFailed": "Nusxalab bo'lmadi",
+    "videoAdded": "Video qo'shildi va tanlandi.",
+    "videoAlreadyAdded": "Bu video allaqachon bor edi — yana tanlandi.",
+    "invalidUrl": "Bu YouTube havolasi emas.",
+    "clipboardEmpty": "Vaqtinchalik xotira bo'sh.",
+    "invalidCode": "Bu kod KidTube'dan emas.",
+    "codeFromNewerVersion": "Bu kod KidTube'ning yangi versiyasidan.",
+    "libraryImported": "{count, plural, =0 {Hech nima tanlanmadi} one {{value} video tanlandi} other {{value} video tanlandi}}",
+    "resetDone": "Standart video ro'yxatiga qaytarildi.",
+    "parentActions": "Ota-ona amallari"
   },
   "Library": {
     "checkingPlaylist": "Pleylist tekshirilmoqda...",

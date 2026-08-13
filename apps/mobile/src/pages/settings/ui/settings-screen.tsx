@@ -8,6 +8,7 @@ import { StatusBar } from "expo-status-bar";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import type { LibraryController } from "../../../entities/library";
 import { VideoThumbnail } from "../../../entities/video";
+import { ParentActions } from "../../../features/library-transfer/ui/parent-actions";
 import { VideoSearchField } from "../../../features/video-search/ui/video-search-field";
 import { IconButton, useIconColor } from "../../../shared/ui/icon-button";
 import { useTheme } from "../../../shared/lib/theme/use-theme";
@@ -123,6 +124,9 @@ export function SettingsScreen({
           />
         )}
       />
+
+      {/* Export, import, add and reset, behind one button in the corner. */}
+      <ParentActions library={library} />
     </View>
   );
 }

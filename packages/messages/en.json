@@ -124,7 +124,16 @@
     "removeVideoCompletely": "Remove {title} completely",
     "exportCopied": "Export copied",
     "copying": "Copying...",
-    "copyFailed": "Copy failed"
+    "copyFailed": "Copy failed",
+    "videoAdded": "Video added and approved.",
+    "videoAlreadyAdded": "That video was already here — approved again.",
+    "invalidUrl": "That is not a YouTube link.",
+    "clipboardEmpty": "The clipboard is empty.",
+    "invalidCode": "That code is not from KidTube.",
+    "codeFromNewerVersion": "That code is from a newer version of KidTube.",
+    "libraryImported": "{count, plural, =0 {Nothing approved} one {{value} video approved} other {{value} videos approved}}",
+    "resetDone": "Back to the default video list.",
+    "parentActions": "Parent actions"
   },
   "Library": {
     "checkingPlaylist": "Checking playlist...",
