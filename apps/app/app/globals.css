@@ -18,23 +18,25 @@
   --background: #f8f8f8;
   --foreground: #0f0f0f;
 
-  --kid-bg-top: #fff9e8;
+  --kid-bg-top: #fff4ef;
   --kid-bg-mid: #f2fbff;
-  --kid-bg-bottom: #f6fff1;
+  --kid-bg-bottom: #f4fff8;
   --surface: #ffffff;
-  --surface-soft: #fff4cf;
+  --surface-soft: #ffe1d7;
   --surface-tint: #e8f7ff;
-  --line: #eadfcb;
+  --line: #f0d3ca;
   --text: #0f0f0f;
   --text-soft: #5c6170;
   --button-soft: #e8f0fe;
   --button-soft-hover: #d2e3fc;
-  --button-ink: #065fd4;
-  --button-active: #065fd4;
-  --brand-red: #ff3157;
+  --button-ink: #08708f;
+  --button-active: #08708f;
+  --brand-coral: #ff7d69;
   --brand-yellow: #ffd84d;
   --brand-green: #25a85a;
-  --brand-blue: #2878ff;
+  --brand-blue: #2e9eff;
+  --brand-red: var(--brand-coral);
+  --brand-teal: #14bfd0;
 }
 
 /*
@@ -42,23 +44,25 @@
  * dark rule for anything that is only a colour.
  */
 [data-theme="dark"] {
-  --kid-bg-top: #18191f;
-  --kid-bg-mid: #121a20;
-  --kid-bg-bottom: #171b15;
+  --kid-bg-top: #221819;
+  --kid-bg-mid: #111d24;
+  --kid-bg-bottom: #141f1d;
   --surface: #202026;
-  --surface-soft: #30281d;
+  --surface-soft: #3a2523;
   --surface-tint: #1c2b32;
-  --line: #37312b;
+  --line: #403432;
   --text: #f3f3f3;
   --text-soft: #c8c3ba;
   --button-soft: #263850;
   --button-soft-hover: #344f73;
-  --button-ink: #8ab4f8;
-  --button-active: #8ab4f8;
-  --brand-red: #ff5a73;
+  --button-ink: #72d7e6;
+  --button-active: #72d7e6;
+  --brand-coral: #ff8b78;
   --brand-yellow: #ffd95c;
   --brand-green: #3dd179;
-  --brand-blue: #69a3ff;
+  --brand-blue: #69c8ff;
+  --brand-red: var(--brand-coral);
+  --brand-teal: #3ed6df;
 }
 
 @theme inline {

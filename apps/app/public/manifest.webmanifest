@@ -7,8 +7,8 @@
   "display": "standalone",
   "display_override": ["window-controls-overlay", "standalone", "browser"],
   "orientation": "any",
-  "background_color": "#fff9e8",
-  "theme_color": "#fff9e8",
+  "background_color": "#fff4ef",
+  "theme_color": "#fff4ef",
   "categories": ["kids", "entertainment", "education"],
   "icons": [
     {

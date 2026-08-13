@@ -1,36 +1,29 @@
-import { LinearGradient } from "expo-linear-gradient";
+import { Image } from "expo-image";
 import { StyleSheet, Text, View } from "react-native";
-import {
-  BRAND_LETTERS,
-  BRAND_MARK_GRADIENT,
-  radius,
-  size,
-  type,
-} from "../../../shared/config/theme";
+import { BRAND_LETTERS, radius, size, type } from "../../../shared/config/theme";
+
+const brandIcon = require("../../../../assets/brand-mark.png");
 
 /**
- * The wordmark: a play badge, then "KidTube" with its per-letter colours.
+ * The wordmark: the real mascot app icon, then "KidTube" with its per-letter colours.
  *
  * The letters and their colours come from the theme module rather than being
  * inlined, because on the web they are four separate spans with four literal
  * colours — a list is the honest translation of that, and it keeps the colours
  * next to the tokens they sit beside.
  *
- * The badge's `rotate(-2deg)` is copied too. It is the detail that makes the mark
- * look drawn rather than placed, and dropping it would be the kind of quiet
- * divergence that adds up.
+ * The badge's `rotate(-2deg)` is copied from the web. It keeps the icon feeling
+ * playful in the header rather than like a pasted launcher asset.
  */
 export function BrandMark() {
   return (
     <View style={styles.brand}>
-      <LinearGradient
-        colors={[...BRAND_MARK_GRADIENT]}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
+      <Image
+        source={brandIcon}
         style={styles.badge}
-      >
-        <View style={styles.playGlyph} />
-      </LinearGradient>
+        contentFit="cover"
+        accessible={false}
+      />
 
       <View style={styles.wordmark} accessibilityLabel="KidTube">
         {BRAND_LETTERS.map((letter) => (
@@ -50,33 +43,14 @@ const styles = StyleSheet.create({
   brand: { flexDirection: "row", alignItems: "center", gap: 10 },
   badge: {
     width: size.brandMarkWidth,
-    height: size.brandMarkHeight,
+    height: size.brandMarkWidth,
     borderRadius: radius.brandMark,
-    alignItems: "center",
-    justifyContent: "center",
-    transform: [{ rotate: "-2deg" }],
+    transform: [{ translateY: -4 }, { rotate: "-2deg" }],
     shadowColor: "rgba(255, 49, 87, 0.24)",
     shadowOffset: { width: 0, height: 7 },
     shadowOpacity: 1,
     shadowRadius: 13,
     elevation: 4,
-  },
-  /**
-   * A triangle from borders rather than an icon dependency. The web uses a
-   * lucide `Play` at 18px filled; one shape is not worth pulling an icon set and
-   * an SVG runtime into the bundle for.
-   */
-  playGlyph: {
-    width: 0,
-    height: 0,
-    marginLeft: 3,
-    borderTopWidth: 7,
-    borderBottomWidth: 7,
-    borderLeftWidth: 12,
-    borderTopColor: "transparent",
-    borderBottomColor: "transparent",
-    borderLeftColor: "#ffffff",
-    borderRightWidth: 0,
   },
   wordmark: { flexDirection: "row", alignItems: "baseline" },
   letter: type.brand,

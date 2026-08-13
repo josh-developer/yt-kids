@@ -40,17 +40,14 @@
 }
 
 .brandMark {
-  display: grid;
-  place-items: center;
-  width: 46px;
-  height: 34px;
-  border-radius: 8px;
-  background: linear-gradient(135deg, var(--brand-red), #ff7147);
-  color: white;
-  box-shadow:
-    0 8px 0 rgba(130, 28, 51, 0.14),
-    0 14px 26px rgba(255, 49, 87, 0.24);
-  transform: rotate(-2deg);
+  display: block;
+  width: 60px;
+  height: 60px;
+  object-fit: cover;
+  filter:
+    drop-shadow(0 8px 0 rgba(154, 78, 71, 0.13))
+    drop-shadow(0 14px 18px rgba(255, 125, 105, 0.18));
+  transform: translateY(-4px) rotate(-2deg);
 }
 
 .brandName {
@@ -88,7 +85,7 @@
 }
 
 .brandTube {
-  color: #ff0033;
+  color: var(--brand-coral);
 }
 
 .topActions {
@@ -116,8 +113,8 @@
   }
 
   :global([data-tv]) .brandMark {
-    width: 56px;
-    height: 42px;
+    width: 76px;
+    height: 76px;
   }
 }
 
@@ -158,5 +155,37 @@
 @media (max-width: 720px) {
   .topbar {
     gap: 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  .topbar {
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 8px;
+    padding: 10px 12px 12px;
+  }
+
+  .brand {
+    gap: 8px;
+  }
+
+  .brandName {
+    font-size: 22px;
+  }
+
+  .topActions {
+    gap: 6px;
+  }
+}
+
+@media (max-width: 380px) {
+  .topActions > button:last-child {
+    width: 42px;
+    min-width: 42px;
+    padding: 0;
+  }
+
+  .topActions > button:last-child span {
+    display: none;
   }
 }

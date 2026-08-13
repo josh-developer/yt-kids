@@ -1,4 +1,3 @@
-import { Play } from "lucide-react";
 import { useTranslations } from "next-intl";
 import styles from "./top-bar.module.css";
 
@@ -12,9 +11,13 @@ export function BrandButton({ onClick }: { onClick: () => void }) {
       onClick={onClick}
       aria-label={t("goHome")}
     >
-      <span className={styles.brandMark}>
-        <Play size={18} fill="currentColor" />
-      </span>
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        className={styles.brandMark}
+        src="/brand-mascot-header.png"
+        alt=""
+        aria-hidden="true"
+      />
       <span className={styles.brandName} aria-label="KidTube">
         <span className={styles.brandKid} aria-hidden="true">
           <span className={`${styles.brandLetter} ${styles.brandLetterK}`}>K</span>

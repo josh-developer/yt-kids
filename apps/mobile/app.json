@@ -6,7 +6,7 @@
     "orientation": "default",
     "scheme": "kidtube",
     "userInterfaceStyle": "automatic",
-    "backgroundColor": "#fff9e8",
+    "backgroundColor": "#fff4ef",
     "icon": "./assets/icon.png",
     "ios": {
       "supportsTablet": true,
@@ -19,7 +19,7 @@
       "package": "uz.kidtube.app",
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#fff9e8"
+        "backgroundColor": "#fff4ef"
       },
       "blockedPermissions": [
         "android.permission.SYSTEM_ALERT_WINDOW",

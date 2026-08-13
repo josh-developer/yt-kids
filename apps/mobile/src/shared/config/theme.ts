@@ -20,23 +20,24 @@
  * that silently falls through in one theme.
  */
 const light = {
-  kidBgTop: "#fff9e8",
+  kidBgTop: "#fff4ef",
   kidBgMid: "#f2fbff",
-  kidBgBottom: "#f6fff1",
+  kidBgBottom: "#f4fff8",
   surface: "#ffffff",
-  surfaceSoft: "#fff4cf",
+  surfaceSoft: "#ffe1d7",
   surfaceTint: "#e8f7ff",
-  line: "#eadfcb",
+  line: "#f0d3ca",
   text: "#0f0f0f",
   textSoft: "#5c6170",
   buttonSoft: "#e8f0fe",
   buttonSoftHover: "#d2e3fc",
-  buttonInk: "#065fd4",
-  buttonActive: "#065fd4",
-  brandRed: "#ff3157",
+  buttonInk: "#08708f",
+  buttonActive: "#08708f",
+  brandRed: "#ff7d69",
   brandYellow: "#ffd84d",
   brandGreen: "#25a85a",
-  brandBlue: "#2878ff",
+  brandBlue: "#2e9eff",
+  brandTeal: "#14bfd0",
   /** `.videoCard` background: `rgba(255, 255, 255, 0.78)`. */
   card: "rgba(255, 255, 255, 0.78)",
   cardBorder: "rgba(255, 255, 255, 0.7)",
@@ -47,23 +48,24 @@ const light = {
 export type Palette = Record<keyof typeof light, string>;
 
 const dark: Palette = {
-  kidBgTop: "#18191f",
-  kidBgMid: "#121a20",
-  kidBgBottom: "#171b15",
+  kidBgTop: "#221819",
+  kidBgMid: "#111d24",
+  kidBgBottom: "#141f1d",
   surface: "#202026",
-  surfaceSoft: "#30281d",
+  surfaceSoft: "#3a2523",
   surfaceTint: "#1c2b32",
-  line: "#37312b",
+  line: "#403432",
   text: "#f3f3f3",
   textSoft: "#c8c3ba",
   buttonSoft: "#263850",
   buttonSoftHover: "#344f73",
-  buttonInk: "#8ab4f8",
-  buttonActive: "#8ab4f8",
-  brandRed: "#ff5a73",
+  buttonInk: "#72d7e6",
+  buttonActive: "#72d7e6",
+  brandRed: "#ff8b78",
   brandYellow: "#ffd95c",
   brandGreen: "#3dd179",
-  brandBlue: "#69a3ff",
+  brandBlue: "#69c8ff",
+  brandTeal: "#3ed6df",
   card: "rgba(32, 32, 38, 0.78)",
   cardBorder: "rgba(255, 255, 255, 0.04)",
   shadow: "rgba(0, 0, 0, 0.24)",
@@ -80,11 +82,8 @@ export const BRAND_LETTERS = [
   { text: "K", color: "#fbbc04" },
   { text: "i", color: "#22c55e" },
   { text: "d", color: "#38bdf8" },
-  { text: "Tube", color: "#ff0033" },
+  { text: "Tube", color: "#ff7d69" },
 ] as const;
-
-/** `.brandMark` gradient: `linear-gradient(135deg, var(--brand-red), #ff7147)`. */
-export const BRAND_MARK_GRADIENT = ["#ff3157", "#ff7147"] as const;
 
 /**
  * `.thumbnail`'s placeholder, which the web draws as a gradient over `#dddddd`
@@ -139,7 +138,7 @@ export const radius = {
   duration: 4,
   /** `.avatar { border-radius: 50% }` at 38px. */
   avatar: 19,
-  brandMark: 8,
+  brandMark: 13,
   /** The corner a sheet turns as it meets the screen's edge. */
   sheet: 20,
 } as const;
@@ -147,8 +146,7 @@ export const radius = {
 export const size = {
   /** `.videoMeta` reserves a 38px column; `.avatar` fills it. */
   avatar: 38,
-  brandMarkWidth: 46,
-  brandMarkHeight: 34,
+  brandMarkWidth: 60,
   topBarHeight: 64,
 } as const;
 
