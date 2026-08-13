@@ -7,7 +7,9 @@
     "watch": "Watch",
     "watchDescription": "Watch a parent-approved KidTube video.",
     "search": "{query} - Search | KidTube",
-    "page": "{page} | KidTube"
+    "page": "{page} | KidTube",
+    "privacy": "Privacy Policy",
+    "privacyDescription": "How KidTube handles data, and where its videos come from."
   },
   "LocaleSwitcher": {
     "label": "Switch language",
@@ -153,5 +155,20 @@
       "invalidVideo": "Transfer code contains an invalid video.",
       "unknown": "Could not import this code."
     }
+  },
+  "Privacy": {
+    "title": "Privacy Policy",
+    "intro": "KidTube is a video room for kids where every video is chosen by a parent. This page explains what the app does with data and where its content comes from.",
+    "dataTitle": "Your data stays on your device",
+    "dataBody": "KidTube has no accounts and collects no personal information. The video library, watch history and settings are stored only in your browser or device storage and are never sent to our servers. We use no analytics and no advertising trackers.",
+    "sourceTitle": "Where the videos come from",
+    "sourceBody": "All videos are publicly available content from YouTube's open sources. KidTube does not host any video itself: playback happens through YouTube's privacy-enhanced player (youtube-nocookie.com), and YouTube's own terms of service and privacy policy apply to it.",
+    "sourcePolicyLead": "See how Google handles playback data:",
+    "sourcePolicyLinkLabel": "Google Privacy Policy",
+    "responsibilityTitle": "Parent-added videos",
+    "responsibilityBody": "Every video in the library is added and approved by a parent or guardian. We are not responsible for the content of videos that parents add — reviewing and choosing suitable videos is the responsibility of the parent. If a video is no longer appropriate, a parent can remove it at any time in the parent settings.",
+    "contactTitle": "Questions",
+    "contactBody": "If you have questions about this policy, contact the developer.",
+    "backToApp": "Back to KidTube"
   }
 }

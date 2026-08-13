@@ -7,7 +7,9 @@
     "watch": "Ko'rish",
     "watchDescription": "Ota-ona tasdiqlagan KidTube videosini ko'ring.",
     "search": "{query} - Qidiruv | KidTube",
-    "page": "{page} | KidTube"
+    "page": "{page} | KidTube",
+    "privacy": "Maxfiylik siyosati",
+    "privacyDescription": "KidTube ma'lumotlar bilan qanday ishlashi va videolar qayerdan kelishi haqida."
   },
   "LocaleSwitcher": {
     "label": "Tilni almashtirish",
@@ -153,5 +155,20 @@
       "invalidVideo": "Eksport kodida noto'g'ri video bor.",
       "unknown": "Bu kodni import qilib bo'lmadi."
     }
+  },
+  "Privacy": {
+    "title": "Maxfiylik siyosati",
+    "intro": "KidTube — har bir videosi ota-ona tomonidan tanlanadigan bolalar uchun video xona. Ushbu sahifa ilova ma'lumotlar bilan nima qilishini va kontent qayerdan kelishini tushuntiradi.",
+    "dataTitle": "Ma'lumotlaringiz qurilmangizda qoladi",
+    "dataBody": "KidTube'da hisob (akkaunt) yo'q va u hech qanday shaxsiy ma'lumot to'plamaydi. Video kutubxona, ko'rish tarixi va sozlamalar faqat brauzeringiz yoki qurilmangiz xotirasida saqlanadi va serverlarimizga yuborilmaydi. Analitika va reklama kuzatuvchilaridan foydalanmaymiz.",
+    "sourceTitle": "Videolar qayerdan keladi",
+    "sourceBody": "Barcha videolar YouTube'ning ochiq, hammaga ko'rinadigan manbalaridan olinadi. KidTube videolarni o'zida saqlamaydi: ijro YouTube'ning maxfiyligi kuchaytirilgan pleyeri (youtube-nocookie.com) orqali amalga oshadi va unga YouTube'ning o'z foydalanish shartlari hamda maxfiylik siyosati qo'llanadi.",
+    "sourcePolicyLead": "Google ijro ma'lumotlari bilan qanday ishlashini bu yerda ko'ring:",
+    "sourcePolicyLinkLabel": "Google maxfiylik siyosati",
+    "responsibilityTitle": "Ota-onalar qo'shgan videolar",
+    "responsibilityBody": "Kutubxonadagi har bir video ota-ona yoki vasiy tomonidan qo'shiladi va tasdiqlanadi. Ota-onalar qo'shgan videolar mazmuni uchun biz javobgar emasmiz — mos videolarni tanlash va tekshirish ota-onaning zimmasida. Agar biror video endi mos bo'lmasa, ota-ona uni istalgan vaqtda sozlamalar orqali o'chirishi mumkin.",
+    "contactTitle": "Savollar",
+    "contactBody": "Ushbu siyosat bo'yicha savollaringiz bo'lsa, dastur muallifiga murojaat qiling.",
+    "backToApp": "KidTube'ga qaytish"
   }
 }
