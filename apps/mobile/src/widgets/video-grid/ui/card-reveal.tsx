@@ -1,72 +1,46 @@
 import type { ReactNode } from "react";
 import { StyleSheet } from "react-native";
-import Animated, {
-  Extrapolation,
-  interpolate,
-  useAnimatedStyle,
-  type SharedValue,
-} from "react-native-reanimated";
+import Animated, { FadeInDown } from "react-native-reanimated";
 
-/** How far below the fold a card starts easing in, in points. */
-const RUNWAY = 120;
+/** Long enough to read as an arrival, short enough not to be in the way of a flick. */
+const DURATION = 240;
+/** Staggered by position in the row, so cards in a row arrive left to right. */
+const STAGGER = 40;
 
 /**
- * Reveals a card as it comes up into the viewport.
+ * Reveals a card as it arrives.
  *
- * Driven by scroll position rather than by a mount animation, which matters for a
- * virtualised list: rows mount when the windowing logic decides to, not when they
- * become visible, so a mount-triggered fade plays at the wrong moment — often
- * offscreen, so the viewer sees nothing, or twice for a row that gets recycled.
- * Reading position instead means the animation always describes where the card
- * actually is, and a row scrolled back to is already settled rather than fading in
- * again.
+ * This used to be driven by scroll position: every mounted card read the list's `scrollY`
+ * in its own `useAnimatedStyle`, which described where the card actually was and so
+ * survived recycling perfectly. It also meant one worklet per mounted card per frame —
+ * a dozen or more style commits every frame of every scroll — and on a mid-range phone
+ * that is what "scrolling feels heavy" is made of.
  *
- * `scrollY` is a shared value and every frame of this runs on the UI thread, so
- * the reveal keeps up with a fast flick even while images are decoding.
+ * Reanimated's `entering` runs the animation natively from the mount instead: no shared
+ * value, no per-frame work, nothing left running once the card has arrived. The cost is
+ * honest and small — a row scrolled back to animates again, because virtualisation
+ * remounts it — and it buys a list that keeps up with a fast flick.
  */
 export function CardReveal({
   children,
-  index,
-  scrollY,
-  cardHeight,
-  headerHeight,
-  viewportHeight,
+  column,
 }: {
   children: ReactNode;
-  index: number;
-  scrollY: SharedValue<number>;
-  cardHeight: number;
-  /** Every card is pushed down by the list header; without it this is off by exactly that. */
-  headerHeight: number;
-  viewportHeight: number;
+  /** Which cell of its row this is, which is all the stagger needs. */
+  column: number;
 }) {
-  const animated = useAnimatedStyle(() => {
-    // Where this card's top sits relative to the bottom of the viewport.
-    const cardTop = headerHeight + index * cardHeight;
-    const distanceBelowFold = cardTop - (scrollY.value + viewportHeight);
-
-    // 1 while the card is still below the fold, 0 once it has fully arrived.
-    const progress = interpolate(
-      distanceBelowFold,
-      [-RUNWAY, RUNWAY],
-      [0, 1],
-      Extrapolation.CLAMP,
-    );
-
-    return {
-      opacity: 1 - progress,
-      transform: [
-        { translateY: progress * 28 },
-        { scale: 1 - progress * 0.04 },
-      ],
-    };
-  });
-
   return (
-    <Animated.View style={[styles.row, animated]}>{children}</Animated.View>
+    <Animated.View
+      style={styles.card}
+      entering={FadeInDown.duration(DURATION)
+        .delay(column * STAGGER)
+        .withInitialValues({ transform: [{ translateY: 14 }] })}
+    >
+      {children}
+    </Animated.View>
   );
 }
 
 const styles = StyleSheet.create({
-  row: { width: "100%" },
+  card: { flex: 1 },
 });

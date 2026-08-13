@@ -9,8 +9,9 @@ The web app is organised by [Feature-Sliced Design][fsd] and enforces it with
 both codebases without relearning where things live:
 
 ```
-App.tsx                 providers, Intl polyfill, font/preference gate, navigation
+App.tsx                 providers, Intl polyfill, font/preference gate
 src/
+  app/navigation.tsx    the routes
   pages/
     home/               the feed
     settings/           the parent screen: approve or hide videos
@@ -36,11 +37,20 @@ src/
     ui/                 icon button
 ```
 
-Navigation is two pieces of state in `App.tsx`, not a router: `screen` is home or
-settings, and `watching` is the video the sheet is showing, which is separate
-because the sheet has to slide over whichever screen is behind it. A router would
-add a stack to fight for exactly that. Revisit at the third screen, or the first
-deep link.
+Navigation is a native stack — `@react-navigation/native-stack`, which is
+`react-native-screens` underneath. Three routes: `Home`, `Settings`, and `Watch` as a
+transparent modal with the stack's own animation switched off, because the sheet
+animates itself and two animations on one transition is how a slide becomes a stutter.
+
+It was two pieces of `useState` in `App.tsx` before, which worked and was the wrong
+shape: the back gesture and the hardware back button had to be reimplemented, every
+screen stayed mounted whether or not it was visible, and there was nowhere for a deep
+link to arrive. The native stack also _detaches_ a route that is not on top, so the
+home grid stops existing while settings is up rather than sitting behind it holding a
+few hundred rows.
+
+The library is created in `App.tsx` and handed to the navigator as a prop. Calling
+`useLibrary()` per route would give each one its own copy of what a parent has hidden.
 
 `features/` exists for the same reason it does on the web: a toggle is a user
 action with its own state, not a piece of a widget's layout, and the header should
@@ -81,6 +91,25 @@ both platforms is what makes them match rather than merely rhyme.
 Loading is gated behind the splash screen. Card titles are Nunito 800; rendering
 them in the system face first and swapping would reflow every card on the first
 screen.
+
+## Lists: `FlashList`, and why the reveal changed
+
+Both long lists — the home grid and the settings list, each 400-odd rows — are
+`FlashList`. `FlatList` mounts and unmounts rows as its window moves, so a fast flick
+is a stream of mounts, which is what "scrolling feels heavy" was made of on a
+mid-range phone. `FlashList` keeps a pool of views and rebinds them. Version 2 measures
+rows itself, so there is nothing to estimate.
+
+Two things follow from a recycling list and are easy to get wrong:
+
+- Row spacing lives on the row, not as a `gap` on the content container. A recycling
+  list lays each row out on its own, so a container `gap` has nothing to apply to.
+- The card reveal is a Reanimated `entering` animation now, not a scroll-driven one.
+  The old version read the list's `scrollY` in every mounted card's `useAnimatedStyle`,
+  which described where each card really was and survived recycling perfectly — and
+  cost one worklet per mounted card per frame, every frame of every scroll. `entering`
+  runs once, natively, and leaves nothing running. A row scrolled back to animates
+  again; that is the price and it is worth it.
 
 ## Performance
 

@@ -18,6 +18,7 @@
     "goHome": "Bosh sahifaga",
     "searchApprovedVideos": "Tanlangan videolarni qidirish",
     "search": "Qidirish",
+    "clearSearch": "Qidiruvni tozalash",
     "useDarkMode": "Tungi rejimga o'tish",
     "useLightMode": "Kunduzgi rejimga o'tish",
     "parentSettings": "Ota-ona sozlamalari"
@@ -101,6 +102,8 @@
     "searchVideos": "Videolarni qidirish",
     "approvedVideos": "Tanlangan videolar",
     "hiddenVideos": "Yashirilgan videolar",
+    "approvedTab": "Tanlangan",
+    "hiddenTab": "Yashirilgan",
     "showApprovedVideos": "Tanlangan videolarni ko'rsatish",
     "showHiddenVideos": "Yashirilgan videolarni ko'rsatish",
     "approveAll": "Barchasini tanlash",

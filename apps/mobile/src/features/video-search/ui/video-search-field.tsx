@@ -2,19 +2,17 @@ import { Search, X } from "lucide-react-native";
 import { Pressable, StyleSheet, TextInput, View } from "react-native";
 import { useTheme } from "../../../shared/lib/theme/use-theme";
 import { useTranslations } from "../../../shared/lib/i18n/use-translations";
-import { fonts, radius, type } from "../../../shared/config/theme";
+import { fonts, type } from "../../../shared/config/theme";
 
 /**
- * The rounded field with a search button on its right, as on the web.
+ * The rounded field, with the magnifier on the left and nothing on the right until
+ * there is something to clear.
  *
- * The button submits there because a form needs submitting; here the query filters as
- * it is typed, so tapping it just dismisses the keyboard — the results are already
- * behind it. It is kept because the web has it and because it is the affordance that
- * says "this is a search box" before anyone has typed.
- *
- * The clear button is not on the web, where a keyboard always has Escape and a mouse
- * can select-all. On a phone, emptying a field character by character is the kind of
- * small misery worth one more control.
+ * The web has a submit button because a form needs submitting. Here the query filters
+ * as it is typed, so the button only ever dismissed the keyboard — a control that
+ * looked like it did something and did not, taking up the corner where the clear
+ * button belongs. The magnifier on the left is the affordance that says "search"; that
+ * is enough.
  */
 export function VideoSearchField({
   query,
@@ -59,22 +57,13 @@ export function VideoSearchField({
           onPress={() => onQueryChange("")}
           style={styles.clear}
           accessibilityRole="button"
-          accessibilityLabel={t("search")}
+          accessibilityLabel={t("clearSearch")}
           // A small glyph needs a bigger target than its own box.
           hitSlop={10}
         >
           <X size={16} color={colors.textSoft} />
         </Pressable>
       ) : null}
-
-      <Pressable
-        onPress={onSubmit}
-        style={[styles.button, { backgroundColor: colors.buttonSoft }]}
-        accessibilityRole="button"
-        accessibilityLabel={t("search")}
-      >
-        <Search size={18} color={colors.buttonInk} />
-      </Pressable>
     </View>
   );
 }
@@ -86,7 +75,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     gap: 8,
     paddingLeft: 16,
-    paddingRight: 4,
+    paddingRight: 12,
     borderRadius: 999,
     borderWidth: 1,
   },
@@ -100,11 +89,4 @@ const styles = StyleSheet.create({
     paddingVertical: 0,
   },
   clear: { padding: 4 },
-  button: {
-    width: 36,
-    height: 36,
-    borderRadius: radius.avatar,
-    alignItems: "center",
-    justifyContent: "center",
-  },
 });

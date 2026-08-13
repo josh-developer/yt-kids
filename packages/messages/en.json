@@ -18,6 +18,7 @@
     "goHome": "Go home",
     "searchApprovedVideos": "Search approved videos",
     "search": "Search",
+    "clearSearch": "Clear search",
     "useDarkMode": "Use dark mode",
     "useLightMode": "Use light mode",
     "parentSettings": "Parent settings"
@@ -101,6 +102,8 @@
     "searchVideos": "Search videos",
     "approvedVideos": "Approved videos",
     "hiddenVideos": "Hidden videos",
+    "approvedTab": "Approved",
+    "hiddenTab": "Hidden",
     "showApprovedVideos": "Show approved videos",
     "showHiddenVideos": "Show hidden videos",
     "approveAll": "Approve all",

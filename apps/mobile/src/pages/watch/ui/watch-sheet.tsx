@@ -1,6 +1,7 @@
 import type { Video } from "@repo/catalog/types";
 import { StatusBar } from "expo-status-bar";
 import * as ScreenOrientation from "expo-screen-orientation";
+import * as SystemUI from "expo-system-ui";
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
   PanResponder,
@@ -157,11 +158,21 @@ export function WatchSheet({
       return;
     }
 
+    /**
+     * The window's own colour, under everything React Native draws.
+     *
+     * Rotating into full screen showed a flash of it, because `app.json` paints it the
+     * app's cream and the rotation animation is the platform's — there is no React frame
+     * to cover those milliseconds. Black for the duration of full screen makes the
+     * rotation read as the picture turning rather than the app blinking.
+     */
+    void SystemUI.setBackgroundColorAsync("#000000");
     void ScreenOrientation.lockAsync(
       ScreenOrientation.OrientationLock.LANDSCAPE,
     );
 
     return () => {
+      void SystemUI.setBackgroundColorAsync(null);
       // Released rather than locked back to portrait, so the device decides again.
       void ScreenOrientation.unlockAsync();
     };

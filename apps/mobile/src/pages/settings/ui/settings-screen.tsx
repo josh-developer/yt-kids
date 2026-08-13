@@ -1,8 +1,10 @@
 import type { Video } from "@repo/catalog/types";
 import { ArrowLeft, Eye, EyeOff } from "lucide-react-native";
 import { useMemo, useState } from "react";
-import { FlatList, Pressable, StyleSheet, Text, View } from "react-native";
+import { FlashList } from "@shopify/flash-list";
+import { Pressable, StyleSheet, Text, View } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
+import { StatusBar } from "expo-status-bar";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import type { LibraryController } from "../../../entities/library";
 import { VideoThumbnail } from "../../../entities/video";
@@ -35,7 +37,7 @@ export function SettingsScreen({
   library: LibraryController;
   onBack: () => void;
 }) {
-  const { colors } = useTheme();
+  const { colors, name } = useTheme();
   const insets = useSafeAreaInsets();
   const t = useTranslations("Settings");
   const iconColor = useIconColor();
@@ -50,6 +52,8 @@ export function SettingsScreen({
 
   return (
     <View style={styles.screen}>
+      <StatusBar style={name === "dark" ? "light" : "dark"} />
+
       <LinearGradient
         colors={[colors.kidBgTop, colors.kidBgMid, colors.kidBgBottom]}
         locations={[0, 0.48, 1]}
@@ -83,13 +87,13 @@ export function SettingsScreen({
 
         <View style={styles.tabs}>
           <TabButton
-            label={t("approvedVideos")}
+            label={t("approvedTab")}
             count={library.approvedVideos.length}
             isActive={tab === "approved"}
             onPress={() => setTab("approved")}
           />
           <TabButton
-            label={t("hiddenVideos")}
+            label={t("hiddenTab")}
             count={library.hiddenVideos.length}
             isActive={tab === "hidden"}
             onPress={() => setTab("hidden")}
@@ -97,14 +101,14 @@ export function SettingsScreen({
         </View>
       </View>
 
-      <FlatList
+      {/* `FlashList`, for the same reason as the home grid: this is 400-odd rows and a
+          parent scrolls it looking for one video. Recycled views keep a frame rate that
+          mounting and unmounting rows cannot. */}
+      <FlashList
         data={results}
         keyExtractor={(video) => video.id}
         contentContainerStyle={styles.list}
         showsVerticalScrollIndicator={false}
-        initialNumToRender={8}
-        windowSize={7}
-        removeClippedSubviews
         ListEmptyComponent={
           <Text style={[styles.empty, { color: colors.textSoft }]}>
             {t("noVideosFound", { tab })}
@@ -153,6 +157,7 @@ function TabButton({
           styles.tabLabel,
           { color: isActive ? "#ffffff" : colors.buttonInk },
         ]}
+        numberOfLines={1}
       >
         {label} · {count}
       </Text>
@@ -241,7 +246,6 @@ const styles = StyleSheet.create({
   list: {
     paddingHorizontal: space.screenX,
     paddingBottom: space.gridGap * 2,
-    gap: space.meta,
   },
   row: {
     flexDirection: "row",
@@ -249,6 +253,9 @@ const styles = StyleSheet.create({
     gap: space.meta,
     padding: space.card,
     borderRadius: radius.card,
+    // The gap between rows lives here rather than on the content container: a recycling
+    // list lays out each row on its own, so a container `gap` has nothing to apply to.
+    marginBottom: space.meta,
   },
   // A 16:9 thumbnail at a width that leaves room for two lines of title beside it.
   rowThumb: { width: 132 },

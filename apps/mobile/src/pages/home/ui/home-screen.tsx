@@ -1,5 +1,6 @@
 import type { Video } from "@repo/catalog/types";
 import { LinearGradient } from "expo-linear-gradient";
+import { StatusBar } from "expo-status-bar";
 import { StyleSheet, View } from "react-native";
 import {
   useAnimatedScrollHandler,
@@ -38,7 +39,7 @@ export function HomeScreen({
   onOpenVideo: (video: Video) => void;
   onSettings: () => void;
 }) {
-  const { colors } = useTheme();
+  const { colors, name } = useTheme();
   const insets = useSafeAreaInsets();
   const scrollY = useSharedValue(0);
 
@@ -50,6 +51,10 @@ export function HomeScreen({
 
   return (
     <View style={styles.screen}>
+      {/* Follows the palette rather than the OS, so a viewer who chose light in a dark
+          system still gets dark glyphs. */}
+      <StatusBar style={name === "dark" ? "light" : "dark"} />
+
       <LinearGradient
         colors={[colors.kidBgTop, colors.kidBgMid, colors.kidBgBottom]}
         locations={[0, 0.48, 1]}
@@ -59,7 +64,6 @@ export function HomeScreen({
       <VideoGrid
         videos={videos}
         onOpenVideo={onOpenVideo}
-        scrollY={scrollY}
         onScroll={onScroll}
         // The header's own height leaves the first card flush against its bottom
         // edge, touching the search field. One grid gap of clearance is the same
