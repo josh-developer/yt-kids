@@ -2,6 +2,9 @@ import { SITE_URL } from "../../config";
 
 export type ThumbnailSize = "card" | "poster";
 
+/** Must match `THUMBNAIL_CACHE_VERSION` in `apps/app/worker/index.ts`. */
+const THUMBNAIL_VERSION = "v2";
+
 /**
  * Thumbnails come through the site's own proxy, not from `i.ytimg.com`.
  *
@@ -18,5 +21,5 @@ export type ThumbnailSize = "card" | "poster";
  * `apps/app/worker/index.ts`.
  */
 export function thumbnailUrl(videoId: string, size: ThumbnailSize = "card") {
-  return `${SITE_URL}/_thumb/${videoId}/${size}`;
+  return `${SITE_URL}/_thumb/${videoId}/${size}?v=${THUMBNAIL_VERSION}`;
 }

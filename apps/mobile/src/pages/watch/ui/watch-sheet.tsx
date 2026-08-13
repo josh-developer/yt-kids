@@ -281,18 +281,20 @@ export function WatchSheet({
       */}
       <StatusBar style="light" hidden={isFullscreen} />
 
-      <PlayerView
-        ref={player}
-        onStageLayout={(bottom) => setPlayerBottom(bottom)}
-        video={video}
-        hasPrevious={previousVideo !== null}
-        hasNext={nextVideo !== null}
-        nextVideo={nextVideo}
-        isFullscreen={isFullscreen}
-        onToggleFullscreen={() => setIsFullscreen((current) => !current)}
-        onPrevious={() => previousVideo && onSelectVideo(previousVideo)}
-        onNext={() => nextVideo && onSelectVideo(nextVideo)}
-      />
+      <View style={styles.playerDock}>
+        <PlayerView
+          ref={player}
+          onStageLayout={(bottom) => setPlayerBottom(bottom)}
+          video={video}
+          hasPrevious={previousVideo !== null}
+          hasNext={nextVideo !== null}
+          nextVideo={nextVideo}
+          isFullscreen={isFullscreen}
+          onToggleFullscreen={() => setIsFullscreen((current) => !current)}
+          onPrevious={() => previousVideo && onSelectVideo(previousVideo)}
+          onNext={() => nextVideo && onSelectVideo(nextVideo)}
+        />
+      </View>
 
       {isFullscreen ? null : (
         /* The list, with the recommendations header pinned under the video by
@@ -370,6 +372,7 @@ const styles = StyleSheet.create({
     left: 0,
     zIndex: 9000,
   },
+  playerDock: { zIndex: 2, elevation: 2 },
   below: { flex: 1 },
   belowContent: { paddingTop: space.gridGap },
   meta: {

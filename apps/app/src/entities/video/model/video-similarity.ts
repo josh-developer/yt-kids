@@ -108,7 +108,7 @@ function isEpisodeNumber(value: number, limit: number) {
 }
 
 /**
- * The episode this title announces, if any: `5-qism`, `qism 5`, `Ну, погоди! 5`
+ * The episode this title announces, if any: `5-qism`, `qism 5`, `Series title 5`
  * all read as 5, while `1986` and `1000 tilak` read as no episode at all.
  */
 export function episodeNumberOf(title: string): number | null {

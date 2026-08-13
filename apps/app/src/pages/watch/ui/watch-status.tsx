@@ -19,20 +19,36 @@ export function WatchLoading() {
 
   return (
     <div className={styles.watchLayout}>
-      <article>
-        <PlayerPlaceholder>
-          <div>
-            <h2>{t("loadingTitle")}</h2>
-            <p>{t("loadingBody")}</p>
-          </div>
-        </PlayerPlaceholder>
-        <h1 className={styles.watchTitle} aria-hidden="true" />
-        <div className={styles.watchBar} aria-hidden="true">
-          <div className={styles.channelLine}>
-            <span className={styles.pendingAvatar} />
+      <article className={styles.videoColumn}>
+        <div className={styles.playerDock}>
+          <PlayerPlaceholder>
             <div>
-              <strong>&nbsp;</strong>
-              <div className={primitives.muted}>&nbsp;</div>
+              <h2>{t("loadingTitle")}</h2>
+              <p>{t("loadingBody")}</p>
+            </div>
+          </PlayerPlaceholder>
+          <div className={styles.desktopMeta}>
+            <h1 className={styles.watchTitle} aria-hidden="true" />
+            <div className={styles.watchBar} aria-hidden="true">
+              <div className={styles.channelLine}>
+                <span className={styles.pendingAvatar} />
+                <div>
+                  <strong>&nbsp;</strong>
+                  <div className={primitives.muted}>&nbsp;</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div className={styles.flowMeta}>
+          <h1 className={styles.watchTitle} aria-hidden="true" />
+          <div className={styles.watchBar} aria-hidden="true">
+            <div className={styles.channelLine}>
+              <span className={styles.pendingAvatar} />
+              <div>
+                <strong>&nbsp;</strong>
+                <div className={primitives.muted}>&nbsp;</div>
+              </div>
             </div>
           </div>
         </div>

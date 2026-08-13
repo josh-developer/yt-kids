@@ -748,26 +748,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     source: "catalog"
   },
   {
-    id: "uzbek-old-077",
-    videoId: "FFoannpRJKo",
-    title: "Ну, погоди! 1",
-    channel: "Tarjima Soyuzmultfilm",
-    duration: "--:--",
-    viewCount: 1000,
-    accent: "#8e24aa",
-    source: "catalog"
-  },
-  {
-    id: "uzbek-old-078",
-    videoId: "OE5ciOdq5FI",
-    title: "Ну, погоди! 2",
-    channel: "Tarjima Soyuzmultfilm",
-    duration: "--:--",
-    viewCount: 1600,
-    accent: "#00897b",
-    source: "catalog"
-  },
-  {
     id: "uzbek-old-079",
     videoId: "zAg9YroC9Gw",
     title: "Простоквашиналик уч овлон",
