@@ -130,6 +130,7 @@
   background: var(--button-soft);
   color: var(--button-ink);
   box-shadow: 0 3px 0 rgba(50, 55, 66, 0.08);
+  white-space: nowrap;
 }
 
 .compactButton {

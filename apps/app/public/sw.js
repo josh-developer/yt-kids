@@ -1,4 +1,4 @@
-const CACHE_NAME = "kidtube-pwa-v3";
+const CACHE_NAME = "kidtube-pwa-v7";
 const LOCALES = ["en", "uz"];
 const DEFAULT_LOCALE = "en";
 // Every page lives under a locale prefix, so `/` is a redirect and cannot be
@@ -6,6 +6,7 @@ const DEFAULT_LOCALE = "en";
 const APP_SHELL = [
   ...LOCALES.flatMap((locale) => [`/${locale}`, `/${locale}/settings`]),
   "/favicon.svg",
+  "/brand-mascot-header.png",
   "/manifest.webmanifest",
   "/icon-192.png",
   "/icon-512.png",
