@@ -1,6 +1,7 @@
 import { EyeOff, Plus } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { useState } from "react";
+import { useRef, useState } from "react";
+import { useOutsidePointerDown } from "@/shared/lib/use-outside-pointer-down";
 import { ConfirmPopover } from "@/shared/ui/confirm-popover";
 import primitives from "@/shared/ui/primitives.module.css";
 import styles from "./settings-panel.module.css";
@@ -16,7 +17,10 @@ export function BulkActions({
   onHideAll: () => void;
 }) {
   const t = useTranslations("Settings");
+  const actionsRef = useRef<HTMLDivElement>(null);
   const [openAction, setOpenAction] = useState<BulkAction | null>(null);
+
+  useOutsidePointerDown(actionsRef, () => setOpenAction(null), openAction !== null);
 
   const actions = [
     {
@@ -42,7 +46,11 @@ export function BulkActions({
   ];
 
   return (
-    <div className={styles.settingsBulkActions} aria-label={t("approveAllVideos")}>
+    <div
+      className={styles.settingsBulkActions}
+      ref={actionsRef}
+      aria-label={t("approveAllVideos")}
+    >
       {actions.map((action) => (
         <div className={styles.bulkActionWrap} key={action.key}>
           <button
@@ -63,7 +71,7 @@ export function BulkActions({
             <ConfirmPopover
               tone={action.tone}
               message={action.message}
-              confirmLabel={action.label}
+              confirmLabel={t("yes")}
               cancelLabel={t("cancel")}
               onCancel={() => setOpenAction(null)}
               onConfirm={() => {

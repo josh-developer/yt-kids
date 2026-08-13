@@ -26,6 +26,16 @@
   transform: rotate(45deg);
 }
 
+.alignEnd {
+  right: 0;
+  left: auto;
+}
+
+.alignEnd::before {
+  right: 24px;
+  left: auto;
+}
+
 .bulkConfirmPopover p {
   margin: 0 0 10px;
   color: #242833;

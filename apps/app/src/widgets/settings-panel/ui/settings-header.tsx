@@ -1,7 +1,8 @@
 import { Download, Plus, RotateCcw, X } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useLocaleNumbers } from "@/shared/lib/i18n/use-locale-numbers";
+import { useOutsidePointerDown } from "@/shared/lib/use-outside-pointer-down";
 import { ConfirmPopover } from "@/shared/ui/confirm-popover";
 import { IconButton } from "@/shared/ui/icon-button";
 import { ExportLibraryButton } from "@/features/library-transfer";
@@ -30,7 +31,14 @@ export function SettingsHeader({
 }) {
   const t = useTranslations("Settings");
   const numbers = useLocaleNumbers();
+  const resetWrapRef = useRef<HTMLDivElement>(null);
   const [isResetConfirmOpen, setIsResetConfirmOpen] = useState(false);
+
+  useOutsidePointerDown(
+    resetWrapRef,
+    () => setIsResetConfirmOpen(false),
+    isResetConfirmOpen,
+  );
 
   return (
     <div className={styles.sectionHeading}>
@@ -55,11 +63,11 @@ export function SettingsHeader({
         <IconButton label={t("addVideoLink")} onClick={onToggleImport}>
           {isImportOpen ? <X size={19} /> : <Plus size={19} />}
         </IconButton>
-        <div className={styles.settingsResetWrap}>
+        <div className={styles.settingsResetWrap} ref={resetWrapRef}>
           <IconButton
             className={primitives.dangerIconButton}
             label={t("resetAllVideos")}
-            tooltipAlign="end"
+            tooltip={null}
             isExpanded={isResetConfirmOpen}
             onClick={() => setIsResetConfirmOpen((open) => !open)}
           >
@@ -67,9 +75,10 @@ export function SettingsHeader({
           </IconButton>
           {isResetConfirmOpen ? (
             <ConfirmPopover
+              align="end"
               tone="danger"
               message={t("resetAllVideosConfirm")}
-              confirmLabel={t("resetAllVideos")}
+              confirmLabel={t("yes")}
               cancelLabel={t("cancel")}
               onCancel={() => setIsResetConfirmOpen(false)}
               onConfirm={() => {
