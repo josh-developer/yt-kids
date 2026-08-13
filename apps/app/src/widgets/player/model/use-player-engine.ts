@@ -10,6 +10,7 @@ import {
 import { createSessionStore } from "@/shared/lib/storage/key-value-store";
 import { clamp, parseDurationText } from "@/shared/lib/time";
 import { TimerBag } from "@/shared/lib/timers";
+import { useScreenWakeLock } from "@/shared/lib/use-screen-wake-lock";
 import type { Video } from "@/entities/video";
 import { PlaybackClock } from "./playback-clock";
 import { PlayerController } from "./player-controller";
@@ -174,6 +175,8 @@ export function usePlayerEngine({
     // Reported to the shell; re-running on callback identity would loop.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isPlaying]);
+
+  useScreenWakeLock(isPlaying && hasConfirmedPlaying && failure === null);
 
   function publishTime(seconds: number) {
     callbacks.current.onTimeUpdate?.(seconds);

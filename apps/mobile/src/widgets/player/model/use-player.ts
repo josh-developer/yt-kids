@@ -1,4 +1,8 @@
 import { useCallback, useEffect, useRef, useState } from "react";
+import {
+  activateKeepAwakeAsync,
+  deactivateKeepAwake,
+} from "expo-keep-awake";
 import { AppState } from "react-native";
 import type WebView from "react-native-webview";
 import {
@@ -15,6 +19,13 @@ const AUTO_HIDE_MS = 5000;
  * cover a slow network reaching the iframe API, short enough not to look broken.
  */
 const SOUND_GRACE_MS = 3500;
+const KEEP_AWAKE_TAG = "kidtube-player";
+
+function releaseKeepAwake() {
+  return deactivateKeepAwake(KEEP_AWAKE_TAG).catch(() => {
+    // A released or unavailable lock is already the safe state.
+  });
+}
 
 export type PlayerStatus = "loading" | "playing" | "paused" | "ended" | "error";
 
@@ -100,6 +111,29 @@ export function usePlayer({ videoId }: { videoId: string }) {
   }, [clearHideTimer, send]);
 
   const isPlaying = status === "playing";
+
+  useEffect(() => {
+    if (!isPlaying) {
+      void releaseKeepAwake();
+      return;
+    }
+
+    let isCurrent = true;
+    void activateKeepAwakeAsync(KEEP_AWAKE_TAG)
+      .then(() => {
+        if (!isCurrent) {
+          void releaseKeepAwake();
+        }
+      })
+      .catch(() => {
+        // If the platform refuses, playback should continue normally.
+      });
+
+    return () => {
+      isCurrent = false;
+      void releaseKeepAwake();
+    };
+  }, [isPlaying]);
 
   const toggleControls = useCallback(() => {
     setAreControlsVisible((visible) => {
@@ -220,6 +254,8 @@ export function usePlayer({ videoId }: { videoId: string }) {
     const subscription = AppState.addEventListener("change", (state) => {
       if (state !== "active") {
         send(playerCommands.pause());
+        setStatus((current) => (current === "playing" ? "paused" : current));
+        void releaseKeepAwake();
       }
     });
 
