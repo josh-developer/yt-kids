@@ -25,7 +25,7 @@ const clusterCache = new WeakMap<readonly string[], Video[][]>();
 /** How many videos make up the "Next in this series" group. */
 const SERIES_GROUP_SIZE = 3;
 /** How many videos make up the "Recommended" group. */
-const RECOMMENDED_GROUP_SIZE = 20;
+const RECOMMENDED_GROUP_SIZE = 30;
 
 /**
  * Serial episodes are offered in reading order starting from the one after the

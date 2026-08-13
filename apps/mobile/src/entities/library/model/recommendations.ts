@@ -3,7 +3,7 @@ import type { Video } from "@repo/catalog/types";
 /** How many of the videos that follow this one lead the list. */
 const NEXT_IN_ORDER_COUNT = 3;
 /** The length of the list, as the web's `RECOMMENDED_GROUP_SIZE`. */
-const LIST_SIZE = 20;
+const LIST_SIZE = 30;
 
 /**
  * What to watch after this video: the next few in the library, then a shuffled batch.

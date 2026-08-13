@@ -58,12 +58,12 @@
 * understand one of them.
 */
 /* Once the controls have faded in fullscreen the pointer goes with them. */
-.playerBox:fullscreen.controlsHidden,
-.playerBox.virtualFullscreen.controlsHidden {
+.playerBox:fullscreen.controlsHidden:not(.playerLocked),
+.playerBox.virtualFullscreen.controlsHidden:not(.playerLocked) {
   cursor: none;
 }
 
-.playerBox:-webkit-full-screen.controlsHidden {
+.playerBox:-webkit-full-screen.controlsHidden:not(.playerLocked) {
   cursor: none;
 }
 

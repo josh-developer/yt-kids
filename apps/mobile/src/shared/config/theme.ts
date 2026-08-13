@@ -146,7 +146,7 @@ export const radius = {
 export const size = {
   /** `.videoMeta` reserves a 38px column; `.avatar` fills it. */
   avatar: 38,
-  brandMarkWidth: 60,
+  brandMarkWidth: 50,
   topBarHeight: 64,
 } as const;
 
