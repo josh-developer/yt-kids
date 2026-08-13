@@ -1,33 +1,86 @@
-import { StatusBar } from "expo-status-bar";
-import { StyleSheet } from "react-native";
+// First, and before anything that formats a message: it patches `Intl` in place.
+import "./src/shared/lib/i18n/intl-polyfill";
 import {
-  SafeAreaProvider,
-  SafeAreaView,
-} from "react-native-safe-area-context";
-import { SiteWebView } from "./src/site-web-view";
+  Nunito_400Regular,
+  Nunito_600SemiBold,
+  Nunito_700Bold,
+  Nunito_800ExtraBold,
+  Nunito_900Black,
+  useFonts,
+} from "@expo-google-fonts/nunito";
+import * as SplashScreen from "expo-splash-screen";
+import { useEffect } from "react";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
+import { SafeAreaProvider } from "react-native-safe-area-context";
+import { Navigation } from "./src/app/navigation";
+import { useLibrary } from "./src/entities/library";
+import {
+  LocaleProvider,
+  useLocale,
+} from "./src/shared/lib/i18n/use-translations";
+import { ThemeProvider, useTheme } from "./src/shared/lib/theme/use-theme";
 
 /**
- * The whole app: a status bar, a safe area, and the site.
+ * Held until the fonts, the stored theme, the stored locale and the library are in.
  *
- * Only the top edge is inset. The site draws its own bottom-anchored player
- * controls and its own safe-area padding for them (`env(safe-area-inset-bottom)`
- * in the player styles), so insetting the bottom here as well would push
- * everything up by the home indicator twice over.
+ * Each would otherwise show the wrong thing first and correct itself: the system face
+ * before Nunito reflows every card title, light before a stored dark, English before a
+ * stored Uzbek, the whole catalog before a parent's hidden videos are read back.
  */
+void SplashScreen.preventAutoHideAsync();
+
 export default function App() {
   return (
-    <SafeAreaProvider>
-      <StatusBar style="auto" />
-      <SafeAreaView style={styles.shell} edges={["top"]}>
-        <SiteWebView />
-      </SafeAreaView>
-    </SafeAreaProvider>
+    // Gesture Handler needs to own the root view for the watch sheet's drag to reach the
+    // native side.
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <SafeAreaProvider>
+        <ThemeProvider>
+          <LocaleProvider>
+            <Shell />
+          </LocaleProvider>
+        </ThemeProvider>
+      </SafeAreaProvider>
+    </GestureHandlerRootView>
   );
 }
 
-const styles = StyleSheet.create({
-  shell: {
-    flex: 1,
-    backgroundColor: "#fff9e8",
-  },
-});
+/**
+ * Inside the providers, so it can wait on what they load, and outside the navigator, so
+ * the library is one object rather than one per route.
+ *
+ * Where the screens go is `src/app/navigation.tsx`.
+ */
+function Shell() {
+  const theme = useTheme();
+  const locale = useLocale();
+  const library = useLibrary();
+
+  const [fontsLoaded, fontError] = useFonts({
+    Nunito_400Regular,
+    Nunito_600SemiBold,
+    Nunito_700Bold,
+    Nunito_800ExtraBold,
+    Nunito_900Black,
+  });
+
+  // A font that fails to load still has to let the app through: the fallback face is worse
+  // than Nunito and far better than a splash screen forever.
+  const isReady =
+    (fontsLoaded || fontError !== null) &&
+    theme.isReady &&
+    locale.isReady &&
+    library.isReady;
+
+  useEffect(() => {
+    if (isReady) {
+      void SplashScreen.hideAsync();
+    }
+  }, [isReady]);
+
+  if (!isReady) {
+    return null;
+  }
+
+  return <Navigation library={library} />;
+}

@@ -25,7 +25,9 @@
         "android.permission.SYSTEM_ALERT_WINDOW",
         "android.permission.READ_EXTERNAL_STORAGE",
         "android.permission.WRITE_EXTERNAL_STORAGE",
-        "android.permission.VIBRATE"
+        "android.permission.VIBRATE",
+        "android.permission.ACCESS_FINE_LOCATION",
+        "android.permission.ACCESS_COARSE_LOCATION"
       ]
     },
     "extra": {
@@ -39,6 +41,25 @@
     },
     "updates": {
       "url": "https://u.expo.dev/56ab4b49-7147-4a4c-9bdd-47e6e8cce508"
-    }
+    },
+    "plugins": [
+      "expo-image",
+      "expo-font",
+      "expo-splash-screen",
+      "expo-localization",
+      "expo-build-properties",
+      [
+        "expo-build-properties",
+        {
+          "android": {
+            "abiFilters": [
+              "arm64-v8a"
+            ],
+            "enableProguardInReleaseBuilds": true,
+            "enableShrinkResourcesInReleaseBuilds": true
+          }
+        }
+      ]
+    ]
   }
 }

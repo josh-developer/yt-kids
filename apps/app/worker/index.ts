@@ -44,11 +44,36 @@ interface ExecutionContext {
  */
 const THUMBNAIL_ROUTE = /^\/_thumb\/([\w-]{11})\/(card|poster)$/;
 
-/** The two YouTube renditions, paired with their real pixel widths. */
+/**
+ * The source renditions to try, in quality order, and the width we keep after
+ * transcoding. `maxresdefault` and `hq720` are the clean 16:9 sources when an
+ * upload has them; older videos often do not, so the worker falls back until it
+ * reaches the always-present card-sized thumbnail.
+ */
 const THUMBNAIL_SOURCES = {
-  card: { file: "mqdefault", width: 320 },
-  poster: { file: "hqdefault", width: 480 },
+  card: {
+    width: 960,
+    sources: [
+      { file: "maxresdefault", width: 1280 },
+      { file: "hq720", width: 1280 },
+      { file: "sddefault", width: 640 },
+      { file: "hqdefault", width: 480 },
+      { file: "mqdefault", width: 320 },
+    ],
+  },
+  poster: {
+    width: 1280,
+    sources: [
+      { file: "maxresdefault", width: 1280 },
+      { file: "hq720", width: 1280 },
+      { file: "sddefault", width: 640 },
+      { file: "hqdefault", width: 480 },
+    ],
+  },
 } as const;
+
+/** Bumps both browser URLs and edge-cache keys when thumbnail generation changes. */
+const THUMBNAIL_CACHE_VERSION = "v2";
 
 /**
  * An uploader can swap a thumbnail, so these URLs are long-lived rather than
@@ -111,6 +136,26 @@ async function transcodeThumbnail(
   }
 }
 
+async function fetchThumbnailSource(
+  videoId: string,
+  sources: (typeof THUMBNAIL_SOURCES)[keyof typeof THUMBNAIL_SOURCES],
+) {
+  for (const source of sources.sources) {
+    const response = await fetch(
+      `https://i.ytimg.com/vi/${videoId}/${source.file}.jpg`,
+    );
+
+    if (response.ok) {
+      return {
+        response,
+        width: Math.min(sources.width, source.width),
+      };
+    }
+  }
+
+  return null;
+}
+
 async function serveThumbnail(
   request: Request,
   env: Env,
@@ -125,7 +170,7 @@ async function serveThumbnail(
   // negotiated format goes into the key instead.
   const extension = format.slice("image/".length);
   const cacheKey = new Request(
-    `${new URL(request.url).origin}/_thumb/${videoId}/${size}.${extension}`,
+    `${new URL(request.url).origin}/_thumb/${videoId}/${size}.${extension}?${THUMBNAIL_CACHE_VERSION}`,
   );
   const edgeCache = typeof caches === "undefined" ? undefined : caches.default;
 
@@ -134,16 +179,15 @@ async function serveThumbnail(
     return hit;
   }
 
-  const { file, width } = THUMBNAIL_SOURCES[size];
-  const source = await fetch(`https://i.ytimg.com/vi/${videoId}/${file}.jpg`);
-  if (!source.ok) {
+  const source = await fetchThumbnailSource(videoId, THUMBNAIL_SOURCES[size]);
+  if (!source) {
     return new Response("Thumbnail not found", { status: 404 });
   }
 
   const { body, contentType } = await transcodeThumbnail(
     env.IMAGES,
-    await source.arrayBuffer(),
-    width,
+    await source.response.arrayBuffer(),
+    source.width,
     format,
   );
 

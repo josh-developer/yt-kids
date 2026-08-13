@@ -11,13 +11,10 @@ export function isTrustedYouTubeMessageOrigin(origin: string) {
   }
 }
 
-/**
- * Card thumbnails are drawn between 74px and 168px wide, so the 480x360
- * `hqdefault` was four to six times the pixels needed. `mqdefault` is 320x180
- * and still sharp on a 2x screen; the poster behind the player is the one
- * place that fills a real video frame.
- */
 export type ThumbnailSize = "card" | "poster";
+
+/** Must match `THUMBNAIL_CACHE_VERSION` in `apps/app/worker/index.ts`. */
+const THUMBNAIL_VERSION = "v2";
 
 /**
  * Same-origin on purpose. `i.ytimg.com` caches thumbnails for two hours and
@@ -27,7 +24,7 @@ export type ThumbnailSize = "card" | "poster";
  * route shape is mirrored by `THUMBNAIL_ROUTE` in `worker/index.ts`.
  */
 export function thumbnailUrl(videoId: string, size: ThumbnailSize = "card") {
-  return `/_thumb/${videoId}/${size}`;
+  return `/_thumb/${videoId}/${size}?v=${THUMBNAIL_VERSION}`;
 }
 
 export function watchUrl(videoId: string) {

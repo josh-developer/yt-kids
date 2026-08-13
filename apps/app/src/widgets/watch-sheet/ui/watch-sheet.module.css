@@ -99,11 +99,10 @@
 
 /*
 * Mirrors `.content`'s padding in kids-tube-app.module.css: the sheet itself
-* must stay unpadded so the pinned player inside it — `position: fixed; left:
-* 0` on `.playerBox` below 1080px — reads its "flush with the screen" offsets
-* against the sheet's own edges, not against a padded box. Everything else in
-* the sheet (the title, the recommendations) still wants that margin, so it
-* lives on this inner wrapper instead.
+* must stay unpadded so the pinned player can read its "flush with the screen"
+* offsets against the sheet's own edges, not against a padded box. Everything
+* else in the sheet (the title, the recommendations) still wants that margin,
+* so it lives on this inner wrapper instead.
 */
 .sheetContent {
   min-width: 0;

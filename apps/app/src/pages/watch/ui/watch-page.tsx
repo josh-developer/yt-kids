@@ -50,37 +50,45 @@ export function WatchPage({
     () => positions.read(video.videoId),
     [positions, video.videoId],
   );
+  const renderMetadata = () => (
+    <>
+      <h1 className={styles.watchTitle}>{labels.title(video)}</h1>
+      <div className={styles.watchBar}>
+        <div className={styles.channelLine}>
+          <ChannelAvatar video={video} />
+          <div>
+            <strong>{labels.channel(video)}</strong>
+            <div className={primitives.muted}>{labels.views(video)}</div>
+          </div>
+        </div>
+      </div>
+    </>
+  );
 
   return (
     <div className={styles.watchLayout}>
       <article className={styles.videoColumn}>
-        <SafeYouTubePlayer
-          isTvBrowser={isTvBrowser}
-          nextVideo={nextVideo}
-          previousVideo={previousVideo}
-          video={video}
-          startTime={startTime}
-          onTimeUpdate={(seconds) =>
-            positions.save(video.videoId, seconds, durationRef.current)
-          }
-          onDurationResolved={(resolvedVideo, seconds) => {
-            durationRef.current = seconds;
-            onDurationResolved(resolvedVideo, seconds);
-          }}
-          onFullscreenChange={onFullscreenChange}
-          onNextVideo={onNextVideo}
-          onPreviousVideo={onPreviousVideo}
-        />
-        <h1 className={styles.watchTitle}>{labels.title(video)}</h1>
-        <div className={styles.watchBar}>
-          <div className={styles.channelLine}>
-            <ChannelAvatar video={video} />
-            <div>
-              <strong>{labels.channel(video)}</strong>
-              <div className={primitives.muted}>{labels.views(video)}</div>
-            </div>
-          </div>
+        <div className={styles.playerDock}>
+          <SafeYouTubePlayer
+            isTvBrowser={isTvBrowser}
+            nextVideo={nextVideo}
+            previousVideo={previousVideo}
+            video={video}
+            startTime={startTime}
+            onTimeUpdate={(seconds) =>
+              positions.save(video.videoId, seconds, durationRef.current)
+            }
+            onDurationResolved={(resolvedVideo, seconds) => {
+              durationRef.current = seconds;
+              onDurationResolved(resolvedVideo, seconds);
+            }}
+            onFullscreenChange={onFullscreenChange}
+            onNextVideo={onNextVideo}
+            onPreviousVideo={onPreviousVideo}
+          />
+          <div className={styles.desktopMeta}>{renderMetadata()}</div>
         </div>
+        <div className={styles.flowMeta}>{renderMetadata()}</div>
       </article>
 
       <Recommendations

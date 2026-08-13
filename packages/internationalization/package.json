@@ -8,13 +8,13 @@
     "./routing": "./routing.ts",
     "./navigation": "./navigation.ts",
     "./request": "./request.ts",
-    "./proxy": "./proxy.ts",
-    "./messages/*": "./messages/*"
+    "./proxy": "./proxy.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit --emitDeclarationOnly false"
   },
   "dependencies": {
+    "@repo/messages": "workspace:*",
     "next-intl": "^4.13.5"
   },
   "devDependencies": {
