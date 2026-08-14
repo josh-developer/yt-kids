@@ -610,9 +610,7 @@ export function usePlayerEngine({
   }
 
   /** Lifts mute without rebuilding the iframe that has already buffered video. */
-  function giveSound() {
-    const nextVolume =
-      volumeRef.current === 0 ? DEFAULT_VOLUME : volumeRef.current;
+  function giveSound(nextVolume = volumeRef.current || DEFAULT_VOLUME) {
     if (nextVolume !== volumeRef.current) {
       volumeRef.current = nextVolume;
       setVolumeState(nextVolume);
@@ -637,17 +635,18 @@ export function usePlayerEngine({
 
   function setVolume(nextVolume: number) {
     const clamped = clamp(nextVolume, 0, 100);
-    setVolumeState(clamped);
-    player.setVolume(clamped);
 
     if (clamped === 0) {
+      volumeRef.current = 0;
+      setVolumeState(0);
+      player.setVolume(0);
       ignoreMutedTelemetryUntilRef.current = 0;
       player.mute();
       setIsMuted(true);
       return;
     }
 
-    giveSound();
+    giveSound(clamped);
   }
 
   function seekTo(seconds: number) {
