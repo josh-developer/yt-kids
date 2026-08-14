@@ -3118,16 +3118,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     source: "catalog"
   },
   {
-    id: "uzbek-old-317",
-    videoId: "iOz05riYN3Y",
-    title: "Ajdarho O'rgatuvchilari 3 | Uzbek Tilida Multfilm |•| Qisqa Parcha | | Ko'ring va like bosing |",
-    channel: "multfilm TV",
-    duration: "4:40",
-    sourceLabel: "playlist",
-    accent: "#8e24aa",
-    source: "catalog"
-  },
-  {
     id: "uzbek-old-318",
     videoId: "qUG569b3878",
     title: "Sehrli qilich (multfilm) | Сехрли килич (мультфильм)",
