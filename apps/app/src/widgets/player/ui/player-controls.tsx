@@ -68,10 +68,10 @@ export function PlayerControls({
       aria-label={t("controls")}
     >
       <div className={styles.footerTransportControls}>
-        {/* Narrow layouts reach these through the on-video side buttons. */}
-        <div className={styles.wideScreenVideoNav}>
+        <div className={styles.videoNavControls}>
+          {/* Narrow layouts reach these through the on-video side buttons. */}
           <button
-            className={styles.playerControlButton}
+            className={`${styles.playerControlButton} ${styles.wideScreenControl}`}
             disabled={!hasPrevious}
             onClick={onPrevious}
             type="button"
@@ -81,7 +81,19 @@ export function PlayerControls({
             <SkipBack size={16} fill="currentColor" />
           </button>
           <button
-            className={styles.playerControlButton}
+            className={`${styles.playerControlButton} ${styles.primary}`}
+            onClick={onPlayPause}
+            type="button"
+            aria-label={isPlaying ? t("pause") : t("play")}
+          >
+            {isPlaying ? (
+              <Pause size={16} fill="currentColor" />
+            ) : (
+              <Play size={16} fill="currentColor" />
+            )}
+          </button>
+          <button
+            className={`${styles.playerControlButton} ${styles.wideScreenControl}`}
             disabled={!hasNext}
             onClick={onNext}
             type="button"
@@ -90,10 +102,10 @@ export function PlayerControls({
           >
             <SkipForward size={16} fill="currentColor" />
           </button>
-          <span className={styles.controlDivider} />
         </div>
+        <span className={`${styles.controlDivider} ${styles.wideScreenControl}`} />
         <button
-          className={`${styles.playerControlButton} ${styles.seekStep}`}
+          className={`${styles.playerControlButton} ${styles.seekStep} ${styles.seekControl}`}
           onClick={() => onSeekBy(-SEEK_STEP_SECONDS)}
           type="button"
           aria-label={t("back15")}
@@ -101,27 +113,15 @@ export function PlayerControls({
           -{SEEK_STEP_SECONDS}
         </button>
         <button
-          className={`${styles.playerControlButton} ${styles.seekStep}`}
+          className={`${styles.playerControlButton} ${styles.seekStep} ${styles.seekControl}`}
           onClick={() => onSeekBy(SEEK_STEP_SECONDS)}
           type="button"
           aria-label={t("forward15")}
         >
           +{SEEK_STEP_SECONDS}
         </button>
-        <span className={styles.controlDivider} />
+        <span className={`${styles.controlDivider} ${styles.seekControl}`} />
       </div>
-      <button
-        className={`${styles.playerControlButton} ${styles.primary}`}
-        onClick={onPlayPause}
-        type="button"
-        aria-label={isPlaying ? t("pause") : t("play")}
-      >
-        {isPlaying ? (
-          <Pause size={16} fill="currentColor" />
-        ) : (
-          <Play size={16} fill="currentColor" />
-        )}
-      </button>
       <button
         className={styles.playerControlButton}
         onClick={onToggleMute}

@@ -56,6 +56,18 @@ export function usePlayerKeyboard(actions: PlayerKeyboardActions) {
         return;
       }
 
+      if (event.key === "ArrowUp") {
+        event.preventDefault();
+        current.onVolumeBy(VOLUME_STEP);
+        return;
+      }
+
+      if (event.key === "ArrowDown") {
+        event.preventDefault();
+        current.onVolumeBy(-VOLUME_STEP);
+        return;
+      }
+
       if (event.key.toLowerCase() === "f") {
         event.preventDefault();
         current.onToggleFullscreen();

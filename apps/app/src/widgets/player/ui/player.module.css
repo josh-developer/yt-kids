@@ -720,10 +720,14 @@
   white-space: nowrap;
 }
 
-.wideScreenVideoNav {
-  display: none;
+.videoNavControls {
+  display: flex;
   align-items: center;
   gap: 5px;
+}
+
+.wideScreenControl {
+  display: none;
 }
 
 .controlDivider {
@@ -822,7 +826,7 @@
     overflow-x: auto;
   }
 
-  .footerTransportControls {
+  .seekControl {
     display: none;
   }
 
@@ -837,8 +841,12 @@
 }
 
 @media (min-width: 1081px) {
-  .wideScreenVideoNav {
-    display: flex;
+  .playerControlButton.wideScreenControl {
+    display: grid;
+  }
+
+  .controlDivider.wideScreenControl {
+    display: block;
   }
 }
 

@@ -110,7 +110,16 @@ export function SafeYouTubePlayer({
         startAutoplayCountdown();
       }
     },
-    onPlayingChange: (isPlaying) => controls.show({ autoHide: isPlaying }),
+    onPlayingChange: (isPlaying) => {
+      if (isPlaying) {
+        controls.scheduleHide();
+        return;
+      }
+
+      if (!engine.hasConfirmedPlaying) {
+        controls.show({ autoHide: false });
+      }
+    },
     onTimeUpdate,
   });
 
@@ -213,6 +222,14 @@ export function SafeYouTubePlayer({
     });
   }
 
+  function togglePlayback() {
+    controls.show({
+      autoHide: !engine.isPlaying,
+      delayMs: gestures.isMousePointer() ? undefined : TOUCH_AUTO_HIDE_MS,
+    });
+    engine.playPause();
+  }
+
   /**
    * Hover behaviour, and only hover: a real mouse over the video keeps the
    * controls up and takes them away again when it leaves, the way a desktop
@@ -283,8 +300,7 @@ export function SafeYouTubePlayer({
       revealControls();
     },
     onPlayPause: () => {
-      revealControls();
-      engine.playPause();
+      togglePlayback();
     },
     onToggleMute: () => {
       revealControls();
@@ -455,8 +471,7 @@ export function SafeYouTubePlayer({
           isPlaying={engine.isPlaying}
           isVisible={controls.isVisible}
           onClick={() => {
-            revealControls();
-            engine.playPause();
+            togglePlayback();
           }}
         />
       ) : null}
@@ -484,8 +499,7 @@ export function SafeYouTubePlayer({
             volume={engine.volume}
             onNext={onNextVideo}
             onPlayPause={() => {
-              revealControls();
-              engine.playPause();
+              togglePlayback();
             }}
             onPrevious={onPreviousVideo}
             onPreview={requestPreview}
