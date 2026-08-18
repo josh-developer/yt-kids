@@ -3248,16 +3248,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     source: "catalog"
   },
   {
-    id: "uzbek-old-331",
-    videoId: "LUPHbSnZMQo",
-    title: "Agar Multfilm Hayvonlar, Odam Bo'lganida Qanday Ko'rinishga Ega Bo'lar Edi? | Animated Movies",
-    channel: "UZFOYDA",
-    duration: "2:57",
-    sourceLabel: "playlist",
-    accent: "#1a73e8",
-    source: "catalog"
-  },
-  {
     id: "uzbek-old-332",
     videoId: "BIrV0NUT46o",
     title: "Bo'g'irsoq o'zbek tilida. Колобок.Multik.Multfilm",
@@ -4200,7 +4190,7 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
   {
     id: "uzbek-old-426",
     videoId: "BwJVVpoufe0",
-    title: "MIRZO ULUG'BEK   &  AL XORAZMIY  |  Buyuk bobolarim bolalgi |  #forkids #uzbekkino #astir",
+    title: "Mirzo Ulug'bek & Al-Xorazmiy | Buyuk bobolarim bolaligi | #forkids #uzbekkino #astir",
     channel: "Astir animation studio",
     duration: "19:39",
     sourceLabel: "playlist",
@@ -4210,7 +4200,7 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
   {
     id: "uzbek-old-427",
     videoId: "phK-YZvewhA",
-    title: "MAHMUD QOSHG'ARIY   &  YUSUF XOS HOJIB  |  Buyuk bobolarim bolalgi |  #forkids #uzbekkino #astir",
+    title: "Mahmud Qoshg'ariy & Yusuf Xos Hojib | Buyuk bobolarim bolaligi | #forkids #uzbekkino #astir",
     channel: "Astir animation studio",
     duration: "21:27",
     sourceLabel: "playlist",
@@ -4220,7 +4210,7 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
   {
     id: "uzbek-old-428",
     videoId: "38ILlhFxrz4",
-    title: "AL- FARG'ONIY   &  AL - BERUNIY  |  Buyuk bobolarim bolalgi | #cartoon #forkids #uzbekkino #astir",
+    title: "Al-Farg'oniy & Al-Beruniy | Buyuk bobolarim bolaligi | #cartoon #forkids #uzbekkino #astir",
     channel: "Astir animation studio",
     duration: "15:58",
     sourceLabel: "playlist",
@@ -4230,7 +4220,7 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
   {
     id: "uzbek-old-429",
     videoId: "D7-htJ-VqWY",
-    title: "Zahiriddin Muhammad Bobur | Buyuk bobolarim Bolaligi | O'zbek animatsion filmi",
+    title: "Zahiriddin Muhammad Bobur | Buyuk bobolarim bolaligi | O'zbek animatsion filmi",
     channel: "Astir animation studio",
     duration: "8:56",
     sourceLabel: "playlist",
@@ -4240,7 +4230,7 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
   {
     id: "uzbek-old-430",
     videoId: "UXGUxCXsx0E",
-    title: "Alisher Navoiy  | Buyuk bobolarim Bolaligi | O'zbek animatsion filmi",
+    title: "Alisher Navoiy | Buyuk bobolarim bolaligi | O'zbek animatsion filmi",
     channel: "Astir animation studio",
     duration: "10:59",
     sourceLabel: "playlist",
@@ -4250,7 +4240,7 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
   {
     id: "uzbek-old-431",
     videoId: "GkEVG1bpJhw",
-    title: "Kamoliddin Behzod | Buyuk bobolarim Bolaligi | O'zbek animatsion filmi",
+    title: "Kamoliddin Behzod | Buyuk bobolarim bolaligi | O'zbek animatsion filmi",
     channel: "Astir animation studio",
     duration: "9:41",
     sourceLabel: "playlist",
@@ -4260,7 +4250,7 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
   {
     id: "uzbek-old-432",
     videoId: "ssR3IK41Bog",
-    title: "Mirzo Ulugʻbek | Buyuk bobolarim Bolaligi | O'zbek animatsion filmi",
+    title: "Mirzo Ulugʻbek | Buyuk bobolarim bolaligi | O'zbek animatsion filmi",
     channel: "Astir animation studio",
     duration: "9:56",
     sourceLabel: "playlist",
@@ -4270,7 +4260,7 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
   {
     id: "uzbek-old-433",
     videoId: "1igXilLZi7I",
-    title: "Yusuf Xos Hojib | Buyuk bobolarim Bolaligi | O'zbek animatsion filmi",
+    title: "Yusuf Xos Hojib | Buyuk bobolarim bolaligi | O'zbek animatsion filmi",
     channel: "Astir animation studio",
     duration: "11:42",
     sourceLabel: "playlist",
@@ -4280,7 +4270,7 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
   {
     id: "uzbek-old-434",
     videoId: "iyrDMwCO8RI",
-    title: "Mahmud Qoshg‘ariy | Buyuk bobolarim Bolaligi | O'zbek animatsion filmi",
+    title: "Mahmud Qoshg‘ariy | Buyuk bobolarim bolaligi | O'zbek animatsion filmi",
     channel: "Astir animation studio",
     duration: "11:05",
     sourceLabel: "playlist",
@@ -4290,7 +4280,7 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
   {
     id: "uzbek-old-435",
     videoId: "iI2Iz3vJJTY",
-    title: "Abu Ali ibn Sino | Buyuk bobolarim Bolaligi | O'zbek animatsion filmi|",
+    title: "Abu Ali ibn Sino | Buyuk bobolarim bolaligi | O'zbek animatsion filmi",
     channel: "Astir animation studio",
     duration: "9:20",
     sourceLabel: "playlist",
@@ -4300,7 +4290,7 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
   {
     id: "uzbek-old-436",
     videoId: "_BhGM8F5-Yk",
-    title: "Abu Rayhon Beruniy | Buyuk bobolarim Bolaligi | O'zbek animatsion filmi|",
+    title: "Abu Rayhon Beruniy | Buyuk bobolarim bolaligi | O'zbek animatsion filmi",
     channel: "Astir animation studio",
     duration: "9:19",
     sourceLabel: "playlist",
@@ -4310,7 +4300,7 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
   {
     id: "uzbek-old-437",
     videoId: "ebdPRBWZ2XU",
-    title: "AHMAD AL-FARG'ONIY | Buyuk Bobolarim Bolaligi |  O'zbek animatsion filmi  #buyukbobolarbolaligi",
+    title: "Ahmad al-Farg'oniy | Buyuk bobolarim bolaligi | O'zbek animatsion filmi",
     channel: "Astir animation studio",
     duration: "8:13",
     sourceLabel: "playlist",
@@ -4320,11 +4310,521 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
   {
     id: "uzbek-old-438",
     videoId: "_HTf6s8IW8I",
-    title: "AL- XORAZMIY | Buyuk bobolarim bolalgi | O'zbek animatsion filmi |",
+    title: "Al-Xorazmiy | Buyuk bobolarim bolaligi | O'zbek animatsion filmi",
     channel: "Astir animation studio",
     duration: "11:13",
     sourceLabel: "playlist",
     accent: "#0b8043",
+    source: "catalog"
+  },
+  {
+    id: "uzbek-old-439",
+    videoId: "aXy61_429T4",
+    title: "Kichkina Nikolya 1-qism O'zbek tilida | Кичкина Николя 1-қисм Ўзбек тилида",
+    channel: "NastalTube",
+    duration: "12:15",
+    sourceLabel: "playlist",
+    accent: "#1a73e8",
+    source: "catalog"
+  },
+  {
+    id: "uzbek-old-440",
+    videoId: "yEOi010gNqY",
+    title: "Kichkina Nikolya 2-qism O'zbek tilida",
+    channel: "NastalTube",
+    duration: "12:22",
+    sourceLabel: "playlist",
+    accent: "#f9ab00",
+    source: "catalog"
+  },
+  {
+    id: "uzbek-old-441",
+    videoId: "C7ykN8rCtZg",
+    title: "Kichkina Nikolya 3-qism O'zbek tilida",
+    channel: "NastalTube",
+    duration: "12:02",
+    sourceLabel: "playlist",
+    accent: "#8e24aa",
+    source: "catalog"
+  },
+  {
+    id: "uzbek-old-442",
+    videoId: "ox_zEAJFM7w",
+    title: "Kichkina Nikolya 4-qism O'zbek tilida",
+    channel: "NastalTube",
+    duration: "12:33",
+    sourceLabel: "playlist",
+    accent: "#00897b",
+    source: "catalog"
+  },
+  {
+    id: "uzbek-old-443",
+    videoId: "olHXrJiHV-I",
+    title: "Kichkina Nikolya 5-qism O'zbek tilida",
+    channel: "NastalTube",
+    duration: "12:41",
+    sourceLabel: "playlist",
+    accent: "#e8710a",
+    source: "catalog"
+  },
+  {
+    id: "uzbek-old-444",
+    videoId: "qUOz1dFVmak",
+    title: "Kichkina Nikolya 6-qism O'zbek tilida",
+    channel: "NastalTube",
+    duration: "12:34",
+    sourceLabel: "playlist",
+    accent: "#5f6368",
+    source: "catalog"
+  },
+  {
+    id: "uzbek-old-445",
+    videoId: "PwVyBfrP1j4",
+    title: "Kichkina Nikolya 7-qism O'zbek tilida",
+    channel: "NastalTube",
+    duration: "12:24",
+    sourceLabel: "playlist",
+    accent: "#d93025",
+    source: "catalog"
+  },
+  {
+    id: "uzbek-old-446",
+    videoId: "bP07Kl6ujAw",
+    title: "Kichkina Nikolya 8-qism O'zbek tilida",
+    channel: "NastalTube",
+    duration: "12:07",
+    sourceLabel: "playlist",
+    accent: "#0b8043",
+    source: "catalog"
+  },
+  {
+    id: "uzbek-old-447",
+    videoId: "5xl5RW4R-d8",
+    title: "Kichkina Nikolya 9-qism O'zbek tilida",
+    channel: "NastalTube",
+    duration: "12:19",
+    sourceLabel: "playlist",
+    accent: "#1a73e8",
+    source: "catalog"
+  },
+  {
+    id: "uzbek-old-448",
+    videoId: "T6EF7mQ9K38",
+    title: "Kichkina Nikolya 10-qism O'zbek tilida",
+    channel: "NastalTube",
+    duration: "12:12",
+    sourceLabel: "playlist",
+    accent: "#f9ab00",
+    source: "catalog"
+  },
+  {
+    id: "uzbek-old-449",
+    videoId: "gZ_jvYg2tmU",
+    title: "Kichkina Nikolya 11 qism O'zbek tilida | Кичкина Николя 11 қисм Ўзбек тилида",
+    channel: "NastalTube",
+    duration: "12:31",
+    sourceLabel: "playlist",
+    accent: "#8e24aa",
+    source: "catalog"
+  },
+  {
+    id: "uzbek-old-450",
+    videoId: "tcZDCLhtmYo",
+    title: "Kichkina Nikolya 12 qism O'zbek tilida | Кичкина Николя 12 қисм Ўзбек тилида",
+    channel: "NastalTube",
+    duration: "12:24",
+    sourceLabel: "playlist",
+    accent: "#00897b",
+    source: "catalog"
+  },
+  {
+    id: "uzbek-old-451",
+    videoId: "z6MDZyC8qG8",
+    title: "Kichkina Nikolya 13-qism O'zbek tilida",
+    channel: "NastalTube",
+    duration: "11:59",
+    sourceLabel: "playlist",
+    accent: "#e8710a",
+    source: "catalog"
+  },
+  {
+    id: "uzbek-old-452",
+    videoId: "Rkj7NVu_FkQ",
+    title: "Kichkina Nikolya 14-qism O'zbek tilida",
+    channel: "NastalTube",
+    duration: "12:01",
+    sourceLabel: "playlist",
+    accent: "#5f6368",
+    source: "catalog"
+  },
+  {
+    id: "uzbek-old-453",
+    videoId: "QFuQsqN_KDA",
+    title: "Kichkina Nikolya 15-qism O'zbek tilida",
+    channel: "NastalTube",
+    duration: "12:17",
+    sourceLabel: "playlist",
+    accent: "#d93025",
+    source: "catalog"
+  },
+  {
+    id: "uzbek-old-454",
+    videoId: "7XC975AcIZs",
+    title: "Kichkina Nikolya 16-qism O'zbek tilida",
+    channel: "NastalTube",
+    duration: "12:08",
+    sourceLabel: "playlist",
+    accent: "#0b8043",
+    source: "catalog"
+  },
+  {
+    id: "uzbek-old-455",
+    videoId: "fDhzLExy6PY",
+    title: "Kichkina Nikolya 17-qism O'zbek tilida",
+    channel: "NastalTube",
+    duration: "12:08",
+    sourceLabel: "playlist",
+    accent: "#1a73e8",
+    source: "catalog"
+  },
+  {
+    id: "uzbek-old-456",
+    videoId: "vH5Kwd542rs",
+    title: "Kichkina Nikolya 18-qism O'zbek tilida",
+    channel: "NastalTube",
+    duration: "12:25",
+    sourceLabel: "playlist",
+    accent: "#f9ab00",
+    source: "catalog"
+  },
+  {
+    id: "uzbek-old-457",
+    videoId: "uzeMJgMFkog",
+    title: "Kichkina Nikolya 19-qism O'zbek tilida",
+    channel: "NastalTube",
+    duration: "12:01",
+    sourceLabel: "playlist",
+    accent: "#8e24aa",
+    source: "catalog"
+  },
+  {
+    id: "uzbek-old-458",
+    videoId: "sKKV9_JWVSc",
+    title: "Kichkina Nikolya 20-qism O'zbek tilida",
+    channel: "NastalTube",
+    duration: "11:57",
+    sourceLabel: "playlist",
+    accent: "#00897b",
+    source: "catalog"
+  },
+  {
+    id: "uzbek-old-459",
+    videoId: "zlLgkOJX9BE",
+    title: "Kichkina Nikolya 21-qism O'zbek tilida",
+    channel: "NastalTube",
+    duration: "12:03",
+    sourceLabel: "playlist",
+    accent: "#e8710a",
+    source: "catalog"
+  },
+  {
+    id: "uzbek-old-460",
+    videoId: "XmXBs-SuVgc",
+    title: "Kichkina Nikolya 22-qism O'zbek tilida",
+    channel: "NastalTube",
+    duration: "12:10",
+    sourceLabel: "playlist",
+    accent: "#5f6368",
+    source: "catalog"
+  },
+  {
+    id: "uzbek-old-461",
+    videoId: "1z3rLqrvMiU",
+    title: "Kichkina Nikolya 23-qism O'zbek tilida | Кичкина Николя 23-қисм Ўзбек тилида",
+    channel: "NastalTube",
+    duration: "12:11",
+    sourceLabel: "playlist",
+    accent: "#d93025",
+    source: "catalog"
+  },
+  {
+    id: "uzbek-old-462",
+    videoId: "JCiWEs_y6lE",
+    title: "Kichkina Nikolya 24-qism O'zbek tilida | Кичкина Николя 24 қисм Ўзбек тилида",
+    channel: "NastalTube",
+    duration: "12:14",
+    sourceLabel: "playlist",
+    accent: "#0b8043",
+    source: "catalog"
+  },
+  {
+    id: "uzbek-old-463",
+    videoId: "y0bha4jgz5Y",
+    title: "Kichkina Nikolya 25-qism O'zbek tilida",
+    channel: "NastalTube",
+    duration: "12:23",
+    sourceLabel: "playlist",
+    accent: "#1a73e8",
+    source: "catalog"
+  },
+  {
+    id: "uzbek-old-464",
+    videoId: "jqcnhYjv9uM",
+    title: "Kichkina Nikolya 26-qism O'zbek tilida",
+    channel: "NastalTube",
+    duration: "11:57",
+    sourceLabel: "playlist",
+    accent: "#f9ab00",
+    source: "catalog"
+  },
+  {
+    id: "uzbek-old-465",
+    videoId: "LnRcr-5d_R8",
+    title: "Kichkina Nikolya 27-qism O'zbek tilida",
+    channel: "NastalTube",
+    duration: "12:15",
+    sourceLabel: "playlist",
+    accent: "#8e24aa",
+    source: "catalog"
+  },
+  {
+    id: "uzbek-old-466",
+    videoId: "TSkpNQJuRHA",
+    title: "Kichkina Nikolya 28 qism O'zbek tilida | Кичкина Николя 28 қисм Ўзбек тилида",
+    channel: "NastalTube",
+    duration: "12:12",
+    sourceLabel: "playlist",
+    accent: "#00897b",
+    source: "catalog"
+  },
+  {
+    id: "uzbek-old-467",
+    videoId: "JsILAuV8L2U",
+    title: "Kichkina Nikolya 29 qism O'zbek tilida | Кичкина Николя 29 қисм Ўзбек тилида",
+    channel: "NastalTube",
+    duration: "12:01",
+    sourceLabel: "playlist",
+    accent: "#e8710a",
+    source: "catalog"
+  },
+  {
+    id: "uzbek-old-468",
+    videoId: "BEybom-V8wU",
+    title: "Kichkina Nikolya 30-qism O'zbek tilida",
+    channel: "NastalTube",
+    duration: "12:04",
+    sourceLabel: "playlist",
+    accent: "#5f6368",
+    source: "catalog"
+  },
+  {
+    id: "uzbek-old-469",
+    videoId: "oIj9-hw9pBI",
+    title: "Kichkina Nikolya 31-qism O'zbek tilida",
+    channel: "NastalTube",
+    duration: "12:20",
+    sourceLabel: "playlist",
+    accent: "#d93025",
+    source: "catalog"
+  },
+  {
+    id: "uzbek-old-470",
+    videoId: "b20zBRs0HgA",
+    title: "Kichkina Nikolya 32-qism O'zbek tilida | Кичкина Николя 32 қисм Ўзбек тилида",
+    channel: "NastalTube",
+    duration: "12:02",
+    sourceLabel: "playlist",
+    accent: "#0b8043",
+    source: "catalog"
+  },
+  {
+    id: "uzbek-old-471",
+    videoId: "hiGIToSYYVs",
+    title: "Kichkina Nikolya 33-qism O'zbek tilida | Кичкина Николя 33 қисм Ўзбек тилида",
+    channel: "NastalTube",
+    duration: "12:25",
+    sourceLabel: "playlist",
+    accent: "#1a73e8",
+    source: "catalog"
+  },
+  {
+    id: "uzbek-old-472",
+    videoId: "MeJ-C9pfM_Y",
+    title: "Kichkina Nikolya 34-qism O'zbek tilida",
+    channel: "NastalTube",
+    duration: "12:12",
+    sourceLabel: "playlist",
+    accent: "#f9ab00",
+    source: "catalog"
+  },
+  {
+    id: "uzbek-old-473",
+    videoId: "lXC6IgCXR38",
+    title: "Kichkina Nikolya 35-qism O'zbek tilida",
+    channel: "NastalTube",
+    duration: "12:08",
+    sourceLabel: "playlist",
+    accent: "#8e24aa",
+    source: "catalog"
+  },
+  {
+    id: "uzbek-old-474",
+    videoId: "N2Qj41WGVVA",
+    title: "Kichkina Nikolya 36-qism O'zbek tilida",
+    channel: "NastalTube",
+    duration: "12:14",
+    sourceLabel: "playlist",
+    accent: "#00897b",
+    source: "catalog"
+  },
+  {
+    id: "uzbek-old-475",
+    videoId: "lq2y1eLeqdw",
+    title: "Kichkina Nikolya 37-qism O'zbek tilida",
+    channel: "NastalTube",
+    duration: "12:06",
+    sourceLabel: "playlist",
+    accent: "#e8710a",
+    source: "catalog"
+  },
+  {
+    id: "uzbek-old-476",
+    videoId: "dFynP6AbuQI",
+    title: "Kichkina Nikolya 38-qism O'zbek tilida",
+    channel: "NastalTube",
+    duration: "12:24",
+    sourceLabel: "playlist",
+    accent: "#5f6368",
+    source: "catalog"
+  },
+  {
+    id: "uzbek-old-477",
+    videoId: "HPmOr9-q8oM",
+    title: "Kichkina Nikolya 39-qism O'zbek tilida",
+    channel: "NastalTube",
+    duration: "12:10",
+    sourceLabel: "playlist",
+    accent: "#d93025",
+    source: "catalog"
+  },
+  {
+    id: "uzbek-old-478",
+    videoId: "N4JtwG_1cpc",
+    title: "Kichkina Nikolya 40-qism O'zbek tilida",
+    channel: "NastalTube",
+    duration: "12:13",
+    sourceLabel: "playlist",
+    accent: "#0b8043",
+    source: "catalog"
+  },
+  {
+    id: "uzbek-old-479",
+    videoId: "222XJZlpgGs",
+    title: "Kichkina Nikolya 41-qism O'zbek tilida",
+    channel: "NastalTube",
+    duration: "12:09",
+    sourceLabel: "playlist",
+    accent: "#1a73e8",
+    source: "catalog"
+  },
+  {
+    id: "uzbek-old-480",
+    videoId: "AJ5zT-3WSz0",
+    title: "Kichkina Nikolya 42-qism O'zbek tilida",
+    channel: "NastalTube",
+    duration: "12:33",
+    sourceLabel: "playlist",
+    accent: "#f9ab00",
+    source: "catalog"
+  },
+  {
+    id: "uzbek-old-481",
+    videoId: "GT_KfvKu-z8",
+    title: "Kichkina Nikolya 43-qism O'zbek tilida",
+    channel: "NastalTube",
+    duration: "12:48",
+    sourceLabel: "playlist",
+    accent: "#8e24aa",
+    source: "catalog"
+  },
+  {
+    id: "uzbek-old-482",
+    videoId: "XSIRAA-zIcA",
+    title: "Kichkina Nikolya 44-qism O'zbek tilida",
+    channel: "NastalTube",
+    duration: "12:10",
+    sourceLabel: "playlist",
+    accent: "#00897b",
+    source: "catalog"
+  },
+  {
+    id: "uzbek-old-483",
+    videoId: "-hZMYsVGV0w",
+    title: "Kichkina Nikolya 45-qism O'zbek tilida",
+    channel: "NastalTube",
+    duration: "12:06",
+    sourceLabel: "playlist",
+    accent: "#e8710a",
+    source: "catalog"
+  },
+  {
+    id: "uzbek-old-484",
+    videoId: "K2kZ22tlo-Y",
+    title: "Kichkina Nikolya 46-qism O'zbek tilida",
+    channel: "NastalTube",
+    duration: "12:04",
+    sourceLabel: "playlist",
+    accent: "#5f6368",
+    source: "catalog"
+  },
+  {
+    id: "uzbek-old-485",
+    videoId: "-g0IagkgJjY",
+    title: "Kichkina Nikolya 47-qism O'zbek tilida",
+    channel: "NastalTube",
+    duration: "12:26",
+    sourceLabel: "playlist",
+    accent: "#d93025",
+    source: "catalog"
+  },
+  {
+    id: "uzbek-old-486",
+    videoId: "dlxcRwxUVoY",
+    title: "Kichkina Nikolya 48-qism O'zbek tilida | Кичкина Николя 48 қисм Ўзбек тилида",
+    channel: "NastalTube",
+    duration: "12:05",
+    sourceLabel: "playlist",
+    accent: "#0b8043",
+    source: "catalog"
+  },
+  {
+    id: "uzbek-old-487",
+    videoId: "ypGSLJQh5r8",
+    title: "Kichkina Nikolya 49-qism O'zbek tilida",
+    channel: "NastalTube",
+    duration: "12:02",
+    sourceLabel: "playlist",
+    accent: "#1a73e8",
+    source: "catalog"
+  },
+  {
+    id: "uzbek-old-488",
+    videoId: "ptHzeUFyxDE",
+    title: "Kichkina Nikolya 50-qism O'zbek tilida",
+    channel: "NastalTube",
+    duration: "12:10",
+    sourceLabel: "playlist",
+    accent: "#f9ab00",
+    source: "catalog"
+  },
+  {
+    id: "uzbek-old-489",
+    videoId: "QzcVA-XiCf8",
+    title: "Kichkina Nikolya 51-qism | So'nggi qism",
+    channel: "NastalTube",
+    duration: "12:11",
+    sourceLabel: "playlist",
+    accent: "#8e24aa",
     source: "catalog"
   }
 ];
