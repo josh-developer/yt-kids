@@ -11,6 +11,7 @@ import {
   View,
 } from "react-native";
 import { WebView } from "react-native-webview";
+import { FocusBlocker } from "../../../../modules/tv-focus";
 import { PlayerChrome } from "./player-chrome";
 import { PlayerTransport } from "./player-transport";
 import { UpNextCard } from "./up-next-card";
@@ -233,7 +234,12 @@ export const PlayerView = forwardRef<
         accessible={false}
       />
 
-      <View style={styles.page} pointerEvents="none">
+      {/* `FocusBlocker`, not a plain `View`. On Android TV a WebView takes D-pad focus and
+          then swallows the arrow keys before they reach React Native's root view, which
+          leaves `useTVEventHandler` silent and the remote doing nothing at all. The props
+          below ask the WebView not to be focusable and it ignores them — the block has to
+          come from the parent. See `modules/tv-focus`. */}
+      <FocusBlocker style={styles.page} pointerEvents="none">
         <WebView
           ref={player.attachWebView}
           // On the WebView itself, not only on its wrapper. It is a native view, and on
@@ -291,7 +297,7 @@ export const PlayerView = forwardRef<
             isAllowedUrl(request.url) || request.navigationType === "other"
           }
         />
-      </View>
+      </FocusBlocker>
 
       {/* The layer the taps land on, above the page and below the controls.
             A WebView is a native view and takes touches whatever its React parent says

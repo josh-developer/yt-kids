@@ -6,6 +6,7 @@ import { ChannelAvatar } from "./channel-avatar";
 import { VideoThumbnail } from "./video-thumbnail";
 import { useTheme } from "../../../shared/lib/theme/use-theme";
 import { useVideoLabels } from "../../../shared/lib/format/use-video-labels";
+import { useDevice } from "../../../shared/lib/device/use-device";
 import { focusRing, useFocusable } from "../../../shared/ui/use-focusable";
 import {
   useMetrics,
@@ -42,6 +43,7 @@ export const VideoCard = memo(function VideoCard({
   onOpen: (video: Video) => void;
 }) {
   const { colors } = useTheme();
+  const { isTV } = useDevice();
   const labels = useVideoLabels();
   const { size } = useMetrics();
   const styles = useStyles(makeStyles);
@@ -67,7 +69,11 @@ export const VideoCard = memo(function VideoCard({
         <VideoThumbnail video={video} priority={priority} />
 
         <View style={styles.meta}>
-          <ChannelAvatar video={video} />
+          {/* No avatar on a television. Four columns across a 960dp panel leave a card
+              192dp of content, and the avatar and its gap take 72 of them — which is what
+              was ellipsising every channel name on the grid mid-word. A card there is the
+              picture and its title, which is what every TV launcher shows anyway. */}
+          {isTV ? null : <ChannelAvatar video={video} />}
           {/* `minWidth: 0` on the web; here `flex: 1` with `flexShrink` is what
               stops a long unbroken channel name widening the whole row. */}
           <View style={styles.summary}>

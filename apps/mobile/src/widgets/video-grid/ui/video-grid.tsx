@@ -84,7 +84,7 @@ export function VideoGrid({
   );
 
   return (
-    <FocusZone style={styles.zone}>
+    <FocusZone style={styles.zone} reclaimFocus>
       <AnimatedFlashList
         // Column count cannot change on a mounted list, so a rotation remounts it.
         key={`columns-${columns}`}

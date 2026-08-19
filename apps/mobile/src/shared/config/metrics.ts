@@ -18,32 +18,14 @@ import { useDevice, type DeviceKind } from "../lib/device/use-device";
 export type Metrics = ReturnType<typeof metricsFor>;
 
 /**
- * How much larger everything is on each machine.
+ * How much larger the *boxes* are on each machine — padding, targets, icons, radii.
  *
- * 1.5 for a television is the ratio that puts a card title at roughly 2.5% of the screen's
- * width — the proportion the platform's own launcher and YouTube's TV client both settle
- * near — once a 1080p panel's 960dp coordinate space is accounted for. It is a viewing
- * distance expressed as a number, not a guess: ten feet away is about ten times a phone's
- * reading distance across a screen about ten times as wide, so what has to grow is the
- * fraction of the screen a glyph occupies, and it only has to grow a little.
+ * Type does not use this. See {@link TYPE} for why the two had to come apart.
  */
 const SCALE: Record<DeviceKind, number> = {
   phone: 1,
   tablet: 1.12,
   tv: 1.5,
-};
-
-/**
- * No glyph goes below this, whatever the scale arithmetic says.
- *
- * The duration badge is the reason. It is 12px on a phone, which a multiplier alone turns
- * into 18px on a television — legible on a desk and not from a sofa. A floor is the honest
- * fix; raising the multiplier to suit the smallest token would oversize every other one.
- */
-const MIN_FONT_SIZE: Record<DeviceKind, number> = {
-  phone: 0,
-  tablet: 0,
-  tv: 18,
 };
 
 /**
@@ -116,12 +98,37 @@ const OVERSCAN_Y: Record<DeviceKind, number> = {
   tv: 27,
 };
 
+/**
+ * The type ramp, per device — and a television's is written out rather than derived.
+ *
+ * It began as one multiplier over `theme.ts`, and that was wrong in a way only a real
+ * television showed. The arithmetic: a phone card gets `390 - 2*12 - 2*8 = 350dp` of
+ * content, while a television card, four across a 960dp panel, gets
+ * `(960 - 2*48) / 4 - 2*12 = 192dp`. **The TV card is narrower in dp than the phone
+ * card** — a bigger screen cut into more columns — so scaling every glyph by 1.5 put 1.5x
+ * the text into 0.55x the width. Every channel name and view count on the grid ellipsised
+ * mid-word.
+ *
+ * What a ten-foot design wants is a *steeper* ramp, not a uniform one: the title grows a
+ * lot because it is what carries across the room, and the secondary lines grow a little
+ * because they only have to be legible once something has your attention. So a television
+ * gets its own set, sized against the box it has to fit rather than against a phone.
+ *
+ * The duration badge is the clearest case. The multiplier took it from 12 to 18, and a
+ * `MIN_FONT_SIZE` floor — added to stop the smallest tokens vanishing — pinned it there.
+ * On screen it was a black slab across a third of the thumbnail. It belongs at 13, and the
+ * floor is gone with it.
+ */
+type TypeSet = Record<
+  keyof typeof type,
+  { fontFamily: string; fontSize: number; lineHeight: number }
+>;
+
 function scaleText(
   base: { fontFamily: string; fontSize: number; lineHeight: number },
   scale: number,
-  minFontSize: number,
 ) {
-  const fontSize = Math.round(Math.max(base.fontSize * scale, minFontSize));
+  const fontSize = Math.round(base.fontSize * scale);
 
   return {
     fontFamily: base.fontFamily,
@@ -132,20 +139,38 @@ function scaleText(
   };
 }
 
+function scaleSet(scale: number): TypeSet {
+  return {
+    cardTitle: scaleText(type.cardTitle, scale),
+    muted: scaleText(type.muted, scale),
+    duration: scaleText(type.duration, scale),
+    brand: scaleText(type.brand, scale),
+    avatar: scaleText(type.avatar, scale),
+  };
+}
+
+const TYPE: Record<DeviceKind, TypeSet> = {
+  phone: scaleSet(1),
+  tablet: scaleSet(SCALE.tablet),
+  tv: {
+    /** Two lines of this is what a title gets in a 192dp card. */
+    cardTitle: { fontFamily: fonts.extrabold, fontSize: 24, lineHeight: 30 },
+    /** "Uzbek Multfilmlar" and "270.8K views" each fit on one line at this size. */
+    muted: { fontFamily: fonts.regular, fontSize: 16, lineHeight: 22 },
+    /** A badge in the corner of a thumbnail, not a headline. */
+    duration: { fontFamily: fonts.extrabold, fontSize: 13, lineHeight: 16 },
+    brand: { fontFamily: fonts.black, fontSize: 36, lineHeight: 40 },
+    avatar: { fontFamily: fonts.black, fontSize: 20, lineHeight: 24 },
+  },
+};
+
 function metricsFor(kind: DeviceKind) {
   const scale = SCALE[kind];
-  const minFontSize = MIN_FONT_SIZE[kind];
 
   return {
     kind,
     fonts,
-    type: {
-      cardTitle: scaleText(type.cardTitle, scale, minFontSize),
-      muted: scaleText(type.muted, scale, minFontSize),
-      duration: scaleText(type.duration, scale, minFontSize),
-      brand: scaleText(type.brand, scale, minFontSize),
-      avatar: scaleText(type.avatar, scale, minFontSize),
-    },
+    type: TYPE[kind],
     space: SPACE[kind],
     size: SIZE[kind],
     radius: RADIUS[kind],
@@ -156,9 +181,9 @@ function metricsFor(kind: DeviceKind) {
      * used once.
      */
     scale,
-    /** As {@link scale}, but never letting a glyph fall under the floor. */
+    /** {@link scale}, rounded. For the one-off sizes that never became tokens. */
     font(base: number) {
-      return Math.round(Math.max(base * scale, minFontSize));
+      return Math.round(base * scale);
     },
   };
 }
