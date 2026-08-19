@@ -1,5 +1,7 @@
 export const STORAGE_KEYS = {
-  library: "kidtube-library-v1",
+  library: "kidtube-library-v2",
+  /** Retired key, read once to migrate a returning parent onto `library`. */
+  legacyLibrary: "kidtube-library-v1",
   theme: "kidtube-theme-v1",
   recommendations: "kidtube-recommendations-v1",
 } as const;
@@ -11,8 +13,12 @@ export const SESSION_KEYS = {
   playerPositions: "kidtube-player-positions",
 } as const;
 
-/** Bumped whenever `StoredLibrary` changes shape; drives migrations on read. */
-export const LIBRARY_VERSION = 9;
+/**
+ * Schema version for the `kidtube-library-v2` payload. Bump only if this
+ * shape changes again — new catalog videos don't need a bump, they're
+ * approved by default until a parent hides them.
+ */
+export const LIBRARY_VERSION = 1;
 
 export const MAX_WATCH_STACK_SIZE = 200;
 

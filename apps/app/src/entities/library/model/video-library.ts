@@ -10,17 +10,15 @@ import {
   type TitleSignature,
   type Video,
 } from "@/entities/video";
-import type { RecommendationGroup, StoredLibrary } from "./types";
+import type { CustomLibraryVideo, RecommendationGroup, StoredLibrary } from "./types";
 import type { VideoCatalog } from "./video-catalog";
 
 /**
- * A title's signature never changes, and a library value is replaced on every
- * edit — approving a video, backfilling a duration. Keeping these outside the
- * instance is what stops each edit from re-deriving all of it.
+ * A title's signature never changes across edits, so it is worth caching
+ * outside any one instance. Keeping these outside the instance is what stops
+ * each edit from re-deriving all of it.
  */
 const signatureCache = new Map<string, TitleSignature>();
-/** Keyed by the `selectedIds` array itself, which `withState` reuses. */
-const clusterCache = new WeakMap<readonly string[], Video[][]>();
 
 /** How many videos lead a standalone video's "Recommended" group in order. */
 const SERIES_GROUP_SIZE = 3;
@@ -119,25 +117,35 @@ function recommendationSalt(video: Video, salt: number) {
 export class VideoLibrary {
   /** Catalog + parent-added videos, minus everything removed. */
   readonly videos: Video[];
-  /** Approved videos, in the parent's chosen order. */
+  /** Approved videos: parent-added ones first, then the catalog in its shipped order. */
   readonly approvedVideos: Video[];
   private readonly videoById: Map<string, Video>;
   private readonly approvedIds: Set<string>;
+  private readonly customIds: Set<string>;
+  /** Catalog videos minus tombstones — the pool `hiddenIds` is drawn from. */
+  private readonly catalogVideos: Video[];
   private playbackOrderCache: { salt: number; videos: Video[] } | null = null;
+  /** Recomputed at most once per instance; a fresh instance is cheap to get. */
+  private clusterCache: Video[][] | null = null;
 
   private constructor(
     private readonly catalog: VideoCatalog,
     private readonly state: StoredLibrary,
   ) {
     const removed = new Set(state.removedIds);
-    this.videos = [...catalog.videos, ...state.customVideos].filter(
+    const hidden = new Set(state.hiddenIds);
+
+    this.catalogVideos = catalog.videos.filter(
       (video) => !removed.has(video.id),
     );
+    this.videos = [...this.catalogVideos, ...state.customVideos];
     this.videoById = new Map(this.videos.map((video) => [video.id, video]));
-    this.approvedIds = new Set(state.selectedIds);
-    this.approvedVideos = state.selectedIds
-      .map((id) => this.videoById.get(id))
-      .filter((video): video is Video => Boolean(video));
+    this.customIds = new Set(state.customVideos.map((video) => video.id));
+    this.approvedVideos = [
+      ...state.customVideos.filter((video) => video.status === "visible"),
+      ...this.catalogVideos.filter((video) => !hidden.has(video.id)),
+    ];
+    this.approvedIds = new Set(this.approvedVideos.map((video) => video.id));
   }
 
   static from(catalog: VideoCatalog, state: StoredLibrary) {
@@ -147,9 +155,9 @@ export class VideoLibrary {
   static default(catalog: VideoCatalog) {
     return new VideoLibrary(catalog, {
       version: LIBRARY_VERSION,
-      selectedIds: catalog.ids,
       customVideos: [],
       removedIds: [],
+      hiddenIds: [],
     });
   }
 
@@ -307,9 +315,8 @@ export class VideoLibrary {
 
   /** Approved videos bundled into series, each bundle in episode order. */
   private seriesClusters() {
-    const cached = clusterCache.get(this.state.selectedIds);
-    if (cached) {
-      return cached;
+    if (this.clusterCache) {
+      return this.clusterCache;
     }
 
     const clusters: { signature: TitleSignature; videos: Video[] }[] = [];
@@ -332,7 +339,7 @@ export class VideoLibrary {
       orderEpisodes(cluster.videos, null),
     );
 
-    clusterCache.set(this.state.selectedIds, ordered);
+    this.clusterCache = ordered;
     return ordered;
   }
 
@@ -369,25 +376,43 @@ export class VideoLibrary {
   }
 
   approve(id: string) {
-    return this.approvedIds.has(id)
-      ? this
-      : this.withState({ selectedIds: [id, ...this.state.selectedIds] });
+    if (this.approvedIds.has(id)) {
+      return this;
+    }
+
+    return this.customIds.has(id)
+      ? this.withState({ customVideos: this.setCustomStatus(id, "visible") })
+      : this.withState({
+          hiddenIds: this.state.hiddenIds.filter(
+            (hiddenId) => hiddenId !== id,
+          ),
+        });
   }
 
   hide(id: string) {
-    return this.withState({
-      selectedIds: this.state.selectedIds.filter(
-        (selectedId) => selectedId !== id,
-      ),
-    });
+    return this.customIds.has(id)
+      ? this.withState({ customVideos: this.setCustomStatus(id, "hidden") })
+      : this.withState({ hiddenIds: unique([...this.state.hiddenIds, id]) });
   }
 
   approveAll() {
-    return this.withState({ selectedIds: this.videos.map((v) => v.id) });
+    return this.withState({
+      hiddenIds: [],
+      customVideos: this.state.customVideos.map((video) => ({
+        ...video,
+        status: "visible" as const,
+      })),
+    });
   }
 
   hideAll() {
-    return this.withState({ selectedIds: [] });
+    return this.withState({
+      hiddenIds: this.catalogVideos.map((video) => video.id),
+      customVideos: this.state.customVideos.map((video) => ({
+        ...video,
+        status: "hidden" as const,
+      })),
+    });
   }
 
   reset() {
@@ -399,17 +424,24 @@ export class VideoLibrary {
    * them back. Parent-added videos are dropped outright.
    */
   remove(video: Video) {
+    if (video.source === "custom") {
+      return this.withState({
+        customVideos: this.state.customVideos.filter(
+          (stored) => stored.id !== video.id,
+        ),
+      });
+    }
+
     return this.withState({
-      selectedIds: this.state.selectedIds.filter((id) => id !== video.id),
-      customVideos:
-        video.source === "custom"
-          ? this.state.customVideos.filter((stored) => stored.id !== video.id)
-          : this.state.customVideos,
-      removedIds:
-        video.source === "catalog"
-          ? unique([...this.state.removedIds, video.id])
-          : this.state.removedIds.filter((id) => id !== video.id),
+      removedIds: unique([...this.state.removedIds, video.id]),
+      hiddenIds: this.state.hiddenIds.filter((id) => id !== video.id),
     });
+  }
+
+  private setCustomStatus(id: string, status: CustomLibraryVideo["status"]) {
+    return this.state.customVideos.map((video) =>
+      video.id === id ? { ...video, status } : video,
+    );
   }
 
   /** Adds parent-added videos, newest first, approving them by default. */
@@ -421,11 +453,15 @@ export class VideoLibrary {
       return approve ? this.approveMany(videos.map((v) => v.id)) : this;
     }
 
+    const status: CustomLibraryVideo["status"] = approve
+      ? "visible"
+      : "hidden";
+
     return this.withState({
-      customVideos: [...fresh, ...this.state.customVideos],
-      selectedIds: approve
-        ? unique([...fresh.map((v) => v.id), ...this.state.selectedIds])
-        : this.state.selectedIds,
+      customVideos: [
+        ...fresh.map((video) => ({ ...video, status })),
+        ...this.state.customVideos,
+      ],
     });
   }
 
@@ -446,11 +482,15 @@ export class VideoLibrary {
 
   approveMany(ids: string[]) {
     const removed = new Set(this.state.removedIds);
+    const idSet = new Set(ids.filter((id) => !removed.has(id)));
+
     return this.withState({
-      selectedIds: unique([
-        ...ids.filter((id) => !removed.has(id)),
-        ...this.state.selectedIds,
-      ]),
+      hiddenIds: this.state.hiddenIds.filter((id) => !idSet.has(id)),
+      customVideos: this.state.customVideos.map((video) =>
+        idSet.has(video.id)
+          ? { ...video, status: "visible" as const }
+          : video,
+      ),
     });
   }
 

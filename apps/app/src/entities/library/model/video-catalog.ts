@@ -37,13 +37,6 @@ export class VideoCatalog {
   expandRef(ref: number | string) {
     return typeof ref === "number" ? (this.idByNumber.get(ref) ?? null) : ref;
   }
-
-  /** Videos added in library version 7, used when migrating from version 6. */
-  idsAddedFrom(catalogNumber: number) {
-    return this.videos
-      .filter((video) => (this.numberById.get(video.id) ?? 0) >= catalogNumber)
-      .map((video) => video.id);
-  }
 }
 
 export const CATALOG = new VideoCatalog(CURATED_UZBEK_OLD_CARTOONS);
