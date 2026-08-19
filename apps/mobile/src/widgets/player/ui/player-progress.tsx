@@ -12,6 +12,7 @@ import Animated, {
 import { scheduleOnRN } from "react-native-worklets";
 import { useTranslations } from "../../../shared/lib/i18n/use-translations";
 import { fonts } from "../../../shared/config/theme";
+import { useMetrics, useStyles, type Metrics } from "../../../shared/config/metrics";
 
 /**
  * The page reports a position every 250ms, so the fill is given that long to travel.
@@ -52,6 +53,8 @@ export function PlayerProgress({
   onSeekToFraction: (fraction: number) => void;
 }) {
   const t = useTranslations("Player");
+  const m = useMetrics();
+  const styles = useStyles(makeStyles);
   const [trackWidth, setTrackWidth] = useState(0);
   /** Set while a finger owns the bar; the readout shows this instead of the position. */
   const [dragFraction, setDragFraction] = useState<number | null>(null);
@@ -140,9 +143,10 @@ export function PlayerProgress({
       style={[
         styles.wrap,
         {
-          bottom: 54 + insetBottom,
-          left: 12 + insetLeft,
-          right: 12 + insetRight,
+          // Clear of the control strip, which is itself the device's size.
+          bottom: m.font(54) + insetBottom,
+          left: m.space.screenX + insetLeft,
+          right: m.space.screenX + insetRight,
         },
       ]}
       pointerEvents="box-none"
@@ -193,40 +197,41 @@ export function formatTime(seconds: number) {
     : `${minutes}:${padded}`;
 }
 
-const styles = StyleSheet.create({
-  wrap: {
-    position: "absolute",
-    zIndex: 5,
-    elevation: 5,
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 10,
-  },
-  /** A 24px band around the 10px bar, so a thumb can find it. */
-  touch: { flex: 1, height: 24, justifyContent: "center" },
-  track: {
-    height: 10,
-    borderRadius: 999,
-    overflow: "hidden",
-    backgroundColor: "rgba(255, 255, 255, 0.24)",
-  },
-  /**
-   * The animated width is on this view and the gradient fills it, because a gradient
-   * cannot be given a percentage width and keep its own start and end.
-   */
-  fill: { height: "100%", borderRadius: 999, overflow: "hidden" },
-  gradient: { flex: 1 },
-  timePill: {
-    minWidth: 78,
-    paddingHorizontal: 7,
-    paddingVertical: 3,
-    borderRadius: 999,
-    backgroundColor: "rgba(12, 12, 12, 0.72)",
-  },
-  timeText: {
-    color: "#ffffff",
-    fontSize: 11,
-    fontFamily: fonts.extrabold,
-    textAlign: "center",
-  },
-});
+const makeStyles = (m: Metrics) =>
+  StyleSheet.create({
+    wrap: {
+      position: "absolute",
+      zIndex: 5,
+      elevation: 5,
+      flexDirection: "row",
+      alignItems: "center",
+      gap: m.space.meta,
+    },
+    /** A 24px band around the 10px bar, so a thumb can find it. */
+    touch: { flex: 1, height: m.font(24), justifyContent: "center" },
+    track: {
+      height: m.font(10),
+      borderRadius: 999,
+      overflow: "hidden",
+      backgroundColor: "rgba(255, 255, 255, 0.24)",
+    },
+    /**
+     * The animated width is on this view and the gradient fills it, because a gradient
+     * cannot be given a percentage width and keep its own start and end.
+     */
+    fill: { height: "100%", borderRadius: 999, overflow: "hidden" },
+    gradient: { flex: 1 },
+    timePill: {
+      minWidth: m.font(78),
+      paddingHorizontal: m.font(7),
+      paddingVertical: m.font(3),
+      borderRadius: 999,
+      backgroundColor: "rgba(12, 12, 12, 0.72)",
+    },
+    timeText: {
+      color: "#ffffff",
+      fontSize: m.font(11),
+      fontFamily: fonts.extrabold,
+      textAlign: "center",
+    },
+  });

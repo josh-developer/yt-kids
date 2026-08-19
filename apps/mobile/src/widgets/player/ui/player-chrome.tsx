@@ -15,6 +15,7 @@ import { useTranslations } from "../../../shared/lib/i18n/use-translations";
 import { useSystemVolume } from "../../../shared/lib/audio/use-system-volume";
 import type { Player } from "../model/use-player";
 import { fonts } from "../../../shared/config/theme";
+import { useMetrics, useStyles, type Metrics } from "../../../shared/config/metrics";
 
 /**
  * The progress bar and the control strip, as the web draws them at phone width.
@@ -51,6 +52,8 @@ export function PlayerChrome({
 }) {
   const t = useTranslations("Player");
   const volume = useSystemVolume();
+  const m = useMetrics();
+  const styles = useStyles(makeStyles);
 
   const volumePercent = Math.round(volume.volume * 100);
   const isSilent = player.isMuted || volumePercent === 0;
@@ -70,9 +73,9 @@ export function PlayerChrome({
         style={[
           styles.bar,
           {
-            bottom: 8 + insets.bottom,
-            left: 8 + insets.left,
-            right: 8 + insets.right,
+            bottom: m.font(8) + insets.bottom,
+            left: m.font(8) + insets.left,
+            right: m.font(8) + insets.right,
           },
         ]}
         accessibilityLabel={t("controls")}
@@ -83,9 +86,9 @@ export function PlayerChrome({
           onPress={player.togglePlayback}
         >
           {player.isPlaying ? (
-            <Pause size={16} color="#0f0f0f" fill="#0f0f0f" />
+            <Pause size={m.font(16)} color="#0f0f0f" fill="#0f0f0f" />
           ) : (
-            <Play size={16} color="#0f0f0f" fill="#0f0f0f" />
+            <Play size={m.font(16)} color="#0f0f0f" fill="#0f0f0f" />
           )}
         </ControlButton>
 
@@ -94,11 +97,11 @@ export function PlayerChrome({
           onPress={player.toggleMute}
         >
           {isSilent ? (
-            <VolumeX size={16} color="#ffffff" />
+            <VolumeX size={m.font(16)} color="#ffffff" />
           ) : volumePercent < 50 ? (
-            <Volume1 size={16} color="#ffffff" />
+            <Volume1 size={m.font(16)} color="#ffffff" />
           ) : (
-            <Volume2 size={16} color="#ffffff" />
+            <Volume2 size={m.font(16)} color="#ffffff" />
           )}
         </ControlButton>
 
@@ -131,7 +134,7 @@ export function PlayerChrome({
           isLarge
           onPress={player.toggleRepeatOne}
         >
-          <Repeat1 size={18} color="#ffffff" />
+          <Repeat1 size={m.font(18)} color="#ffffff" />
         </ControlButton>
 
         <ControlButton
@@ -140,9 +143,9 @@ export function PlayerChrome({
           onPress={onToggleFullscreen}
         >
           {isFullscreen ? (
-            <Minimize2 size={16} color="#ffffff" />
+            <Minimize2 size={m.font(16)} color="#ffffff" />
           ) : (
-            <Maximize2 size={16} color="#ffffff" />
+            <Maximize2 size={m.font(16)} color="#ffffff" />
           )}
         </ControlButton>
       </View>
@@ -167,6 +170,8 @@ function ControlButton({
   isFullscreenButton?: boolean;
   onPress: () => void;
 }) {
+  const styles = useStyles(makeStyles);
+
   return (
     <Pressable
       onPress={onPress}
@@ -187,53 +192,54 @@ function ControlButton({
   );
 }
 
-const styles = StyleSheet.create({
-  /** A 24px band around the 10px bar, so a thumb can find it. */
-  // `.safePlayerControls`, phone branch.
-  bar: {
-    position: "absolute",
-    zIndex: 5,
-    elevation: 5,
-    minHeight: 34,
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 5,
-    paddingHorizontal: 6,
-    paddingVertical: 4,
-    borderRadius: 999,
-    backgroundColor: "rgba(12, 12, 12, 0.74)",
-    shadowColor: "rgba(0, 0, 0, 0.24)",
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 1,
-    shadowRadius: 13,
-  },
-  controlButton: {
-    width: 28,
-    height: 28,
-    borderRadius: 999,
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: "rgba(255, 255, 255, 0.1)",
-  },
-  controlButtonLarge: { width: 32, height: 32 },
-  controlButtonFullscreen: { backgroundColor: "rgba(255, 255, 255, 0.12)" },
-  controlButtonPrimary: { backgroundColor: "#ffffff" },
-  controlButtonActive: { backgroundColor: "#1a73e8" },
-  pressed: { opacity: 0.82 },
-  /** `.volumeStep`: 17px, and the glyph is the whole button. */
-  stepText: {
-    color: "#ffffff",
-    fontSize: 17,
-    lineHeight: 20,
-    fontFamily: fonts.black,
-  },
-  meter: {
-    width: 48,
-    height: 4,
-    borderRadius: 999,
-    overflow: "hidden",
-    backgroundColor: "rgba(255, 255, 255, 0.22)",
-  },
-  meterFill: { height: "100%", borderRadius: 999, backgroundColor: "#ffd84d" },
-  spacer: { flex: 1 },
-});
+const makeStyles = (m: Metrics) =>
+  StyleSheet.create({
+    /** A 24px band around the 10px bar, so a thumb can find it. */
+    // `.safePlayerControls`, phone branch.
+    bar: {
+      position: "absolute",
+      zIndex: 5,
+      elevation: 5,
+      minHeight: m.font(34),
+      flexDirection: "row",
+      alignItems: "center",
+      gap: m.font(5),
+      paddingHorizontal: m.font(6),
+      paddingVertical: m.font(4),
+      borderRadius: 999,
+      backgroundColor: "rgba(12, 12, 12, 0.74)",
+      shadowColor: "rgba(0, 0, 0, 0.24)",
+      shadowOffset: { width: 0, height: 8 },
+      shadowOpacity: 1,
+      shadowRadius: 13,
+    },
+    controlButton: {
+      width: m.font(28),
+      height: m.font(28),
+      borderRadius: 999,
+      alignItems: "center",
+      justifyContent: "center",
+      backgroundColor: "rgba(255, 255, 255, 0.1)",
+    },
+    controlButtonLarge: { width: m.font(32), height: m.font(32) },
+    controlButtonFullscreen: { backgroundColor: "rgba(255, 255, 255, 0.12)" },
+    controlButtonPrimary: { backgroundColor: "#ffffff" },
+    controlButtonActive: { backgroundColor: "#1a73e8" },
+    pressed: { opacity: 0.82 },
+    /** `.volumeStep`: 17px, and the glyph is the whole button. */
+    stepText: {
+      color: "#ffffff",
+      fontSize: m.font(17),
+      lineHeight: m.font(20),
+      fontFamily: fonts.black,
+    },
+    meter: {
+      width: m.font(48),
+      height: m.font(4),
+      borderRadius: 999,
+      overflow: "hidden",
+      backgroundColor: "rgba(255, 255, 255, 0.22)",
+    },
+    meterFill: { height: "100%", borderRadius: 999, backgroundColor: "#ffd84d" },
+    spacer: { flex: 1 },
+  });

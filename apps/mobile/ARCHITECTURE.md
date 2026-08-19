@@ -29,7 +29,8 @@ src/
     library/            which videos are approved, and persisting that
   shared/
     api/                thumbnail URLs
-    config/             design tokens, storage keys, site URL
+    config/             design tokens, their per-device scale, storage keys, site URL
+    lib/device/         phone, tablet or television; and how wide the window is
     lib/format/         data → localized display strings, query matching
     lib/i18n/           catalogs, ICU, active locale
     lib/storage/        the persisted preferences
@@ -63,6 +64,84 @@ Boundaries are not lint-enforced here yet — the web app's `boundaries` config 
 tied to its own directory patterns. Worth adding once there is a second screen.
 
 [fsd]: https://feature-sliced.design/
+
+## Phone, tablet, television
+
+The app was written for one device. It now targets three, and the way it tells them
+apart is two independent axes rather than one flag — `shared/lib/device/use-device.tsx`:
+
+- **`DeviceKind`** — `phone`, `tablet` or `tv`: what the machine *is*, which does not
+  change while the app runs. It drives **scale**: type size, target size, overscan.
+- **`SizeClass`** — `compact`, `regular`, `expanded` or `tv`: how wide the window
+  *currently is*, on Material 3's 600/840dp breakpoints. It drives **layout**: column
+  counts, whether two panes fit.
+
+Two axes because they vary independently. A Fire TV is a D-pad on a large surface; an
+iPad is a finger on a large surface; a phone turned sideways is a finger on a surface
+that is briefly wide. One enum cannot say that, and the alternative is
+`Platform.isTV ? … : width > 900 ? …` written twenty times, each time a little
+differently.
+
+Splitting them is also what makes rotation correct. A phone in landscape gets a
+two-column grid, because it has the room, and keeps its phone type size, because the
+viewer did not move further away.
+
+**A television is never inferred from a width.** `Platform.isTV` is asked first — on
+Android it reads `UiModeManager`'s `UI_MODE_TYPE_TELEVISION`, and it works on stock
+React Native, so this is already correct on the phone build. It has to be asked first
+because a 1080p Android TV reports **960×540dp** at density 2.0, and most 4K hardware
+reports the same: narrower than a tablet, barely wider than a phone in landscape. Width
+alone would hand a television a three-column grid sized to be read at arm's length.
+
+### The metrics layer
+
+`shared/config/metrics.ts` derives the other two devices from `theme.ts` rather than
+replacing it, so the parity described below survives: `theme.ts` stays the phone's
+values, copied from the web and greppable against it.
+
+Scale is 1 / 1.12 / 1.5. The television figure is a viewing distance expressed as a
+number — ten feet is about ten times a phone's reading distance across a screen about ten
+times as wide, so what has to grow is the *fraction of the screen* a glyph occupies, and
+it only has to grow a little. A `MIN_FONT_SIZE` floor catches the tokens a multiplier
+alone leaves behind: the 12px duration badge scales to 18px, which is legible on a desk
+and not from a sofa.
+
+Spacing is listed per device rather than scaled, because the values do not move together
+— `screenX` quadruples from phone to television while card padding barely doubles. The
+margin is answering overscan and the reach of a focus ring; the padding is answering the
+same relationship between a picture and its frame it always was.
+
+`overscanY` is a television's vertical safe margin, and it exists because
+**`useSafeAreaInsets()` returns zeroes on a TV** — there is no notch to report — while a
+large share of sets still crop the outer few percent. Only the vertical half is a token:
+the horizontal half is already `space.screenX`, which is 48 on a television precisely
+because a content gutter and an overscan margin are the same measurement there.
+
+Components read it through `useStyles(makeStyles)`, where `makeStyles` is a module-scope
+`(m: Metrics) => StyleSheet.create({…})` sitting exactly where the old
+`StyleSheet.create` did. Both the factory and the metrics object are stable identities —
+the three metric sets are built once at module load — so the memo hits on every render
+after the first, and in practice one style sheet is ever created per component.
+
+### What changes on a wide window
+
+- **The grid** goes 1 / 2 / 3 / 4 columns, one more past 1200dp. The count comes from the
+  size class rather than the web's `auto-fill` arithmetic, for the television reason above.
+- **The header** puts the search field *in* the brand row instead of under it, capped at
+  420pt. A search field is not more useful for being 900px wide, and stacking it costs a
+  row of cards for nothing.
+- **The watch screen** puts the player beside its recommendations. A 16:9 video across a
+  1200pt window is 675pt tall, which leaves the list entirely below the fold; side by side,
+  the player keeps a size worth looking at and what to watch next stays visible without
+  scrolling, which is the whole point of a recommendation. The dismiss drag narrows to the
+  player's own rectangle — the aside is its own scroll view, so the phone's "is the list at
+  the top" negotiation has nothing left to resolve.
+- **Settings** lays its rows two across. The row is already short and wide, so one column
+  on a tablet spends half the screen on margin and shows a parent half as many videos while
+  they hunt for one. The header stays one column and capped: a search field and two tabs do
+  not improve at 1000pt.
+- **Sheets** cap at 560pt and centre. A sheet spanning a tablet is a form field a metre
+  wide with its title stranded in the far corner.
 
 ## The design system is copied, not shared
 
@@ -212,8 +291,10 @@ Compiler's `immutability` rule enforces, correctly.
 
 ## The watch sheet
 
-A sheet, not a screen: it mounts over whatever is behind it, animates up from the
-bottom, and the way back is to drag it down. No header, no grabber and no black
+On a phone, a sheet rather than a screen: it mounts over whatever is behind it, animates
+up from the bottom, and the way back is to drag it down. On a tablet it is two columns —
+see [Phone, tablet, television](#phone-tablet-television); everything below describes the
+phone, which the wide layout keeps except where that section says otherwise. No header, no grabber and no black
 band above the video — the picture starts at the top of the screen with the status
 bar over it, which is what a phone player looks like.
 

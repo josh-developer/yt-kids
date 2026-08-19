@@ -21,7 +21,11 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { SITE_URL } from "../../../config";
 import { thumbnailUrl } from "../../../shared/api/thumbnails";
 import { useTranslations } from "../../../shared/lib/i18n/use-translations";
-import { type as textType } from "../../../shared/config/theme";
+import {
+  useMetrics,
+  useStyles,
+  type Metrics,
+} from "../../../shared/config/metrics";
 
 /** What the screen around the player may ask of it. */
 export type PlayerHandle = {
@@ -67,6 +71,16 @@ export const PlayerView = forwardRef<
     onNext: () => void;
     /** Where the video ends on screen, which the sheet's dismiss gesture needs. */
     onStageLayout?: (bottom: number) => void;
+    /**
+     * The width the player has been given, when that is not the whole window.
+     *
+     * The watch screen puts the player beside its recommendations once there is room for
+     * both, and a stage sized from `window.width` in that layout is a stage sized from a
+     * width it does not have.
+     */
+    availableWidth?: number;
+    /** The most vertical room the stage may take, when the caller knows better. */
+    maxHeight?: number;
   }
 >(function PlayerView(
   {
@@ -79,12 +93,16 @@ export const PlayerView = forwardRef<
     onPrevious,
     onNext,
     onStageLayout,
+    availableWidth,
+    maxHeight,
   },
   ref,
 ) {
   const t = useTranslations("Player");
   const player = usePlayer({ videoId: video.videoId });
   const window = useWindowDimensions();
+  const m = useMetrics();
+  const styles = useStyles(makeStyles);
 
   const insets = useSafeAreaInsets();
 
@@ -112,19 +130,18 @@ export const PlayerView = forwardRef<
    * video inside a 16:9 box — so the picture was three quarters of the width it could
    * have been, with black down both sides. A 4:3 box gives that content the whole width.
    *
-   * Capped at 42% of the window so it cannot eat a short screen, and never shorter than
+   * Capped at 42% of the window — or at whatever the caller says, which is how the
+   * side-by-side layout gives the player more of a tablet's height — and never shorter than
    * 16:9. A true 16:9 video gets thin bars above and below instead, which is the same
    * trade the other way round and the rarer case here. Nothing is ever cropped: the embed
    * fits the picture inside whatever box it is given.
    */
-  const stageHeight = useMemo(
-    () =>
-      Math.max(
-        (window.width * 9) / 16,
-        Math.min((window.width * 3) / 4, window.height * 0.42),
-      ),
-    [window.height, window.width],
-  );
+  const stageHeight = useMemo(() => {
+    const width = availableWidth ?? window.width;
+    const cap = maxHeight ?? window.height * 0.42;
+
+    return Math.max((width * 9) / 16, Math.min((width * 3) / 4, cap));
+  }, [availableWidth, maxHeight, window.height, window.width]);
 
   /**
    * The controls keep out of the notch, the corners and the home indicator, in both
@@ -282,7 +299,10 @@ export const PlayerView = forwardRef<
         onPress={player.toggleLock}
         style={({ pressed }) => [
           styles.lock,
-          { top: 12 + controlInsets.top, left: 12 + controlInsets.left },
+          {
+            top: m.space.screenX + controlInsets.top,
+            left: m.space.screenX + controlInsets.left,
+          },
           pressed && styles.lockPressed,
         ]}
         accessibilityRole="button"
@@ -292,9 +312,9 @@ export const PlayerView = forwardRef<
         accessibilityState={{ selected: player.isLocked }}
       >
         {player.isLocked ? (
-          <Lock size={24} color="#ffffff" />
+          <Lock size={m.font(24)} color="#ffffff" />
         ) : (
-          <Unlock size={24} color="#ffffff" />
+          <Unlock size={m.font(24)} color="#ffffff" />
         )}
       </Pressable>
 
@@ -359,92 +379,93 @@ function isAllowedUrl(url: string) {
   );
 }
 
-const styles = StyleSheet.create({
-  /**
-   * `.playerBox`, full-bleed rather than 1120px-capped, and sized by height rather than
-   * by an aspect ratio — see `stageHeight`.
-   */
-  stageBare: { width: "100%", backgroundColor: "#080808", overflow: "hidden" },
-  /** `.youtubeTitleCover`; the height comes from the stage's width. */
-  titleCover: {
-    position: "absolute",
-    top: 0,
-    right: 0,
-    left: 0,
-    zIndex: 3,
-    elevation: 3,
-  },
-  // `.playerLockButton`: 42px at phone width, inset 12px, over everything.
-  lock: {
-    position: "absolute",
-    zIndex: 7,
-    elevation: 7,
-    width: 42,
-    height: 42,
-    borderRadius: 999,
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: "rgba(12, 12, 12, 0.74)",
-    shadowColor: "rgba(0, 0, 0, 0.24)",
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 1,
-    shadowRadius: 13,
-  },
-  lockPressed: { opacity: 0.82 },
-  web: { flex: 1, backgroundColor: "transparent" },
-  /**
-   * Android composites a hardware-layer WebView above later siblings unless they claim a
-   * higher elevation, so the page names its own and everything over it names a higher one.
-   * `zIndex` alone is enough on iOS and not enough here.
-   */
-  page: {
-    position: "absolute",
-    top: 0,
-    right: 0,
-    bottom: 0,
-    left: 0,
-    zIndex: 1,
-    elevation: 1,
-  },
-  touchLayer: {
-    position: "absolute",
-    top: 0,
-    right: 0,
-    bottom: 0,
-    left: 0,
-    zIndex: 2,
-    elevation: 2,
-  },
-  scrim: {
-    position: "absolute",
-    left: 0,
-    right: 0,
-    bottom: 0,
-    height: "34%",
-    zIndex: 3,
-    elevation: 3,
-    backgroundColor: "rgba(0, 0, 0, 0.42)",
-  },
-  error: {
-    position: "absolute",
-    left: 24,
-    right: 24,
-    top: "28%",
-    gap: 6,
-    zIndex: 4,
-    elevation: 4,
-  },
-  errorTitle: {
-    ...textType.cardTitle,
-    color: "#ffffff",
-    fontSize: 16,
-    lineHeight: 21,
-    minHeight: 0,
-    textAlign: "center",
-  },
-  errorBody: {
-    ...textType.muted,
-    color: "rgba(255, 255, 255, 0.82)",
-    textAlign: "center",
-  },
-});
+const makeStyles = (m: Metrics) =>
+  StyleSheet.create({
+    /**
+     * `.playerBox`, full-bleed rather than 1120px-capped, and sized by height rather than
+     * by an aspect ratio — see `stageHeight`.
+     */
+    stageBare: { width: "100%", backgroundColor: "#080808", overflow: "hidden" },
+    /** `.youtubeTitleCover`; the height comes from the stage's width. */
+    titleCover: {
+      position: "absolute",
+      top: 0,
+      right: 0,
+      left: 0,
+      zIndex: 3,
+      elevation: 3,
+    },
+    // `.playerLockButton`: 42px at phone width, inset 12px, over everything.
+    lock: {
+      position: "absolute",
+      zIndex: 7,
+      elevation: 7,
+      width: m.size.tapTarget,
+      height: m.size.tapTarget,
+      borderRadius: 999,
+      alignItems: "center",
+      justifyContent: "center",
+      backgroundColor: "rgba(12, 12, 12, 0.74)",
+      shadowColor: "rgba(0, 0, 0, 0.24)",
+      shadowOffset: { width: 0, height: 8 },
+      shadowOpacity: 1,
+      shadowRadius: 13,
+    },
+    lockPressed: { opacity: 0.82 },
+    web: { flex: 1, backgroundColor: "transparent" },
+    /**
+     * Android composites a hardware-layer WebView above later siblings unless they claim a
+     * higher elevation, so the page names its own and everything over it names a higher one.
+     * `zIndex` alone is enough on iOS and not enough here.
+     */
+    page: {
+      position: "absolute",
+      top: 0,
+      right: 0,
+      bottom: 0,
+      left: 0,
+      zIndex: 1,
+      elevation: 1,
+    },
+    touchLayer: {
+      position: "absolute",
+      top: 0,
+      right: 0,
+      bottom: 0,
+      left: 0,
+      zIndex: 2,
+      elevation: 2,
+    },
+    scrim: {
+      position: "absolute",
+      left: 0,
+      right: 0,
+      bottom: 0,
+      height: "34%",
+      zIndex: 3,
+      elevation: 3,
+      backgroundColor: "rgba(0, 0, 0, 0.42)",
+    },
+    error: {
+      position: "absolute",
+      left: m.space.screenX * 2,
+      right: m.space.screenX * 2,
+      top: "28%",
+      gap: m.font(6),
+      zIndex: 4,
+      elevation: 4,
+    },
+    errorTitle: {
+      ...m.type.cardTitle,
+      color: "#ffffff",
+      fontSize: m.font(16),
+      lineHeight: m.font(21),
+      minHeight: 0,
+      textAlign: "center",
+    },
+    errorBody: {
+      ...m.type.muted,
+      color: "rgba(255, 255, 255, 0.82)",
+      textAlign: "center",
+    },
+  });

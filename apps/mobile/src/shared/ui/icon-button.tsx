@@ -6,14 +6,16 @@ import Animated, {
   withSpring,
 } from "react-native-reanimated";
 import { useTheme } from "../lib/theme/use-theme";
+import { useMetrics, useStyles, type Metrics } from "../config/metrics";
 
 /**
- * The round 42px control the header is made of.
+ * The round control the header is made of — 42px on a phone, larger where the device
+ * asks for it.
  *
- * `.iconButton` on the web, tokens and all: `--button-soft` on
- * `--button-ink`, a 999px radius, and the small `0 3px 0` shadow that makes it
- * look pressable. Its `:hover` lift becomes a press response here, because a phone
- * has no hover but a touch still deserves an acknowledgement.
+ * `.iconButton` on the web, tokens and all: `--button-soft` on `--button-ink`, a 999px
+ * radius, and the small `0 3px 0` shadow that makes it look pressable. Its `:hover` lift
+ * becomes a press response here, because a phone has no hover but a touch still deserves
+ * an acknowledgement.
  *
  * `label` is the accessibility label. The web pairs `aria-label` with an identical
  * `data-tooltip` in one place so the two cannot drift; there is no tooltip on a
@@ -31,6 +33,7 @@ export function IconButton({
   onPress: () => void;
 }) {
   const { colors } = useTheme();
+  const styles = useStyles(makeStyles);
   const pressed = useSharedValue(0);
 
   const animated = useAnimatedStyle(() => ({
@@ -69,18 +72,29 @@ export function useIconColor(isActive = false) {
   return isActive ? "#ffffff" : colors.buttonInk;
 }
 
-const styles = StyleSheet.create({
-  button: {
-    width: 42,
-    height: 42,
-    borderRadius: 999,
-    alignItems: "center",
-    justifyContent: "center",
-    // `box-shadow: 0 3px 0 rgba(50, 55, 66, 0.08)` — a hard offset, no blur.
-    shadowColor: "rgba(50, 55, 66, 0.08)",
-    shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 1,
-    shadowRadius: 0,
-    elevation: 2,
-  },
-});
+/**
+ * The size to draw a glyph inside an {@link IconButton} at.
+ *
+ * Lucide takes a number rather than a style, so the icon cannot be scaled by the style
+ * sheet the way everything around it is — each caller has to ask.
+ */
+export function useIconSize(base = 19) {
+  return useMetrics().font(base);
+}
+
+const makeStyles = (m: Metrics) =>
+  StyleSheet.create({
+    button: {
+      width: m.size.tapTarget,
+      height: m.size.tapTarget,
+      borderRadius: 999,
+      alignItems: "center",
+      justifyContent: "center",
+      // `box-shadow: 0 3px 0 rgba(50, 55, 66, 0.08)` — a hard offset, no blur.
+      shadowColor: "rgba(50, 55, 66, 0.08)",
+      shadowOffset: { width: 0, height: 3 },
+      shadowOpacity: 1,
+      shadowRadius: 0,
+      elevation: 2,
+    },
+  });

@@ -8,7 +8,7 @@ import Animated, {
 import { CardReveal } from "./card-reveal";
 import { VideoCard } from "../../../entities/video";
 import { useGridColumns } from "../../../shared/lib/layout/use-grid-columns";
-import { space } from "../../../shared/config/theme";
+import { useMetrics } from "../../../shared/config/metrics";
 
 /** Roughly a first screen; these fetch their images eagerly, as on the web. */
 const EAGER_CARDS = 3;
@@ -20,8 +20,8 @@ const AnimatedFlashList = Animated.createAnimatedComponent(
 /**
  * The scrolling grid of cards.
  *
- * Column count follows the web's breakpoints through `useGridColumns` — one on a phone,
- * more once the viewport is wide enough that a single card would be absurd.
+ * Column count comes from the window's size class through `useGridColumns` — one on a
+ * phone, two or three where there is room, four across a television.
  *
  * `FlashList` rather than `FlatList`, because a flick through 400 cards is what this
  * screen is for. `FlatList` recycles nothing: it mounts and unmounts rows as the window
@@ -45,6 +45,7 @@ export function VideoGrid({
   topInset: number;
 }) {
   const { columns, gap } = useGridColumns();
+  const { space, overscanY } = useMetrics();
 
   const renderItem = useCallback(
     ({ item, index }: ListRenderItemInfo<Video>) => (
@@ -77,7 +78,9 @@ export function VideoGrid({
       contentContainerStyle={{
         paddingTop: topInset,
         paddingHorizontal: space.screenX,
-        paddingBottom: space.gridGap * 2,
+        // A television crops the bottom of the picture as readily as the top, so the
+        // last row needs the overscan margin as well as the usual breathing room.
+        paddingBottom: space.gridGap * 2 + overscanY,
       }}
       showsVerticalScrollIndicator={false}
     />

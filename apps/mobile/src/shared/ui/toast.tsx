@@ -3,7 +3,7 @@ import { StyleSheet, Text, View } from "react-native";
 import Animated, { FadeInDown, FadeOutDown } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useTheme } from "../lib/theme/use-theme";
-import { space, type } from "../config/theme";
+import { useMetrics, useStyles, type Metrics } from "../config/metrics";
 
 /** Long enough to read a sentence, short enough not to sit over the list. */
 const VISIBLE_MS = 2600;
@@ -45,6 +45,8 @@ export function useToast() {
 export function Toast({ state }: { state: ToastState }) {
   const { colors } = useTheme();
   const insets = useSafeAreaInsets();
+  const m = useMetrics();
+  const styles = useStyles(makeStyles);
 
   if (!state) {
     return null;
@@ -52,7 +54,7 @@ export function Toast({ state }: { state: ToastState }) {
 
   return (
     <View
-      style={[styles.host, { bottom: insets.bottom + 88 }]}
+      style={[styles.host, { bottom: insets.bottom + m.font(88) }]}
       pointerEvents="none"
     >
       <Animated.View
@@ -78,24 +80,25 @@ export function Toast({ state }: { state: ToastState }) {
   );
 }
 
-const styles = StyleSheet.create({
-  host: {
-    position: "absolute",
-    left: space.screenX,
-    right: space.screenX,
-    zIndex: 9500,
-    elevation: 9500,
-    alignItems: "center",
-  },
-  toast: {
-    maxWidth: "100%",
-    paddingHorizontal: 16,
-    paddingVertical: 10,
-    borderRadius: 999,
-    shadowColor: "rgba(20, 24, 33, 0.24)",
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 1,
-    shadowRadius: 12,
-  },
-  text: { ...type.muted, textAlign: "center" },
-});
+const makeStyles = (m: Metrics) =>
+  StyleSheet.create({
+    host: {
+      position: "absolute",
+      left: m.space.screenX,
+      right: m.space.screenX,
+      zIndex: 9500,
+      elevation: 9500,
+      alignItems: "center",
+    },
+    toast: {
+      maxWidth: "100%",
+      paddingHorizontal: m.font(16),
+      paddingVertical: m.space.meta,
+      borderRadius: 999,
+      shadowColor: "rgba(20, 24, 33, 0.24)",
+      shadowOffset: { width: 0, height: 8 },
+      shadowOpacity: 1,
+      shadowRadius: 12,
+    },
+    text: { ...m.type.muted, textAlign: "center" },
+  });

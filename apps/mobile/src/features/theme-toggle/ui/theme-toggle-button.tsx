@@ -1,5 +1,9 @@
 import { Moon, Sun } from "lucide-react-native";
-import { IconButton, useIconColor } from "../../../shared/ui/icon-button";
+import {
+  IconButton,
+  useIconColor,
+  useIconSize,
+} from "../../../shared/ui/icon-button";
 import { useTheme } from "../../../shared/lib/theme/use-theme";
 import { useTranslations } from "../../../shared/lib/i18n/use-translations";
 
@@ -12,6 +16,7 @@ export function ThemeToggleButton() {
   const { name, toggle } = useTheme();
   const t = useTranslations("TopBar");
   const color = useIconColor();
+  const size = useIconSize();
 
   return (
     <IconButton
@@ -19,9 +24,9 @@ export function ThemeToggleButton() {
       onPress={toggle}
     >
       {name === "dark" ? (
-        <Sun size={19} color={color} />
+        <Sun size={size} color={color} />
       ) : (
-        <Moon size={19} color={color} />
+        <Moon size={size} color={color} />
       )}
     </IconButton>
   );

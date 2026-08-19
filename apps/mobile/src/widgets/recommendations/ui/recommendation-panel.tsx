@@ -4,14 +4,16 @@ import { VideoThumbnail } from "../../../entities/video";
 import { useTheme } from "../../../shared/lib/theme/use-theme";
 import { useTranslations } from "../../../shared/lib/i18n/use-translations";
 import { useVideoLabels } from "../../../shared/lib/format/use-video-labels";
-import { radius, space, type } from "../../../shared/config/theme";
+import { useStyles, type Metrics } from "../../../shared/config/metrics";
 
 /**
  * The bar that names the list and can put it away.
  *
- * Separate from the list because the watch sheet pins it: it is the sticky child of the
- * scroll view, so it stays under the video while the videos themselves scroll past. That
- * only works if it is its own child, which is why this is not one component with the rows.
+ * Separate from the list because the watch screen pins it: in one column it is the sticky
+ * child of the scroll view, so it stays under the video while the videos themselves scroll
+ * past, and in two columns it is the fixed head of the aside while the aside scrolls under
+ * it. Both need it to be its own child, which is why this is not one component with the
+ * rows.
  *
  * The switch is the point of it rather than decoration: a child who wants the video and
  * nothing else can put the list away, and it stays away — the choice is stored, so it
@@ -29,6 +31,7 @@ export function RecommendationHeader({
 }) {
   const { colors } = useTheme();
   const t = useTranslations("Watch");
+  const styles = useStyles(makeStyles);
 
   return (
     <View style={[styles.header, { backgroundColor: colors.surface }]}>
@@ -50,8 +53,8 @@ export function RecommendationHeader({
  * What to watch next.
  *
  * Rows rather than cards. A card is the home screen's unit and gives a 16:9 thumbnail the
- * full width; under a player, what matters is how many choices fit above the fold, which
- * is what the settings screen's row shape already answers.
+ * full width; under a player — or beside one — what matters is how many choices fit
+ * without scrolling, which is what the settings screen's row shape already answers.
  */
 export function RecommendationList({
   videos,
@@ -60,6 +63,8 @@ export function RecommendationList({
   videos: readonly Video[];
   onSelect: (video: Video) => void;
 }) {
+  const styles = useStyles(makeStyles);
+
   return (
     <View style={styles.list}>
       {videos.map((video) => (
@@ -83,6 +88,7 @@ function RecommendationRow({
   const { colors } = useTheme();
   const t = useTranslations("Watch");
   const labels = useVideoLabels();
+  const styles = useStyles(makeStyles);
 
   return (
     <Pressable
@@ -119,28 +125,45 @@ function RecommendationRow({
   );
 }
 
-const styles = StyleSheet.create({
-  header: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    gap: space.meta,
-    paddingHorizontal: space.screenX,
-    paddingVertical: space.meta,
-  },
-  list: { gap: space.meta, paddingHorizontal: space.screenX },
-  title: { ...type.cardTitle, fontSize: 16, lineHeight: 21, minHeight: 0 },
-  row: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: space.meta,
-    padding: space.card,
-    borderRadius: radius.card,
-  },
-  /** The settings row's 132px: two lines of title still fit beside it. */
-  rowThumb: { width: 132 },
-  rowText: { flex: 1, minWidth: 0, gap: 2 },
-  rowTitle: { ...type.cardTitle, fontSize: 14, lineHeight: 18, minHeight: 0 },
-  rowChannel: { ...type.muted, fontSize: 12, lineHeight: 16 },
-  rowViews: { ...type.muted, fontSize: 12, lineHeight: 16 },
-});
+const makeStyles = (m: Metrics) =>
+  StyleSheet.create({
+    header: {
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "space-between",
+      gap: m.space.meta,
+      paddingHorizontal: m.space.screenX,
+      paddingVertical: m.space.meta,
+    },
+    list: { gap: m.space.meta, paddingHorizontal: m.space.screenX },
+    title: {
+      ...m.type.cardTitle,
+      fontSize: m.font(16),
+      lineHeight: m.font(21),
+      minHeight: 0,
+    },
+    row: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: m.space.meta,
+      padding: m.space.card,
+      borderRadius: m.radius.card,
+    },
+    /**
+     * The settings row's 132px: two lines of title still fit beside it.
+     *
+     * A fraction of the column rather than the scale factor, because in two columns this
+     * row lives in a fixed-width aside — a thumbnail scaled to the *device* would crowd out
+     * the title it is meant to leave room for.
+     */
+    rowThumb: { width: m.font(132), maxWidth: "46%" },
+    rowText: { flex: 1, minWidth: 0, gap: 2 },
+    rowTitle: {
+      ...m.type.cardTitle,
+      fontSize: m.font(14),
+      lineHeight: m.font(18),
+      minHeight: 0,
+    },
+    rowChannel: { ...m.type.muted, fontSize: m.font(12), lineHeight: m.font(16) },
+    rowViews: { ...m.type.muted, fontSize: m.font(12), lineHeight: m.font(16) },
+  });

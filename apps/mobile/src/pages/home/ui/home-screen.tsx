@@ -7,10 +7,10 @@ import {
   useSharedValue,
 } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { TOP_BAR_HEIGHT, TopBar } from "../../../widgets/top-bar/ui/top-bar";
+import { TopBar, useTopBarHeight } from "../../../widgets/top-bar/ui/top-bar";
 import { VideoGrid } from "../../../widgets/video-grid/ui/video-grid";
 import { useTheme } from "../../../shared/lib/theme/use-theme";
-import { space } from "../../../shared/config/theme";
+import { useMetrics } from "../../../shared/config/metrics";
 
 /**
  * The home screen: the app's background wash, the floating header, and the list.
@@ -41,7 +41,18 @@ export function HomeScreen({
 }) {
   const { colors, name } = useTheme();
   const insets = useSafeAreaInsets();
+  const { space, overscanY } = useMetrics();
+  const barHeight = useTopBarHeight();
   const scrollY = useSharedValue(0);
+
+  /**
+   * What the header has to clear at the top of the screen.
+   *
+   * The platform's inset plus a television's overscan, which the platform does not report
+   * because there is no notch to report — see `overscanY`. On a phone and a tablet the
+   * second term is zero and this is the inset it always was.
+   */
+  const topInset = insets.top + overscanY;
 
   // Written here rather than in the list: the value is owned at this level, and a
   // child must not mutate a shared value it received as a prop.
@@ -68,7 +79,7 @@ export function HomeScreen({
         // The header's own height leaves the first card flush against its bottom
         // edge, touching the search field. One grid gap of clearance is the same
         // space the cards keep from each other.
-        topInset={TOP_BAR_HEIGHT + insets.top + space.gridGap}
+        topInset={barHeight + topInset + space.gridGap}
       />
 
       {/* The status bar keeps a strip of the background under it once the header has
@@ -78,7 +89,7 @@ export function HomeScreen({
       <View
         style={[
           styles.statusStrip,
-          { height: insets.top, backgroundColor: colors.kidBgTop },
+          { height: topInset, backgroundColor: colors.kidBgTop },
         ]}
         pointerEvents="none"
       />
@@ -87,7 +98,7 @@ export function HomeScreen({
           list's own elevation cannot paint over the header on Android. */}
       <TopBar
         scrollY={scrollY}
-        topInset={insets.top}
+        topInset={topInset}
         query={query}
         onQueryChange={onQueryChange}
         onSettings={onSettings}

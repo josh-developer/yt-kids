@@ -1,7 +1,7 @@
 import type { Video } from "@repo/catalog/types";
 import { StyleSheet, Text, View } from "react-native";
 import { useVideoLabels } from "../../../shared/lib/format/use-video-labels";
-import { radius, size, type } from "../../../shared/config/theme";
+import { useStyles, type Metrics } from "../../../shared/config/metrics";
 
 /**
  * The channel's initial on its accent colour, as on the web — the accent is
@@ -9,6 +9,7 @@ import { radius, size, type } from "../../../shared/config/theme";
  */
 export function ChannelAvatar({ video }: { video: Video }) {
   const labels = useVideoLabels();
+  const styles = useStyles(makeStyles);
 
   return (
     <View style={[styles.avatar, { backgroundColor: video.accent }]}>
@@ -17,13 +18,14 @@ export function ChannelAvatar({ video }: { video: Video }) {
   );
 }
 
-const styles = StyleSheet.create({
-  avatar: {
-    width: size.avatar,
-    height: size.avatar,
-    borderRadius: radius.avatar,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  initial: { ...type.avatar, color: "#ffffff" },
-});
+const makeStyles = (m: Metrics) =>
+  StyleSheet.create({
+    avatar: {
+      width: m.size.avatar,
+      height: m.size.avatar,
+      borderRadius: m.radius.avatar,
+      alignItems: "center",
+      justifyContent: "center",
+    },
+    initial: { ...m.type.avatar, color: "#ffffff" },
+  });

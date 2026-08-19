@@ -7,10 +7,10 @@ import { thumbnailUrl } from "../../../shared/api/thumbnails";
 import { useTranslations } from "../../../shared/lib/i18n/use-translations";
 import { useVideoLabels } from "../../../shared/lib/format/use-video-labels";
 import { fonts } from "../../../shared/config/theme";
+import { useMetrics, useStyles, type Metrics } from "../../../shared/config/metrics";
 
 /** `AUTOPLAY_COUNTDOWN_SECONDS` in the web's `app-config.ts`. */
 const COUNTDOWN_SECONDS = 4;
-const RING_SIZE = 52;
 
 /**
  * What a finished video offers: the next one, a countdown, and a way not to.
@@ -36,6 +36,8 @@ export function UpNextCard({
 }) {
   const t = useTranslations("Player");
   const labels = useVideoLabels();
+  const m = useMetrics();
+  const styles = useStyles(makeStyles);
   const [secondsLeft, setSecondsLeft] = useState(COUNTDOWN_SECONDS);
 
   useEffect(() => {
@@ -87,7 +89,7 @@ export function UpNextCard({
           style={({ pressed }) => [styles.button, pressed && styles.pressed]}
           accessibilityRole="button"
         >
-          <RotateCcw size={18} color="#ffffff" />
+          <RotateCcw size={m.font(18)} color="#ffffff" />
           <Text style={styles.buttonText}>{t("replay")}</Text>
         </Pressable>
 
@@ -103,77 +105,78 @@ export function UpNextCard({
   );
 }
 
-const styles = StyleSheet.create({
-  // `.upNext`: over everything, on a near-black wash. No blur, as everywhere else here.
-  overlay: {
-    position: "absolute",
-    top: 0,
-    right: 0,
-    bottom: 0,
-    left: 0,
-    zIndex: 8,
-    elevation: 8,
-    alignItems: "center",
-    justifyContent: "center",
-    gap: 14,
-    padding: 20,
-    backgroundColor: "rgba(6, 6, 8, 0.82)",
-  },
-  // `.upNextCard`.
-  card: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 14,
-    width: "92%",
-    maxWidth: 520,
-    padding: 10,
-    borderRadius: 12,
-    backgroundColor: "rgba(255, 255, 255, 0.1)",
-  },
-  cardPressed: { backgroundColor: "rgba(255, 255, 255, 0.18)" },
-  thumb: {
-    width: 116,
-    aspectRatio: 16 / 9,
-    borderRadius: 8,
-    backgroundColor: "#1c1c1c",
-  },
-  text: { flex: 1, minWidth: 0, gap: 4 },
-  label: {
-    color: "rgba(255, 255, 255, 0.66)",
-    fontSize: 11,
-    fontFamily: fonts.extrabold,
-    letterSpacing: 0.7,
-    textTransform: "uppercase",
-  },
-  title: {
-    color: "#ffffff",
-    fontSize: 15,
-    lineHeight: 19,
-    fontFamily: fonts.extrabold,
-  },
-  // `.upNextRing`, as a ring rather than a conic sweep.
-  ring: {
-    width: RING_SIZE,
-    height: RING_SIZE,
-    borderRadius: 999,
-    borderWidth: 4,
-    borderColor: "#ff3157",
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: "rgba(12, 12, 14, 0.92)",
-  },
-  ringText: { color: "#ffffff", fontSize: 16, fontFamily: fonts.black },
-  actions: { flexDirection: "row", flexWrap: "wrap", gap: 10 },
-  // `.upNextButton`.
-  button: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 7,
-    minHeight: 38,
-    paddingHorizontal: 16,
-    borderRadius: 999,
-    backgroundColor: "rgba(255, 255, 255, 0.14)",
-  },
-  pressed: { backgroundColor: "rgba(255, 255, 255, 0.24)" },
-  buttonText: { color: "#ffffff", fontSize: 14, fontFamily: fonts.extrabold },
-});
+const makeStyles = (m: Metrics) =>
+  StyleSheet.create({
+    // `.upNext`: over everything, on a near-black wash. No blur, as everywhere else here.
+    overlay: {
+      position: "absolute",
+      top: 0,
+      right: 0,
+      bottom: 0,
+      left: 0,
+      zIndex: 8,
+      elevation: 8,
+      alignItems: "center",
+      justifyContent: "center",
+      gap: m.font(14),
+      padding: m.font(20),
+      backgroundColor: "rgba(6, 6, 8, 0.82)",
+    },
+    // `.upNextCard`.
+    card: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: m.font(14),
+      width: "92%",
+      maxWidth: m.font(520),
+      padding: m.space.meta,
+      borderRadius: m.radius.card,
+      backgroundColor: "rgba(255, 255, 255, 0.1)",
+    },
+    cardPressed: { backgroundColor: "rgba(255, 255, 255, 0.18)" },
+    thumb: {
+      width: m.font(116),
+      aspectRatio: 16 / 9,
+      borderRadius: m.radius.thumbnail,
+      backgroundColor: "#1c1c1c",
+    },
+    text: { flex: 1, minWidth: 0, gap: 4 },
+    label: {
+      color: "rgba(255, 255, 255, 0.66)",
+      fontSize: m.font(11),
+      fontFamily: fonts.extrabold,
+      letterSpacing: 0.7,
+      textTransform: "uppercase",
+    },
+    title: {
+      color: "#ffffff",
+      fontSize: m.font(15),
+      lineHeight: m.font(19),
+      fontFamily: fonts.extrabold,
+    },
+    // `.upNextRing`, as a ring rather than a conic sweep.
+    ring: {
+      width: m.font(52),
+      height: m.font(52),
+      borderRadius: 999,
+      borderWidth: m.font(4),
+      borderColor: "#ff3157",
+      alignItems: "center",
+      justifyContent: "center",
+      backgroundColor: "rgba(12, 12, 14, 0.92)",
+    },
+    ringText: { color: "#ffffff", fontSize: m.font(16), fontFamily: fonts.black },
+    actions: { flexDirection: "row", flexWrap: "wrap", gap: m.space.meta },
+    // `.upNextButton`.
+    button: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: m.font(7),
+      minHeight: m.font(38),
+      paddingHorizontal: m.font(16),
+      borderRadius: 999,
+      backgroundColor: "rgba(255, 255, 255, 0.14)",
+    },
+    pressed: { backgroundColor: "rgba(255, 255, 255, 0.24)" },
+    buttonText: { color: "#ffffff", fontSize: m.font(14), fontFamily: fonts.extrabold },
+  });

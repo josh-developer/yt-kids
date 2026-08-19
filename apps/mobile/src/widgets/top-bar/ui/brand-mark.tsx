@@ -1,6 +1,7 @@
 import { Image } from "expo-image";
 import { StyleSheet, Text, View } from "react-native";
-import { BRAND_LETTERS, radius, size, type } from "../../../shared/config/theme";
+import { useStyles, type Metrics } from "../../../shared/config/metrics";
+import { BRAND_LETTERS } from "../../../shared/config/theme";
 
 const brandIcon = require("../../../../assets/brand-mark.png");
 
@@ -16,6 +17,8 @@ const brandIcon = require("../../../../assets/brand-mark.png");
  * playful in the header rather than like a pasted launcher asset.
  */
 export function BrandMark() {
+  const styles = useStyles(makeStyles);
+
   return (
     <View style={styles.brand}>
       <Image
@@ -39,19 +42,20 @@ export function BrandMark() {
   );
 }
 
-const styles = StyleSheet.create({
-  brand: { flexDirection: "row", alignItems: "center", gap: 10 },
-  badge: {
-    width: size.brandMarkWidth,
-    height: size.brandMarkWidth,
-    borderRadius: radius.brandMark,
-    transform: [{ translateY: -4 }, { rotate: "-2deg" }],
-    shadowColor: "rgba(255, 49, 87, 0.24)",
-    shadowOffset: { width: 0, height: 7 },
-    shadowOpacity: 1,
-    shadowRadius: 13,
-    elevation: 4,
-  },
-  wordmark: { flexDirection: "row", alignItems: "baseline" },
-  letter: type.brand,
-});
+const makeStyles = (m: Metrics) =>
+  StyleSheet.create({
+    brand: { flexDirection: "row", alignItems: "center", gap: m.space.meta },
+    badge: {
+      width: m.size.brandMarkWidth,
+      height: m.size.brandMarkWidth,
+      borderRadius: m.radius.brandMark,
+      transform: [{ translateY: -4 }, { rotate: "-2deg" }],
+      shadowColor: "rgba(255, 49, 87, 0.24)",
+      shadowOffset: { width: 0, height: 7 },
+      shadowOpacity: 1,
+      shadowRadius: 13,
+      elevation: 4,
+    },
+    wordmark: { flexDirection: "row", alignItems: "baseline" },
+    letter: m.type.brand,
+  });

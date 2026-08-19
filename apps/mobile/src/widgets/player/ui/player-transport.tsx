@@ -4,6 +4,7 @@ import type { ReactNode } from "react";
 import { Pressable, StyleSheet, View } from "react-native";
 import { useTranslations } from "../../../shared/lib/i18n/use-translations";
 import type { Player } from "../model/use-player";
+import { useMetrics, useStyles, type Metrics } from "../../../shared/config/metrics";
 
 /**
  * The controls that sit on the picture: play in the middle, previous and next at the
@@ -34,12 +35,17 @@ export function PlayerTransport({
   onNext: () => void;
 }) {
   const t = useTranslations("Player");
+  const m = useMetrics();
+  const styles = useStyles(makeStyles);
 
   return (
     <View
       style={[
         styles.layer,
-        { paddingLeft: 10 + insets.left, paddingRight: 10 + insets.right },
+        {
+          paddingLeft: m.space.meta + insets.left,
+          paddingRight: m.space.meta + insets.right,
+        },
       ]}
       pointerEvents="box-none"
     >
@@ -48,7 +54,7 @@ export function PlayerTransport({
         isDisabled={!hasPrevious}
         onPress={onPrevious}
       >
-        <SkipBack size={24} color="#ffffff" fill="#ffffff" />
+        <SkipBack size={m.font(24)} color="#ffffff" fill="#ffffff" />
       </SideButton>
 
       {/* `.bigPlayButton`: the one control that is not a flat surface. */}
@@ -68,15 +74,15 @@ export function PlayerTransport({
           style={styles.primary}
         >
           {player.isPlaying ? (
-            <Pause size={30} color="#ffffff" fill="#ffffff" />
+            <Pause size={m.font(30)} color="#ffffff" fill="#ffffff" />
           ) : (
-            <Play size={30} color="#ffffff" fill="#ffffff" />
+            <Play size={m.font(30)} color="#ffffff" fill="#ffffff" />
           )}
         </LinearGradient>
       </Pressable>
 
       <SideButton label={t("nextVideo")} isDisabled={!hasNext} onPress={onNext}>
-        <SkipForward size={24} color="#ffffff" fill="#ffffff" />
+        <SkipForward size={m.font(24)} color="#ffffff" fill="#ffffff" />
       </SideButton>
     </View>
   );
@@ -93,6 +99,8 @@ function SideButton({
   isDisabled: boolean;
   onPress: () => void;
 }) {
+  const styles = useStyles(makeStyles);
+
   return (
     <Pressable
       onPress={onPress}
@@ -111,61 +119,62 @@ function SideButton({
   );
 }
 
-const SIDE_SIZE = 42;
-const PRIMARY_SIZE = 54;
 
-const styles = StyleSheet.create({
-  /**
-   * `.sidePlayerButtons`: the full surface, buttons pushed to its edges.
-   *
-   * Below the control strip, not above it. The web can afford the big play button's
-   * `z-index: 6` because it is a small centred button; here the layer covers the whole
-   * picture, and on Android a higher elevation takes the touch even through
-   * `pointerEvents="box-none"` — which swallowed every tap on the strip underneath.
-   */
-  layer: {
-    position: "absolute",
-    top: 0,
-    right: 0,
-    bottom: 0,
-    left: 0,
-    zIndex: 4,
-    elevation: 4,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-  },
-  side: {
-    width: SIDE_SIZE,
-    height: SIDE_SIZE,
-    borderRadius: 999,
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: "rgba(12, 12, 12, 0.62)",
-    opacity: 0.92,
-    // `box-shadow: 0 10px 28px rgba(0, 0, 0, 0.28)`.
-    shadowColor: "rgba(0, 0, 0, 0.28)",
-    shadowOffset: { width: 0, height: 10 },
-    shadowOpacity: 1,
-    shadowRadius: 14,
-    elevation: 6,
-  },
-  /** The shadow lives on the pressable; the gradient cannot carry it and clip too. */
-  primaryShadow: {
-    borderRadius: 999,
-    shadowColor: "rgba(0, 0, 0, 0.36)",
-    shadowOffset: { width: 0, height: 12 },
-    shadowOpacity: 1,
-    shadowRadius: 17,
-    elevation: 8,
-  },
-  primary: {
-    width: PRIMARY_SIZE,
-    height: PRIMARY_SIZE,
-    borderRadius: 999,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  disabled: { opacity: 0.42 },
-  pressed: { opacity: 0.82 },
-});
+
+const makeStyles = (m: Metrics) =>
+  StyleSheet.create({
+    /**
+     * `.sidePlayerButtons`: the full surface, buttons pushed to its edges.
+     *
+     * Below the control strip, not above it. The web can afford the big play button's
+     * `z-index: 6` because it is a small centred button; here the layer covers the whole
+     * picture, and on Android a higher elevation takes the touch even through
+     * `pointerEvents="box-none"` — which swallowed every tap on the strip underneath.
+     */
+    layer: {
+      position: "absolute",
+      top: 0,
+      right: 0,
+      bottom: 0,
+      left: 0,
+      zIndex: 4,
+      elevation: 4,
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "space-between",
+    },
+    side: {
+      // `.sidePlayerButton`'s `clamp()` on the web; the device's own scale here.
+      width: m.font(42),
+      height: m.font(42),
+      borderRadius: 999,
+      alignItems: "center",
+      justifyContent: "center",
+      backgroundColor: "rgba(12, 12, 12, 0.62)",
+      opacity: 0.92,
+      // `box-shadow: 0 10px 28px rgba(0, 0, 0, 0.28)`.
+      shadowColor: "rgba(0, 0, 0, 0.28)",
+      shadowOffset: { width: 0, height: 10 },
+      shadowOpacity: 1,
+      shadowRadius: 14,
+      elevation: 6,
+    },
+    /** The shadow lives on the pressable; the gradient cannot carry it and clip too. */
+    primaryShadow: {
+      borderRadius: 999,
+      shadowColor: "rgba(0, 0, 0, 0.36)",
+      shadowOffset: { width: 0, height: 12 },
+      shadowOpacity: 1,
+      shadowRadius: 17,
+      elevation: 8,
+    },
+    primary: {
+      width: m.font(54),
+      height: m.font(54),
+      borderRadius: 999,
+      alignItems: "center",
+      justifyContent: "center",
+    },
+    disabled: { opacity: 0.42 },
+    pressed: { opacity: 0.82 },
+  });

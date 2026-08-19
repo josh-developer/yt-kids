@@ -27,12 +27,13 @@ import {
 } from "../../../widgets/recommendations/ui/recommendation-panel";
 import { STORAGE_KEYS } from "../../../shared/config/app-config";
 import { useTheme } from "../../../shared/lib/theme/use-theme";
+import { useDevice } from "../../../shared/lib/device/use-device";
 import { useVideoLabels } from "../../../shared/lib/format/use-video-labels";
 import {
   readPreference,
   writePreference,
 } from "../../../shared/lib/storage/preferences";
-import { space, type } from "../../../shared/config/theme";
+import { useMetrics, useStyles, type Metrics } from "../../../shared/config/metrics";
 
 /** Past this much of a downward drag, letting go dismisses rather than springs back. */
 const DISMISS_RATIO = 0.25;
@@ -53,16 +54,33 @@ const FLICK_DISTANCE = 40;
 const DRAG_SLOP = 10;
 const DURATION = 260;
 
+/** Narrower than this and a recommendation row has no room for its title beside its picture. */
+const ASIDE_MIN_WIDTH = 320;
+/** Wider than this and the column is mostly whitespace while the player goes without. */
+const ASIDE_MAX_WIDTH = 420;
+/** The share of a wide window the recommendations take, between those two bounds. */
+const ASIDE_SHARE = 0.32;
+
 /**
- * The watch screen, as a sheet over the home screen.
+ * The watch screen: a sheet on a phone, two columns on anything wider.
  *
- * No header, no grabber, and no black band above the video: the picture starts at the top
- * of the screen with the status bar over it, which is what a phone player looks like.
+ * **On a phone** it is a sheet, with no header, no grabber and no black band above the
+ * video: the picture starts at the top of the screen with the status bar over it, which is
+ * what a phone player looks like. The way back is to drag down from anywhere — the video,
+ * the title, the channel, or the recommendations while they are scrolled to the top. That
+ * last clause is the trick: the drag only claims a touch when the list underneath has
+ * nothing left to scroll up, so one gesture serves both without the two fighting.
  *
- * The way back is to drag down from anywhere — the video, the title, the channel, or the
- * recommendations while they are scrolled to the top. That last clause is the trick: the
- * drag only claims a touch when the list underneath has nothing left to scroll up, so one
- * gesture serves both without the two fighting.
+ * **On a tablet** the same content is two columns, because stacking them wastes the shape
+ * of the screen. A 16:9 video across a 1200pt window is 675pt tall, which leaves the
+ * recommendations entirely below the fold and a band of empty surface beside the picture in
+ * every other layout. Side by side, the player keeps a size worth looking at and what to
+ * watch next stays visible without scrolling — which is the whole point of a recommendation.
+ *
+ * The dismiss drag survives into the wide layout, but narrows: only a drag that starts *on
+ * the player* dismisses. The aside is its own scroll view and a drag there is a scroll,
+ * with no ambiguity to resolve — the phone's "is the list at the top" negotiation exists
+ * because one column had to serve both purposes, and two columns do not.
  *
  * A `PanResponder` rather than a Gesture Handler pan, for one hard reason. The video is a
  * WebView, which takes touches in native code before Gesture Handler's per-view
@@ -86,12 +104,15 @@ export function WatchSheet({
   onClose: () => void;
 }) {
   const { colors } = useTheme();
+  const { isWide } = useDevice();
   const insets = useSafeAreaInsets();
   const labels = useVideoLabels();
+  const m = useMetrics();
+  const styles = useStyles(makeStyles);
   // The hook, not `Dimensions.get`: the dismiss threshold and the distance the sheet
   // travels off-screen both depend on it, and a rotation — which full screen causes — would
   // leave a one-time read stale.
-  const { height } = useWindowDimensions();
+  const { height, width } = useWindowDimensions();
 
   const player = useRef<PlayerHandle | null>(null);
   /**
@@ -116,6 +137,21 @@ export function WatchSheet({
     () => recommendationsFor(video, approvedVideos),
     [approvedVideos, video],
   );
+
+  /**
+   * Two columns only while there is something to put in the second one, and never in full
+   * screen, where the picture is the entire layout.
+   */
+  const hasRecommendations =
+    recommendations.length > 0 && areRecommendationsVisible;
+  const isSideBySide = isWide && !isFullscreen;
+
+  const asideWidth = isSideBySide
+    ? Math.round(
+        Math.min(ASIDE_MAX_WIDTH, Math.max(ASIDE_MIN_WIDTH, width * ASIDE_SHARE)),
+      )
+    : 0;
+  const playerPaneWidth = width - asideWidth;
 
   const currentIndex = approvedVideos.findIndex(
     (candidate) => candidate.id === video.id,
@@ -154,7 +190,7 @@ export function WatchSheet({
     if (!isFullscreen) {
       // Nothing to do on the way in: locking portrait here is a configuration change the
       // app does not need, and on Android it costs an activity restart — which took the
-      // sheet down with it and looked like the video simply refusing to open.
+      // sheet down with it and looked like the video refusing to open.
       return;
     }
 
@@ -214,17 +250,29 @@ export function WatchSheet({
          * asking after the fact — `onMoveShouldSetPanResponder` — never wins and a drag
          * that starts over the list does nothing.
          *
-         * The `y0` clause is what makes the gesture reliable. Gating the whole sheet on
-         * "the list is scrolled to the top" meant that after scrolling the recommendations,
-         * dragging the *video* down did nothing — the finger was nowhere near the list, but
-         * the list's offset still vetoed it. A drag that starts on the player is always the
-         * dismiss; only a drag that starts in the list has to wait for the list to run out
-         * of scroll.
+         * The `y0` clause is what makes the gesture reliable in one column. Gating the
+         * whole sheet on "the list is scrolled to the top" meant that after scrolling the
+         * recommendations, dragging the *video* down did nothing — the finger was nowhere
+         * near the list, but the list's offset still vetoed it. A drag that starts on the
+         * player is always the dismiss; only a drag that starts in the list has to wait for
+         * the list to run out of scroll.
+         *
+         * Two columns need `x0` as well, and need nothing else: the aside sits beside the
+         * player rather than under it, so a drag can begin above `playerBottom` and still
+         * be a scroll of the recommendations. Bounding the player on both axes is exact,
+         * and it lets the aside keep its own scrolling with no negotiation at all.
          */
         onMoveShouldSetPanResponderCapture: (event, gesture) => {
-          const startedOnPlayer = gesture.y0 <= playerBottom;
+          const startedOnPlayer =
+            gesture.y0 <= playerBottom &&
+            (!isSideBySide || gesture.x0 <= playerPaneWidth);
+
+          const startedSomewhereDraggable = isSideBySide
+            ? startedOnPlayer
+            : startedOnPlayer || isListAtTop;
+
           return (
-            (startedOnPlayer || isListAtTop) &&
+            startedSomewhereDraggable &&
             gesture.dy > DRAG_SLOP &&
             Math.abs(gesture.dx) < Math.abs(gesture.dy)
           );
@@ -260,13 +308,67 @@ export function WatchSheet({
           translateY.value = withTiming(0, { duration: DURATION });
         },
       }),
-    [height, isListAtTop, onClose, playerBottom, translateY],
+    [
+      height,
+      isListAtTop,
+      isSideBySide,
+      onClose,
+      playerBottom,
+      playerPaneWidth,
+      translateY,
+    ],
   );
   /* eslint-enable react-hooks/immutability */
 
   const animated = useAnimatedStyle(() => ({
     transform: [{ translateY: translateY.value }],
   }));
+
+  const stage = (
+    <PlayerView
+      ref={player}
+      onStageLayout={(bottom) => setPlayerBottom(bottom)}
+      video={video}
+      hasPrevious={previousVideo !== null}
+      hasNext={nextVideo !== null}
+      nextVideo={nextVideo}
+      isFullscreen={isFullscreen}
+      onToggleFullscreen={() => setIsFullscreen((current) => !current)}
+      onPrevious={() => previousVideo && onSelectVideo(previousVideo)}
+      onNext={() => nextVideo && onSelectVideo(nextVideo)}
+      availableWidth={isSideBySide ? playerPaneWidth : undefined}
+      /* Given the column, the player may take most of its height. The phone's 42% cap
+         exists to leave room for the title and the list *underneath*; in two columns the
+         list is elsewhere and only the title has to fit. */
+      maxHeight={isSideBySide ? height * 0.62 : undefined}
+    />
+  );
+
+  const details = (
+    <View style={styles.meta}>
+      <Text style={[styles.title, { color: colors.text }]}>
+        {labels.title(video)}
+      </Text>
+
+      <View style={styles.channelRow}>
+        <ChannelAvatar video={video} />
+        <View style={styles.channelText}>
+          <Text
+            style={[styles.channel, { color: colors.text }]}
+            numberOfLines={1}
+          >
+            {labels.channel(video)}
+          </Text>
+          <Text
+            style={[styles.views, { color: colors.textSoft }]}
+            numberOfLines={1}
+          >
+            {labels.views(video)}
+          </Text>
+        </View>
+      </View>
+    </View>
+  );
 
   return (
     <Animated.View
@@ -281,109 +383,146 @@ export function WatchSheet({
       */}
       <StatusBar style="light" hidden={isFullscreen} />
 
-      <View style={styles.playerDock}>
-        <PlayerView
-          ref={player}
-          onStageLayout={(bottom) => setPlayerBottom(bottom)}
-          video={video}
-          hasPrevious={previousVideo !== null}
-          hasNext={nextVideo !== null}
-          nextVideo={nextVideo}
-          isFullscreen={isFullscreen}
-          onToggleFullscreen={() => setIsFullscreen((current) => !current)}
-          onPrevious={() => previousVideo && onSelectVideo(previousVideo)}
-          onNext={() => nextVideo && onSelectVideo(nextVideo)}
-        />
-      </View>
+      {isSideBySide ? (
+        <View style={styles.columns}>
+          <View style={[styles.playerPane, { width: playerPaneWidth }]}>
+            <View style={styles.playerDock}>{stage}</View>
 
-      {isFullscreen ? null : (
-        /* The list, with the recommendations header pinned under the video by
-           `stickyHeaderIndices` — the title and channel scroll away above it, which is the
-           order of importance once something is playing.
-
-           A touch here hides the controls and never shows them: only the player's own area
-           is a switch. */
-        <ScrollView
-          style={styles.below}
-          contentContainerStyle={[
-            styles.belowContent,
-            { paddingBottom: insets.bottom + space.gridGap * 2 },
-          ]}
-          stickyHeaderIndices={recommendations.length > 0 ? [1] : undefined}
-          showsVerticalScrollIndicator={false}
-          scrollEventThrottle={16}
-          onScroll={(event) => {
-            const isAtTop = event.nativeEvent.contentOffset.y <= 0;
-            if (isAtTop !== isListAtTop) {
-              setIsListAtTop(isAtTop);
-            }
-          }}
-          onTouchStart={() => player.current?.hideControls()}
-        >
-          <View style={styles.meta}>
-            <Text style={[styles.title, { color: colors.text }]}>
-              {labels.title(video)}
-            </Text>
-
-            <View style={styles.channelRow}>
-              <ChannelAvatar video={video} />
-              <View style={styles.channelText}>
-                <Text
-                  style={[styles.channel, { color: colors.text }]}
-                  numberOfLines={1}
-                >
-                  {labels.channel(video)}
-                </Text>
-                <Text
-                  style={[styles.views, { color: colors.textSoft }]}
-                  numberOfLines={1}
-                >
-                  {labels.views(video)}
-                </Text>
-              </View>
-            </View>
+            {/* The title scrolls on its own so a long one cannot push the player off the
+                top of the column. A touch here hides the controls and never shows them:
+                only the player's own area is a switch. */}
+            <ScrollView
+              style={styles.paneScroll}
+              contentContainerStyle={{
+                paddingTop: m.space.gridGap,
+                paddingBottom: insets.bottom + m.space.gridGap,
+              }}
+              showsVerticalScrollIndicator={false}
+              onTouchStart={() => player.current?.hideControls()}
+            >
+              {details}
+            </ScrollView>
           </View>
 
           {recommendations.length > 0 ? (
-            <RecommendationHeader
-              isVisible={areRecommendationsVisible}
-              onVisibilityChange={changeRecommendationsVisibility}
-            />
-          ) : null}
+            <View
+              style={[
+                styles.aside,
+                { width: asideWidth, borderLeftColor: colors.line },
+              ]}
+            >
+              <RecommendationHeader
+                isVisible={areRecommendationsVisible}
+                onVisibilityChange={changeRecommendationsVisibility}
+              />
 
-          {recommendations.length > 0 && areRecommendationsVisible ? (
-            <RecommendationList
-              videos={recommendations}
-              onSelect={onSelectVideo}
-            />
+              {hasRecommendations ? (
+                <ScrollView
+                  style={styles.paneScroll}
+                  contentContainerStyle={{
+                    paddingBottom: insets.bottom + m.space.gridGap * 2,
+                  }}
+                  showsVerticalScrollIndicator={false}
+                  onTouchStart={() => player.current?.hideControls()}
+                >
+                  <RecommendationList
+                    videos={recommendations}
+                    onSelect={onSelectVideo}
+                  />
+                </ScrollView>
+              ) : null}
+            </View>
           ) : null}
-        </ScrollView>
+        </View>
+      ) : (
+        <>
+          <View style={styles.playerDock}>{stage}</View>
+
+          {isFullscreen ? null : (
+            /* The list, with the recommendations header pinned under the video by
+               `stickyHeaderIndices` — the title and channel scroll away above it, which is
+               the order of importance once something is playing.
+
+               A touch here hides the controls and never shows them: only the player's own
+               area is a switch. */
+            <ScrollView
+              style={styles.paneScroll}
+              contentContainerStyle={[
+                styles.belowContent,
+                { paddingBottom: insets.bottom + m.space.gridGap * 2 },
+              ]}
+              stickyHeaderIndices={recommendations.length > 0 ? [1] : undefined}
+              showsVerticalScrollIndicator={false}
+              scrollEventThrottle={16}
+              onScroll={(event) => {
+                const isAtTop = event.nativeEvent.contentOffset.y <= 0;
+                if (isAtTop !== isListAtTop) {
+                  setIsListAtTop(isAtTop);
+                }
+              }}
+              onTouchStart={() => player.current?.hideControls()}
+            >
+              {details}
+
+              {recommendations.length > 0 ? (
+                <RecommendationHeader
+                  isVisible={areRecommendationsVisible}
+                  onVisibilityChange={changeRecommendationsVisibility}
+                />
+              ) : null}
+
+              {hasRecommendations ? (
+                <RecommendationList
+                  videos={recommendations}
+                  onSelect={onSelectVideo}
+                />
+              ) : null}
+            </ScrollView>
+          )}
+        </>
       )}
     </Animated.View>
   );
 }
 
-const styles = StyleSheet.create({
-  sheet: {
-    position: "absolute",
-    top: 0,
-    right: 0,
-    bottom: 0,
-    left: 0,
-    zIndex: 9000,
-  },
-  playerDock: { zIndex: 2, elevation: 2 },
-  below: { flex: 1 },
-  belowContent: { paddingTop: space.gridGap },
-  meta: {
-    gap: space.gridGap,
-    paddingHorizontal: space.screenX,
-    paddingBottom: space.gridGap,
-  },
-  /** `.watchTitle`, at the size a phone can give it. */
-  title: { ...type.cardTitle, fontSize: 20, lineHeight: 25 },
-  channelRow: { flexDirection: "row", alignItems: "center", gap: space.meta },
-  channelText: { flex: 1, minWidth: 0 },
-  channel: { ...type.cardTitle, fontSize: 15, lineHeight: 20, minHeight: 0 },
-  views: type.muted,
-});
+const makeStyles = (m: Metrics) =>
+  StyleSheet.create({
+    sheet: {
+      position: "absolute",
+      top: 0,
+      right: 0,
+      bottom: 0,
+      left: 0,
+      zIndex: 9000,
+    },
+    playerDock: { zIndex: 2, elevation: 2 },
+    columns: { flex: 1, flexDirection: "row" },
+    playerPane: { flex: 1 },
+    /**
+     * A hairline rather than a gap. The two columns are one surface, and a gap between them
+     * reads as two sheets that happen to be adjacent.
+     */
+    aside: { borderLeftWidth: StyleSheet.hairlineWidth },
+    paneScroll: { flex: 1 },
+    belowContent: { paddingTop: m.space.gridGap },
+    meta: {
+      gap: m.space.gridGap,
+      paddingHorizontal: m.space.screenX,
+      paddingBottom: m.space.gridGap,
+    },
+    /** `.watchTitle`, at the size the device can give it. */
+    title: { ...m.type.cardTitle, fontSize: m.font(20), lineHeight: m.font(25) },
+    channelRow: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: m.space.meta,
+    },
+    channelText: { flex: 1, minWidth: 0 },
+    channel: {
+      ...m.type.cardTitle,
+      fontSize: m.font(15),
+      lineHeight: m.font(20),
+      minHeight: 0,
+    },
+    views: m.type.muted,
+  });

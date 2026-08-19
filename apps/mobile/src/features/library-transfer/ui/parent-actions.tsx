@@ -30,7 +30,11 @@ import { BottomSheet } from "../../../shared/ui/bottom-sheet";
 import { Toast, useToast } from "../../../shared/ui/toast";
 import { useTheme } from "../../../shared/lib/theme/use-theme";
 import { useTranslations } from "../../../shared/lib/i18n/use-translations";
-import { fonts, radius, space, type } from "../../../shared/config/theme";
+import {
+  useMetrics,
+  useStyles,
+  type Metrics,
+} from "../../../shared/config/metrics";
 
 /** Which sheet is open, if any. */
 type Task = "import" | "add" | "reset" | null;
@@ -52,6 +56,8 @@ export function ParentActions({ library }: { library: LibraryController }) {
   const insets = useSafeAreaInsets();
   const t = useTranslations("Settings");
   const toast = useToast();
+  const m = useMetrics();
+  const styles = useStyles(makeStyles);
 
   const [isOpen, setIsOpen] = useState(false);
   const [task, setTask] = useState<Task>(null);
@@ -145,7 +151,7 @@ export function ParentActions({ library }: { library: LibraryController }) {
   return (
     <>
       <View
-        style={[styles.dock, { bottom: insets.bottom + space.gridGap }]}
+        style={[styles.dock, { bottom: insets.bottom + m.space.gridGap }]}
         pointerEvents="box-none"
       >
         {isOpen ? (
@@ -155,19 +161,19 @@ export function ParentActions({ library }: { library: LibraryController }) {
             exiting={FadeOut.duration(120)}
           >
             <Action label={t("exportParentSettings")} onPress={exportCode}>
-              <Share2 size={18} color={colors.buttonInk} />
+              <Share2 size={m.font(18)} color={colors.buttonInk} />
             </Action>
             <Action
               label={t("importParentSettings")}
               onPress={() => start("import")}
             >
-              <ClipboardPaste size={18} color={colors.buttonInk} />
+              <ClipboardPaste size={m.font(18)} color={colors.buttonInk} />
             </Action>
             <Action label={t("addVideoLink")} onPress={() => start("add")}>
-              <Link2 size={18} color={colors.buttonInk} />
+              <Link2 size={m.font(18)} color={colors.buttonInk} />
             </Action>
             <Action label={t("resetAllVideos")} onPress={() => start("reset")}>
-              <RotateCcw size={18} color={colors.buttonInk} />
+              <RotateCcw size={m.font(18)} color={colors.buttonInk} />
             </Action>
           </Animated.View>
         ) : null}
@@ -291,6 +297,7 @@ function Action({
   onPress: () => void | Promise<void>;
 }) {
   const { colors } = useTheme();
+  const styles = useStyles(makeStyles);
 
   return (
     <Pressable
@@ -325,6 +332,7 @@ function SheetButton({
   onPress: () => void;
 }) {
   const { colors } = useTheme();
+  const styles = useStyles(makeStyles);
   const background = isDestructive
     ? colors.brandRed
     : isPrimary
@@ -354,81 +362,82 @@ function SheetButton({
   );
 }
 
-const styles = StyleSheet.create({
-  /** Bottom right, over the list. `box-none` so the list keeps the rest of the corner. */
-  dock: {
-    position: "absolute",
-    right: space.screenX,
-    zIndex: 100,
-    elevation: 100,
-    alignItems: "flex-end",
-    gap: space.meta,
-  },
-  actions: { alignItems: "flex-end", gap: 8 },
-  action: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 8,
-    height: 40,
-    paddingHorizontal: 14,
-    borderRadius: 999,
-    borderWidth: StyleSheet.hairlineWidth,
-    // The pills sit over the list, so they need to lift off it.
-    shadowColor: "rgba(20, 24, 33, 0.16)",
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 1,
-    shadowRadius: 10,
-    elevation: 6,
-  },
-  actionLabel: {
-    ...type.muted,
-    fontFamily: type.cardTitle.fontFamily,
-    fontSize: 13,
-  },
-  fab: {
-    width: 56,
-    height: 56,
-    borderRadius: 999,
-    alignItems: "center",
-    justifyContent: "center",
-    shadowColor: "rgba(20, 24, 33, 0.28)",
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 1,
-    shadowRadius: 14,
-    elevation: 10,
-  },
-  codeInput: {
-    minHeight: 120,
-    padding: 12,
-    borderRadius: radius.card,
-    borderWidth: 1,
-    ...type.muted,
-    fontFamily: fonts.regular,
-  },
-  urlInput: {
-    height: 46,
-    paddingHorizontal: 14,
-    borderRadius: 999,
-    borderWidth: 1,
-    ...type.muted,
-    fontFamily: fonts.regular,
-    paddingVertical: 0,
-  },
-  confirm: type.muted,
-  sheetRow: { flexDirection: "row", gap: 8 },
-  sheetButton: {
-    flex: 1,
-    height: 44,
-    alignItems: "center",
-    justifyContent: "center",
-    paddingHorizontal: 12,
-    borderRadius: 999,
-  },
-  sheetButtonLabel: {
-    ...type.cardTitle,
-    fontSize: 14,
-    lineHeight: 18,
-    minHeight: 0,
-  },
-  pressed: { opacity: 0.82 },
-});
+const makeStyles = (m: Metrics) =>
+  StyleSheet.create({
+    /** Bottom right, over the list. `box-none` so the list keeps the rest of the corner. */
+    dock: {
+      position: "absolute",
+      right: m.space.screenX,
+      zIndex: 100,
+      elevation: 100,
+      alignItems: "flex-end",
+      gap: m.space.meta,
+    },
+    actions: { alignItems: "flex-end", gap: m.font(8) },
+    action: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: m.font(8),
+      height: m.font(40),
+      paddingHorizontal: m.font(14),
+      borderRadius: 999,
+      borderWidth: StyleSheet.hairlineWidth,
+      // The pills sit over the list, so they need to lift off it.
+      shadowColor: "rgba(20, 24, 33, 0.16)",
+      shadowOffset: { width: 0, height: 6 },
+      shadowOpacity: 1,
+      shadowRadius: 10,
+      elevation: 6,
+    },
+    actionLabel: {
+      ...m.type.muted,
+      fontFamily: m.type.cardTitle.fontFamily,
+      fontSize: m.font(13),
+    },
+    fab: {
+      width: m.font(56),
+      height: m.font(56),
+      borderRadius: 999,
+      alignItems: "center",
+      justifyContent: "center",
+      shadowColor: "rgba(20, 24, 33, 0.28)",
+      shadowOffset: { width: 0, height: 8 },
+      shadowOpacity: 1,
+      shadowRadius: 14,
+      elevation: 10,
+    },
+    codeInput: {
+      minHeight: m.font(120),
+      padding: m.font(12),
+      borderRadius: m.radius.card,
+      borderWidth: 1,
+      ...m.type.muted,
+      fontFamily: m.fonts.regular,
+    },
+    urlInput: {
+      height: m.font(46),
+      paddingHorizontal: m.font(14),
+      borderRadius: 999,
+      borderWidth: 1,
+      ...m.type.muted,
+      fontFamily: m.fonts.regular,
+      paddingVertical: 0,
+    },
+    confirm: m.type.muted,
+    sheetRow: { flexDirection: "row", gap: m.font(8) },
+    sheetButton: {
+      flex: 1,
+      height: m.font(44),
+      alignItems: "center",
+      justifyContent: "center",
+      paddingHorizontal: m.font(12),
+      borderRadius: 999,
+    },
+    sheetButtonLabel: {
+      ...m.type.cardTitle,
+      fontSize: m.font(14),
+      lineHeight: m.font(18),
+      minHeight: 0,
+    },
+    pressed: { opacity: 0.82 },
+  });

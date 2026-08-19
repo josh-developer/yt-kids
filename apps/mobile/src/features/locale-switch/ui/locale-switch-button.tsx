@@ -10,7 +10,11 @@ import {
   useLocale,
   useTranslations,
 } from "../../../shared/lib/i18n/use-translations";
-import { fonts } from "../../../shared/config/theme";
+import {
+  useMetrics,
+  useStyles,
+  type Metrics,
+} from "../../../shared/config/metrics";
 
 /**
  * Switches between the two locales, showing the one it will switch *to*.
@@ -28,6 +32,8 @@ export function LocaleSwitchButton() {
   const { colors } = useTheme();
   const { nextLocale, switchLocale } = useLocale();
   const t = useTranslations("LocaleSwitcher");
+  const m = useMetrics();
+  const styles = useStyles(makeStyles);
   const pressed = useSharedValue(0);
 
   const animated = useAnimatedStyle(() => ({
@@ -48,7 +54,7 @@ export function LocaleSwitchButton() {
         accessibilityRole="button"
         accessibilityLabel={t("label")}
       >
-        <Languages size={18} color={colors.buttonInk} />
+        <Languages size={m.font(18)} color={colors.buttonInk} />
         <Text style={[styles.code, { color: colors.buttonInk }]}>
           {t("short", { locale: nextLocale })}
         </Text>
@@ -57,22 +63,23 @@ export function LocaleSwitchButton() {
   );
 }
 
-const styles = StyleSheet.create({
-  button: {
-    minWidth: 58,
-    height: 42,
-    paddingHorizontal: 10,
-    borderRadius: 8,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    gap: 4,
-    shadowColor: "rgba(50, 55, 66, 0.08)",
-    shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 1,
-    shadowRadius: 0,
-    elevation: 2,
-  },
-  // `.languageButton` inherits the 700 weight from the button primitives.
-  code: { fontFamily: fonts.bold, fontSize: 14 },
-});
+const makeStyles = (m: Metrics) =>
+  StyleSheet.create({
+    button: {
+      minWidth: m.font(58),
+      height: m.size.tapTarget,
+      paddingHorizontal: m.space.meta,
+      borderRadius: m.radius.card,
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "center",
+      gap: m.font(4),
+      shadowColor: "rgba(50, 55, 66, 0.08)",
+      shadowOffset: { width: 0, height: 3 },
+      shadowOpacity: 1,
+      shadowRadius: 0,
+      elevation: 2,
+    },
+    // `.languageButton` inherits the 700 weight from the button primitives.
+    code: { fontFamily: m.fonts.bold, fontSize: m.font(14) },
+  });

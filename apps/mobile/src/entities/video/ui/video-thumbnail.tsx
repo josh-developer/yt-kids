@@ -3,12 +3,8 @@ import { Image } from "expo-image";
 import { StyleSheet, Text, View } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { thumbnailUrl } from "../../../shared/api/thumbnails";
-import {
-  radius,
-  space,
-  THUMBNAIL_PLACEHOLDER_GRADIENT,
-  type,
-} from "../../../shared/config/theme";
+import { useStyles, type Metrics } from "../../../shared/config/metrics";
+import { THUMBNAIL_PLACEHOLDER_GRADIENT } from "../../../shared/config/theme";
 
 /**
  * The 16:9 thumbnail, its duration pill, and the gradient the web shows behind a
@@ -27,6 +23,8 @@ export function VideoThumbnail({
   /** The first screen's images are worth fetching eagerly; the rest can wait. */
   priority?: boolean;
 }) {
+  const styles = useStyles(makeStyles);
+
   return (
     <View style={styles.frame}>
       <LinearGradient
@@ -56,24 +54,25 @@ export function VideoThumbnail({
   );
 }
 
-const styles = StyleSheet.create({
-  frame: {
-    width: "100%",
-    aspectRatio: 16 / 9,
-    borderRadius: radius.thumbnail,
-    overflow: "hidden",
-    // `.thumbnail`'s `#dddddd` under the gradient.
-    backgroundColor: "#dddddd",
-  },
-  image: { width: "100%", height: "100%" },
-  durationPill: {
-    position: "absolute",
-    right: space.card,
-    bottom: space.card,
-    paddingHorizontal: 6,
-    paddingVertical: 3,
-    borderRadius: radius.duration,
-    backgroundColor: "rgba(0, 0, 0, 0.82)",
-  },
-  durationText: { ...type.duration, color: "#ffffff" },
-});
+const makeStyles = (m: Metrics) =>
+  StyleSheet.create({
+    frame: {
+      width: "100%",
+      aspectRatio: 16 / 9,
+      borderRadius: m.radius.thumbnail,
+      overflow: "hidden",
+      // `.thumbnail`'s `#dddddd` under the gradient.
+      backgroundColor: "#dddddd",
+    },
+    image: { width: "100%", height: "100%" },
+    durationPill: {
+      position: "absolute",
+      right: m.space.card,
+      bottom: m.space.card,
+      paddingHorizontal: m.font(6),
+      paddingVertical: m.font(3),
+      borderRadius: m.radius.duration,
+      backgroundColor: "rgba(0, 0, 0, 0.82)",
+    },
+    durationText: { ...m.type.duration, color: "#ffffff" },
+  });

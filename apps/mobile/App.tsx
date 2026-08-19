@@ -14,6 +14,7 @@ import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { Navigation } from "./src/app/navigation";
 import { useLibrary } from "./src/entities/library";
+import { DeviceProvider } from "./src/shared/lib/device/use-device";
 import {
   LocaleProvider,
   useLocale,
@@ -35,11 +36,15 @@ export default function App() {
     // native side.
     <GestureHandlerRootView style={{ flex: 1 }}>
       <SafeAreaProvider>
-        <ThemeProvider>
-          <LocaleProvider>
-            <Shell />
-          </LocaleProvider>
-        </ThemeProvider>
+        {/* Above the theme, because the palette does not depend on the device but every
+            metric below does — and both have to be settled before the first paint. */}
+        <DeviceProvider>
+          <ThemeProvider>
+            <LocaleProvider>
+              <Shell />
+            </LocaleProvider>
+          </ThemeProvider>
+        </DeviceProvider>
       </SafeAreaProvider>
     </GestureHandlerRootView>
   );

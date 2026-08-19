@@ -10,7 +10,7 @@ import { ChannelAvatar } from "./channel-avatar";
 import { VideoThumbnail } from "./video-thumbnail";
 import { useTheme } from "../../../shared/lib/theme/use-theme";
 import { useVideoLabels } from "../../../shared/lib/format/use-video-labels";
-import { radius, size, space, type } from "../../../shared/config/theme";
+import { useStyles, type Metrics } from "../../../shared/config/metrics";
 
 /**
  * One card: thumbnail, then the avatar and the title/channel/views triple.
@@ -34,6 +34,7 @@ export const VideoCard = memo(function VideoCard({
 }) {
   const { colors } = useTheme();
   const labels = useVideoLabels();
+  const styles = useStyles(makeStyles);
   const pressed = useSharedValue(0);
 
   const animated = useAnimatedStyle(() => ({
@@ -89,34 +90,26 @@ export const VideoCard = memo(function VideoCard({
   );
 });
 
-const styles = StyleSheet.create({
-  card: {
-    padding: space.card,
-    borderRadius: radius.card,
-    // `0 12px 26px rgba(49, 71, 93, 0.09)` translated: iOS takes the offset and
-    // radius directly, Android only understands `elevation`.
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 1,
-    shadowRadius: 13,
-    elevation: 3,
-  },
-  meta: {
-    flexDirection: "row",
-    gap: space.meta,
-    paddingTop: space.meta,
-  },
-  summary: { flex: 1, minWidth: 0 },
-  // `min-height: 40px` on the web reserves two lines so cards line up whether a
-  // title wraps or not.
-  title: { ...type.cardTitle, minHeight: 40 },
-  muted: type.muted,
-});
-
-/** Kept beside the card so the list can size rows without measuring them. */
-export const CARD_METRICS = {
-  /** padding + 16:9 thumbnail + meta gap + avatar-height row + padding. */
-  estimatedHeight(cardWidth: number) {
-    const thumbnail = ((cardWidth - space.card * 2) * 9) / 16;
-    return space.card * 2 + thumbnail + space.meta + Math.max(size.avatar, 78);
-  },
-};
+const makeStyles = (m: Metrics) =>
+  StyleSheet.create({
+    card: {
+      padding: m.space.card,
+      borderRadius: m.radius.card,
+      // `0 12px 26px rgba(49, 71, 93, 0.09)` translated: iOS takes the offset and
+      // radius directly, Android only understands `elevation`.
+      shadowOffset: { width: 0, height: 6 },
+      shadowOpacity: 1,
+      shadowRadius: 13,
+      elevation: 3,
+    },
+    meta: {
+      flexDirection: "row",
+      gap: m.space.meta,
+      paddingTop: m.space.meta,
+    },
+    summary: { flex: 1, minWidth: 0 },
+    // `min-height: 40px` on the web reserves two lines so cards line up whether a
+    // title wraps or not.
+    title: { ...m.type.cardTitle, minHeight: m.type.cardTitle.lineHeight * 2 },
+    muted: m.type.muted,
+  });
