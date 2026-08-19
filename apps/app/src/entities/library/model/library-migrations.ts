@@ -1,87 +1,86 @@
 import { LIBRARY_VERSION } from "@/shared/config/app-config";
 import { unique } from "@/shared/lib/collections";
-import type { StoredLibrary } from "./types";
+import type { Video } from "@/entities/video";
+import type { CustomLibraryVideo, StoredLibrary } from "./types";
 import type { VideoCatalog } from "./video-catalog";
 
-/** First catalog number shipped with library version 7. */
-const VERSION_7_FIRST_CATALOG_NUMBER = 290;
-/** First catalog number shipped with library version 8. */
-const VERSION_8_FIRST_CATALOG_NUMBER = 371;
-/** First catalog number shipped with library version 9. */
-const VERSION_9_FIRST_CATALOG_NUMBER = 422;
+/** Loosely-typed shape of a payload written by the retired `kidtube-library-v1` key. */
+type LegacyStoredLibraryV1 = {
+  version?: number;
+  selectedIds?: unknown;
+  customVideos?: unknown;
+  removedIds?: unknown;
+};
 
 /**
- * Brings a stored payload of any past version up to the current one and drops
- * references to videos that no longer exist.
+ * Brings a stored payload up to the current shape and drops references to
+ * videos that no longer exist. Catalog videos need no reconciliation when a
+ * new batch ships — they are approved by default unless a parent hid them.
  */
 export function normalizeStoredLibrary(
   catalog: VideoCatalog,
   library: StoredLibrary,
 ): StoredLibrary {
-  const customVideos = Array.isArray(library.customVideos)
-    ? library.customVideos
-    : [];
-  const customIds = new Set(customVideos.map((video) => video.id));
-  const validIds = new Set([...catalog.ids, ...customIds]);
+  const customVideos = sanitizeCustomVideos(library.customVideos);
   const removedIds = Array.isArray(library.removedIds)
-    ? library.removedIds.filter((id) => validIds.has(id))
+    ? unique(library.removedIds.filter((id) => catalog.has(id)))
     : [];
   const removed = new Set(removedIds);
-  const storedSelectedIds = Array.isArray(library.selectedIds)
-    ? library.selectedIds.filter((id) => validIds.has(id) && !removed.has(id))
-    : catalog.ids;
+  const hiddenIds = Array.isArray(library.hiddenIds)
+    ? unique(
+        library.hiddenIds.filter((id) => catalog.has(id) && !removed.has(id)),
+      )
+    : [];
 
-  const selectedIds =
-    library.version === LIBRARY_VERSION
-      ? storedSelectedIds
-      : migrateSelection(catalog, library.version, storedSelectedIds, customIds);
+  return { version: LIBRARY_VERSION, customVideos, removedIds, hiddenIds };
+}
 
-  return {
+function sanitizeCustomVideos(value: unknown): CustomLibraryVideo[] {
+  if (!Array.isArray(value)) {
+    return [];
+  }
+
+  return (value as CustomLibraryVideo[]).map((video) => ({
+    ...video,
+    status: video.status === "hidden" ? "hidden" : "visible",
+  }));
+}
+
+/**
+ * One-time upgrade from the retired `kidtube-library-v1` payload. Its
+ * `selectedIds` snapshot becomes the inverse: every catalog id it left out
+ * turns into an explicit `hiddenIds` entry, and each custom video gets its
+ * own `status` instead of relying on shared list membership.
+ */
+export function migrateFromV1(
+  catalog: VideoCatalog,
+  legacy: LegacyStoredLibraryV1,
+): StoredLibrary {
+  const selected = new Set(
+    Array.isArray(legacy.selectedIds) ? legacy.selectedIds : catalog.ids,
+  );
+  const removedIds = Array.isArray(legacy.removedIds)
+    ? legacy.removedIds
+    : [];
+  const removed = new Set(removedIds);
+  const legacyCustomVideos = (
+    Array.isArray(legacy.customVideos) ? legacy.customVideos : []
+  ) as Video[];
+
+  const hiddenIds = catalog.ids.filter(
+    (id) => !removed.has(id) && !selected.has(id),
+  );
+  const customVideos: CustomLibraryVideo[] = legacyCustomVideos.map(
+    (video) => ({
+      ...video,
+      status: selected.has(video.id) ? "visible" : "hidden",
+    }),
+  );
+
+  return normalizeStoredLibrary(catalog, {
     version: LIBRARY_VERSION,
     customVideos,
     removedIds,
-    selectedIds: selectedIds.filter((id) => !removed.has(id)),
-  };
-}
-
-function migrateSelection(
-  catalog: VideoCatalog,
-  version: number,
-  storedSelectedIds: string[],
-  customIds: Set<string>,
-) {
-  // v8 predates the Buyuk Bobolarim catalog batch: keep choices and add it.
-  if (version === 8) {
-    return unique([
-      ...storedSelectedIds,
-      ...catalog.idsAddedFrom(VERSION_9_FIRST_CATALOG_NUMBER),
-    ]);
-  }
-
-  // v7 predates the Fiksiklar catalog batch: keep choices and add it.
-  if (version === 7) {
-    return unique([
-      ...storedSelectedIds,
-      ...catalog.idsAddedFrom(VERSION_8_FIRST_CATALOG_NUMBER),
-    ]);
-  }
-
-  // v6 predates the newest catalog batch: keep the parent's choices and add it.
-  if (version === 6) {
-    return unique([
-      ...storedSelectedIds,
-      ...catalog.idsAddedFrom(VERSION_7_FIRST_CATALOG_NUMBER),
-    ]);
-  }
-
-  // v2-v5 stored a subset of the catalog: re-approve the full catalog on top.
-  if (version >= 2 && version <= 5) {
-    return unique([...catalog.ids, ...storedSelectedIds]);
-  }
-
-  // Anything older only keeps its parent-added videos.
-  return [
-    ...catalog.ids,
-    ...storedSelectedIds.filter((id) => customIds.has(id)),
-  ];
+    hiddenIds,
+  });
 }

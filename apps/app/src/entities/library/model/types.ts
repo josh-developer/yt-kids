@@ -12,10 +12,19 @@ export type RecommendationGroup = {
   videos: Video[];
 };
 
-/** Serialized shape of the library in storage and in transfer codes. */
+/** A parent-added video, carrying its own approval state. */
+export type CustomLibraryVideo = Video & { status: "visible" | "hidden" };
+
+/**
+ * Serialized shape of the library in storage and in transfer codes. Catalog
+ * (default) videos are approved unless their id is in `hiddenIds`; a parent
+ * removing one instead tombstones it in `removedIds` so a reset can restore
+ * it. Custom videos carry their own `status` and disappear outright on
+ * removal, since there is nothing to restore them from.
+ */
 export type StoredLibrary = {
   version: number;
-  selectedIds: string[];
-  customVideos: Video[];
+  customVideos: CustomLibraryVideo[];
   removedIds: string[];
+  hiddenIds: string[];
 };
