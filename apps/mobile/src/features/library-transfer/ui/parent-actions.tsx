@@ -30,6 +30,7 @@ import { BottomSheet } from "../../../shared/ui/bottom-sheet";
 import { Toast, useToast } from "../../../shared/ui/toast";
 import { useTheme } from "../../../shared/lib/theme/use-theme";
 import { useTranslations } from "../../../shared/lib/i18n/use-translations";
+import { focusRing, useFocusable } from "../../../shared/ui/use-focusable";
 import {
   useMetrics,
   useStyles,
@@ -297,14 +298,21 @@ function Action({
   onPress: () => void | Promise<void>;
 }) {
   const { colors } = useTheme();
+  const { size } = useMetrics();
   const styles = useStyles(makeStyles);
+  const { handlers, isFocused } = useFocusable();
 
   return (
     <Pressable
       onPress={() => void onPress()}
+      {...handlers}
       style={({ pressed }) => [
         styles.action,
-        { backgroundColor: colors.surface, borderColor: colors.line },
+        {
+          backgroundColor: colors.surface,
+          borderColor: isFocused ? colors.buttonInk : colors.line,
+          borderWidth: isFocused ? size.focusRing : StyleSheet.hairlineWidth,
+        },
         pressed && styles.pressed,
       ]}
       accessibilityRole="button"
@@ -332,7 +340,9 @@ function SheetButton({
   onPress: () => void;
 }) {
   const { colors } = useTheme();
+  const { size } = useMetrics();
   const styles = useStyles(makeStyles);
+  const { handlers, isFocused } = useFocusable();
   const background = isDestructive
     ? colors.brandRed
     : isPrimary
@@ -342,9 +352,11 @@ function SheetButton({
   return (
     <Pressable
       onPress={onPress}
+      {...handlers}
       style={({ pressed }) => [
         styles.sheetButton,
         { backgroundColor: background },
+        focusRing(size.focusRing, colors.text, isFocused),
         pressed && styles.pressed,
       ]}
       accessibilityRole="button"

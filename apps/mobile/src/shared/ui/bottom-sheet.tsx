@@ -17,7 +17,9 @@ import Animated, {
 } from "react-native-reanimated";
 import { scheduleOnRN } from "react-native-worklets";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { FocusZone } from "./focus-zone";
 import { useTheme } from "../lib/theme/use-theme";
+import { useDevice } from "../lib/device/use-device";
 import { useTranslations } from "../lib/i18n/use-translations";
 import { useMetrics, useStyles, type Metrics } from "../config/metrics";
 
@@ -52,6 +54,7 @@ export function BottomSheet({
   onClose: () => void;
 }) {
   const { colors } = useTheme();
+  const { isTV } = useDevice();
   const insets = useSafeAreaInsets();
   const t = useTranslations("Settings");
   const m = useMetrics();
@@ -126,7 +129,11 @@ export function BottomSheet({
   }));
 
   return (
-    <View style={styles.host}>
+    // Centred on a television, because there is no bottom edge a remote can reach up from
+    // and a panel pinned to the floor of a 1080p screen is a panel in the corner of the
+    // room. Focus is trapped on all four sides: a dialog nobody can leave by accident is
+    // the only kind that makes sense when leaving would mean pressing an arrow key.
+    <View style={[styles.host, isTV && styles.hostCentred]}>
       <Animated.View style={[styles.backdrop, backdropStyle]}>
         <Pressable
           style={StyleSheet.absoluteFill}
@@ -140,20 +147,29 @@ export function BottomSheet({
         <Animated.View
           style={[
             styles.sheet,
+            isTV && styles.sheetCentred,
             sheetStyle,
             {
               backgroundColor: colors.surface,
-              paddingBottom: insets.bottom + m.space.gridGap,
+              paddingBottom: isTV
+                ? m.space.gridGap
+                : insets.bottom + m.space.gridGap,
             },
           ]}
         >
-          <View style={styles.grabberRow}>
-            <View style={[styles.grabber, { backgroundColor: colors.line }]} />
-          </View>
+          {/* A grabber names a gesture. There is no gesture on a television, so drawing
+              one is a lie about how to get back out. */}
+          {isTV ? null : (
+            <View style={styles.grabberRow}>
+              <View style={[styles.grabber, { backgroundColor: colors.line }]} />
+            </View>
+          )}
 
           <Text style={[styles.title, { color: colors.text }]}>{title}</Text>
 
-          <View style={styles.body}>{children}</View>
+          <FocusZone style={styles.body} trapLeft trapRight trapUp trapDown>
+            {children}
+          </FocusZone>
         </Animated.View>
       </GestureDetector>
     </View>
@@ -172,6 +188,7 @@ const makeStyles = (m: Metrics) =>
       elevation: 8000,
       justifyContent: "flex-end",
     },
+    hostCentred: { justifyContent: "center", padding: m.space.gridGap },
     backdrop: {
       position: "absolute",
       top: 0,
@@ -198,6 +215,11 @@ const makeStyles = (m: Metrics) =>
       shadowOffset: { width: 0, height: -12 },
       shadowOpacity: 1,
       shadowRadius: 17,
+    },
+    /** Rounded on every corner, once it is no longer sitting on an edge. */
+    sheetCentred: {
+      borderRadius: m.radius.sheet,
+      paddingTop: m.space.gridGap,
     },
     grabberRow: {
       alignItems: "center",

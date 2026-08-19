@@ -1,10 +1,7 @@
 import type { ReactNode } from "react";
 import { Pressable, StyleSheet } from "react-native";
-import Animated, {
-  useAnimatedStyle,
-  useSharedValue,
-  withSpring,
-} from "react-native-reanimated";
+import Animated from "react-native-reanimated";
+import { focusRing, useFocusable } from "./use-focusable";
 import { useTheme } from "../lib/theme/use-theme";
 import { useMetrics, useStyles, type Metrics } from "../config/metrics";
 
@@ -15,7 +12,8 @@ import { useMetrics, useStyles, type Metrics } from "../config/metrics";
  * `.iconButton` on the web, tokens and all: `--button-soft` on `--button-ink`, a 999px
  * radius, and the small `0 3px 0` shadow that makes it look pressable. Its `:hover` lift
  * becomes a press response here, because a phone has no hover but a touch still deserves
- * an acknowledgement.
+ * an acknowledgement — and the same lift, larger and with a ring, is what a D-pad landing
+ * on it looks like.
  *
  * `label` is the accessibility label. The web pairs `aria-label` with an identical
  * `data-tooltip` in one place so the two cannot drift; there is no tooltip on a
@@ -25,36 +23,33 @@ export function IconButton({
   label,
   children,
   isActive = false,
+  hasTVPreferredFocus = false,
   onPress,
 }: {
   label: string;
   children: ReactNode;
   isActive?: boolean;
+  /** Where the D-pad should land when the screen this button is on first appears. */
+  hasTVPreferredFocus?: boolean;
   onPress: () => void;
 }) {
   const { colors } = useTheme();
+  const { size } = useMetrics();
   const styles = useStyles(makeStyles);
-  const pressed = useSharedValue(0);
-
-  const animated = useAnimatedStyle(() => ({
-    transform: [{ scale: 1 - pressed.value * 0.06 }],
-  }));
+  const { handlers, style, isFocused } = useFocusable();
 
   return (
-    <Animated.View style={animated}>
+    <Animated.View style={style}>
       <Pressable
         onPress={onPress}
-        onPressIn={() => {
-          pressed.value = withSpring(1, { damping: 18, stiffness: 420 });
-        }}
-        onPressOut={() => {
-          pressed.value = withSpring(0, { damping: 18, stiffness: 320 });
-        }}
+        {...handlers}
+        hasTVPreferredFocus={hasTVPreferredFocus}
         style={[
           styles.button,
           {
             backgroundColor: isActive ? colors.buttonActive : colors.buttonSoft,
           },
+          focusRing(size.focusRing, colors.buttonInk, isFocused),
         ]}
         accessibilityRole="button"
         accessibilityLabel={label}

@@ -23,7 +23,9 @@
     "clearSearch": "Clear search",
     "useDarkMode": "Use dark mode",
     "useLightMode": "Use light mode",
-    "parentSettings": "Parent settings"
+    "parentSettings": "Parent settings",
+    "back": "Back",
+    "noResults": "Nothing found for “{query}”"
   },
   "Format": {
     "decimalSeparator": ".",

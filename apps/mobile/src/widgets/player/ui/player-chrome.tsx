@@ -11,6 +11,8 @@ import {
 import type { ReactNode } from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 import { PlayerProgress } from "./player-progress";
+import { focusRing, useFocusable } from "../../../shared/ui/use-focusable";
+import { useDevice } from "../../../shared/lib/device/use-device";
 import { useTranslations } from "../../../shared/lib/i18n/use-translations";
 import { useSystemVolume } from "../../../shared/lib/audio/use-system-volume";
 import type { Player } from "../model/use-player";
@@ -52,6 +54,7 @@ export function PlayerChrome({
 }) {
   const t = useTranslations("Player");
   const volume = useSystemVolume();
+  const { isTV } = useDevice();
   const m = useMetrics();
   const styles = useStyles(makeStyles);
 
@@ -83,6 +86,7 @@ export function PlayerChrome({
         <ControlButton
           label={player.isPlaying ? t("pause") : t("play")}
           isPrimary
+          hasTVPreferredFocus
           onPress={player.togglePlayback}
         >
           {player.isPlaying ? (
@@ -92,36 +96,51 @@ export function PlayerChrome({
           )}
         </ControlButton>
 
-        <ControlButton
-          label={player.isMuted ? t("unmute") : t("mute")}
-          onPress={player.toggleMute}
-        >
-          {isSilent ? (
-            <VolumeX size={m.font(16)} color="#ffffff" />
-          ) : volumePercent < 50 ? (
-            <Volume1 size={m.font(16)} color="#ffffff" />
-          ) : (
-            <Volume2 size={m.font(16)} color="#ffffff" />
-          )}
-        </ControlButton>
+        {/* Volume is the television's, not the app's. A set has its own scale, its own
+            remote keys and usually an amplifier past that, and a second scale inside the
+            app is a second thing to be at the wrong level. Four controls of the strip go
+            with it, which is also what leaves the remaining ones a comfortable D-pad
+            distance apart. */}
+        {isTV ? null : (
+          <>
+            <ControlButton
+              label={player.isMuted ? t("unmute") : t("mute")}
+              onPress={player.toggleMute}
+            >
+              {isSilent ? (
+                <VolumeX size={m.font(16)} color="#ffffff" />
+              ) : volumePercent < 50 ? (
+                <Volume1 size={m.font(16)} color="#ffffff" />
+              ) : (
+                <Volume2 size={m.font(16)} color="#ffffff" />
+              )}
+            </ControlButton>
 
-        <ControlButton label={t("volumeDown")} onPress={() => volume.nudge(-1)}>
-          <Text style={styles.stepText}>−</Text>
-        </ControlButton>
+            <ControlButton
+              label={t("volumeDown")}
+              onPress={() => volume.nudge(-1)}
+            >
+              <Text style={styles.stepText}>−</Text>
+            </ControlButton>
 
-        {/* `.volumeMeter`: a meter, not a slider — the steps either side move it. */}
-        <View
-          style={styles.meter}
-          accessibilityRole="progressbar"
-          accessibilityLabel={t("volume", { value: volumePercent })}
-          accessibilityValue={{ min: 0, max: 100, now: volumePercent }}
-        >
-          <View style={[styles.meterFill, { width: `${volumePercent}%` }]} />
-        </View>
+            {/* `.volumeMeter`: a meter, not a slider — the steps either side move it. */}
+            <View
+              style={styles.meter}
+              accessibilityRole="progressbar"
+              accessibilityLabel={t("volume", { value: volumePercent })}
+              accessibilityValue={{ min: 0, max: 100, now: volumePercent }}
+            >
+              <View style={[styles.meterFill, { width: `${volumePercent}%` }]} />
+            </View>
 
-        <ControlButton label={t("volumeUp")} onPress={() => volume.nudge(1)}>
-          <Text style={styles.stepText}>+</Text>
-        </ControlButton>
+            <ControlButton
+              label={t("volumeUp")}
+              onPress={() => volume.nudge(1)}
+            >
+              <Text style={styles.stepText}>+</Text>
+            </ControlButton>
+          </>
+        )}
 
         {/* `.repeatButton { margin-left: auto }` — these two sit at the end. */}
         <View style={styles.spacer} />
@@ -137,17 +156,21 @@ export function PlayerChrome({
           <Repeat1 size={m.font(18)} color="#ffffff" />
         </ControlButton>
 
-        <ControlButton
-          label={isFullscreen ? t("exitFullScreen") : t("fullScreen")}
-          isFullscreenButton
-          onPress={onToggleFullscreen}
-        >
-          {isFullscreen ? (
-            <Minimize2 size={m.font(16)} color="#ffffff" />
-          ) : (
-            <Maximize2 size={m.font(16)} color="#ffffff" />
-          )}
-        </ControlButton>
+        {/* A television is already the full screen; a button that promises to make it
+            one has nothing to do. */}
+        {isTV ? null : (
+          <ControlButton
+            label={isFullscreen ? t("exitFullScreen") : t("fullScreen")}
+            isFullscreenButton
+            onPress={onToggleFullscreen}
+          >
+            {isFullscreen ? (
+              <Minimize2 size={m.font(16)} color="#ffffff" />
+            ) : (
+              <Maximize2 size={m.font(16)} color="#ffffff" />
+            )}
+          </ControlButton>
+        )}
       </View>
     </>
   );
@@ -160,6 +183,7 @@ function ControlButton({
   isActive = false,
   isLarge = false,
   isFullscreenButton = false,
+  hasTVPreferredFocus = false,
   onPress,
 }: {
   label: string;
@@ -168,19 +192,28 @@ function ControlButton({
   isActive?: boolean;
   isLarge?: boolean;
   isFullscreenButton?: boolean;
+  /** Play claims it, so the controls open with the D-pad on the thing most likely wanted. */
+  hasTVPreferredFocus?: boolean;
   onPress: () => void;
 }) {
+  const { size } = useMetrics();
   const styles = useStyles(makeStyles);
+  const { handlers, isFocused } = useFocusable();
 
   return (
     <Pressable
       onPress={onPress}
+      {...handlers}
+      hasTVPreferredFocus={hasTVPreferredFocus}
       style={({ pressed }) => [
         styles.controlButton,
         isLarge && styles.controlButtonLarge,
         isFullscreenButton && styles.controlButtonFullscreen,
         isPrimary && styles.controlButtonPrimary,
         isActive && styles.controlButtonActive,
+        // White, because the strip is a dark surface over a picture and the palette's
+        // focus colour would disappear into whichever frame is behind it.
+        focusRing(size.focusRing, "#ffffff", isFocused),
         pressed && styles.pressed,
       ]}
       accessibilityRole="button"

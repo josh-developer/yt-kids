@@ -14,6 +14,7 @@ src/
   app/navigation.tsx    the routes
   pages/
     home/               the feed
+    search/             the television's search, which needs a screen of its own
     settings/           the parent screen: approve or hide videos
     watch/              the player, as a sheet over whichever screen is up
   widgets/
@@ -142,6 +143,117 @@ after the first, and in practice one style sheet is ever created per component.
   not improve at 1000pt.
 - **Sheets** cap at 560pt and centre. A sheet spanning a tablet is a form field a metre
   wide with its title stranded in the far corner.
+
+## The television
+
+A phone app assumes a finger. Nothing about that survives a remote: there is no position
+to read a tap's side from, no drag, no hover, and no way to reach a control except by
+moving a highlight to it one press at a time. What follows is what changed.
+
+`useDevice().input` is `focus` rather than `pointer` there, but almost nothing branches on
+it directly — the differences turned out to be concrete enough to name individually.
+
+### Focus is an acknowledgement, like a press
+
+`shared/ui/use-focusable.ts` is one hook for both, because they are the same statement —
+"this is the control you are about to act on" — arriving through different hardware. A
+press sinks the control; focus lifts it further and adds a ring. Every control in the app
+uses it, so a card, a header button, a recommendation row and a transport button all
+answer a D-pad the same way.
+
+The press is a Reanimated shared value and the focus is React state. A press animates
+while a finger moves, so it belongs on the UI thread; focus moves once per D-pad click, so
+a re-render is cheap and it buys the ring a plain conditional style instead of an animated
+`borderColor`. The ring is a border rather than a shadow, and it is transparent rather than
+absent when unfocused — a shadow is clipped by the `overflow: hidden` on everything that
+rounds its corners, and a border that appears from nothing moves the control by its own
+width at the moment the viewer is looking at it.
+
+`onFocus` and `onBlur` are not television-only. A hardware keyboard moves focus on a phone
+too, and a control that never acknowledges it is one nobody can use that way; the ring is
+just thinner there.
+
+### Getting focus to the right place
+
+Android's focus search is geometric — pressing down looks for a focusable view *below* the
+current one — and this app breaks that assumption twice. The header floats *over* the list
+rather than above it in the layout, so there is nothing above the top row of cards to find;
+and the list is virtualised, so the view that should receive focus is frequently not
+mounted.
+
+`shared/ui/focus-zone.tsx` wraps `TVFocusGuideView`, which is the platform's answer: focus
+landing anywhere on the guide is redirected to something focusable inside it. It renders a
+plain `View` off television, so nothing pays for it on a phone. The grid, the header
+actions, the search header and a sheet's body are each a zone; a sheet's traps all four
+edges, because a dialog nobody can leave by accident is the only kind that makes sense when
+leaving would mean pressing an arrow key.
+
+The first card also asks for focus on mount, so a screen opens with the D-pad somewhere
+useful rather than nowhere.
+
+**This is the part most likely to need revisiting on real hardware.** A recycling list and
+a focus engine do not naturally get on: a row that scrolls out is rebound to different data
+underneath the focus that was on it. If the guide and the preferred focus are not enough,
+the honest fallback is `FlatList` on TV with `removeClippedSubviews` off — the recycling
+argument in *Lists* below was made against a mid-range phone, and a television has memory
+to spare and no flick to keep up with.
+
+### Search is a screen
+
+`pages/search`. A text field on a TV means the system's on-screen keyboard, and on Android
+TV that keyboard covers most of the picture — so filtering the home grid live underneath it
+is filtering something the viewer cannot see. The header's field becomes a button there,
+and the button opens a screen where the results can be where the keyboard has just left.
+It is the one place in the app that takes focus on arrival, because arriving *is* the
+request to type.
+
+Its query is its own, not the home screen's. Home's field narrows the feed you are looking
+at and should still be narrowed when you come back from a video; this is a search you went
+somewhere to do, and it should be empty the next time you go.
+
+### The remote
+
+`widgets/player/model/use-tv-remote.ts` is what `use-player-taps.ts` is for a finger, and
+none of that translated. A remote has named keys, so the mapping is a table rather than a
+timing puzzle: left and right scrub by the same 15 seconds the double tap used, the middle
+button plays and pauses, a long press scrubs three times as far, and up and down show and
+hide the controls.
+
+`eventKeyAction` is the detail worth care. Android sends every press twice — `0` going
+down, `1` coming back up — while tvOS sends `-1` and means once. Only the key-up is
+dropped, so a held arrow repeats at the system's own rate, which is what makes scrubbing
+feel like scrubbing rather than a series of jumps.
+
+### What a television does not get
+
+- **Full screen.** It already is one. The watch route renders as the picture and nothing
+  else — no sheet, no second column — and the button that would toggle it is gone.
+- **The lock.** It exists to stop a pocket or a palm reaching the picture. A remote across
+  the room can do neither, so a lock there would be a control whose only effect is to make
+  the other controls stop answering.
+- **Volume.** A set has its own scale, its own remote keys and usually an amplifier past
+  that; a second scale inside the app is a second thing to be at the wrong level. The mute
+  button, both steppers and the meter go with it, which is also what leaves the remaining
+  controls a comfortable D-pad distance apart.
+- **The auto-hiding header.** Hiding on the way down is a trade a scrolling thumb makes
+  willingly. A D-pad cannot make it: the header holds the only route to settings, the theme
+  and the language, and a hidden header is one with nothing left to move focus onto.
+- **The dismiss drag, and the orientation lock.** No finger, and nothing to rotate.
+
+### The WebView will try to take the D-pad
+
+An Android TV WebView is focusable, and once focus is inside it the arrow keys belong to
+the YouTube iframe — its own controls, its own title bar, its own way out of the app —
+rather than to the chrome below. It is exactly what the page's `#shield` div stops for
+touches, arriving through a different door.
+
+`focusable={false}` and `importantForAccessibility="no-hide-descendants"` on the `WebView`
+are the JavaScript half of the fence. A WebView also manages focus internally on the native
+side, which React cannot reach. If the keys still escape on real hardware, the other half is
+a `setDescendantFocusability(FOCUS_BLOCK_DESCENDANTS)` call on its parent from a small local
+module — perhaps forty lines beside `modules/system-volume`. It is deliberately not written
+yet: native code for a problem that may not exist, which nobody here can run on a television
+to find out, is worse than none.
 
 ## The design system is copied, not shared
 

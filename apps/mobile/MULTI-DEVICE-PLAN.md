@@ -331,4 +331,50 @@ the existing binary — no fork, no native change, no new dependency.
 See `ARCHITECTURE.md`, *Phone, tablet, television*, for what the two layers are and
 why they are two.
 
-**Phase 3 onwards — TV: not started.**
+**Phase 3 — TV build target: done.** React Native aliased to
+`react-native-tvos@0.86.2-0` (the same version, forked), `app.config.ts` layering
+the TV configuration on `app.json` behind `EXPO_TV`, generated banner and
+launcher icon, and `preview-tv` / `production-tv` / `production-tv-apk` EAS
+profiles. Both prebuilds verified: the TV manifest gains the leanback launcher,
+the banner and the icon and loses `screenOrientation`; the phone manifest gains
+nothing. `armeabi-v7a` is added on TV for Fire TV.
+
+**Phase 4 — TV focus system: done.** `shared/ui/use-focusable.ts` (one hook for
+press and focus), `shared/ui/focus-zone.tsx` (`TVFocusGuideView`, a plain `View`
+elsewhere), focus states on every control, the header no longer auto-hiding, and
+the dedicated search screen at `pages/search`.
+
+**Phase 5 — TV player: mostly done.**
+`widgets/player/model/use-tv-remote.ts` maps the remote onto the player; the
+chrome is focusable and ordered; full screen, the lock and the volume controls
+are gone on TV; the watch route is the picture alone. The WebView carries the
+JavaScript half of its focus fence.
+
+**Phase 6 — polish and ship: not started.** And two things are deliberately not
+done, both because they need a television nobody here has:
+
+1. **The Kotlin `FOCUS_BLOCK_DESCENDANTS` module.** Only needed if
+   `focusable={false}` turns out not to hold the D-pad out of the WebView.
+   Writing untestable native code for a problem that may not exist is worse than
+   writing none.
+2. **The FlashList focus fallback.** `TVFocusGuideView` plus `hasTVPreferredFocus`
+   may or may not survive a recycling list on real hardware. The fallback is
+   `FlatList` on TV.
+
+## Verifying this locally
+
+`pnpm typecheck`, `pnpm lint` and `EXPO_TV=1 npx expo export --platform android`
+all pass, which covers the JavaScript.
+
+**A local Gradle build does not work on this machine, and not because of
+anything here.** The only JDK installed is 25, and AGP's prefab step treats the
+JNI warning Java 25 writes to stderr as a build failure:
+
+```
+Execution failed for task ':react-native-worklets:configureCMakeDebug[arm64-v8a]'.
+> WARNING: A restricted method in java.lang.System has been called
+```
+
+The phone build fails on the identical task, so this predates the TV work. EAS
+Cloud pins its own JDK and is unaffected. To build locally, install JDK 17 and
+point `JAVA_HOME` at it.

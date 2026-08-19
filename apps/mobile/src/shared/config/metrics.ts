@@ -55,7 +55,7 @@ const MIN_FONT_SIZE: Record<DeviceKind, number> = {
  */
 /** The tokens are `as const` in `theme.ts`, so each field has to be widened to a number. */
 type Space = Record<keyof typeof space, number>;
-type Size = Record<keyof typeof size | "tapTarget", number>;
+type Size = Record<keyof typeof size | "tapTarget" | "focusRing", number>;
 type Radius = Record<keyof typeof radius, number>;
 
 const SPACE: Record<DeviceKind, Space> = {
@@ -64,12 +64,31 @@ const SPACE: Record<DeviceKind, Space> = {
   tv: { card: 12, meta: 16, gridGap: 32, screenX: 48 },
 };
 
+/**
+ * `focusRing` is the outline drawn around whatever the D-pad is currently on.
+ *
+ * It is not zero away from a television. A hardware keyboard moves focus on a phone and a
+ * tablet too, and a control that gives no sign of being focused is a control nobody can
+ * use that way. It is simply thinner there, because it sits closer to the eye.
+ */
 const SIZE: Record<DeviceKind, Size> = {
   // 42 is `.iconButton`'s width on the web, which is what every round control here is.
-  phone: { ...size, tapTarget: 42 },
-  tablet: { avatar: 44, brandMarkWidth: 58, topBarHeight: 72, tapTarget: 48 },
+  phone: { ...size, tapTarget: 42, focusRing: 2 },
+  tablet: {
+    avatar: 44,
+    brandMarkWidth: 58,
+    topBarHeight: 72,
+    tapTarget: 48,
+    focusRing: 3,
+  },
   // A focus target wants to be larger than a touch target, and its ring larger still.
-  tv: { avatar: 56, brandMarkWidth: 76, topBarHeight: 88, tapTarget: 64 },
+  tv: {
+    avatar: 56,
+    brandMarkWidth: 76,
+    topBarHeight: 88,
+    tapTarget: 64,
+    focusRing: 4,
+  },
 };
 
 const RADIUS: Record<DeviceKind, Radius> = {

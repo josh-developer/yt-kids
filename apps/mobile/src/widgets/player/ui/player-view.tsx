@@ -17,9 +17,11 @@ import { UpNextCard } from "./up-next-card";
 import { buildPlayerHtml } from "../model/player-bridge";
 import { usePlayer } from "../model/use-player";
 import { usePlayerTaps } from "../model/use-player-taps";
+import { useTVRemote } from "../model/use-tv-remote";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { SITE_URL } from "../../../config";
 import { thumbnailUrl } from "../../../shared/api/thumbnails";
+import { useDevice } from "../../../shared/lib/device/use-device";
 import { useTranslations } from "../../../shared/lib/i18n/use-translations";
 import {
   useMetrics,
@@ -100,6 +102,7 @@ export const PlayerView = forwardRef<
 ) {
   const t = useTranslations("Player");
   const player = usePlayer({ videoId: video.videoId });
+  const { isTV } = useDevice();
   const window = useWindowDimensions();
   const m = useMetrics();
   const styles = useStyles(makeStyles);
@@ -184,6 +187,17 @@ export const PlayerView = forwardRef<
     [player.startsMuted],
   );
 
+  /**
+   * The remote, where there is one. Off once a video has ended, because the end card owns
+   * the screen then and its own buttons are what the D-pad should be reaching.
+   */
+  useTVRemote({
+    player,
+    isEnabled: isTV && !player.hasEnded,
+    onPrevious,
+    onNext,
+  });
+
   const taps = usePlayerTaps({
     isLocked: player.isLocked,
     width: stageWidth,
@@ -226,6 +240,21 @@ export const PlayerView = forwardRef<
           // Android a React parent saying `pointerEvents="none"` does not stop the
           // platform handing it the touch.
           pointerEvents="none"
+          /**
+           * The same fence, for the D-pad.
+           *
+           * An Android TV WebView is focusable, and once focus is inside it the arrow keys
+           * belong to the YouTube iframe — its own controls, its own title bar, its own way
+           * out of the app — instead of to the chrome below. This is exactly what the
+           * page's `#shield` div stops for touches, arriving through a different door.
+           *
+           * These two props are the JavaScript half of the fence. A WebView also manages
+           * focus internally on the native side, which React cannot reach; if the keys
+           * still escape on real hardware, the other half is a `FOCUS_BLOCK_DESCENDANTS`
+           * call on this view's parent from a small local module.
+           */
+          focusable={false}
+          importantForAccessibility="no-hide-descendants"
           // The base URL is what gives the injected page an origin, and it has to be
           // the same one the embed is told about above.
           source={{ html, baseUrl: SITE_URL }}
@@ -294,29 +323,35 @@ export const PlayerView = forwardRef<
       ) : null}
 
       {/* The lock. Visible whether or not the controls are, because it is the way back
-          out of a locked player. */}
-      <Pressable
-        onPress={player.toggleLock}
-        style={({ pressed }) => [
-          styles.lock,
-          {
-            top: m.space.screenX + controlInsets.top,
-            left: m.space.screenX + controlInsets.left,
-          },
-          pressed && styles.lockPressed,
-        ]}
-        accessibilityRole="button"
-        accessibilityLabel={
-          player.isLocked ? t("unlockControls") : t("lockControls")
-        }
-        accessibilityState={{ selected: player.isLocked }}
-      >
-        {player.isLocked ? (
-          <Lock size={m.font(24)} color="#ffffff" />
-        ) : (
-          <Unlock size={m.font(24)} color="#ffffff" />
-        )}
-      </Pressable>
+          out of a locked player.
+
+          Absent on a television: it exists to stop a pocket or a palm reaching the
+          picture, and a remote across the room cannot do either. A lock there would be a
+          control whose only purpose is to make the others stop answering. */}
+      {isTV ? null : (
+        <Pressable
+          onPress={player.toggleLock}
+          style={({ pressed }) => [
+            styles.lock,
+            {
+              top: m.space.screenX + controlInsets.top,
+              left: m.space.screenX + controlInsets.left,
+            },
+            pressed && styles.lockPressed,
+          ]}
+          accessibilityRole="button"
+          accessibilityLabel={
+            player.isLocked ? t("unlockControls") : t("lockControls")
+          }
+          accessibilityState={{ selected: player.isLocked }}
+        >
+          {player.isLocked ? (
+            <Lock size={m.font(24)} color="#ffffff" />
+          ) : (
+            <Unlock size={m.font(24)} color="#ffffff" />
+          )}
+        </Pressable>
+      )}
 
       {player.areControlsVisible && !player.hasEnded && !player.isLocked ? (
         <>

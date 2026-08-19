@@ -104,7 +104,7 @@ export function WatchSheet({
   onClose: () => void;
 }) {
   const { colors } = useTheme();
-  const { isWide } = useDevice();
+  const { isWide, isTV } = useDevice();
   const insets = useSafeAreaInsets();
   const labels = useVideoLabels();
   const m = useMetrics();
@@ -129,7 +129,13 @@ export function WatchSheet({
    * one that starts in the list below.
    */
   const [playerBottom, setPlayerBottom] = useState(0);
-  const [isFullscreen, setIsFullscreen] = useState(false);
+  const [isFullscreenChosen, setIsFullscreenChosen] = useState(false);
+  /**
+   * A television is already the full screen, so there is nothing to enter or leave — the
+   * picture takes the panel and the controls sit on it. The toggle that would flip this
+   * is hidden there for the same reason.
+   */
+  const isFullscreen = isTV || isFullscreenChosen;
   const [areRecommendationsVisible, setAreRecommendationsVisible] =
     useState(true);
 
@@ -187,10 +193,14 @@ export function WatchSheet({
    * sheet mid-video cannot leave the app stuck sideways.
    */
   useEffect(() => {
-    if (!isFullscreen) {
+    if (!isFullscreen || isTV) {
       // Nothing to do on the way in: locking portrait here is a configuration change the
       // app does not need, and on Android it costs an activity restart — which took the
       // sheet down with it and looked like the video refusing to open.
+      //
+      // And nothing to do on a television ever: it is landscape and cannot be anything
+      // else, so asking the system to lock it is asking for a configuration change with
+      // no configuration to change.
       return;
     }
 
@@ -212,7 +222,7 @@ export function WatchSheet({
       // Released rather than locked back to portrait, so the device decides again.
       void ScreenOrientation.unlockAsync();
     };
-  }, [isFullscreen]);
+  }, [isFullscreen, isTV]);
 
   useEffect(() => {
     let cancelled = false;
@@ -263,6 +273,12 @@ export function WatchSheet({
          * and it lets the aside keep its own scrolling with no negotiation at all.
          */
         onMoveShouldSetPanResponderCapture: (event, gesture) => {
+          // No finger, no drag. A remote leaves by pressing Back, which the navigator
+          // already handles.
+          if (isTV) {
+            return false;
+          }
+
           const startedOnPlayer =
             gesture.y0 <= playerBottom &&
             (!isSideBySide || gesture.x0 <= playerPaneWidth);
@@ -312,6 +328,7 @@ export function WatchSheet({
       height,
       isListAtTop,
       isSideBySide,
+      isTV,
       onClose,
       playerBottom,
       playerPaneWidth,
@@ -333,7 +350,7 @@ export function WatchSheet({
       hasNext={nextVideo !== null}
       nextVideo={nextVideo}
       isFullscreen={isFullscreen}
-      onToggleFullscreen={() => setIsFullscreen((current) => !current)}
+      onToggleFullscreen={() => setIsFullscreenChosen((current) => !current)}
       onPrevious={() => previousVideo && onSelectVideo(previousVideo)}
       onNext={() => nextVideo && onSelectVideo(nextVideo)}
       availableWidth={isSideBySide ? playerPaneWidth : undefined}

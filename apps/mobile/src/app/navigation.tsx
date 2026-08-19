@@ -7,6 +7,7 @@ import {
 import { useCallback, useMemo, useState } from "react";
 import type { LibraryController } from "../entities/library";
 import { HomeScreen } from "../pages/home/ui/home-screen";
+import { SearchScreen } from "../pages/search/ui/search-screen";
 import { SettingsScreen } from "../pages/settings/ui/settings-screen";
 import { WatchSheet } from "../pages/watch/ui/watch-sheet";
 import { useTheme } from "../shared/lib/theme/use-theme";
@@ -20,6 +21,12 @@ import { useTheme } from "../shared/lib/theme/use-theme";
  */
 export type Routes = {
   Home: undefined;
+  /**
+   * Search, which exists for the television: a TV keyboard covers the picture, so the
+   * results need a screen the keyboard can get out of the way of. A phone reaches the same
+   * filtering through the field in its own header and never comes here.
+   */
+  Search: undefined;
   Settings: undefined;
   Watch: { video: Video };
 };
@@ -81,6 +88,10 @@ export function Navigation({ library }: { library: LibraryController }) {
           {(props) => <HomeRoute {...props} library={library} />}
         </Stack.Screen>
 
+        <Stack.Screen name="Search" options={{ animation: "slide_from_right" }}>
+          {(props) => <SearchRoute {...props} library={library} />}
+        </Stack.Screen>
+
         <Stack.Screen
           name="Settings"
           options={{ animation: "slide_from_right" }}
@@ -124,6 +135,11 @@ function HomeRoute({
     [navigation],
   );
 
+  const openSearch = useCallback(
+    () => navigation.navigate("Search"),
+    [navigation],
+  );
+
   const openSettings = useCallback(
     () => navigation.navigate("Settings"),
     [navigation],
@@ -135,7 +151,41 @@ function HomeRoute({
       query={query}
       onQueryChange={setQuery}
       onOpenVideo={openVideo}
+      onOpenSearch={openSearch}
       onSettings={openSettings}
+    />
+  );
+}
+
+/**
+ * The search screen, with a query of its own.
+ *
+ * Separate state rather than the home screen's, and deliberately so: the two are different
+ * questions. Home's field narrows the feed you are looking at and should still be narrowed
+ * when you come back from a video; this one is a search you went somewhere to do, and it
+ * should be empty the next time you go there.
+ */
+function SearchRoute({
+  navigation,
+  library,
+}: NativeStackScreenProps<Routes, "Search"> & {
+  library: LibraryController;
+}) {
+  const [query, setQuery] = useState("");
+  const videos = useMemo(() => library.feed(query), [library, query]);
+
+  const openVideo = useCallback(
+    (video: Video) => navigation.navigate("Watch", { video }),
+    [navigation],
+  );
+
+  return (
+    <SearchScreen
+      videos={videos}
+      query={query}
+      onQueryChange={setQuery}
+      onOpenVideo={openVideo}
+      onBack={() => navigation.goBack()}
     />
   );
 }

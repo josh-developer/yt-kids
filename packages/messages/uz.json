@@ -23,7 +23,9 @@
     "clearSearch": "Qidiruvni tozalash",
     "useDarkMode": "Tungi rejimga o'tish",
     "useLightMode": "Kunduzgi rejimga o'tish",
-    "parentSettings": "Ota-ona sozlamalari"
+    "parentSettings": "Ota-ona sozlamalari",
+    "back": "Orqaga",
+    "noResults": "“{query}” bo‘yicha hech narsa topilmadi"
   },
   "Format": {
     "decimalSeparator": ",",

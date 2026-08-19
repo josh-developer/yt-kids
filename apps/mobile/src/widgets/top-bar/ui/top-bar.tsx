@@ -1,4 +1,4 @@
-import { Plus } from "lucide-react-native";
+import { Plus, Search } from "lucide-react-native";
 import { Keyboard, StyleSheet, View } from "react-native";
 import Animated from "react-native-reanimated";
 import type { SharedValue } from "react-native-reanimated";
@@ -10,6 +10,7 @@ import {
   VideoSearchField,
 } from "../../../features/video-search/ui/video-search-field";
 import { ThemeToggleButton } from "../../../features/theme-toggle/ui/theme-toggle-button";
+import { FocusZone } from "../../../shared/ui/focus-zone";
 import {
   IconButton,
   useIconColor,
@@ -18,21 +19,26 @@ import {
 import { useTheme } from "../../../shared/lib/theme/use-theme";
 import { useDevice } from "../../../shared/lib/device/use-device";
 import { useTranslations } from "../../../shared/lib/i18n/use-translations";
-import { useMetrics, useStyles, type Metrics } from "../../../shared/config/metrics";
+import {
+  useMetrics,
+  useStyles,
+  type Metrics,
+} from "../../../shared/config/metrics";
 
 /**
  * How tall the header is, which the list under it has to be padded by.
  *
  * A hook rather than the constant it was, because every term in the sum now depends on the
  * device — and on a wide window there is one term fewer, since the search field moves up
- * into the brand row instead of sitting under it.
+ * into the brand row instead of sitting under it. A television has one fewer again: the
+ * field is not there at all.
  */
 export function useTopBarHeight() {
-  const { isWide } = useDevice();
+  const { isWide, isTV } = useDevice();
   const { size, space } = useMetrics();
   const searchHeight = useSearchFieldHeight();
 
-  if (isWide) {
+  if (isWide || isTV) {
     return size.topBarHeight + space.gridGap;
   }
 
@@ -54,12 +60,18 @@ export function useTopBarHeight() {
  * the web's own layout above 720px, and it is the honest use of the space: a full-width
  * search field on a tablet is a 900px input for a two-word query, and stacking it costs a
  * row of cards for nothing.
+ *
+ * **On a television there is no field, only a button that opens the search screen.** A
+ * text field on a TV means the system's on-screen keyboard, which covers most of the
+ * picture; filtering a grid live underneath something the viewer cannot see is not a
+ * feature. A screen of its own can put the results where the keyboard is not.
  */
 export function TopBar({
   scrollY,
   topInset,
   query,
   onQueryChange,
+  onOpenSearch,
   onSettings,
 }: {
   scrollY: SharedValue<number>;
@@ -67,16 +79,18 @@ export function TopBar({
   topInset: number;
   query: string;
   onQueryChange: (value: string) => void;
+  /** Television only: the search screen this header's magnifier leads to. */
+  onOpenSearch: () => void;
   onSettings: () => void;
 }) {
   const { colors } = useTheme();
-  const { isWide } = useDevice();
+  const { isWide, isTV } = useDevice();
   const t = useTranslations("TopBar");
   const iconColor = useIconColor();
   const iconSize = useIconSize();
   const styles = useStyles(makeStyles);
   const barHeight = useTopBarHeight();
-  const animated = useAutoHideStyle(scrollY, barHeight + topInset);
+  const animated = useAutoHideStyle(scrollY, barHeight + topInset, !isTV);
 
   // Filtering happens as it is typed, so submitting only dismisses the keyboard.
   const search = (
@@ -105,18 +119,29 @@ export function TopBar({
       <View style={styles.row}>
         <BrandMark />
 
-        {isWide ? <View style={styles.inlineSearch}>{search}</View> : null}
+        {isWide && !isTV ? (
+          <View style={styles.inlineSearch}>{search}</View>
+        ) : null}
 
-        <View style={styles.actions}>
+        {/* A zone rather than a plain row: the header floats *over* the list, so a
+            geometric focus search from the top row of cards has nothing above it to
+            find. The guide is what gives the D-pad somewhere to go. */}
+        <FocusZone style={styles.actions}>
+          {isTV ? (
+            <IconButton label={t("searchApprovedVideos")} onPress={onOpenSearch}>
+              <Search size={iconSize} color={iconColor} />
+            </IconButton>
+          ) : null}
+
           <ThemeToggleButton />
           <IconButton label={t("parentSettings")} onPress={onSettings}>
             <Plus size={iconSize} color={iconColor} />
           </IconButton>
           <LocaleSwitchButton />
-        </View>
+        </FocusZone>
       </View>
 
-      {isWide ? null : search}
+      {isWide || isTV ? null : search}
     </Animated.View>
   );
 }

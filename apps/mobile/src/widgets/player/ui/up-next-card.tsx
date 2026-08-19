@@ -6,6 +6,7 @@ import { Pressable, StyleSheet, Text, View } from "react-native";
 import { thumbnailUrl } from "../../../shared/api/thumbnails";
 import { useTranslations } from "../../../shared/lib/i18n/use-translations";
 import { useVideoLabels } from "../../../shared/lib/format/use-video-labels";
+import { focusRing, useFocusable } from "../../../shared/ui/use-focusable";
 import { fonts } from "../../../shared/config/theme";
 import { useMetrics, useStyles, type Metrics } from "../../../shared/config/metrics";
 
@@ -38,6 +39,9 @@ export function UpNextCard({
   const labels = useVideoLabels();
   const m = useMetrics();
   const styles = useStyles(makeStyles);
+  const card = useFocusable({ pressDepth: 0.01, focusLift: 0.03 });
+  const replay = useFocusable();
+  const cancel = useFocusable();
   const [secondsLeft, setSecondsLeft] = useState(COUNTDOWN_SECONDS);
 
   useEffect(() => {
@@ -58,7 +62,15 @@ export function UpNextCard({
     >
       <Pressable
         onPress={onPlayNext}
-        style={({ pressed }) => [styles.card, pressed && styles.cardPressed]}
+        {...card.handlers}
+        /* The end card takes the screen from the player, so it takes the D-pad with it.
+           Playing the next video is what the countdown is about to do anyway. */
+        hasTVPreferredFocus
+        style={({ pressed }) => [
+          styles.card,
+          focusRing(m.size.focusRing, "#ffffff", card.isFocused),
+          pressed && styles.cardPressed,
+        ]}
         accessibilityRole="button"
         accessibilityLabel={`${t("upNext")}: ${labels.title(video)}`}
       >
@@ -86,7 +98,12 @@ export function UpNextCard({
       <View style={styles.actions}>
         <Pressable
           onPress={onReplay}
-          style={({ pressed }) => [styles.button, pressed && styles.pressed]}
+          {...replay.handlers}
+          style={({ pressed }) => [
+            styles.button,
+            focusRing(m.size.focusRing, "#ffffff", replay.isFocused),
+            pressed && styles.pressed,
+          ]}
           accessibilityRole="button"
         >
           <RotateCcw size={m.font(18)} color="#ffffff" />
@@ -95,7 +112,12 @@ export function UpNextCard({
 
         <Pressable
           onPress={onPlayNext}
-          style={({ pressed }) => [styles.button, pressed && styles.pressed]}
+          {...cancel.handlers}
+          style={({ pressed }) => [
+            styles.button,
+            focusRing(m.size.focusRing, "#ffffff", cancel.isFocused),
+            pressed && styles.pressed,
+          ]}
           accessibilityRole="button"
         >
           <Text style={styles.buttonText}>{t("cancelAutoplay")}</Text>

@@ -15,6 +15,7 @@ import {
   useIconColor,
   useIconSize,
 } from "../../../shared/ui/icon-button";
+import { focusRing, useFocusable } from "../../../shared/ui/use-focusable";
 import { useTheme } from "../../../shared/lib/theme/use-theme";
 import { useDevice } from "../../../shared/lib/device/use-device";
 import { useTranslations } from "../../../shared/lib/i18n/use-translations";
@@ -187,16 +188,20 @@ function TabButton({
   onPress: () => void;
 }) {
   const { colors } = useTheme();
+  const { size } = useMetrics();
   const styles = useStyles(makeStyles);
+  const { handlers, isFocused } = useFocusable();
 
   return (
     <Pressable
       onPress={onPress}
+      {...handlers}
       style={[
         styles.tab,
         {
           backgroundColor: isActive ? colors.buttonActive : colors.buttonSoft,
         },
+        focusRing(size.focusRing, colors.buttonInk, isFocused),
       ]}
       accessibilityRole="tab"
       accessibilityState={{ selected: isActive }}
@@ -231,6 +236,7 @@ function SettingsRow({
   const labels = useVideoLabels();
   const m = useMetrics();
   const styles = useStyles(makeStyles);
+  const { handlers, isFocused } = useFocusable();
 
   return (
     <View style={[styles.row, { backgroundColor: colors.card }]}>
@@ -255,7 +261,12 @@ function SettingsRow({
 
       <Pressable
         onPress={isApproved ? onHide : onApprove}
-        style={[styles.rowAction, { backgroundColor: colors.buttonSoft }]}
+        {...handlers}
+        style={[
+          styles.rowAction,
+          { backgroundColor: colors.buttonSoft },
+          focusRing(m.size.focusRing, colors.buttonInk, isFocused),
+        ]}
         accessibilityRole="button"
         accessibilityLabel={
           isApproved

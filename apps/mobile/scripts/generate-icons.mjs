@@ -1,5 +1,6 @@
 // Generates the mobile app's icon assets from the shared mascot source.
 // Run with `pnpm --filter mobile icons`; the PNGs it writes are committed.
+import { Buffer } from "node:buffer";
 import { mkdirSync, writeFileSync } from "node:fs";
 import { createRequire } from "node:module";
 

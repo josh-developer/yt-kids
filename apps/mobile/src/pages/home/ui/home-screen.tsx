@@ -31,12 +31,15 @@ export function HomeScreen({
   query,
   onQueryChange,
   onOpenVideo,
+  onOpenSearch,
   onSettings,
 }: {
   videos: readonly Video[];
   query: string;
   onQueryChange: (value: string) => void;
   onOpenVideo: (video: Video) => void;
+  /** Television only: the header's magnifier leads to a screen of its own. */
+  onOpenSearch: () => void;
   onSettings: () => void;
 }) {
   const { colors, name } = useTheme();
@@ -101,6 +104,7 @@ export function HomeScreen({
         topInset={topInset}
         query={query}
         onQueryChange={onQueryChange}
+        onOpenSearch={onOpenSearch}
         onSettings={onSettings}
       />
     </View>

@@ -28,10 +28,17 @@ const DURATION = 180;
  * `useAnimatedReaction` rather than a derived value, because the decision needs the
  * *previous* offset to get a direction from — a derived value only ever sees the
  * current one, and the delta would be zero every frame.
+ *
+ * `isEnabled` is how a television switches it off. Hiding the header on the way down is a
+ * trade a scrolling thumb makes willingly — the content is what matters and the header is
+ * one flick away. A D-pad cannot make that trade: the header holds the only route to
+ * settings, the theme and the language, and a header that has hidden itself is a header
+ * with nothing left to move focus onto. So on a TV it stays.
  */
 export function useAutoHideStyle(
   scrollY: SharedValue<number>,
   barHeight: number,
+  isEnabled = true,
 ) {
   const isHidden = useSharedValue(false);
 
@@ -59,7 +66,7 @@ export function useAutoHideStyle(
   return useAnimatedStyle(() => ({
     transform: [
       {
-        translateY: withTiming(isHidden.value ? -barHeight : 0, {
+        translateY: withTiming(isEnabled && isHidden.value ? -barHeight : 0, {
           duration: DURATION,
         }),
       },

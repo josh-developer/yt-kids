@@ -2,6 +2,7 @@ import { LinearGradient } from "expo-linear-gradient";
 import { Pause, Play, SkipBack, SkipForward } from "lucide-react-native";
 import type { ReactNode } from "react";
 import { Pressable, StyleSheet, View } from "react-native";
+import { focusRing, useFocusable } from "../../../shared/ui/use-focusable";
 import { useTranslations } from "../../../shared/lib/i18n/use-translations";
 import type { Player } from "../model/use-player";
 import { useMetrics, useStyles, type Metrics } from "../../../shared/config/metrics";
@@ -37,6 +38,7 @@ export function PlayerTransport({
   const t = useTranslations("Player");
   const m = useMetrics();
   const styles = useStyles(makeStyles);
+  const primary = useFocusable();
 
   return (
     <View
@@ -60,8 +62,10 @@ export function PlayerTransport({
       {/* `.bigPlayButton`: the one control that is not a flat surface. */}
       <Pressable
         onPress={player.togglePlayback}
+        {...primary.handlers}
         style={({ pressed }) => [
           styles.primaryShadow,
+          focusRing(m.size.focusRing, "#ffffff", primary.isFocused),
           pressed && styles.pressed,
         ]}
         accessibilityRole="button"
@@ -99,15 +103,21 @@ function SideButton({
   isDisabled: boolean;
   onPress: () => void;
 }) {
+  const { size } = useMetrics();
   const styles = useStyles(makeStyles);
+  const { handlers, isFocused } = useFocusable();
 
   return (
     <Pressable
       onPress={onPress}
       disabled={isDisabled}
+      {...handlers}
       style={({ pressed }) => [
         styles.side,
         isDisabled && styles.disabled,
+        // White rather than the palette's focus colour: this button sits on the picture,
+        // and no palette colour survives every frame a video can show.
+        focusRing(size.focusRing, "#ffffff", isFocused),
         pressed && styles.pressed,
       ]}
       accessibilityRole="button"

@@ -1,16 +1,17 @@
 import type { Video } from "@repo/catalog/types";
 import { memo } from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
-import Animated, {
-  useAnimatedStyle,
-  useSharedValue,
-  withSpring,
-} from "react-native-reanimated";
+import Animated from "react-native-reanimated";
 import { ChannelAvatar } from "./channel-avatar";
 import { VideoThumbnail } from "./video-thumbnail";
 import { useTheme } from "../../../shared/lib/theme/use-theme";
 import { useVideoLabels } from "../../../shared/lib/format/use-video-labels";
-import { useStyles, type Metrics } from "../../../shared/config/metrics";
+import { focusRing, useFocusable } from "../../../shared/ui/use-focusable";
+import {
+  useMetrics,
+  useStyles,
+  type Metrics,
+} from "../../../shared/config/metrics";
 
 /**
  * One card: thumbnail, then the avatar and the title/channel/views triple.
@@ -22,38 +23,43 @@ import { useStyles, type Metrics } from "../../../shared/config/metrics";
  * The press animation replaces the web's `:hover` — a phone has no hover, but the
  * card should still acknowledge a touch. It runs on the UI thread through
  * Reanimated, so it stays smooth while the list is settling.
+ *
+ * On a television the same animation runs the other way: the card the D-pad is on lifts
+ * and takes a ring, which is the only thing telling a viewer across the room where they
+ * are. The lift is larger than the press is deep for the same reason — it has further to
+ * travel to be seen.
  */
 export const VideoCard = memo(function VideoCard({
   video,
   priority,
+  hasTVPreferredFocus = false,
   onOpen,
 }: {
   video: Video;
   priority?: boolean;
+  /** Where the D-pad lands when the grid first appears; the first card claims it. */
+  hasTVPreferredFocus?: boolean;
   onOpen: (video: Video) => void;
 }) {
   const { colors } = useTheme();
   const labels = useVideoLabels();
+  const { size } = useMetrics();
   const styles = useStyles(makeStyles);
-  const pressed = useSharedValue(0);
-
-  const animated = useAnimatedStyle(() => ({
-    transform: [{ scale: 1 - pressed.value * 0.02 }],
-  }));
+  const { handlers, style, isFocused } = useFocusable({
+    pressDepth: 0.02,
+    focusLift: 0.06,
+  });
 
   return (
-    <Animated.View style={animated}>
+    <Animated.View style={style}>
       <Pressable
         onPress={() => onOpen(video)}
-        onPressIn={() => {
-          pressed.value = withSpring(1, { damping: 20, stiffness: 400 });
-        }}
-        onPressOut={() => {
-          pressed.value = withSpring(0, { damping: 20, stiffness: 300 });
-        }}
+        {...handlers}
+        hasTVPreferredFocus={hasTVPreferredFocus}
         style={[
           styles.card,
           { backgroundColor: colors.card, shadowColor: colors.shadow },
+          focusRing(size.focusRing, colors.buttonActive, isFocused),
         ]}
         accessibilityRole="button"
         accessibilityLabel={`${labels.title(video)}. ${labels.channel(video)}`}

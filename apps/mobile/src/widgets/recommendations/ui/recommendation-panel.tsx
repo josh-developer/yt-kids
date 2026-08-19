@@ -1,10 +1,16 @@
 import type { Video } from "@repo/catalog/types";
 import { Pressable, StyleSheet, Switch, Text, View } from "react-native";
+import Animated from "react-native-reanimated";
 import { VideoThumbnail } from "../../../entities/video";
+import { focusRing, useFocusable } from "../../../shared/ui/use-focusable";
 import { useTheme } from "../../../shared/lib/theme/use-theme";
 import { useTranslations } from "../../../shared/lib/i18n/use-translations";
 import { useVideoLabels } from "../../../shared/lib/format/use-video-labels";
-import { useStyles, type Metrics } from "../../../shared/config/metrics";
+import {
+  useMetrics,
+  useStyles,
+  type Metrics,
+} from "../../../shared/config/metrics";
 
 /**
  * The bar that names the list and can put it away.
@@ -88,40 +94,51 @@ function RecommendationRow({
   const { colors } = useTheme();
   const t = useTranslations("Watch");
   const labels = useVideoLabels();
+  const { size } = useMetrics();
   const styles = useStyles(makeStyles);
+  // Shallower than a button's: a row this wide magnifies a small scale into a large
+  // amount of movement.
+  const { handlers, style, isFocused } = useFocusable({
+    pressDepth: 0.01,
+    focusLift: 0.03,
+  });
 
   return (
-    <Pressable
-      onPress={onPress}
-      style={({ pressed }) => [
-        styles.row,
-        { backgroundColor: colors.card, opacity: pressed ? 0.72 : 1 },
-      ]}
-      accessibilityRole="button"
-      accessibilityLabel={t("recommendations")}
-    >
-      <View style={styles.rowThumb}>
-        <VideoThumbnail video={video} />
-      </View>
+    <Animated.View style={style}>
+      <Pressable
+        onPress={onPress}
+        {...handlers}
+        style={({ pressed }) => [
+          styles.row,
+          { backgroundColor: colors.card, opacity: pressed ? 0.72 : 1 },
+          focusRing(size.focusRing, colors.buttonActive, isFocused),
+        ]}
+        accessibilityRole="button"
+        accessibilityLabel={t("recommendations")}
+      >
+        <View style={styles.rowThumb}>
+          <VideoThumbnail video={video} />
+        </View>
 
-      <View style={styles.rowText}>
-        <Text
-          style={[styles.rowTitle, { color: colors.text }]}
-          numberOfLines={2}
-        >
-          {labels.title(video)}
-        </Text>
-        <Text
-          style={[styles.rowChannel, { color: colors.textSoft }]}
-          numberOfLines={1}
-        >
-          {labels.channel(video)}
-        </Text>
-        <Text style={[styles.rowViews, { color: colors.textSoft }]}>
-          {labels.views(video)}
-        </Text>
-      </View>
-    </Pressable>
+        <View style={styles.rowText}>
+          <Text
+            style={[styles.rowTitle, { color: colors.text }]}
+            numberOfLines={2}
+          >
+            {labels.title(video)}
+          </Text>
+          <Text
+            style={[styles.rowChannel, { color: colors.textSoft }]}
+            numberOfLines={1}
+          >
+            {labels.channel(video)}
+          </Text>
+          <Text style={[styles.rowViews, { color: colors.textSoft }]}>
+            {labels.views(video)}
+          </Text>
+        </View>
+      </Pressable>
+    </Animated.View>
   );
 }
 
