@@ -17,7 +17,7 @@
   },
   "scripts": {
     "dev": "expo start",
-    "ios": "expo run:ios",
+    "ios": "REACT_NATIVE_NODE_MODULES_DIR=$PWD/node_modules expo run:ios",
     "android": "expo run:android",
     "android:tv": "EXPO_TV=1 expo run:android",
     "prebuild": "expo prebuild --clean",

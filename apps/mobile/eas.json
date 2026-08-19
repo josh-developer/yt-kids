@@ -6,20 +6,27 @@
   "build": {
     "development": {
       "developmentClient": true,
-      "distribution": "internal"
+      "distribution": "internal",
+      "env": {
+        "REACT_NATIVE_NODE_MODULES_DIR": "./node_modules"
+      }
     },
     "preview": {
       "distribution": "internal",
       "channel": "preview",
       "android": {
         "buildType": "apk"
+      },
+      "env": {
+        "REACT_NATIVE_NODE_MODULES_DIR": "./node_modules"
       }
     },
     "production": {
       "channel": "production",
       "autoIncrement": true,
       "env": {
-        "NODE_ENV": "production"
+        "NODE_ENV": "production",
+        "REACT_NATIVE_NODE_MODULES_DIR": "./node_modules"
       },
       "android": {
         "buildType": "app-bundle"
@@ -32,13 +39,17 @@
       "android": {
         "buildType": "apk",
         "gradleCommand": ":app:assembleRelease -PreactNativeArchitectures=arm64-v8a"
+      },
+      "env": {
+        "REACT_NATIVE_NODE_MODULES_DIR": "./node_modules"
       }
     },
     "preview-tv": {
       "distribution": "internal",
       "channel": "preview-tv",
       "env": {
-        "EXPO_TV": "1"
+        "EXPO_TV": "1",
+        "REACT_NATIVE_NODE_MODULES_DIR": "./node_modules"
       },
       "android": {
         "buildType": "apk"
@@ -49,7 +60,8 @@
       "autoIncrement": true,
       "env": {
         "NODE_ENV": "production",
-        "EXPO_TV": "1"
+        "EXPO_TV": "1",
+        "REACT_NATIVE_NODE_MODULES_DIR": "./node_modules"
       },
       "android": {
         "buildType": "app-bundle"
@@ -61,7 +73,8 @@
       "autoIncrement": true,
       "env": {
         "NODE_ENV": "production",
-        "EXPO_TV": "1"
+        "EXPO_TV": "1",
+        "REACT_NATIVE_NODE_MODULES_DIR": "./node_modules"
       },
       "android": {
         "buildType": "apk",
