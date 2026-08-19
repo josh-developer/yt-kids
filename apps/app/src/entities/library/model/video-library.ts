@@ -22,8 +22,12 @@ const signatureCache = new Map<string, TitleSignature>();
 /** Keyed by the `selectedIds` array itself, which `withState` reuses. */
 const clusterCache = new WeakMap<readonly string[], Video[][]>();
 
-/** How many videos make up the "Next in this series" group. */
+/** How many videos lead a standalone video's "Recommended" group in order. */
 const SERIES_GROUP_SIZE = 3;
+/** Episodes shown before the current one in the "In this series" group. */
+const SERIES_BEFORE = 1;
+/** Episodes shown after the current one in the "In this series" group. */
+const SERIES_AFTER = 4;
 /** How many videos make up the "Recommended" group. */
 const RECOMMENDED_GROUP_SIZE = 30;
 
@@ -58,6 +62,40 @@ function orderEpisodes(videos: Video[], currentEpisode: number | null) {
       .map((entry) => entry.video),
     ...unnumbered,
   ];
+}
+
+/**
+ * The "In this series" window around the video being watched: the episode
+ * right before it, then the next four, in order — the video itself is never
+ * part of the list. Wraps at either end of the series, and simply shortens
+ * instead of padding when the series itself is smaller than that window.
+ */
+function seriesWindow(seriesVideos: Video[], current: Video) {
+  const numbered = seriesVideos
+    .concat(current)
+    .map((video) => ({ video, episode: episodeNumberOf(video.title) }))
+    .filter(
+      (entry): entry is { video: Video; episode: number } =>
+        entry.episode !== null,
+    )
+    .sort((a, b) => a.episode - b.episode)
+    .map((entry) => entry.video);
+  const unnumbered = seriesVideos
+    .concat(current)
+    .filter((video) => episodeNumberOf(video.title) === null);
+  const ordered = [...numbered, ...unnumbered];
+
+  const currentIndex = ordered.findIndex((entry) => entry.id === current.id);
+  const length = ordered.length;
+  const span = Math.min(length, SERIES_BEFORE + 1 + SERIES_AFTER);
+  const start = ((currentIndex - SERIES_BEFORE) % length + length) % length;
+
+  const window = Array.from(
+    { length: span },
+    (_, offset) => ordered[(start + offset) % length],
+  );
+
+  return window.filter((video) => video.id !== current.id);
 }
 
 function recommendationSalt(video: Video, salt: number) {
@@ -160,12 +198,12 @@ export class VideoLibrary {
   }
 
   /**
-   * The sidebar for one video: up to three videos related to it (the rest of
-   * its series, filled out with similarly-titled videos if the series is
-   * shorter than that), then a fully shuffled batch of the library. A video
-   * with no series leads the list with the next approved videos in order, so
-   * opening a recommendation advances the visible list instead of only
-   * swapping the selected card with the previous video.
+   * The sidebar for one video: its series window (the previous episode, then
+   * the next four, in order) if it has one, then a fully shuffled batch of
+   * the library. A video with no series leads the list with the next
+   * approved videos in order instead, so opening a recommendation advances
+   * the visible list rather than only swapping the selected card with the
+   * previous video.
    */
   recommendationGroupsFor(video: Video, salt: number): RecommendationGroup[] {
     const signature = this.signatureOf(video);
@@ -192,9 +230,7 @@ export class VideoLibrary {
       }
     }
 
-    const orderedSeries = orderEpisodes(series, episodeNumberOf(video.title));
-
-    if (orderedSeries.length === 0) {
+    if (series.length === 0) {
       const nextInOrder = this.nextApprovedVideos(video, SERIES_GROUP_SIZE);
       const nextInOrderIds = new Set(
         nextInOrder.map((candidate) => candidate.id),
@@ -212,21 +248,17 @@ export class VideoLibrary {
         : [];
     }
 
-    const nextInSeries = orderedSeries.slice(0, SERIES_GROUP_SIZE);
-    const padding = similar.slice(
-      0,
-      SERIES_GROUP_SIZE - nextInSeries.length,
-    );
-    const paddingIds = new Set(padding.map((candidate) => candidate.id));
+    const window = seriesWindow(series, video);
+    const windowIds = new Set(window.map((candidate) => candidate.id));
 
     const leftover = [
-      ...orderedSeries.slice(SERIES_GROUP_SIZE),
-      ...similar.filter((candidate) => !paddingIds.has(candidate.id)),
+      ...series.filter((candidate) => !windowIds.has(candidate.id)),
+      ...similar,
       ...rest,
     ];
 
     const groups: RecommendationGroup[] = [
-      { key: "series", videos: [...nextInSeries, ...padding] },
+      { key: "series", videos: window },
       {
         key: "recommended",
         videos: shuffleWithSeed(leftover, recommendationSalt(video, salt)).slice(

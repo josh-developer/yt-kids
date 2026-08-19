@@ -8,6 +8,7 @@ const SEEK_HINT_MS = 2000;
 const SWIPE_DOWN_PX = 90;
 const SWIPE_DRIFT_PX = 140;
 const SWIPE_MAX_MS = 900;
+const SEEK_ZONE_FRACTION = 0.25;
 
 export type SeekDirection = "previous" | "next";
 
@@ -89,8 +90,13 @@ export function usePlayerGestures({
     timers.current.clear("frame-click");
 
     const rect = event.currentTarget.getBoundingClientRect();
-    const isLeftSide = event.clientX - rect.left < rect.width / 2;
-    onSeekBy(isLeftSide ? -SEEK_STEP_SECONDS : SEEK_STEP_SECONDS);
+    const offsetFraction = (event.clientX - rect.left) / rect.width;
+
+    if (offsetFraction < SEEK_ZONE_FRACTION) {
+      onSeekBy(-SEEK_STEP_SECONDS);
+    } else if (offsetFraction > 1 - SEEK_ZONE_FRACTION) {
+      onSeekBy(SEEK_STEP_SECONDS);
+    }
   }
 
   function handlePointerDown(event: PointerEvent<HTMLDivElement>) {

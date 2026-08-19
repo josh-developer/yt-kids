@@ -75,7 +75,55 @@ test("standalone recommendations lead with the next approved videos in order", a
   ]);
 });
 
-test("series recommendations keep episode order before shuffled videos", async () => {
+test("series recommendations lead with one previous episode then the next four, current excluded", async () => {
+  const { VideoCatalog, VideoLibrary } = await loadLibrary();
+  const videos = Array.from({ length: 9 }, (_, index) =>
+    video(index + 1, `Omar va Hana ${index + 1}-qism`),
+  );
+  const library = VideoLibrary.from(new VideoCatalog(videos), {
+    version: 9,
+    selectedIds: videos.map((entry) => entry.id),
+    customVideos: [],
+    removedIds: [],
+  });
+
+  // Middle episode: one before, four after — no wrapping needed, and the
+  // current episode itself is never in the list.
+  const fifthEpisodeGroups = library.recommendationGroupsFor(videos[4], 123);
+  assert.equal(fifthEpisodeGroups[0].key, "series");
+  assert.deepEqual(ids(fifthEpisodeGroups[0]), [
+    "uzbek-old-4",
+    "uzbek-old-6",
+    "uzbek-old-7",
+    "uzbek-old-8",
+    "uzbek-old-9",
+  ]);
+});
+
+test("series recommendations wrap the next-four list at the end of the series", async () => {
+  const { VideoCatalog, VideoLibrary } = await loadLibrary();
+  const videos = Array.from({ length: 7 }, (_, index) =>
+    video(index + 1, `Omar va Hana ${index + 1}-qism`),
+  );
+  const library = VideoLibrary.from(new VideoCatalog(videos), {
+    version: 9,
+    selectedIds: videos.map((entry) => entry.id),
+    customVideos: [],
+    removedIds: [],
+  });
+
+  const lastEpisodeGroups = library.recommendationGroupsFor(videos[6], 123);
+  assert.equal(lastEpisodeGroups[0].key, "series");
+  assert.deepEqual(ids(lastEpisodeGroups[0]), [
+    "uzbek-old-6",
+    "uzbek-old-1",
+    "uzbek-old-2",
+    "uzbek-old-3",
+    "uzbek-old-4",
+  ]);
+});
+
+test("a series shorter than the window shortens instead of padding", async () => {
   const { VideoCatalog, VideoLibrary } = await loadLibrary();
   const videos = [
     video(1, "Omar va Hana 1-qism"),
@@ -92,19 +140,10 @@ test("series recommendations keep episode order before shuffled videos", async (
   });
 
   const secondEpisodeGroups = library.recommendationGroupsFor(videos[1], 123);
-
   assert.equal(secondEpisodeGroups[0].key, "series");
-  assert.deepEqual(ids(secondEpisodeGroups[0]).slice(0, 3), [
+  assert.deepEqual(ids(secondEpisodeGroups[0]), [
+    "uzbek-old-1",
     "uzbek-old-3",
     "uzbek-old-4",
-    "uzbek-old-1",
-  ]);
-
-  const thirdEpisodeGroups = library.recommendationGroupsFor(videos[2], 123);
-  assert.equal(thirdEpisodeGroups[0].key, "series");
-  assert.deepEqual(ids(thirdEpisodeGroups[0]).slice(0, 3), [
-    "uzbek-old-4",
-    "uzbek-old-1",
-    "uzbek-old-2",
   ]);
 });

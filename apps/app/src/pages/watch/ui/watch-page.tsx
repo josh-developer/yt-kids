@@ -1,4 +1,4 @@
-import { useMemo, useRef } from "react";
+import { useMemo } from "react";
 import type { RecommendationGroup } from "@/entities/library";
 import {
   ChannelAvatar,
@@ -42,7 +42,6 @@ export function WatchPage({
 }) {
   const labels = useVideoLabels();
   const positions = useMemo(() => new PlaybackPositions(), []);
-  const durationRef = useRef(0);
 
   // Read once per video: reading it on every render would keep moving the
   // resume point as the video plays.
@@ -75,13 +74,10 @@ export function WatchPage({
             previousVideo={previousVideo}
             video={video}
             startTime={startTime}
-            onTimeUpdate={(seconds) =>
-              positions.save(video.videoId, seconds, durationRef.current)
+            onTimeUpdate={(seconds, durationSeconds) =>
+              positions.save(video.videoId, seconds, durationSeconds)
             }
-            onDurationResolved={(resolvedVideo, seconds) => {
-              durationRef.current = seconds;
-              onDurationResolved(resolvedVideo, seconds);
-            }}
+            onDurationResolved={onDurationResolved}
             onFullscreenChange={onFullscreenChange}
             onNextVideo={onNextVideo}
             onPreviousVideo={onPreviousVideo}

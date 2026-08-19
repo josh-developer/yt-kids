@@ -1,5 +1,10 @@
 import { useTranslations } from "next-intl";
-import { useEffect, useRef, useState } from "react";
+import {
+  useEffect,
+  useRef,
+  useState,
+  type PointerEvent as ReactPointerEvent,
+} from "react";
 import { prefetchVideo } from "@/shared/api/youtube";
 import { AUTOPLAY_COUNTDOWN_SECONDS } from "@/shared/config/app-config";
 import { TimerBag } from "@/shared/lib/timers";
@@ -30,6 +35,27 @@ import {
 import { PlayerProgress } from "./player-progress";
 import styles from "./player.module.css";
 
+const MOUSE_MOVE_REVEAL_PX = 2;
+
+type PointerPoint = {
+  x: number;
+  y: number;
+};
+
+function readPointerPoint(event: ReactPointerEvent) {
+  return {
+    x: event.clientX,
+    y: event.clientY,
+  };
+}
+
+function hasMovedEnough(previous: PointerPoint, next: PointerPoint) {
+  const deltaX = next.x - previous.x;
+  const deltaY = next.y - previous.y;
+
+  return deltaX * deltaX + deltaY * deltaY >= MOUSE_MOVE_REVEAL_PX ** 2;
+}
+
 /**
  * A YouTube embed with every escape hatch closed: no YouTube controls, no
  * clickable title, no related-video grid. Playback, fullscreen, gestures and
@@ -57,7 +83,7 @@ export function SafeYouTubePlayer({
   onFullscreenChange?: (isFullscreen: boolean) => void;
   onNextVideo: () => void;
   onPreviousVideo: () => void;
-  onTimeUpdate?: (currentSeconds: number) => void;
+  onTimeUpdate?: (currentSeconds: number, durationSeconds: number) => void;
 }) {
   const t = useTranslations("Player");
   const labels = useVideoLabels();
@@ -82,6 +108,7 @@ export function SafeYouTubePlayer({
   // countdown has to know it is already running.
   const isCountingDownRef = useRef(false);
   const secondsLeftRef = useRef(0);
+  const lastHoverPointRef = useRef<PointerPoint | null>(null);
 
   const controls = useControlsVisibility();
   const interactionRef = useRef({
@@ -241,16 +268,31 @@ export function SafeYouTubePlayer({
     return pointerType === "mouse" && !isLocked;
   }
 
-  function handleHoverMove(pointerType: string) {
-    if (!isHoverPointer(pointerType)) {
+  function handleHoverEnter(event: ReactPointerEvent<HTMLDivElement>) {
+    lastHoverPointRef.current = readPointerPoint(event);
+  }
+
+  function handleHoverMove(event: ReactPointerEvent<HTMLDivElement>) {
+    const nextPoint = readPointerPoint(event);
+    const lastPoint = lastHoverPointRef.current;
+    lastHoverPointRef.current = nextPoint;
+
+    if (!isHoverPointer(event.pointerType)) {
       return;
     }
 
-    // Still auto-hides after a while of a motionless mouse, as YouTube does.
+    // Some browsers can dispatch stationary mouse moves as fullscreen, iframe
+    // or media state changes settle. Those are not viewer intent.
+    if (lastPoint && !hasMovedEnough(lastPoint, nextPoint)) {
+      return;
+    }
+
     controls.show({ autoHide: engine.isPlaying });
   }
 
   function handleHoverLeave(pointerType: string) {
+    lastHoverPointRef.current = null;
+
     // A paused video keeps its controls: there is nothing playing to get out
     // of the way of, and the viewer is most likely coming back to them.
     if (!isHoverPointer(pointerType) || !engine.isPlaying) {
@@ -368,8 +410,8 @@ export function SafeYouTubePlayer({
       onDoubleClick={gestures.handleFrameDoubleClick}
       onKeyDown={(event) => handlePlayerKeyDown(event, { isTvBrowser })}
       onPointerDown={gestures.handlePointerDown}
-      onPointerEnter={(event) => handleHoverMove(event.pointerType)}
-      onPointerMove={(event) => handleHoverMove(event.pointerType)}
+      onPointerEnter={handleHoverEnter}
+      onPointerMove={handleHoverMove}
       onPointerLeave={(event) => handleHoverLeave(event.pointerType)}
       onPointerUp={gestures.handlePointerUp}
       onPointerCancel={gestures.handlePointerCancel}
