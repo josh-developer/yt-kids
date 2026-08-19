@@ -302,8 +302,18 @@ const makeStyles = (m: Metrics) =>
      * The search field and the tabs stay a phone's width even on a tablet. Neither reads
      * better for being stretched across a metre of glass, and holding them together keeps
      * the eye's path from the title to the list short.
+     *
+     * Centred rather than left-aligned, which only shows up once the cap bites: on a
+     * 1280dp tablet a 560dp cluster pinned to the left edge sits alone in the corner while
+     * the rows below it span the whole screen. It is a no-op on a phone, where the window
+     * is narrower than the cap and the width is the full width either way.
      */
-    headerControls: { width: "100%", maxWidth: 560, gap: m.space.meta },
+    headerControls: {
+      width: "100%",
+      maxWidth: 560,
+      alignSelf: "center",
+      gap: m.space.meta,
+    },
     title: {
       ...m.type.cardTitle,
       fontSize: m.font(20),
