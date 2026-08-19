@@ -44,7 +44,7 @@ export function LibraryResults({
 
         return (
           <div className={styles.resultCard} key={video.id}>
-            <VideoThumbnail video={video} />
+            <VideoThumbnail video={video} sizes="(max-width: 720px) 128px, 154px" />
             <div className={styles.resultInfo}>
               <VideoSummary video={video} />
             </div>

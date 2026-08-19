@@ -72,6 +72,15 @@ const THUMBNAIL_SOURCES = {
   },
 } as const;
 
+/**
+ * Discrete widths the worker keeps cached, in device-pixel terms. A card
+ * thumbnail displays anywhere from ~128px (recommendations sidebar) to
+ * ~580px (the TV-breakpoint grid); decoding and rastering the 960px source
+ * for a 128px slot wastes CPU on exactly the low-end devices that feel it.
+ * Must match `THUMBNAIL_WIDTHS` in `apps/app/src/shared/api/youtube/youtube-urls.ts`.
+ */
+const THUMBNAIL_WIDTHS = [320, 480, 640, 960] as const;
+
 /** Bumps both browser URLs and edge-cache keys when thumbnail generation changes. */
 const THUMBNAIL_CACHE_VERSION = "v2";
 
@@ -139,6 +148,7 @@ async function transcodeThumbnail(
 async function fetchThumbnailSource(
   videoId: string,
   sources: (typeof THUMBNAIL_SOURCES)[keyof typeof THUMBNAIL_SOURCES],
+  targetWidth: number,
 ) {
   for (const source of sources.sources) {
     const response = await fetch(
@@ -148,7 +158,7 @@ async function fetchThumbnailSource(
     if (response.ok) {
       return {
         response,
-        width: Math.min(sources.width, source.width),
+        width: Math.min(targetWidth, source.width),
       };
     }
   }
@@ -165,12 +175,20 @@ async function serveThumbnail(
 ): Promise<Response> {
   const format = negotiateThumbnailFormat(request.headers.get("accept") ?? "");
 
+  // An unrecognized or missing `w` falls back to the size's historical
+  // default width, so existing callers (the player poster, old cached URLs)
+  // keep working unchanged.
+  const requestedWidth = Number(new URL(request.url).searchParams.get("w"));
+  const targetWidth = (THUMBNAIL_WIDTHS as readonly number[]).includes(requestedWidth)
+    ? requestedWidth
+    : THUMBNAIL_SOURCES[size].width;
+
   // `Vary: Accept` cannot be the cache dimension here: Accept strings differ
   // between browser builds, so the cache would fragment per client. The
-  // negotiated format goes into the key instead.
+  // negotiated format and resolved width go into the key instead.
   const extension = format.slice("image/".length);
   const cacheKey = new Request(
-    `${new URL(request.url).origin}/_thumb/${videoId}/${size}.${extension}?${THUMBNAIL_CACHE_VERSION}`,
+    `${new URL(request.url).origin}/_thumb/${videoId}/${size}.${extension}?${THUMBNAIL_CACHE_VERSION}&w=${targetWidth}`,
   );
   const edgeCache = typeof caches === "undefined" ? undefined : caches.default;
 
@@ -179,7 +197,7 @@ async function serveThumbnail(
     return hit;
   }
 
-  const source = await fetchThumbnailSource(videoId, THUMBNAIL_SOURCES[size]);
+  const source = await fetchThumbnailSource(videoId, THUMBNAIL_SOURCES[size], targetWidth);
   if (!source) {
     return new Response("Thumbnail not found", { status: 404 });
   }
