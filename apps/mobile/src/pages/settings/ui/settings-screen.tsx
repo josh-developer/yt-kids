@@ -8,7 +8,11 @@ import { StatusBar } from "expo-status-bar";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import type { LibraryController } from "../../../entities/library";
 import { VideoThumbnail } from "../../../entities/video";
-import { ParentActions } from "../../../features/library-transfer/ui/parent-actions";
+import {
+  ParentActionsBar,
+  ParentActionsDock,
+  useParentActions,
+} from "../../../features/library-transfer/ui/parent-actions";
 import { VideoSearchField } from "../../../features/video-search/ui/video-search-field";
 import {
   IconButton,
@@ -51,7 +55,7 @@ export function SettingsScreen({
   onBack: () => void;
 }) {
   const { colors, name } = useTheme();
-  const { isWide } = useDevice();
+  const { isWide, kind } = useDevice();
   const insets = useSafeAreaInsets();
   const t = useTranslations("Settings");
   const iconColor = useIconColor();
@@ -62,6 +66,13 @@ export function SettingsScreen({
   const [query, setQuery] = useState("");
 
   const columns = isWide ? 2 : 1;
+  /**
+   * Where the parent's four actions go. A phone folds them into a corner because its list
+   * is the whole screen; anything larger has room for them beside the title, which is also
+   * where the web puts them.
+   */
+  const hasRoomForActionBar = kind !== "phone";
+  const parentActions = useParentActions(library);
 
   const results = useMemo(() => {
     const pool =
@@ -102,6 +113,10 @@ export function SettingsScreen({
               })}
             </Text>
           </View>
+
+          {hasRoomForActionBar ? (
+            <ParentActionsBar actions={parentActions.actions} />
+          ) : null}
         </View>
 
         <View style={styles.headerControls}>
@@ -170,8 +185,13 @@ export function SettingsScreen({
         )}
       />
 
-      {/* Export, import, add and reset, behind one button in the corner. */}
-      <ParentActions library={library} />
+      {/* The corner button, only where the header could not take the row. */}
+      {hasRoomForActionBar ? null : (
+        <ParentActionsDock actions={parentActions.actions} />
+      )}
+
+      {/* The sheets and the toast, at the screen's root so they can position against it. */}
+      {parentActions.overlay}
     </View>
   );
 }

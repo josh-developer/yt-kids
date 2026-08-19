@@ -16,7 +16,10 @@ import Animated, {
   useSharedValue,
   withTiming,
 } from "react-native-reanimated";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
+import {
+  SafeAreaView,
+  useSafeAreaInsets,
+} from "react-native-safe-area-context";
 import SystemVolume from "../../../../modules/system-volume";
 import { recommendationsFor } from "../../../entities/library";
 import { ChannelAvatar } from "../../../entities/video";
@@ -412,7 +415,7 @@ export function WatchSheet({
               style={styles.paneScroll}
               contentContainerStyle={{
                 paddingTop: m.space.gridGap,
-                paddingBottom: insets.bottom + m.space.gridGap,
+                paddingBottom: m.space.gridGap,
               }}
               showsVerticalScrollIndicator={false}
               onTouchStart={() => player.current?.hideControls()}
@@ -422,7 +425,18 @@ export function WatchSheet({
           </View>
 
           {recommendations.length > 0 ? (
-            <View
+            /*
+              The safe area belongs to this column, not to the player's.
+              
+              A notch or a rounded corner in landscape eats the outer edge, and the two
+              columns want opposite things from that. The picture is meant to be
+              full-bleed — a video inset from the edge of the screen looks like a mistake,
+              and nothing in it is information you lose to a corner. The recommendations
+              are all text and thumbnails against that same edge, and a row clipped by a
+              notch is a row you cannot read or reliably tap.
+            */
+            <SafeAreaView
+              edges={["top", "bottom", "right"]}
               style={[
                 styles.aside,
                 { width: asideWidth, borderLeftColor: colors.line },
@@ -437,7 +451,7 @@ export function WatchSheet({
                 <ScrollView
                   style={styles.paneScroll}
                   contentContainerStyle={{
-                    paddingBottom: insets.bottom + m.space.gridGap * 2,
+                    paddingBottom: m.space.gridGap * 2,
                   }}
                   showsVerticalScrollIndicator={false}
                   onTouchStart={() => player.current?.hideControls()}
@@ -448,7 +462,7 @@ export function WatchSheet({
                   />
                 </ScrollView>
               ) : null}
-            </View>
+            </SafeAreaView>
           ) : null}
         </View>
       ) : (

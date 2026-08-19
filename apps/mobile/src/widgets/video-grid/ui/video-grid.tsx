@@ -67,7 +67,16 @@ export function VideoGrid({
 
   const renderItem = useCallback(
     ({ item, index }: ListRenderItemInfo<Video>) => (
-      <View style={[styles.cell, { paddingBottom: gap }]}>
+      // Half the gap on each side of every cell, so the space *between* two columns adds
+      // up to a whole one. The content container gives back the same half at the screen's
+      // edges, which is what keeps the outer margin equal to `screenX` rather than one and
+      // a half times it.
+      <View
+        style={[
+          styles.cell,
+          { paddingBottom: gap, paddingHorizontal: gap / 2 },
+        ]}
+      >
         <CardReveal column={index % columns}>
           <VideoCard
             video={item}
@@ -99,7 +108,8 @@ export function VideoGrid({
         // The header floats above, so the first card starts below it.
         contentContainerStyle={{
           paddingTop: topInset,
-          paddingHorizontal: space.screenX,
+          // Less the half-gap each cell carries; see the cell above.
+          paddingHorizontal: space.screenX - gap / 2,
           // A television crops the bottom of the picture as readily as the top, so the
           // last row needs the overscan margin as well as the usual breathing room.
           paddingBottom: space.gridGap * 2 + overscanY,
@@ -117,5 +127,5 @@ function keyExtractor(video: Video) {
 const styles = StyleSheet.create({
   zone: { flex: 1 },
   /** `flex: 1` is what makes a multi-column row split evenly. */
-  cell: { flex: 1, paddingHorizontal: 0 },
+  cell: { flex: 1 },
 });

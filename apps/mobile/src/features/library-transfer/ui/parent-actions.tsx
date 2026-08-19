@@ -7,7 +7,7 @@ import {
   Share2,
   X,
 } from "lucide-react-native";
-import type { ReactNode } from "react";
+import type { ComponentType, ReactNode } from "react";
 import { useState } from "react";
 import { Pressable, StyleSheet, Text, TextInput, View } from "react-native";
 import Animated, {
@@ -27,6 +27,11 @@ import {
   TransferError,
 } from "../model/transfer-codec";
 import { BottomSheet } from "../../../shared/ui/bottom-sheet";
+import {
+  IconButton,
+  useIconColor,
+  useIconSize,
+} from "../../../shared/ui/icon-button";
 import { Toast, useToast } from "../../../shared/ui/toast";
 import { useTheme } from "../../../shared/lib/theme/use-theme";
 import { useTranslations } from "../../../shared/lib/i18n/use-translations";
@@ -40,50 +45,40 @@ import {
 /** Which sheet is open, if any. */
 type Task = "import" | "add" | "reset" | null;
 
+/** One of the four, as the caller needs to draw it. */
+export type ParentAction = {
+  key: string;
+  label: string;
+  Icon: ComponentType<{ size: number; color: string }>;
+  onPress: () => void;
+};
+
 /**
- * The parent's four actions, behind one button in the corner.
+ * The parent's four actions — export, import, add and reset — and the sheets they open.
  *
- * The web puts export, import, add and reset in a row above the list, because a desktop
- * has the width for four buttons and a heading. A phone does not, and the list is what a
- * parent came to read — so the actions fold into a button at the bottom right and open to
- * the left, over the list rather than pushing it down.
+ * A hook rather than a component because the trigger and the overlay have to live in
+ * different places in the tree. A `BottomSheet` positions itself absolutely against its
+ * parent, so it has to be mounted at the screen's root; the buttons that open it want to
+ * be wherever that screen puts them, which on a tablet is the header. Returning the two
+ * separately is what lets the caller decide, and keeps one copy of the state behind both.
  *
- * Export needs no sheet: it copies and says so. The other three ask for something, so each
- * opens a `BottomSheet` — one implementation, one drag to dismiss, no dialogs borrowed
- * from a desktop.
+ * Export needs no sheet: it copies and says so. The other three ask for something.
  */
-export function ParentActions({ library }: { library: LibraryController }) {
+export function useParentActions(library: LibraryController) {
   const { colors } = useTheme();
-  const insets = useSafeAreaInsets();
   const t = useTranslations("Settings");
   const toast = useToast();
-  const m = useMetrics();
   const styles = useStyles(makeStyles);
 
-  const [isOpen, setIsOpen] = useState(false);
   const [task, setTask] = useState<Task>(null);
   const [code, setCode] = useState("");
   const [url, setUrl] = useState("");
 
-  const spin = useSharedValue(0);
-
-  function toggle() {
-    setIsOpen((open) => {
-      spin.value = withTiming(open ? 0 : 1, { duration: 200 });
-      return !open;
-    });
-  }
-
   function start(next: Exclude<Task, null>) {
-    setIsOpen(false);
-    spin.value = withTiming(0, { duration: 160 });
     setTask(next);
   }
 
   async function exportCode() {
-    setIsOpen(false);
-    spin.value = withTiming(0, { duration: 160 });
-
     try {
       await Clipboard.setStringAsync(encodeLibrary(library.snapshot()));
       toast.show(t("exportCopied"), "ok");
@@ -145,61 +140,35 @@ export function ParentActions({ library }: { library: LibraryController }) {
     toast.show(t("resetDone"), "ok");
   }
 
-  const spinStyle = useAnimatedStyle(() => ({
-    transform: [{ rotate: `${spin.value * 90}deg` }],
-  }));
+  const actions: ParentAction[] = [
+    {
+      key: "export",
+      label: t("exportParentSettings"),
+      Icon: Share2,
+      onPress: () => void exportCode(),
+    },
+    {
+      key: "import",
+      label: t("importParentSettings"),
+      Icon: ClipboardPaste,
+      onPress: () => start("import"),
+    },
+    {
+      key: "add",
+      label: t("addVideoLink"),
+      Icon: Link2,
+      onPress: () => start("add"),
+    },
+    {
+      key: "reset",
+      label: t("resetAllVideos"),
+      Icon: RotateCcw,
+      onPress: () => start("reset"),
+    },
+  ];
 
-  return (
+  const overlay = (
     <>
-      <View
-        style={[styles.dock, { bottom: insets.bottom + m.space.gridGap }]}
-        pointerEvents="box-none"
-      >
-        {isOpen ? (
-          <Animated.View
-            style={styles.actions}
-            entering={FadeIn.duration(160)}
-            exiting={FadeOut.duration(120)}
-          >
-            <Action label={t("exportParentSettings")} onPress={exportCode}>
-              <Share2 size={m.font(18)} color={colors.buttonInk} />
-            </Action>
-            <Action
-              label={t("importParentSettings")}
-              onPress={() => start("import")}
-            >
-              <ClipboardPaste size={m.font(18)} color={colors.buttonInk} />
-            </Action>
-            <Action label={t("addVideoLink")} onPress={() => start("add")}>
-              <Link2 size={m.font(18)} color={colors.buttonInk} />
-            </Action>
-            <Action label={t("resetAllVideos")} onPress={() => start("reset")}>
-              <RotateCcw size={m.font(18)} color={colors.buttonInk} />
-            </Action>
-          </Animated.View>
-        ) : null}
-
-        <Pressable
-          onPress={toggle}
-          style={({ pressed }) => [
-            styles.fab,
-            { backgroundColor: colors.buttonActive },
-            pressed && styles.pressed,
-          ]}
-          accessibilityRole="button"
-          accessibilityLabel={t("parentActions")}
-          accessibilityState={{ expanded: isOpen }}
-        >
-          <Animated.View style={spinStyle}>
-            {isOpen ? (
-              <X size={22} color="#ffffff" />
-            ) : (
-              <Settings2 size={22} color="#ffffff" />
-            )}
-          </Animated.View>
-        </Pressable>
-      </View>
-
       {task === "import" ? (
         <BottomSheet title={t("importSettings")} onClose={() => setTask(null)}>
           <TextInput
@@ -284,6 +253,116 @@ export function ParentActions({ library }: { library: LibraryController }) {
 
       <Toast state={toast.state} />
     </>
+  );
+
+  return { actions, overlay };
+}
+
+/**
+ * The four actions as a row of icons, for a header that has room for them.
+ *
+ * The web puts export, import, add and reset in a row above the list, because a desktop
+ * has the width for four buttons. A tablet does too — so they sit beside the screen's
+ * title rather than folding into a corner, and the corner stops being somewhere a parent
+ * has to reach at all.
+ *
+ * Icons only. A label on each would be four words competing with the screen's own title
+ * for the same line; the label survives as the accessibility name, which is the reader
+ * that actually needs it.
+ */
+export function ParentActionsBar({ actions }: { actions: ParentAction[] }) {
+  const styles = useStyles(makeStyles);
+  const color = useIconColor();
+  const size = useIconSize();
+
+  return (
+    <View style={styles.bar}>
+      {actions.map(({ key, label, Icon, onPress }) => (
+        <IconButton key={key} label={label} onPress={onPress}>
+          <Icon size={size} color={color} />
+        </IconButton>
+      ))}
+    </View>
+  );
+}
+
+/**
+ * The four actions behind one button in the corner, for a screen with no room for a row.
+ *
+ * A phone's list is what a parent came to read, so the actions fold into a button at the
+ * bottom right — where a thumb is — and open upwards over the list rather than pushing it
+ * down.
+ */
+export function ParentActionsDock({ actions }: { actions: ParentAction[] }) {
+  const { colors } = useTheme();
+  const insets = useSafeAreaInsets();
+  const t = useTranslations("Settings");
+  const m = useMetrics();
+  const styles = useStyles(makeStyles);
+  const [isOpen, setIsOpen] = useState(false);
+  const spin = useSharedValue(0);
+
+  function toggle() {
+    setIsOpen((open) => {
+      spin.value = withTiming(open ? 0 : 1, { duration: 200 });
+      return !open;
+    });
+  }
+
+  /** Every action closes the menu on its way out; none of them leaves it standing. */
+  function run(action: ParentAction) {
+    setIsOpen(false);
+    spin.value = withTiming(0, { duration: 160 });
+    action.onPress();
+  }
+
+  const spinStyle = useAnimatedStyle(() => ({
+    transform: [{ rotate: `${spin.value * 90}deg` }],
+  }));
+
+  return (
+    <View
+      style={[styles.dock, { bottom: insets.bottom + m.space.gridGap }]}
+      pointerEvents="box-none"
+    >
+      {isOpen ? (
+        <Animated.View
+          style={styles.actions}
+          entering={FadeIn.duration(160)}
+          exiting={FadeOut.duration(120)}
+        >
+          {actions.map((action) => (
+            <Action
+              key={action.key}
+              label={action.label}
+              onPress={() => run(action)}
+            >
+              <action.Icon size={m.font(18)} color={colors.buttonInk} />
+            </Action>
+          ))}
+        </Animated.View>
+      ) : null}
+
+      <Pressable
+        onPress={toggle}
+        style={({ pressed }) => [
+          styles.fab,
+          { backgroundColor: colors.buttonActive },
+          pressed && styles.pressed,
+        ]}
+        accessibilityRole="button"
+        accessibilityLabel={t("parentActions")}
+        accessibilityState={{ expanded: isOpen }}
+      >
+        <Animated.View style={spinStyle}>
+          {isOpen ? (
+            <X size={22} color="#ffffff" />
+          ) : (
+            <Settings2 size={22} color="#ffffff" />
+          )}
+        </Animated.View>
+      </Pressable>
+    </View>
   );
 }
 
@@ -386,6 +465,8 @@ const makeStyles = (m: Metrics) =>
       gap: m.space.meta,
     },
     actions: { alignItems: "flex-end", gap: m.font(8) },
+    /** The header row's version: icons in a line, at the header's own rhythm. */
+    bar: { flexDirection: "row", alignItems: "center", gap: m.space.meta },
     action: {
       flexDirection: "row",
       alignItems: "center",
