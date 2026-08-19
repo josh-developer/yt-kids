@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  The indexable pages: home, parent settings and the privacy policy, once per
+  locale. Watch pages are deliberately absent - their content comes from the
+  parent's on-device library, so a crawler would only ever see an empty shell.
+  Staging never reaches an index either way: the worker stamps every
+  non-production response with `X-Robots-Tag: noindex`.
+-->
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:xhtml="http://www.w3.org/1999/xhtml">
+  <url>
+    <loc>https://kidtube.uz/en</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://kidtube.uz/en"/>
+    <xhtml:link rel="alternate" hreflang="uz" href="https://kidtube.uz/uz"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://kidtube.uz/en"/>
+  </url>
+  <url>
+    <loc>https://kidtube.uz/uz</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://kidtube.uz/en"/>
+    <xhtml:link rel="alternate" hreflang="uz" href="https://kidtube.uz/uz"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://kidtube.uz/en"/>
+  </url>
+  <url>
+    <loc>https://kidtube.uz/en/settings</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://kidtube.uz/en/settings"/>
+    <xhtml:link rel="alternate" hreflang="uz" href="https://kidtube.uz/uz/settings"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://kidtube.uz/en/settings"/>
+  </url>
+  <url>
+    <loc>https://kidtube.uz/uz/settings</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://kidtube.uz/en/settings"/>
+    <xhtml:link rel="alternate" hreflang="uz" href="https://kidtube.uz/uz/settings"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://kidtube.uz/en/settings"/>
+  </url>
+  <url>
+    <loc>https://kidtube.uz/en/privacy</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://kidtube.uz/en/privacy"/>
+    <xhtml:link rel="alternate" hreflang="uz" href="https://kidtube.uz/uz/privacy"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://kidtube.uz/en/privacy"/>
+  </url>
+  <url>
+    <loc>https://kidtube.uz/uz/privacy</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://kidtube.uz/en/privacy"/>
+    <xhtml:link rel="alternate" hreflang="uz" href="https://kidtube.uz/uz/privacy"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://kidtube.uz/en/privacy"/>
+  </url>
+</urlset>
