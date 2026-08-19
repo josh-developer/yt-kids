@@ -15,6 +15,8 @@ export async function generateMetadata({
   return createMetadata({
     title: t("page", { page: t("settings") }),
     description: t("settingsDescription"),
+    pathname: "/settings",
+    locale,
   });
 }
 
