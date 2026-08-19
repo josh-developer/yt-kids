@@ -251,3 +251,46 @@ it. Explanations belong here, not there. The shared preset it extends lives at
 `packages/typescript-config/expo.json`, and exists because React Native needs
 `module: preserve`, `moduleResolution: bundler`, and the `react-native` custom
 condition, none of which the repo's NodeNext `base.json` provides.
+
+## App Store credentials live outside this repo
+
+`eas.json` carries only the two identifiers that are safe in a public repo — the
+App Store Connect app id and the Apple team id. The App Store Connect API key is
+not here, and must not be: this repository is public, and the key's id and issuer
+are two thirds of a credential whose third part is a file anyone can lose track of.
+The path would be wrong on every machine but the one that downloaded it, besides.
+
+`eas submit` reads the rest from the environment:
+
+```sh
+export EXPO_ASC_API_KEY_PATH=/path/to/AuthKey_XXXXXXXXXX.p8
+export EXPO_ASC_KEY_ID=XXXXXXXXXX
+export EXPO_ASC_ISSUER_ID=00000000-0000-0000-0000-000000000000
+eas submit -p ios --profile production --latest
+```
+
+The same three variables let `eas build` create the distribution certificate and
+provisioning profile without an Apple ID password or a 2FA prompt. Two more are
+worth having on hand for that first run:
+
+```sh
+export EXPO_APPLE_TEAM_ID=MW937H8CVY EXPO_APPLE_TEAM_TYPE=INDIVIDUAL
+export EXPO_NO_CAPABILITY_SYNC=1
+```
+
+`EXPO_NO_CAPABILITY_SYNC` is the one that is not obvious. EAS syncs the bundle id's
+capabilities on every build, and Apple's API rejects the request it sends for a
+capability that is off — `PUSH_NOTIFICATIONS: OFF` fails the whole build with
+`Unexpected or invalid value at 'data.relationships.bundleIdCapabilities'`. This app
+needs no capabilities at all, so the sync has nothing to do and is better skipped.
+
+The key itself is generated at App Store Connect → Users and Access → Integrations,
+with Admin access — App Manager cannot create certificates. Apple lets the `.p8`
+be downloaded once, so a lost key means generating a new one.
+
+## The iOS bundle identifier is not the Android package
+
+iOS ships as `uz.kidtube.mobile`, Android as `uz.kidtube.app`. They disagree because
+the App Store Connect record was created under the former, and a build whose
+identifier does not match the record cannot be signed or submitted. Changing either
+one to agree with the other would orphan a store listing; leave them as they are.

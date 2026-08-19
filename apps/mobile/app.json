@@ -2,7 +2,7 @@
   "expo": {
     "name": "KidTube",
     "slug": "kidtube",
-    "version": "0.1.0",
+    "version": "1.0.0",
     "orientation": "default",
     "scheme": "kidtube",
     "userInterfaceStyle": "automatic",
@@ -10,7 +10,7 @@
     "icon": "./assets/icon.png",
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "uz.kidtube.app",
+      "bundleIdentifier": "uz.kidtube.mobile",
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false
       }
