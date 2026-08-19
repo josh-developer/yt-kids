@@ -17,10 +17,16 @@ const TRANSPORT_SEEK = 30;
  * timing puzzle, and the conventions are the ones every other TV player uses — left and
  * right scrub, the middle button plays and pauses, up brings the controls back.
  *
- * `eventKeyAction` is the one detail worth care. Android sends each press twice, `0` for
- * the key going down and `1` for it coming back up; tvOS sends `-1` and means "once". Only
- * the key-up is dropped, so a held arrow repeats at the system's own rate, which is what
- * makes scrubbing feel like scrubbing rather than a series of jumps.
+ * `eventKeyAction` is the one detail worth care, and it is not what the documentation
+ * reads like. Measured on an Android TV emulator: one press produces exactly **one** event,
+ * and it carries `eventKeyAction: 1` — the key coming back *up*. There is no `0` to pair it
+ * with. tvOS sends `-1` and means "once".
+ *
+ * So the guard drops `0` rather than `1`. Getting that backwards is silent and total: the
+ * handler runs, matches nothing, and the remote appears dead while every other explanation
+ * — a WebView eating keys, focus in the wrong place — looks far more likely. It cost an
+ * afternoon. If a future version of the fork starts emitting the key-down too, this still
+ * acts once, on the release.
  *
  * Every key shows the controls first. A viewer who presses anything is asking where they
  * are, and answering that before doing what they asked is why a TV player never seems to
@@ -39,9 +45,9 @@ export function useTVRemote({
   onNext: () => void;
 }) {
   useTVEventHandler((event: HWEvent) => {
-    // Android reports the release of every key as a second event; acting on both would
-    // seek twice for one press.
-    if (!isEnabled || event.eventKeyAction === 1) {
+    // `0` is a key going down, which Android does not currently send and which would
+    // pair with the release below if it ever did.
+    if (!isEnabled || event.eventKeyAction === 0) {
       return;
     }
 
