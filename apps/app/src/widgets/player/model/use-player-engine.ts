@@ -25,6 +25,17 @@ const AUTO_START_ATTEMPTS = 4;
 /** A first iframe can ignore `playVideo`; `loadVideoById` is the stronger nudge. */
 const LOAD_KICK_ATTEMPTS = 1;
 const END_TOLERANCE_SECONDS = 0.25;
+/**
+ * A telemetry packet's `currentTime` is a snapshot from slightly before it
+ * arrives — the embed answers `requestProgress()` over `postMessage`, which
+ * takes time in flight — while the clock has kept ticking forward from our
+ * own interpolation in the meantime. Applied unconditionally, that stale
+ * snapshot drags the displayed second back down every ~750ms and immediately
+ * back up, which is the flicker this tolerance exists to absorb: only a gap
+ * bigger than one ordinary round trip is treated as a real desync (a stall,
+ * a seek landing) worth correcting for.
+ */
+const TELEMETRY_REGRESSION_TOLERANCE_SECONDS = 1.5;
 
 /** What went wrong, in the two flavours the viewer can act on. */
 export type PlayerFailure = "blocked" | "unreachable";
@@ -331,7 +342,12 @@ export function usePlayerEngine({
         return;
       }
 
-      if (typeof telemetry.currentTime === "number") {
+      if (
+        typeof telemetry.currentTime === "number" &&
+        (telemetry.currentTime >= clock.get() ||
+          clock.get() - telemetry.currentTime >
+            TELEMETRY_REGRESSION_TOLERANCE_SECONDS)
+      ) {
         clock.set(telemetry.currentTime);
         publishTime(telemetry.currentTime);
       }

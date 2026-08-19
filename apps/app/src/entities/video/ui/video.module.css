@@ -34,13 +34,64 @@
   aspect-ratio: 16 / 9;
   overflow: hidden;
   border-radius: var(--thumbnail-radius, 8px);
-  background:
-    linear-gradient(135deg, rgba(255, 49, 87, 0.2), rgba(37, 168, 90, 0.16)),
-    #dddddd;
+  background: #e9e9e6;
   box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.34);
 }
 
+.thumbnailPlaceholder {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  background: linear-gradient(180deg, #f8f8f6, #e7e7e3);
+}
+
+.placeholderMark {
+  width: 22%;
+  min-width: 26px;
+  max-width: 56px;
+  aspect-ratio: 1;
+  background: url("/brand-mascot-header.png") center / contain no-repeat;
+  transform-origin: center;
+  will-change: transform;
+  animation: thumbnailMarkDrift 1s ease-in-out infinite;
+}
+
+.placeholderLabel {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  color: #9a9a94;
+}
+
+@keyframes thumbnailMarkDrift {
+  0%,
+  100% {
+    transform: rotate(0deg) translateX(0);
+  }
+
+  25% {
+    transform: rotate(-9deg) translateX(-2px);
+  }
+
+  75% {
+    transform: rotate(9deg) translateX(2px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .placeholderMark {
+    animation: none;
+  }
+}
+
 .thumbnail img {
+  position: relative;
+  z-index: 1;
   width: 100%;
   height: 100%;
   object-fit: cover;
@@ -49,6 +100,7 @@
 
 .duration {
   position: absolute;
+  z-index: 2;
   right: 8px;
   bottom: 8px;
   padding: 3px 6px;

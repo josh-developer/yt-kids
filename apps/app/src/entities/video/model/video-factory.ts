@@ -1,4 +1,5 @@
 import type { YouTubeMetadata } from "@/shared/api/youtube";
+import { foldUzbekScript } from "@/shared/lib/i18n/uzbek-script";
 import type { Video } from "./types";
 
 export const CUSTOM_VIDEO_ACCENT = "#00a676";
@@ -29,10 +30,10 @@ export function customVideoId(videoId: string) {
 }
 
 export function matchesQuery(video: Video, query: string) {
-  const needle = query.trim().toLowerCase();
+  const needle = foldUzbekScript(query.trim());
   if (!needle) {
     return true;
   }
 
-  return `${video.title} ${video.channel}`.toLowerCase().includes(needle);
+  return foldUzbekScript(`${video.title} ${video.channel}`).includes(needle);
 }
