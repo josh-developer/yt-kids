@@ -302,10 +302,19 @@ export const PlayerView = forwardRef<
       {/* The layer the taps land on, above the page and below the controls.
             A WebView is a native view and takes touches whatever its React parent says
             about `pointerEvents`, so the gesture cannot be attached to anything that
-            contains it — it has to be over it. */}
+            contains it — it has to be over it.
+
+            On a television it is also **the only focusable thing in the player**, and it
+            has to be: Android delivers key events to the focused view and they travel up
+            from there, so with the WebView blocked and nothing else focusable, nothing
+            inside React Native's root view held focus and no key reached
+            `useTVEventHandler` at all. Measured — blocking the WebView alone left the
+            remote deader than before. This layer is what the keys arrive through. */}
       <View
         style={styles.touchLayer}
         collapsable={false}
+        focusable={isTV}
+        hasTVPreferredFocus={isTV}
         onTouchEnd={taps.onTouchEnd}
       />
 

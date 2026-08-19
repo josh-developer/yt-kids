@@ -3,6 +3,7 @@ import { Pause, Play, SkipBack, SkipForward } from "lucide-react-native";
 import type { ReactNode } from "react";
 import { Pressable, StyleSheet, View } from "react-native";
 import { focusRing, useFocusable } from "../../../shared/ui/use-focusable";
+import { useDevice } from "../../../shared/lib/device/use-device";
 import { useTranslations } from "../../../shared/lib/i18n/use-translations";
 import type { Player } from "../model/use-player";
 import { useMetrics, useStyles, type Metrics } from "../../../shared/config/metrics";
@@ -36,6 +37,7 @@ export function PlayerTransport({
   onNext: () => void;
 }) {
   const t = useTranslations("Player");
+  const { isTV } = useDevice();
   const m = useMetrics();
   const styles = useStyles(makeStyles);
   const primary = useFocusable();
@@ -63,6 +65,7 @@ export function PlayerTransport({
       <Pressable
         onPress={player.togglePlayback}
         {...primary.handlers}
+        focusable={!isTV}
         style={({ pressed }) => [
           styles.primaryShadow,
           focusRing(m.size.focusRing, "#ffffff", primary.isFocused),
@@ -103,6 +106,7 @@ function SideButton({
   isDisabled: boolean;
   onPress: () => void;
 }) {
+  const { isTV } = useDevice();
   const { size } = useMetrics();
   const styles = useStyles(makeStyles);
   const { handlers, isFocused } = useFocusable();
@@ -112,6 +116,7 @@ function SideButton({
       onPress={onPress}
       disabled={isDisabled}
       {...handlers}
+      focusable={!isTV}
       style={({ pressed }) => [
         styles.side,
         isDisabled && styles.disabled,

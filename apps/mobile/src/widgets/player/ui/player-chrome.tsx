@@ -86,7 +86,6 @@ export function PlayerChrome({
         <ControlButton
           label={player.isPlaying ? t("pause") : t("play")}
           isPrimary
-          hasTVPreferredFocus
           onPress={player.togglePlayback}
         >
           {player.isPlaying ? (
@@ -176,6 +175,16 @@ export function PlayerChrome({
   );
 }
 
+/**
+ * On a television the chrome shows state and does not take focus.
+ *
+ * The single focusable thing in the player is the layer over the video, and it stays that
+ * way while the controls are up. If these buttons were focusable too, every arrow press
+ * would do two things at once — move the highlight *and* seek, because `useTVEventHandler`
+ * fires whatever holds focus. One or the other had to own the D-pad, and on a player it is
+ * the transport: that is the arrangement every TV video app uses, and the reason a remote
+ * has no cursor.
+ */
 function ControlButton({
   label,
   children,
@@ -183,7 +192,6 @@ function ControlButton({
   isActive = false,
   isLarge = false,
   isFullscreenButton = false,
-  hasTVPreferredFocus = false,
   onPress,
 }: {
   label: string;
@@ -192,10 +200,9 @@ function ControlButton({
   isActive?: boolean;
   isLarge?: boolean;
   isFullscreenButton?: boolean;
-  /** Play claims it, so the controls open with the D-pad on the thing most likely wanted. */
-  hasTVPreferredFocus?: boolean;
   onPress: () => void;
 }) {
+  const { isTV } = useDevice();
   const { size } = useMetrics();
   const styles = useStyles(makeStyles);
   const { handlers, isFocused } = useFocusable();
@@ -204,7 +211,7 @@ function ControlButton({
     <Pressable
       onPress={onPress}
       {...handlers}
-      hasTVPreferredFocus={hasTVPreferredFocus}
+      focusable={!isTV}
       style={({ pressed }) => [
         styles.controlButton,
         isLarge && styles.controlButtonLarge,
