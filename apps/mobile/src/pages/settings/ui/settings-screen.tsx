@@ -71,7 +71,7 @@ export function SettingsScreen({
    * is the whole screen; anything larger has room for them beside the title, which is also
    * where the web puts them.
    */
-  const hasRoomForActionBar = kind !== "phone";
+  const isWideHeader = kind !== "phone";
   const parentActions = useParentActions(library);
 
   const results = useMemo(() => {
@@ -79,6 +79,33 @@ export function SettingsScreen({
       tab === "approved" ? library.approvedVideos : library.hiddenVideos;
     return pool.filter((video) => matchesQuery(video, query));
   }, [library.approvedVideos, library.hiddenVideos, query, tab]);
+
+  const search = (
+    <VideoSearchField
+      query={query}
+      onQueryChange={setQuery}
+      onSubmit={() => undefined}
+    />
+  );
+
+  const tabs = (
+    <>
+      <TabButton
+        label={t("approvedTab")}
+        count={library.approvedVideos.length}
+        isActive={tab === "approved"}
+        isWide={isWideHeader}
+        onPress={() => setTab("approved")}
+      />
+      <TabButton
+        label={t("hiddenTab")}
+        count={library.hiddenVideos.length}
+        isActive={tab === "hidden"}
+        isWide={isWideHeader}
+        onPress={() => setTab("hidden")}
+      />
+    </>
+  );
 
   return (
     <View style={styles.screen}>
@@ -114,33 +141,27 @@ export function SettingsScreen({
             </Text>
           </View>
 
-          {hasRoomForActionBar ? (
-            <ParentActionsBar actions={parentActions.actions} />
+          {/* The field rides the title's line where there is room for it, which is the
+              one place on this screen that has spare width — the title is two short lines
+              and everything else is a list. */}
+          {isWideHeader ? (
+            <View style={styles.headerSearch}>{search}</View>
           ) : null}
         </View>
 
-        <View style={styles.headerControls}>
-          <VideoSearchField
-            query={query}
-            onQueryChange={setQuery}
-            onSubmit={() => undefined}
-          />
-
-          <View style={styles.tabs}>
-            <TabButton
-              label={t("approvedTab")}
-              count={library.approvedVideos.length}
-              isActive={tab === "approved"}
-              onPress={() => setTab("approved")}
-            />
-            <TabButton
-              label={t("hiddenTab")}
-              count={library.hiddenVideos.length}
-              isActive={tab === "hidden"}
-              onPress={() => setTab("hidden")}
-            />
+        {isWideHeader ? (
+          /* Tabs left, actions right. Two clusters that never grow into each other, so
+             the row costs one line instead of the two a stacked header needed. */
+          <View style={styles.controlsRow}>
+            <View style={styles.tabs}>{tabs}</View>
+            <ParentActionsBar actions={parentActions.actions} />
           </View>
-        </View>
+        ) : (
+          <View style={styles.headerControls}>
+            {search}
+            <View style={styles.tabs}>{tabs}</View>
+          </View>
+        )}
       </View>
 
       {/* `FlashList`, for the same reason as the home grid: this is 400-odd rows and a
@@ -186,7 +207,7 @@ export function SettingsScreen({
       />
 
       {/* The corner button, only where the header could not take the row. */}
-      {hasRoomForActionBar ? null : (
+      {isWideHeader ? null : (
         <ParentActionsDock actions={parentActions.actions} />
       )}
 
@@ -200,11 +221,14 @@ function TabButton({
   label,
   count,
   isActive,
+  isWide,
   onPress,
 }: {
   label: string;
   count: number;
   isActive: boolean;
+  /** Sharing a row with the actions, so it sizes to its label instead of splitting a line. */
+  isWide: boolean;
   onPress: () => void;
 }) {
   const { colors } = useTheme();
@@ -218,6 +242,7 @@ function TabButton({
       {...handlers}
       style={[
         styles.tab,
+        isWide && styles.tabWide,
         {
           backgroundColor: isActive ? colors.buttonActive : colors.buttonSoft,
         },
@@ -318,20 +343,28 @@ const makeStyles = (m: Metrics) =>
       gap: m.space.meta,
     },
     headerText: { flex: 1, minWidth: 0 },
+    /** The phone's stack: the field, then the tabs, both the width of the screen. */
+    headerControls: { width: "100%", gap: m.space.meta },
     /**
-     * The search field and the tabs stay a phone's width even on a tablet. Neither reads
-     * better for being stretched across a metre of glass, and holding them together keeps
-     * the eye's path from the title to the list short.
+     * The field, on the title's line.
      *
-     * Centred rather than left-aligned, which only shows up once the cap bites: on a
-     * 1280dp tablet a 560dp cluster pinned to the left edge sits alone in the corner while
-     * the rows below it span the whole screen. It is a no-op on a phone, where the window
-     * is narrower than the cap and the width is the full width either way.
+     * Capped for the same reason the home header's is: a search field is not more useful
+     * for being 900px wide, and letting it take the whole middle of the row would push the
+     * title and the back button to opposite edges of the screen.
      */
-    headerControls: {
-      width: "100%",
-      maxWidth: 560,
-      alignSelf: "center",
+    headerSearch: { flex: 1, maxWidth: 420 },
+    /**
+     * Tabs at one end, the parent's actions at the other.
+     *
+     * They are the two things on this screen that are neither the title nor the list, and
+     * neither of them wants to grow — so putting them on one line with the space pushed
+     * between costs a single row where the stacked version cost two, and the list starts
+     * that much higher up.
+     */
+    controlsRow: {
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "space-between",
       gap: m.space.meta,
     },
     title: {
@@ -350,6 +383,8 @@ const makeStyles = (m: Metrics) =>
       justifyContent: "center",
       paddingHorizontal: m.space.meta,
     },
+    /** Sized by its label rather than splitting the line, once it shares one. */
+    tabWide: { flex: 0, paddingHorizontal: m.space.gridGap },
     tabLabel: { ...m.type.muted, fontFamily: m.type.cardTitle.fontFamily },
     row: {
       flexDirection: "row",
