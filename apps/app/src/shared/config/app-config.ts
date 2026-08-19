@@ -14,11 +14,15 @@ export const SESSION_KEYS = {
 } as const;
 
 /**
- * Schema version for the `kidtube-library-v2` payload. Bump only if this
- * shape changes again — new catalog videos don't need a bump, they're
- * approved by default until a parent hides them.
+ * Schema version for the `kidtube-library-v2` payload. Bump only for a
+ * shape or data-quality fix that needs a one-time reconciliation pass on
+ * read (see `normalizeStoredLibrary`) — never for new catalog videos
+ * shipping, since those are approved by default with no bump needed.
+ *
+ * v2: fixes a v1 migration bug that swept catalog videos added after a
+ * parent's last save into `hiddenIds` instead of leaving them visible.
  */
-export const LIBRARY_VERSION = 1;
+export const LIBRARY_VERSION = 2;
 
 export const MAX_WATCH_STACK_SIZE = 200;
 
