@@ -32,7 +32,9 @@
   position: relative;
   display: flex;
   align-items: center;
+  justify-self: start;
   gap: 10px;
+  width: fit-content;
   min-width: 0;
   border: 0;
   background: transparent;
@@ -92,6 +94,10 @@
   display: flex;
   justify-content: flex-end;
   gap: 10px;
+}
+
+.topbar button {
+  box-shadow: none;
 }
 
 :global([data-theme="dark"]) .topbar {
