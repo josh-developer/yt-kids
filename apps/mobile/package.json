@@ -10,7 +10,8 @@
     "install": {
       "//": "TypeScript is held at the workspace's 5.9 rather than the 6.0 the SDK asks for, so the monorepo compiles with one compiler. Nothing here needs 6: `tsc --noEmit` passes, and this app is a WebView with almost no type surface. Revisit when the rest of the repo moves.",
       "exclude": [
-        "typescript"
+        "typescript",
+        "react-native"
       ]
     }
   },
@@ -54,7 +55,7 @@
     "intl-messageformat": "^11.2.13",
     "lucide-react-native": "^1.31.0",
     "react": "19.2.3",
-    "react-native": "0.86.2",
+    "react-native": "npm:react-native-tvos@0.86.2-0",
     "react-native-gesture-handler": "~2.32.0",
     "react-native-reanimated": "4.5.1",
     "react-native-safe-area-context": "~5.7.0",
@@ -64,6 +65,7 @@
     "react-native-worklets": "0.10.1"
   },
   "devDependencies": {
+    "@react-native-tvos/config-tv": "^0.1.6",
     "@repo/typescript-config": "workspace:*",
     "@types/node": "^26.2.0",
     "@types/react": "^19.2.18",
