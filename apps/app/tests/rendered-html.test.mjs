@@ -66,6 +66,70 @@ test("localizes page metadata per locale", async () => {
   );
 });
 
+test("publishes SEO signals per locale", async () => {
+  const html = await (await render("/en")).text();
+
+  // Canonical + hreflang: /en and /uz are one page in two languages.
+  assert.match(
+    html,
+    /<link rel="canonical" href="https:\/\/kidtube\.uz\/en"\/?>/,
+  );
+  assert.match(
+    html,
+    /<link rel="alternate" hrefLang="uz" href="https:\/\/kidtube\.uz\/uz"\/?>/,
+  );
+  assert.match(
+    html,
+    /<link rel="alternate" hrefLang="x-default" href="https:\/\/kidtube\.uz\/en"\/?>/,
+  );
+
+  // The share card and its locale.
+  assert.match(html, /property="og:image"[^>]*og-image\.png/);
+  assert.match(html, /property="og:locale" content="en_US"/);
+
+  // Structured data: the home page states the one WebApplication entity.
+  assert.match(html, /application\/ld\+json/);
+  assert.match(html, /"@type":"WebApplication"/);
+
+  const uzbek = await (await render("/uz/privacy")).text();
+  assert.match(
+    uzbek,
+    /<link rel="canonical" href="https:\/\/kidtube\.uz\/uz\/privacy"\/?>/,
+  );
+  assert.match(uzbek, /property="og:locale" content="uz_UZ"/);
+});
+
+test("titles watch pages from the shipped catalog", async () => {
+  // The first catalog entry, read from the data file itself so the test
+  // follows the catalog instead of pinning a copy of it.
+  const catalog = await readFile(
+    new URL("../../../packages/catalog/curated-videos.ts", import.meta.url),
+    "utf8",
+  );
+  const id = catalog.match(/id: "([^"]+)"/)?.[1];
+  const youtubeId = catalog.match(/videoId: "([^"]+)"/)?.[1];
+  const title = catalog.match(/title: "([^"]+)"/)?.[1];
+  assert.ok(id && youtubeId && title, "catalog data file yields a first entry");
+
+  const html = await (await render(`/en/watch/${id}`)).text();
+  const escapedTitle = title.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
+  // A catalog video's page carries its real title and its own thumbnail.
+  assert.match(html, new RegExp(`<title>${escapedTitle} \\| KidTube</title>`));
+  assert.match(
+    html,
+    new RegExp(`property="og:image"[^>]*/_thumb/${youtubeId}/poster`),
+  );
+
+  // A parent-added id still gets a thumbnail; the title stays generic.
+  const custom = await (await render(`/en/watch/custom-${youtubeId}`)).text();
+  assert.match(custom, /<title>Watch \| KidTube<\/title>/);
+  assert.match(
+    custom,
+    new RegExp(`property="og:image"[^>]*/_thumb/${youtubeId}/poster`),
+  );
+});
+
 test("redirects locale-less URLs to a negotiated locale", async () => {
   const fallback = await render("/");
   assert.equal(fallback.status, 307);
