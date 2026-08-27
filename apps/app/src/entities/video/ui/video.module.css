@@ -136,8 +136,8 @@
 .videoTitle {
   display: -webkit-box;
   overflow: hidden;
-  line-clamp: 3;
-  -webkit-line-clamp: 2;
+  line-clamp: var(--video-title-line-clamp, 2);
+  -webkit-line-clamp: var(--video-title-line-clamp, 2);
   -webkit-box-orient: vertical;
   /* Hosts may tighten the line box: see `--video-title-*`. */
   min-height: var(--video-title-min-height, 40px);
@@ -160,6 +160,39 @@
 .videoSubline {
   display: block;
   overflow-wrap: break-word;
+}
+
+.videoMetaLine {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 8px;
+}
+
+.videoChannel {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.videoViewMetric {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  justify-self: end;
+  white-space: nowrap;
+}
+
+.videoViewMetric svg {
+  flex: 0 0 auto;
+}
+
+.videoViewSlot {
+  display: block;
+  justify-self: end;
+  min-width: 1px;
+  min-height: 1em;
 }
 
 /* Lifts the hovered card above its neighbours, tooltips and all. */

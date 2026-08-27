@@ -4,12 +4,12 @@ import styles from "./video.module.css";
 
 /**
  * Matches the home grid's breakpoints in `video-grid.module.css`: one column
- * under 720px, roughly two up to 1080px, then its 420px-minimum columns
+ * under 720px, roughly two up to 1080px, then its 340px-minimum columns
  * scaling with viewport width beyond that. It's the default because the home
  * grid is the highest-traffic, scroll-heaviest consumer; other layouts (a
  * fixed-width sidebar row, say) pass their own actual slot width instead.
  */
-const GRID_SIZES = "(max-width: 720px) 100vw, (max-width: 1080px) 50vw, 33vw";
+const GRID_SIZES = "(max-width: 720px) 100vw, (max-width: 1080px) 50vw, 25vw";
 
 export function VideoThumbnail({
   video,

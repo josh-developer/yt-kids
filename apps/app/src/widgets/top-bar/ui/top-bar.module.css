@@ -21,6 +21,12 @@
   transform: translateY(-100%);
 }
 
+@media (min-width: 1081px) {
+  .topbar {
+    z-index: 7000;
+  }
+}
+
 .topSearchSlot {
   width: 100%;
   min-width: 0;
