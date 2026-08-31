@@ -219,6 +219,10 @@ export function SafeYouTubePlayer({
     autoplayTimers.current.clear("countdown");
     isCountingDownRef.current = false;
     setAutoplaySecondsLeft(null);
+    // The countdown pinned the controls open so its own timer stayed readable.
+    // Nothing else releases a pin, so it has to end with the thing that set it
+    // — otherwise the bar stays up for the rest of the session.
+    controls.show({ autoHide: engine.isPlaying });
   }
 
   // Leaving a video ends any countdown it left running.
@@ -328,6 +332,22 @@ export function SafeYouTubePlayer({
       }
     },
   });
+
+  /**
+   * A new video arrives with its controls up and on the clock.
+   *
+   * Re-armed here rather than left to `onPlayingChange`, which only fires when
+   * the flag actually changes: a video that ends hands over while still marked
+   * playing, so the next one starts `isPlaying === true` already and that
+   * callback never runs. Nothing scheduled the hide, and the bar sat over the
+   * new video until it was touched.
+   */
+  useEffect(() => {
+    revealControls();
+    // Keyed to the video, not to whatever the controls happen to be doing when
+    // it changes.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [video.id]);
 
   const handlePlayerKeyDown = usePlayerKeyboard({
     isLocked,
