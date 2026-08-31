@@ -20,6 +20,8 @@ const nunitoBrand = Nunito({
   weight: ["900"],
 });
 
+const shouldSilenceResizeObserverOverlay = process.env.NODE_ENV !== "production";
+
 type LocaleParams = { params: Promise<{ locale: Locale }> };
 
 export function generateStaticParams() {
@@ -65,6 +67,49 @@ export default async function LocaleLayout({
       <body
         className={`${geistSans.variable} ${nunitoBrand.variable} antialiased`}
       >
+        {shouldSilenceResizeObserverOverlay ? (
+          <script
+            dangerouslySetInnerHTML={{
+              __html: `
+                (() => {
+                  const isResizeObserverNoise = (value) =>
+                    String(value?.message ?? value ?? "").includes(
+                      "ResizeObserver loop completed with undelivered notifications",
+                    ) ||
+                    String(value?.message ?? value ?? "").includes(
+                      "ResizeObserver loop limit exceeded",
+                    );
+
+                  window.addEventListener(
+                    "error",
+                    (event) => {
+                      if (!isResizeObserverNoise(event.error ?? event.message)) {
+                        return;
+                      }
+
+                      event.preventDefault();
+                      event.stopImmediatePropagation();
+                    },
+                    true,
+                  );
+
+                  window.addEventListener(
+                    "unhandledrejection",
+                    (event) => {
+                      if (!isResizeObserverNoise(event.reason)) {
+                        return;
+                      }
+
+                      event.preventDefault();
+                      event.stopImmediatePropagation();
+                    },
+                    true,
+                  );
+                })();
+              `,
+            }}
+          />
+        ) : null}
         <NextIntlClientProvider>
           <PwaRegistrar />
           {children}

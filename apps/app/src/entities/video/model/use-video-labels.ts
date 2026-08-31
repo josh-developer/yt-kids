@@ -27,8 +27,9 @@ function compactViews(count: number) {
 }
 
 /**
- * Video rows carry data (a view count, a source marker), never pre-rendered
- * English. These helpers turn that data into text in the active locale.
+ * Video rows carry data (a view count and legacy fallback text), never
+ * pre-rendered English. These helpers turn that data into text in the active
+ * locale.
  */
 export function useVideoLabels() {
   const t = useTranslations("Video");
@@ -48,16 +49,27 @@ export function useVideoLabels() {
           });
         }
 
-        if (video.sourceLabel) {
-          return t(video.sourceLabel);
-        }
-
-        if (video.source === "custom") {
-          return t("parentAdded");
-        }
-
         // Libraries stored before v8 keep a pre-i18n display string.
         return video.views ?? "";
+      },
+      viewCount: (video: Video) => {
+        if (typeof video.viewCount !== "number") {
+          return "";
+        }
+
+        const { key, value } = compactViews(video.viewCount);
+        const formattedValue =
+          key === "views" ? numbers.integer(value) : numbers.decimal(value);
+
+        if (key === "viewsMillions") {
+          return t("viewsMillionsShort", { value: formattedValue });
+        }
+
+        if (key === "viewsThousands") {
+          return t("viewsThousandsShort", { value: formattedValue });
+        }
+
+        return t("viewsShort", { value: formattedValue });
       },
     }),
     [numbers, t],

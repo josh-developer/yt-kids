@@ -6,7 +6,7 @@
 
 @media (min-width: 1081px) {
   .videoGrid {
-    grid-template-columns: repeat(auto-fill, minmax(420px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
     gap: 16px;
   }
 

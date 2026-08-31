@@ -67,11 +67,14 @@
 }
 
 .iconButton:hover,
-.searchButton:hover,
 .pillButton:hover,
 .compactButton:hover {
   background: var(--button-soft-hover);
   transform: translateY(-1px);
+}
+
+.searchButton:hover {
+  background: var(--button-soft-hover);
 }
 
 .iconButton:disabled {

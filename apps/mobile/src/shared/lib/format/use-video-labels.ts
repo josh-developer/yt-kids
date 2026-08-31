@@ -56,14 +56,6 @@ export function useVideoLabels() {
         return t("views", { value: numbers.integer(count) });
       }
 
-      if (video.sourceLabel) {
-        return t(video.sourceLabel);
-      }
-
-      if (video.source === "custom") {
-        return t("parentAdded");
-      }
-
       // Libraries stored before v8 keep a pre-i18n display string.
       return video.views ?? "";
     },
