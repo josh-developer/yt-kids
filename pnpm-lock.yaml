@@ -95,6 +95,9 @@ importers:
       react-server-dom-webpack:
         specifier: ^19.2.8
         version: 19.2.8(react-dom@19.2.8(react@19.2.8))(react@19.2.8)(webpack@5.109.2(esbuild@0.28.1))
+      sharp:
+        specifier: ^0.35.3
+        version: 0.35.3(@types/node@26.2.0)
       tailwindcss:
         specifier: ^4.3.3
         version: 4.3.3
@@ -320,6 +323,9 @@ importers:
 
   packages/seo:
     dependencies:
+      '@repo/messages':
+        specifier: workspace:*
+        version: link:../messages
       lodash.merge:
         specifier: ^4.6.2
         version: 4.6.2

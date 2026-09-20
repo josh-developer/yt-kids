@@ -1,5 +1,7 @@
 export const STORAGE_KEYS = {
-  library: "kidtube-library-v1",
+  library: "kidtube-library-v2",
+  /** Retired key, read once to migrate a returning parent onto `library`. */
+  legacyLibrary: "kidtube-library-v1",
   theme: "kidtube-theme-v1",
   recommendations: "kidtube-recommendations-v1",
 } as const;
@@ -11,8 +13,16 @@ export const SESSION_KEYS = {
   playerPositions: "kidtube-player-positions",
 } as const;
 
-/** Bumped whenever `StoredLibrary` changes shape; drives migrations on read. */
-export const LIBRARY_VERSION = 9;
+/**
+ * Schema version for the `kidtube-library-v2` payload. Bump only for a
+ * shape or data-quality fix that needs a one-time reconciliation pass on
+ * read (see `normalizeStoredLibrary`) — never for new catalog videos
+ * shipping, since those are approved by default with no bump needed.
+ *
+ * v2: fixes a v1 migration bug that swept catalog videos added after a
+ * parent's last save into `hiddenIds` instead of leaving them visible.
+ */
+export const LIBRARY_VERSION = 2;
 
 export const MAX_WATCH_STACK_SIZE = 200;
 

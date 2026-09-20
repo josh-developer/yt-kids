@@ -97,13 +97,46 @@ export function VirtualGrid<Item>({
     const frame = window.requestAnimationFrame(() => setIsMeasured(true));
     const resizeObserver = new ResizeObserver(scheduleMeasure);
     resizeObserver.observe(grid);
+
+    /*
+    * Everything between the grid and the thing that scrolls it, and not as
+    * belt-and-braces: `scrollMargin` is the grid's *position*, and the rows are
+    * absolutely positioned against it. Anything above the grid that changes
+    * height moves the grid without changing the grid's own size, which an
+    * observer watching only the grid never sees — the offset goes stale, every
+    * row is placed that much too high, and the list climbs over whatever it was
+    * sitting below.
+    *
+    * On the watch sheet that "anything above" is the player. Its box is a CSS
+    * aspect ratio, so on a fast connection it is the right height from the first
+    * layout and this never comes up; in an in-app browser on a phone it settles
+    * after the grid has already measured, and the recommendations end up drawn
+    * over the video.
+    */
+    const container = findScrollElement(grid);
+    for (
+      let ancestor = grid.parentElement;
+      ancestor && ancestor !== container;
+      ancestor = ancestor.parentElement
+    ) {
+      resizeObserver.observe(ancestor);
+    }
+
     window.addEventListener("resize", scheduleMeasure);
+    /*
+    * `window.resize` is not the whole story on a phone. An in-app browser
+    * collapses and restores its own toolbars as you scroll, which resizes the
+    * visual viewport — and the layout viewport, which is what `resize` reports,
+    * does not always move with it.
+    */
+    window.visualViewport?.addEventListener("resize", scheduleMeasure);
 
     return () => {
       window.cancelAnimationFrame(frame);
       window.cancelAnimationFrame(pendingFrame);
       resizeObserver.disconnect();
       window.removeEventListener("resize", scheduleMeasure);
+      window.visualViewport?.removeEventListener("resize", scheduleMeasure);
     };
   }, []);
 

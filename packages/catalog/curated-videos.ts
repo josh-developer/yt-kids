@@ -238,16 +238,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     source: "catalog"
   },
   {
-    id: "uzbek-old-024",
-    videoId: "W7aLIwYqEJ4",
-    title: "Ana bumbo keldi 1984 Fil Ана Бумбо келди",
-    channel: "Soyuzmultfilm Uzbek",
-    duration: "--:--",
-    viewCount: 387,
-    accent: "#3949ab",
-    source: "catalog"
-  },
-  {
     id: "uzbek-old-025",
     videoId: "XpSQKGUnOtQ",
     title: "Ayiqcha (multfilm) | Айикча (мультфильм)",
@@ -618,16 +608,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     source: "catalog"
   },
   {
-    id: "uzbek-old-064",
-    videoId: "cFX8mWJmCdc",
-    title: "Toshda ham daraxt o'sadi 1985 Тошда хам дарахт усади узбек ozbek tilida retro kino film qadrdon kino",
-    channel: "Soyuzmultfilm Uzbek",
-    duration: "--:--",
-    viewCount: 799,
-    accent: "#3949ab",
-    source: "catalog"
-  },
-  {
     id: "uzbek-old-065",
     videoId: "V8nxc5njLzI",
     title: "Uch Qop Xiyla 1954 soyuz multfilm oʻzbek tilida сказка ertak bolalik retro uzbek qadrdon film kino",
@@ -688,16 +668,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     source: "catalog"
   },
   {
-    id: "uzbek-old-071",
-    videoId: "VrUF_hC28lw",
-    title: "Верное средство",
-    channel: "Tarjima Soyuzmultfilm",
-    duration: "9:23",
-    viewCount: 442,
-    accent: "#e8710a",
-    source: "catalog"
-  },
-  {
     id: "uzbek-old-072",
     videoId: "jX1FGFL8fNM",
     title: "емлашдан корккан бегимот",
@@ -705,16 +675,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     duration: "8:58",
     viewCount: 873,
     accent: "#3949ab",
-    source: "catalog"
-  },
-  {
-    id: "uzbek-old-073",
-    videoId: "N-Z_2sRSSTY",
-    title: "Зимняя сказка",
-    channel: "Tarjima Soyuzmultfilm",
-    duration: "11:22",
-    viewCount: 391,
-    accent: "#d93025",
     source: "catalog"
   },
   {
@@ -738,16 +698,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     source: "catalog"
   },
   {
-    id: "uzbek-old-076",
-    videoId: "Kzot7ItbRac",
-    title: "нонди босган кизча",
-    channel: "Tarjima Soyuzmultfilm",
-    duration: "9:13",
-    viewCount: 267,
-    accent: "#f9ab00",
-    source: "catalog"
-  },
-  {
     id: "uzbek-old-079",
     videoId: "zAg9YroC9Gw",
     title: "Простоквашиналик уч овлон",
@@ -758,26 +708,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     source: "catalog"
   },
   {
-    id: "uzbek-old-080",
-    videoId: "OpoS4nPId4g",
-    title: "Родной дом чистый дом (мультфильм)",
-    channel: "Uzbek Multfilm",
-    duration: "11:11",
-    viewCount: 2900,
-    accent: "#3949ab",
-    source: "catalog"
-  },
-  {
-    id: "uzbek-old-081",
-    videoId: "RHwxUmklDEY",
-    title: "Сто мешков снега (мультфильм)",
-    channel: "Uzbek Multfilm",
-    duration: "14:58",
-    viewCount: 3400,
-    accent: "#d93025",
-    source: "catalog"
-  },
-  {
     id: "uzbek-old-082",
     videoId: "48u-4P0LsK8",
     title: "суварак.таракан",
@@ -785,26 +715,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     duration: "8:30",
     viewCount: 1100,
     accent: "#0b8043",
-    source: "catalog"
-  },
-  {
-    id: "uzbek-old-083",
-    videoId: "RjumSmtHUK4",
-    title: "Ходжа Насреддин 1 (мультфильм)",
-    channel: "Uzbek Multfilm",
-    duration: "10:03",
-    viewCount: 54000,
-    accent: "#1a73e8",
-    source: "catalog"
-  },
-  {
-    id: "uzbek-old-084",
-    videoId: "boxcxUHHjgI",
-    title: "Ходжа Насреддин 2 (мультфильм)",
-    channel: "Uzbek Multfilm",
-    duration: "8:49",
-    viewCount: 44000,
-    accent: "#f9ab00",
     source: "catalog"
   },
   {
@@ -2908,16 +2818,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     source: "catalog"
   },
   {
-    id: "uzbek-old-296",
-    videoId: "HKzj94ewaA4",
-    title: "дед мороз по узбекский",
-    channel: "Мурад Джураев",
-    duration: "0:32",
-    sourceLabel: "playlist",
-    accent: "#5f6368",
-    source: "catalog"
-  },
-  {
     id: "uzbek-old-297",
     videoId: "GRpzVvlzfvI",
     title: "Sholg'om(kichik yoshdagi bolalar uchun o'zbek tilida ertaklar)",
@@ -3005,16 +2905,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     duration: "19:51",
     sourceLabel: "playlist",
     accent: "#d93025",
-    source: "catalog"
-  },
-  {
-    id: "uzbek-old-306",
-    videoId: "rlEdQSsOv6s",
-    title: "Banana cartoon multfilm",
-    channel: "Ставьте LIKE",
-    duration: "4:49",
-    sourceLabel: "playlist",
-    accent: "#0b8043",
     source: "catalog"
   },
   {
@@ -3148,16 +3038,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     source: "catalog"
   },
   {
-    id: "uzbek-old-321",
-    videoId: "yYKW1DOsDE0",
-    title: "Три богатыря: Ход конем | Мультфильмы для всей семьи",
-    channel: "Три богатыря",
-    duration: "1:08:36",
-    sourceLabel: "playlist",
-    accent: "#d93025",
-    source: "catalog"
-  },
-  {
     id: "uzbek-old-322",
     videoId: "LMop0DT2W_A",
     title: "Oltin tarvuz (multfilm) | Олтин тарвуз (мультфильм)",
@@ -3215,16 +3095,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     duration: "35:08",
     sourceLabel: "playlist",
     accent: "#e8710a",
-    source: "catalog"
-  },
-  {
-    id: "uzbek-old-328",
-    videoId: "4z4JcfMyLzk",
-    title: "Бэби-босс. Босс-молокосос. ИГРА. Little Baby Boss Care Doctor, Bath Time, Dress Up",
-    channel: "Мультяшкино",
-    duration: "21:54",
-    sourceLabel: "playlist",
-    accent: "#5f6368",
     source: "catalog"
   },
   {
@@ -3458,16 +3328,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     source: "catalog"
   },
   {
-    id: "uzbek-old-353",
-    videoId: "ah8HlSheE5I",
-    title: "Mustangni bo'ysindirish uzbek tilida multfilmdan parcha ,, MUSTANG \" | @mtfilm olami",
-    channel: "Multfilm olami",
-    duration: "3:33",
-    sourceLabel: "playlist",
-    accent: "#d93025",
-    source: "catalog"
-  },
-  {
     id: "uzbek-old-354",
     videoId: "sqpWYYJzqOg",
     title: "NUSSA VA RARA BIZ KIMMIZ. ISOMIY MULTFILM",
@@ -3565,16 +3425,6 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
     duration: "2:50",
     sourceLabel: "playlist",
     accent: "#1a73e8",
-    source: "catalog"
-  },
-  {
-    id: "uzbek-old-364",
-    videoId: "_nAu9D-8srA",
-    title: "Учим цвета Разноцветные яйца на ферме Miroshka Tv",
-    channel: "Мирошка ТВ",
-    duration: "5:11",
-    sourceLabel: "playlist",
-    accent: "#f9ab00",
     source: "catalog"
   },
   {
@@ -4090,7 +3940,7 @@ export const CURATED_UZBEK_OLD_CARTOONS: CuratedVideo[] = [
   {
     id: "uzbek-old-416",
     videoId: "HK9GPpc4B2c",
-    title: "Фиксики - Заставка на узбекском (все версии)",
+    title: "Fiksiklar zastavkasi (o'zbek tilida, barcha versiyalari) | Фиксики - Заставка на узбекском (все версии)",
     channel: "Vik_rblx",
     duration: "4:15",
     sourceLabel: "playlist",

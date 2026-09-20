@@ -7,6 +7,7 @@ export {
   isTrustedYouTubeMessageOrigin,
   isVideoId,
   lockedEmbedUrl,
+  thumbnailSrcSet,
   thumbnailUrl,
   watchUrl,
 } from "./youtube-urls";

@@ -16,6 +16,9 @@ export type ThumbnailSize = "card" | "poster";
 /** Must match `THUMBNAIL_CACHE_VERSION` in `apps/app/worker/index.ts`. */
 const THUMBNAIL_VERSION = "v2";
 
+/** Must match `THUMBNAIL_WIDTHS` in `apps/app/worker/index.ts`. */
+export const THUMBNAIL_WIDTHS = [320, 480, 640, 960] as const;
+
 /**
  * Same-origin on purpose. `i.ytimg.com` caches thumbnails for two hours and
  * lives behind its own DNS lookup and TLS handshake, which the largest paint on
@@ -23,8 +26,23 @@ const THUMBNAIL_VERSION = "v2";
  * a month-long lifetime, in AVIF or WebP where the browser accepts it. The
  * route shape is mirrored by `THUMBNAIL_ROUTE` in `worker/index.ts`.
  */
-export function thumbnailUrl(videoId: string, size: ThumbnailSize = "card") {
-  return `/_thumb/${videoId}/${size}?v=${THUMBNAIL_VERSION}`;
+export function thumbnailUrl(videoId: string, size: ThumbnailSize = "card", width?: number) {
+  const params = new URLSearchParams({ v: THUMBNAIL_VERSION });
+  if (width) {
+    params.set("w", String(width));
+  }
+  return `/_thumb/${videoId}/${size}?${params.toString()}`;
+}
+
+/**
+ * A `srcset` covering every cached width, so the browser picks a candidate
+ * from the rendered slot size and device pixel ratio instead of the worker
+ * always serving its largest rendition to a 128px sidebar thumbnail.
+ */
+export function thumbnailSrcSet(videoId: string, size: ThumbnailSize = "card") {
+  return THUMBNAIL_WIDTHS.map(
+    (width) => `${thumbnailUrl(videoId, size, width)} ${width}w`,
+  ).join(", ");
 }
 
 export function watchUrl(videoId: string) {

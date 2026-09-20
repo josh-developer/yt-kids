@@ -38,7 +38,7 @@ export function Recommendations({
         type="button"
         onClick={() => onOpenVideo(video)}
       >
-        <VideoThumbnail video={video} />
+        <VideoThumbnail video={video} sizes="(max-width: 720px) 128px, 168px" />
         <VideoSummary video={video} />
       </button>
     );

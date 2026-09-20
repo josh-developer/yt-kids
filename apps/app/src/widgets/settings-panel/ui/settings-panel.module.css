@@ -19,6 +19,10 @@
   margin-inline: auto;
 }
 
+.settingsLayout button {
+  box-shadow: none;
+}
+
 .sectionHeading {
   display: flex;
   align-items: center;

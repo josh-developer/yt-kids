@@ -53,10 +53,10 @@ test("standalone recommendations lead with the next approved videos in order", a
     video(6, "Foxtrot marble"),
   ];
   const library = VideoLibrary.from(new VideoCatalog(videos), {
-    version: 9,
-    selectedIds: videos.map((entry) => entry.id),
+    version: 1,
     customVideos: [],
     removedIds: [],
+    hiddenIds: [],
   });
 
   const first = library.recommendationGroupsFor(videos[0], 123);
@@ -81,10 +81,10 @@ test("series recommendations lead with one previous episode then the next four, 
     video(index + 1, `Omar va Hana ${index + 1}-qism`),
   );
   const library = VideoLibrary.from(new VideoCatalog(videos), {
-    version: 9,
-    selectedIds: videos.map((entry) => entry.id),
+    version: 1,
     customVideos: [],
     removedIds: [],
+    hiddenIds: [],
   });
 
   // Middle episode: one before, four after — no wrapping needed, and the
@@ -106,10 +106,10 @@ test("series recommendations wrap the next-four list at the end of the series", 
     video(index + 1, `Omar va Hana ${index + 1}-qism`),
   );
   const library = VideoLibrary.from(new VideoCatalog(videos), {
-    version: 9,
-    selectedIds: videos.map((entry) => entry.id),
+    version: 1,
     customVideos: [],
     removedIds: [],
+    hiddenIds: [],
   });
 
   const lastEpisodeGroups = library.recommendationGroupsFor(videos[6], 123);
@@ -133,10 +133,10 @@ test("a series shorter than the window shortens instead of padding", async () =>
     video(5, "Delta ocean"),
   ];
   const library = VideoLibrary.from(new VideoCatalog(videos), {
-    version: 9,
-    selectedIds: videos.map((entry) => entry.id),
+    version: 1,
     customVideos: [],
     removedIds: [],
+    hiddenIds: [],
   });
 
   const secondEpisodeGroups = library.recommendationGroupsFor(videos[1], 123);

@@ -1,8 +1,7 @@
 import { LIBRARY_VERSION } from "@/shared/config/app-config";
 import { isVideoId } from "@/shared/api/youtube";
-import type { Video } from "@/entities/video";
 import { CUSTOM_VIDEO_ACCENT, UNKNOWN_DURATION, customVideoId } from "@/entities/video";
-import type { StoredLibrary, VideoCatalog } from "@/entities/library";
+import type { CustomLibraryVideo, StoredLibrary, VideoCatalog } from "@/entities/library";
 import {
   base64UrlDecode,
   base64UrlEncode,
@@ -17,7 +16,8 @@ const TRANSFER_PREFIX = "KIDTUBE1";
 const TRANSFER_SECRET = "kidtube-parent-library-transfer-v1";
 const CODE_PATTERN = /^KIDTUBE1([GJ])\.([a-zA-Z0-9_-]+)$/;
 const MIN_PACKED_BYTES = 28;
-const TRANSFER_FORMAT_VERSION = 1;
+/** Bumped from 1 alongside the `hiddenIds`-based library shape. */
+const TRANSFER_FORMAT_VERSION = 2;
 
 type CompactVideoRef = number | string;
 
@@ -31,11 +31,13 @@ type TransferVideo = {
   /** Tags, written by versions before they were dropped. Read and ignored. */
   g?: string[];
   a: string;
+  /** Present and `true` only when the video is hidden; omitted otherwise. */
+  h?: true;
 };
 
 type TransferPayload = {
   v: typeof TRANSFER_FORMAT_VERSION;
-  s: CompactVideoRef[];
+  h: CompactVideoRef[];
   r: CompactVideoRef[];
   c: TransferVideo[];
 };
@@ -108,7 +110,7 @@ export class EncryptedTransferCodec implements LibraryTransferCodec {
   private pack(library: StoredLibrary): TransferPayload {
     return {
       v: TRANSFER_FORMAT_VERSION,
-      s: library.selectedIds.map((id) => this.catalog.compactRef(id)),
+      h: library.hiddenIds.map((id) => this.catalog.compactRef(id)),
       r: library.removedIds.map((id) => this.catalog.compactRef(id)),
       c: library.customVideos.map((video) => ({
         y: video.videoId,
@@ -117,6 +119,7 @@ export class EncryptedTransferCodec implements LibraryTransferCodec {
         d: video.duration,
         w: video.views ?? "",
         a: video.accent,
+        h: video.status === "hidden" ? true : undefined,
       })),
     };
   }
@@ -130,11 +133,11 @@ export class EncryptedTransferCodec implements LibraryTransferCodec {
       version: LIBRARY_VERSION,
       customVideos: payload.c.map((video) => this.toVideo(video)),
       removedIds: this.expandRefs(payload.r),
-      selectedIds: this.expandRefs(payload.s),
+      hiddenIds: this.expandRefs(payload.h),
     };
   }
 
-  private toVideo(video: TransferVideo): Video {
+  private toVideo(video: TransferVideo): CustomLibraryVideo {
     if (!isVideoId(video.y)) {
       throw new TransferError("invalidVideo");
     }
@@ -150,6 +153,7 @@ export class EncryptedTransferCodec implements LibraryTransferCodec {
       views: video.w || "",
       accent: video.a || CUSTOM_VIDEO_ACCENT,
       source: "custom",
+      status: video.h ? "hidden" : "visible",
     };
   }
 

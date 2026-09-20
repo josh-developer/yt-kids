@@ -25,6 +25,35 @@ const AUTO_START_ATTEMPTS = 4;
 /** A first iframe can ignore `playVideo`; `loadVideoById` is the stronger nudge. */
 const LOAD_KICK_ATTEMPTS = 1;
 const END_TOLERANCE_SECONDS = 0.25;
+/**
+ * A telemetry packet's `currentTime` is a snapshot from slightly before it
+ * arrives — the embed answers `requestProgress()` over `postMessage`, which
+ * takes time in flight — while the clock has kept ticking forward from our
+ * own interpolation in the meantime. Applied unconditionally, that stale
+ * snapshot drags the displayed second back down every ~750ms and immediately
+ * back up, which is the flicker this tolerance exists to absorb: only a gap
+ * bigger than one ordinary round trip is treated as a real desync (a stall,
+ * a seek landing) worth correcting for.
+ */
+const TELEMETRY_REGRESSION_TOLERANCE_SECONDS = 1.5;
+/**
+ * How long after a seek a reported pause is treated as the seek landing rather
+ * than as the video stopping.
+ *
+ * The embed reports a transitional state while a seek settles — a jump backwards
+ * past what it has buffered is the reliable way to see it — and a `paused` packet
+ * from that window says nothing about what the viewer did.
+ */
+const SEEK_SETTLE_MS = 1200;
+/**
+ * How often a stopped player is asked what it is doing.
+ *
+ * The progress pump is what polls the embed, and it only runs while the app
+ * believes the video is playing — so a `paused` the app should not have believed
+ * used to be self-sealing: it stopped the only thing that could have corrected
+ * it, and the play icon sat over a playing video until it was clicked.
+ */
+const PAUSED_POLL_MS = 1000;
 
 /** What went wrong, in the two flavours the viewer can act on. */
 export type PlayerFailure = "blocked" | "unreachable";
@@ -119,6 +148,7 @@ export function usePlayerEngine({
   const isMutedRef = useRef(isMuted);
   const volumeRef = useRef(volume);
   const ignoreMutedTelemetryUntilRef = useRef(0);
+  const ignorePausedTelemetryUntilRef = useRef(0);
   const hasStartedRef = useRef(false);
   const hasTelemetryRef = useRef(false);
   const hasFrameLoadedRef = useRef(false);
@@ -331,7 +361,12 @@ export function usePlayerEngine({
         return;
       }
 
-      if (typeof telemetry.currentTime === "number") {
+      if (
+        typeof telemetry.currentTime === "number" &&
+        (telemetry.currentTime >= clock.get() ||
+          clock.get() - telemetry.currentTime >
+            TELEMETRY_REGRESSION_TOLERANCE_SECONDS)
+      ) {
         clock.set(telemetry.currentTime);
         publishTime(telemetry.currentTime);
       }
@@ -399,6 +434,13 @@ export function usePlayerEngine({
           return;
         }
 
+        // A seek is still landing, so this is the embed catching up rather than
+        // the video stopping. A deliberate pause clears the window, so the one
+        // case this could have swallowed cannot arise.
+        if (performance.now() < ignorePausedTelemetryUntilRef.current) {
+          return;
+        }
+
         setIsPlaying(false);
         return;
       }
@@ -460,6 +502,30 @@ export function usePlayerEngine({
     const bag = timers.current;
     return () => bag.clear("progress");
   }, [clock, isPlaying, playbackGeneration, player]);
+
+  /**
+   * Keep asking while stopped.
+   *
+   * The progress pump above is the only thing that polls the embed, and it runs
+   * only while the app believes the video is playing. That made a wrong `paused`
+   * permanent: it switched off the one thing that could have noticed the video
+   * was still going. This costs one `postMessage` a second and makes any
+   * disagreement about the state correct itself within one tick.
+   */
+  useEffect(() => {
+    if (isPlaying) {
+      return;
+    }
+
+    timers.current.interval(
+      "paused-poll",
+      () => player.requestProgress(),
+      PAUSED_POLL_MS,
+    );
+
+    const bag = timers.current;
+    return () => bag.clear("paused-poll");
+  }, [isPlaying, playbackGeneration, player]);
 
   useEffect(() => {
     const bag = timers.current;
@@ -589,6 +655,8 @@ export function usePlayerEngine({
 
   function playPause() {
     if (isPlaying) {
+      // Deliberate, so the seek window must not out-argue it.
+      ignorePausedTelemetryUntilRef.current = 0;
       wantsPlaybackRef.current = false;
       player.pause();
       setIsPlaying(false);
@@ -652,6 +720,11 @@ export function usePlayerEngine({
     const target = clamp(seconds, 0, upperBound);
     clock.set(target);
     publishTime(target);
+
+    if (isPlayingRef.current) {
+      ignorePausedTelemetryUntilRef.current = performance.now() + SEEK_SETTLE_MS;
+    }
+
     player.seekTo(target);
   }
 
